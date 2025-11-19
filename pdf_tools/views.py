@@ -1,10 +1,10 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from django.contrib.auth.decorators import login_required
-from .services import processar_conciliacao # <--- Importamos nossa lógica
+from core.decorators import possui_produto  # <--- IMPORTAR O NOVO
+from .services import processar_conciliacao
 from datetime import datetime
 
-@login_required
+@possui_produto('gerador-pdf') 
 def gerador_home(request):
     if request.method == "POST":
         boletos = request.FILES.getlist('boletos')
