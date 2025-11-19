@@ -91,3 +91,25 @@ def api_iniciar_processamento(request):
         content_type='application/x-ndjson' # Formato especial para stream JSON
     )
     return response
+
+
+@csrf_exempt
+def api_limpar_tudo(request):
+    if request.method == 'POST':
+        # Pega a pasta raiz do usuário
+        base_path = get_user_temp_path(request)
+        
+        # Se a pasta existe, apaga ela inteira e recria vazia
+        if os.path.exists(base_path):
+            try:
+                shutil.rmtree(base_path) # Deleta tudo recursivamente
+                
+                # Recria a estrutura básica para não dar erro no próximo upload
+                os.makedirs(os.path.join(base_path, 'boletos'), exist_ok=True)
+                os.makedirs(os.path.join(base_path, 'comprovantes'), exist_ok=True)
+                
+                return JsonResponse({'status': 'ok'})
+            except Exception as e:
+                return JsonResponse({'error': str(e)}, status=500)
+                
+    return JsonResponse({'error': 'Método não permitido'}, status=405)
