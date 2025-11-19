@@ -22,6 +22,16 @@ class CustomUser(AbstractUser):
     # NOVO: Lista de produtos que esse usuário comprou
     produtos = models.ManyToManyField(Produto, blank=True, verbose_name="Produtos Contratados")
 
+    paginas_processadas = models.PositiveIntegerField(default=0, verbose_name="Páginas Analisadas")
+
     def __str__(self):
         return self.username
+    
+class HistoricoConsumo(models.Model):
+    usuario = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='historico')
+    data_fechamento = models.DateField(auto_now_add=True, verbose_name="Data do Fechamento")
+    paginas_no_ciclo = models.PositiveIntegerField(verbose_name="Páginas Usadas")
+
+    def __str__(self):
+        return f"{self.usuario} - {self.paginas_no_ciclo} pgs em {self.data_fechamento.strftime('%m/%Y')}"
     

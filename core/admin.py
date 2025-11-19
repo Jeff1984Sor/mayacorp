@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser,Produto
+from .models import CustomUser,Produto,HistoricoConsumo
 
 # Para gerenciar os produtos
 @admin.register(Produto)
@@ -8,16 +8,25 @@ class ProdutoAdmin(admin.ModelAdmin):
     list_display = ['nome', 'slug']
     prepopulated_fields = {'slug': ('nome',)} # Preenche o slug automaticamente ao digitar o nome
 
-# Para o Usuário
+class HistoricoInline(admin.TabularInline):
+    model = HistoricoConsumo
+    readonly_fields = ['data_fechamento', 'paginas_no_ciclo']
+    extra = 0
+    can_delete = False
+
 class CustomUserAdmin(UserAdmin):
     model = CustomUser
-    list_display = ['username', 'email', 'telefone', 'is_assinante']
+    list_display = ['username', 'email', 'paginas_processadas', 'is_assinante']
     
-    # Adicionamos o campo 'produtos' na tela de edição
     fieldsets = UserAdmin.fieldsets + (
-        ('Assinatura e Produtos', {'fields': ('is_assinante', 'produtos', 'telefone', 'cpf', 'nome_empresa')}),
+        ('Assinatura e Métricas', {
+            'fields': ('is_assinante', 'produtos', 'paginas_processadas', 'telefone', 'cpf', 'nome_empresa')
+        }),
     )
-    # Permite selecionar produtos com filtro horizontal (visual melhor)
     filter_horizontal = ('produtos',)
+    
+    # ADICIONE ESTA LINHA:
+    inlines = [HistoricoInline] # <--- Isso coloca o histórico dentro do perfil
+
 
 admin.site.register(CustomUser, CustomUserAdmin)

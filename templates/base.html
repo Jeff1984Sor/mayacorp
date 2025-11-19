@@ -23,7 +23,15 @@
 
             {% if user.is_authenticated %}
                 <!-- Se estiver logado -->
-                <span class="nav-item" style="opacity: 0.5;">|</span> <!-- Separador visual -->
+                <span class="nav-item" style="opacity: 0.5;">|</span> 
+                
+                <!-- NOVO: CONTADOR DE PÁGINAS -->
+                <span class="nav-item text-warning fw-bold" title="Total de páginas analisadas">
+                    ⚡ {{ user.paginas_processadas }} pgs
+                </span>
+
+                <span class="nav-item" style="opacity: 0.5;">|</span>
+                
                 <span class="nav-item">{{ user.username }}</span>
                 
                 <form action="{% url 'logout' %}" method="post" style="display:inline;">
@@ -40,7 +48,7 @@
     </nav>
 
     <!-- CONTEÚDO DA PÁGINA -->
-    <main class="container mt-5 pt-4"> <!-- Adicionei pt-4 para dar mais ar -->
+    <main class="container mt-5 pt-4"> 
         {% block content %}
         {% endblock %}
     </main>
