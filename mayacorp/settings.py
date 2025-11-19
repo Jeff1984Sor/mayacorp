@@ -7,6 +7,7 @@ import os
 from dotenv import load_dotenv
 import google.generativeai as genai
 
+# Carrega variáveis de ambiente
 load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -17,9 +18,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
+# Na VM, lembre de colocar DEBUG=False no arquivo .env quando terminar os testes
 DEBUG = os.getenv('DEBUG') == 'True'
 
-ALLOWED_HOSTS = []
+# Lista de domínios e IPs permitidos
+ALLOWED_HOSTS = [
+    '34.171.206.16', 
+    'mayacorp.com.br', 
+    'www.mayacorp.com.br', 
+    'localhost', 
+    '127.0.0.1',
+    '*' # Temporário para evitar erros, depois pode tirar
+]
 
 
 # Application definition
@@ -56,7 +66,7 @@ ROOT_URLCONF = 'mayacorp.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],  # <--- CONFIGURADO CORRETAMENTE AQUI
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -72,16 +82,26 @@ WSGI_APPLICATION = 'mayacorp.wsgi.application'
 
 
 # Database
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+# Lógica Inteligente: Se tiver configuração de banco no .env (VM), usa Postgres.
+# Senão (Local), usa SQLite.
+if os.getenv('DB_NAME'):
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.getenv('DB_NAME'),
+            'USER': os.getenv('DB_USER'),
+            'PASSWORD': os.getenv('DB_PASSWORD'),
+            'HOST': os.getenv('DB_HOST'),
+            'PORT': os.getenv('DB_PORT'),
+        }
     }
-}
-
-# Configuração de Arquivos de Mídia (Uploads)
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # Password validation
@@ -102,21 +122,27 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 # Internationalization
-LANGUAGE_CODE = 'pt-br'  # <--- Mudado para Português
-
-TIME_ZONE = 'America/Sao_Paulo' # <--- Mudado para Horário de Brasília
-
+LANGUAGE_CODE = 'pt-br'
+TIME_ZONE = 'America/Sao_Paulo'
 USE_I18N = True
-
 USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = 'static/'
 
+# Pasta onde você cria seus CSS locais
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
+
+# Pasta onde o Django junta tudo para o Nginx ler (Produção)
+STATIC_ROOT = BASE_DIR / 'static_root'
+
+# Configuração de Arquivos de Mídia (Uploads)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -129,14 +155,14 @@ AUTH_USER_MODEL = 'core.CustomUser'
 # Redirecionamento de Login/Logout
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'home'
-
 LOGIN_URL = 'login'
 
 # Configuração do Crispy Forms (Bootstrap 5)
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
-GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY') # Lê do .env
+# Configuração do Gemini
+GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
 
 if GOOGLE_API_KEY:
     genai.configure(api_key=GOOGLE_API_KEY)
