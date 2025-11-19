@@ -1,17 +1,16 @@
 import io
-import os # <--- Necessário para ler arquivos do disco e pegar o nome base
+import os
 import zipfile
 import time
+import uuid
 from pypdf import PdfReader, PdfWriter
 import google.generativeai as genai
 import json
 from django.conf import settings
 
-# Configura a chave
 genai.configure(api_key=settings.GOOGLE_API_KEY)
 
 def extract_text_from_pdf(pdf_path):
-    # Agora abrimos o arquivo usando o caminho do disco
     reader = PdfReader(pdf_path)
     text = ""
     for page in reader.pages:
@@ -19,11 +18,7 @@ def extract_text_from_pdf(pdf_path):
     return text
 
 def analisar_com_gemini(texto, tipo_doc):
-    """
-    Usa o modelo FLASH (mais rápido) com sistema de Retry para erro 429.
-    """
     model = genai.GenerativeModel('gemini-2.0-flash')
-    
     prompt = f"""
     Analise o texto abaixo extraído de um {tipo_doc}.
     Retorne APENAS um objeto JSON (sem markdown) com os campos:
@@ -33,42 +28,39 @@ def analisar_com_gemini(texto, tipo_doc):
     Texto:
     {texto[:4000]}
     """
-    
     for tentativa in range(1, 4):
         try:
             response = model.generate_content(prompt)
             clean_text = response.text.replace('```json', '').replace('```', '').strip()
             return json.loads(clean_text)
         except Exception as e:
-            print(f"Tentativa {tentativa} falhou: {e}")
             if "429" in str(e):
-                print("Limite atingido. Esperando 10 segundos...")
                 time.sleep(10)
             else:
-                break # Outro erro, para de tentar
-
+                break
     return {"valor": 0.0, "identificador": ""}
 
-def processar_conciliacao(lista_caminhos_boletos, caminho_comprovantes):
-    # 1. INICIA O CONTADOR DE PÁGINAS
-    total_paginas_contadas = 0
-
-    # A. Ler Comprovantes (Do disco)
-    comprovantes_map = []
-    reader_comp = PdfReader(caminho_comprovantes)
+# --- MUDANÇA AQUI: Generator (yield) ---
+def processar_conciliacao_stream(lista_caminhos_boletos, caminho_comprovantes, user):
+    yield f'<div style="font-family: monospace; background: #000; color: #0f0; padding: 20px;">'
+    yield f'<p>🚀 Iniciando o motor de Inteligência Artificial...</p>'
     
-    # SOMA AS PÁGINAS DO ARQUIVO DE COMPROVANTES
+    total_paginas_contadas = 0
+    comprovantes_map = []
+    
+    # A. LER COMPROVANTES
+    yield f'<p>📂 Lendo arquivo de comprovantes...</p>'
+    reader_comp = PdfReader(caminho_comprovantes)
     total_paginas_contadas += len(reader_comp.pages)
     
-    print(f"Processando {len(reader_comp.pages)} comprovantes...")
-    
     for i, page in enumerate(reader_comp.pages):
+        yield f'<p>🔍 Analisando Comprovante {i+1} com IA...</p>'
+        
         texto_pg = page.extract_text()
-        
         dados = analisar_com_gemini(texto_pg, "comprovante")
-        print(f"Comprovante {i+1}: {dados}")
         
-        time.sleep(4) # Delay de segurança
+        # Delay visual e de segurança
+        time.sleep(4)
         
         writer_temp = PdfWriter()
         writer_temp.add_page(page)
@@ -76,63 +68,82 @@ def processar_conciliacao(lista_caminhos_boletos, caminho_comprovantes):
         writer_temp.write(pdf_bytes)
         pdf_bytes.seek(0)
         
-        comprovantes_map.append({
-            'page_obj': pdf_bytes,
-            'dados': dados,
-            'usado': False
-        })
+        comprovantes_map.append({'page_obj': pdf_bytes, 'dados': dados, 'usado': False})
 
-    # B. Ler Boletos (Do disco)
+    # B. LER BOLETOS
+    yield f'<hr><p>📂 Iniciando leitura dos Boletos...</p>'
+    
+    # Prepara o ZIP final em memória
     output_zip_buffer = io.BytesIO()
     
     with zipfile.ZipFile(output_zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
-        
-        for boleto_path in lista_caminhos_boletos:
-            # Conta páginas deste boleto lendo do disco
+        for idx, boleto_path in enumerate(lista_caminhos_boletos):
+            nome_arquivo = os.path.basename(boleto_path)
+            yield f'<p>📄 Processando Boleto {idx+1}: {nome_arquivo}...</p>'
+            
             temp_reader = PdfReader(boleto_path)
             total_paginas_contadas += len(temp_reader.pages)
             
-            # Extrai texto
             texto_boleto = extract_text_from_pdf(boleto_path)
             dados_boleto = analisar_com_gemini(texto_boleto, "boleto")
-            
-            print(f"Boleto processado: {dados_boleto}")
-            time.sleep(4) # Delay de segurança
-            
-            # Lógica de Matching
+            time.sleep(4)
+
+            # Match
+            yield f'<span>... Buscando comprovante compatível (Valor: R$ {dados_boleto.get("valor")})... </span>'
             comprovante_match = None
             for comp in comprovantes_map:
                 if not comp['usado']:
-                    val_bol = float(dados_boleto.get('valor') or 0)
-                    val_comp = float(comp['dados'].get('valor') or 0)
-                    
-                    if val_bol > 0 and abs(val_bol - val_comp) < 0.05:
+                    v1 = float(dados_boleto.get('valor') or 0)
+                    v2 = float(comp['dados'].get('valor') or 0)
+                    if v1 > 0 and abs(v1 - v2) < 0.05:
                         comprovante_match = comp
                         comp['usado'] = True
                         break
             
-            # Cria o PDF Final
+            status_msg = "✅ MATCH ENCONTRADO!" if comprovante_match else "❌ SEM COMPROVANTE"
+            yield f'<strong>{status_msg}</strong><br>'
+
+            # Monta PDF
             writer_final = PdfWriter()
-            
-            # Adiciona Boleto (Lendo do disco)
             reader_bol = PdfReader(boleto_path)
             for p in reader_bol.pages:
                 writer_final.add_page(p)
             
-            # Adiciona Comprovante (se achou)
             if comprovante_match:
                 reader_match = PdfReader(comprovante_match['page_obj'])
                 writer_final.add_page(reader_match.pages[0])
             
-            # PEGA O NOME DO ARQUIVO LIMPO (sem o caminho da pasta temp)
-            nome_arquivo = os.path.basename(boleto_path)
-            
-            # Salva no ZIP
             pdf_output = io.BytesIO()
             writer_final.write(pdf_output)
             zip_file.writestr(nome_arquivo, pdf_output.getvalue())
 
-    output_zip_buffer.seek(0)
+    # C. FINALIZAÇÃO E SALVAMENTO DO ZIP PÚBLICO
+    yield f'<hr><p>💾 Gerando arquivo final...</p>'
     
-    # RETORNA O ARQUIVO E O TOTAL DE PÁGINAS
-    return output_zip_buffer, total_paginas_contadas
+    # Salva o ZIP numa pasta pública de downloads
+    pasta_downloads = os.path.join(settings.MEDIA_ROOT, 'downloads')
+    os.makedirs(pasta_downloads, exist_ok=True)
+    
+    nome_zip = f"Resultado_{uuid.uuid4().hex[:8]}.zip"
+    caminho_zip_final = os.path.join(pasta_downloads, nome_zip)
+    
+    with open(caminho_zip_final, "wb") as f:
+        f.write(output_zip_buffer.getvalue())
+        
+    # Atualiza usuário
+    user.paginas_processadas += total_paginas_contadas
+    user.save()
+    
+    url_download = f"{settings.MEDIA_URL}downloads/{nome_zip}"
+    
+    yield f"""
+    <h1 style="color: #fff;">CONCILIAÇÃO CONCLUÍDA! 🏁</h1>
+    <p>Total de páginas processadas: {total_paginas_contadas}</p>
+    <br>
+    <a href="{url_download}" style="background: yellow; color: black; padding: 15px 30px; text-decoration: none; font-size: 20px; border-radius: 5px;">
+        ⬇️ BAIXAR ARQUIVO ZIP AGORA
+    </a>
+    <br><br>
+    <a href="/tools/pdf/" style="color: white;">Voltar</a>
+    </div>
+    """
