@@ -7,6 +7,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('core.urls')),       # Tudo que for raiz vai para o Core
     path('tools/pdf/', include('pdf_tools.urls')), # Apps ficarão organizados
+    path('app/', include('portal_aluno.urls')), # O aluno acessa /app/
+    path('cadastros/', include('cadastros_fit.urls')), 
 ]
 
 if settings.DEBUG:

@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}Equipe - Mayacorp{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>👥 Gestão de Usuários (Equipe)</h2>
+    <a href="{% url 'novo_usuario_sistema' %}" class="btn btn-primary btn-lg">
+        + Novo Usuário
+    </a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Usuário</th>
+                    <th>Nome Completo</th>
+                    <th>Email</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in usuarios %}
+                <tr>
+                    <td class="fw-bold">{{ u.username }}</td>
+                    <td>{{ u.get_full_name }}</td>
+                    <td>{{ u.email }}</td>
+                    <td>
+                        {% if u.is_active %}
+                            <span class="badge bg-success">Ativo</span>
+                        {% else %}
+                            <span class="badge bg-danger">Inativo</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

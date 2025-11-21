@@ -15,26 +15,32 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY')
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-chave-padrao-dev')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# Na VM, lembre de colocar DEBUG=False no arquivo .env quando terminar os testes
 DEBUG = os.getenv('DEBUG') == 'True'
 
-# Lista de domínios e IPs permitidos
 ALLOWED_HOSTS = [
     '34.171.206.16', 
     'mayacorp.com.br', 
     'www.mayacorp.com.br', 
     'localhost', 
     '127.0.0.1',
-    '*' # Temporário para evitar erros, depois pode tirar
+    '.localhost', # Necessário para subdominios locais (ex: padaria.localhost)
+    '*'
 ]
 
 
-# Application definition
+# ==============================================================================
+# CONFIGURAÇÃO MULTI-TENANT (DJANGO-TENANTS)
+# ==============================================================================
 
-INSTALLED_APPS = [
+# 1. Apps Compartilhados (SHARED) - Existem no Schema Public
+# Aqui ficam: Admin, Auth, Sessões e o App que controla quem são os clientes
+SHARED_APPS = (
+    'django_tenants',  # Obrigatório ser o primeiro
+    'clientes',        # APP NOVO: Onde ficam os models Organizacao e Domain
+    
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -42,16 +48,41 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # Bibliotecas de Terceiros (Estilo)
+    # Libs visuais podem ser compartilhadas
     'crispy_forms',
     'crispy_bootstrap5',
+)
 
-    # Meus Apps
-    'core',
+# 2. Apps do Inquilino (TENANT) - Existem isolados em cada Schema
+# Aqui ficam: Seus apps de negócio e o Usuário (para isolar login)
+TENANT_APPS = (
+    'core', # Onde está o CustomUser (Isolado por empresa)
+    
+    # Seus Apps de Negócio
     'pdf_tools',
-]
+    'cadastros_fit',
+    'contratos_fit',
+    'agenda_fit',
+    'financeiro_fit',
+    'comunicacao_fit',
+    'portal_aluno',
+)
+
+# O Django precisa da lista completa em INSTALLED_APPS
+INSTALLED_APPS = list(SHARED_APPS) + [app for app in TENANT_APPS if app not in SHARED_APPS]
+
+# 3. Modelos que definem o Tenant
+TENANT_MODEL = "clientes.Organizacao" 
+TENANT_DOMAIN_MODEL = "clientes.Domain"
+
+
+# ==============================================================================
+# MIDDLEWARE
+# ==============================================================================
 
 MIDDLEWARE = [
+    'django_tenants.middleware.main.TenantMainMiddleware', # <--- OBRIGATÓRIO SER O PRIMEIRO
+    
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -67,10 +98,10 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [BASE_DIR / 'templates'],
-        'APP_DIRS': True,
+        'APP_DIRS': True, # O Django vai procurar templates dentro dos apps tenant automaticamente
         'OPTIONS': {
             'context_processors': [
-                'django.template.context_processors.request',
+                'django.template.context_processors.request', # Obrigatório para o django-tenants
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
@@ -81,43 +112,36 @@ TEMPLATES = [
 WSGI_APPLICATION = 'mayacorp.wsgi.application'
 
 
-# Database
-# Lógica Inteligente: Se tiver configuração de banco no .env (VM), usa Postgres.
-# Senão (Local), usa SQLite.
-if os.getenv('DB_NAME'):
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.getenv('DB_NAME'),
-            'USER': os.getenv('DB_USER'),
-            'PASSWORD': os.getenv('DB_PASSWORD'),
-            'HOST': os.getenv('DB_HOST'),
-            'PORT': os.getenv('DB_PORT'),
-        }
+# ==============================================================================
+# DATABASE ROUTER
+# ==============================================================================
+
+DATABASE_ROUTERS = (
+    'django_tenants.routers.TenantSyncRouter',
+)
+
+# Banco de Dados
+# ATENÇÃO: django-tenants EXIGE PostgreSQL. SQLite não funciona com schemas.
+DATABASES = {
+    'default': {
+        'ENGINE': 'django_tenants.postgresql_backend', # Engine Especial
+        'NAME': os.getenv('DB_NAME', 'mayacorp_db'),
+        'USER': os.getenv('DB_USER', 'postgres'),
+        'PASSWORD': os.getenv('DB_PASSWORD', 'postgres'),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'PORT': os.getenv('DB_PORT', '5432'),
     }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
+}
 
 
+# ==============================================================================
 # Password validation
+# ==============================================================================
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    { 'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator', },
+    { 'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator', },
+    { 'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator', },
+    { 'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator', },
 ]
 
 
@@ -130,16 +154,12 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = 'static/'
-
-# Pasta onde você cria seus CSS locais
-STATICFILES_DIRS = [
-    BASE_DIR / "static",
-]
-
-# Pasta onde o Django junta tudo para o Nginx ler (Produção)
+STATICFILES_DIRS = [ BASE_DIR / "static", ]
 STATIC_ROOT = BASE_DIR / 'static_root'
 
 # Configuração de Arquivos de Mídia (Uploads)
+# IMPORTANTE: O django-tenants separa uploads por pasta do schema automaticamente se configurado no FileStorage,
+# mas por padrão vai tudo para a mesma pasta.
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
@@ -150,6 +170,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # --- MINHAS CONFIGURAÇÕES ---
 
 # Usuário Personalizado
+# Como 'core' está em TENANT_APPS, cada schema terá sua própria tabela de usuários.
 AUTH_USER_MODEL = 'core.CustomUser'
 
 # Redirecionamento de Login/Logout

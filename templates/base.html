@@ -48,6 +48,19 @@
                 <a class="nav-item" href="{% url 'login' %}">Login</a>
                 <a class="nav-item btn-nav" href="{% url 'cadastro' %}">Criar Conta</a>
             {% endif %}
+                    <div class="dropdown">
+                        <a class="nav-item dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            Cadastros
+                        </a>
+                        <ul class="dropdown-menu">
+                            <!-- NOVO ITEM AQUI -->
+                            <li><a class="dropdown-item" href="{% url 'lista_usuarios' %}">👥 Usuários do Sistema</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            
+                            <li><a class="dropdown-item" href="{% url 'lista_alunos' %}">🧘‍♀️ Alunos</a></li>
+                            <!-- ... outros itens ... -->
+                        </ul>
+                    </div>
         </div>
     </nav>
 
