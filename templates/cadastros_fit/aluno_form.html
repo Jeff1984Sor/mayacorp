@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container">
+    <div class="card shadow-sm">
+        <div class="card-header bg-white">
+            <h4 class="mb-0">{% if form.instance.pk %}Editar{% else %}Cadastrar{% endif %} Aluno</h4>
+        </div>
+        <div class="card-body">
+            
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <!-- Navegação das Abas -->
+                <ul class="nav nav-tabs mb-3" id="alunoTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="dados-tab" data-bs-toggle="tab" data-bs-target="#dados" type="button" role="tab">👤 Dados Pessoais</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="saude-tab" data-bs-toggle="tab" data-bs-target="#saude" type="button" role="tab">❤️ Saúde / Anamnese</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="sistema-tab" data-bs-toggle="tab" data-bs-target="#sistema" type="button" role="tab">🔐 Sistema & Acesso</button>
+                    </li>
+                </ul>
+
+                <!-- Conteúdo das Abas -->
+                <div class="tab-content" id="alunoTabContent">
+                    
+                    <!-- ABA 1: DADOS -->
+                    <div class="tab-pane fade show active" id="dados" role="tabpanel">
+                        <div class="row">
+                            <div class="col-md-6">{{ form.nome|as_crispy_field }}</div>
+                            <div class="col-md-3">{{ form.cpf|as_crispy_field }}</div>
+                            <div class="col-md-3">{{ form.data_nascimento|as_crispy_field }}</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">{{ form.email|as_crispy_field }}</div>
+                            <div class="col-md-6">{{ form.telefone|as_crispy_field }}</div>
+                        </div>
+                        {{ form.endereco|as_crispy_field }}
+                    </div>
+
+                    <!-- ABA 2: SAÚDE -->
+                    <div class="tab-pane fade" id="saude" role="tabpanel">
+                        <div class="alert alert-info">
+                            📝 Registre aqui o histórico médico relevante para as aulas.
+                        </div>
+                        {{ form.anamnese|as_crispy_field }}
+                    </div>
+
+                    <!-- ABA 3: SISTEMA -->
+                    <div class="tab-pane fade" id="sistema" role="tabpanel">
+                        <div class="row">
+                            <div class="col-md-4">
+                                {{ form.foto_rosto|as_crispy_field }}
+                                {% if form.instance.foto_rosto %}
+                                    <img src="{{ form.instance.foto_rosto.url }}" class="img-thumbnail mt-2" width="150">
+                                {% endif %}
+                            </div>
+                            <div class="col-md-8">
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        {{ form.ativo|as_crispy_field }}
+                                        <hr>
+                                        {{ form.bloqueado_catraca|as_crispy_field }}
+                                        <small class="text-muted">Marque para impedir acesso na catraca (ex: falta de pagamento).</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 text-end">
+                    <a href="{% url 'aluno_list' %}" class="btn btn-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-success px-4">Salvar Aluno</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

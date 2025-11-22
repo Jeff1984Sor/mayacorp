@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container" style="max-width: 700px;">
+    <div class="card shadow-sm">
+        <div class="card-header bg-white">
+            <h4>Cadastro de Profissional</h4>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-8">{{ form.nome|as_crispy_field }}</div>
+                    <div class="col-md-4">{{ form.cpf|as_crispy_field }}</div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">{{ form.crefito|as_crispy_field }}</div>
+                    <div class="col-md-6">{{ form.valor_hora_aula|as_crispy_field }}</div>
+                </div>
+                
+                <div class="row mt-2">
+                    <div class="col-md-6">
+                        {{ form.cor_agenda|as_crispy_field }}
+                        <small class="text-muted">Essa cor será usada no calendário de agendamentos.</small>
+                    </div>
+                    <div class="col-md-6 pt-4">
+                        {{ form.ativo|as_crispy_field }}
+                    </div>
+                </div>
+
+                <div class="mt-4 d-grid gap-2">
+                    <button type="submit" class="btn btn-primary">Salvar Profissional</button>
+                    <a href="{% url 'profissional_list' %}" class="btn btn-light">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

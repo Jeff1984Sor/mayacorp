@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login, get_user_model
 from django.contrib.auth import login
 from .forms import CustomUserCreationForm
 from .models import BannerHome
@@ -7,6 +8,11 @@ from .decorators import possui_produto
 from .models import CustomUser
 from .forms import UsuarioSistemaForm
 from django.contrib import messages
+from django.contrib.auth import authenticate, login
+from django.http import HttpResponse
+from django.db import connection
+from django_tenants.utils import schema_context
+
 
 # Essa função agora manda o HTML completo (com menu)
 def home(request):
@@ -52,3 +58,34 @@ def novo_usuario_sistema(request):
         form = UsuarioSistemaForm()
     
     return render(request, 'core/form_usuario.html', {'form': form})
+
+def debug_auth(request):
+    u_txt = 'suporte'
+    p_txt = '123' 
+
+    User = get_user_model()
+    html = f"<h2>Diagnóstico (Schema Atual: {connection.schema_name})</h2>"
+
+    # Tenta buscar no PUBLIC (Onde os usuários vivem)
+    try:
+        with schema_context('public'): # <--- FORÇA OLHAR NO PUBLIC
+            user_db = User.objects.get(username=u_txt)
+            html += f"<p style='color:blue'>✅ 1. Usuário encontrado no schema PUBLIC (ID: {user_db.id}).</p>"
+            
+            if user_db.check_password(p_txt):
+                 html += f"<p style='color:blue'>✅ 2. Senha bate.</p>"
+            else:
+                 html += f"<p style='color:red'>❌ 2. Senha errada.</p>"
+
+            # Teste de Autenticação
+            user_auth = authenticate(request, username=u_txt, password=p_txt)
+            if user_auth:
+                login(request, user_auth)
+                html += f"<h1 style='color:green'>🚀 LOGIN SUCESSO!</h1> <a href='/admin/'>ENTRAR</a>"
+            else:
+                html += f"<h1 style='color:orange'>⚠️ Authenticate falhou (Router Issue?)</h1>"
+
+    except User.DoesNotExist:
+        html += f"<p style='color:red'>❌ Usuário não existe nem no Public.</p>"
+
+    return HttpResponse(html)

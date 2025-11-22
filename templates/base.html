@@ -6,70 +6,50 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}Mayacorp{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome (Para os ícones funcionarem) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Seu CSS -->
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
   </head>
   <body>
-
-    <!-- MENU SUPERIOR DISCRETO E COMPLETO -->
-    <nav class="mayacorp-nav">
-        <!-- Lado Esquerdo: Marca -->
-        <a class="nav-brand" href="{% url 'home' %}">MAYACORP</a>
-
-        <!-- Lado Direito: Links de Ação -->
-        <div class="nav-links">
-            
-            
+    
+        <div class="d-flex">
+            <!-- COLUNA DA ESQUERDA: MENU -->
+            <!-- Aqui a gente inclui o arquivo que criamos acima -->
             {% if user.is_authenticated %}
-
-                
-                {% if user|tem_acesso:"gerador-pdf" %}
-                <a class="nav-item" href="{% url 'pdf_home' %}">Conciliador PDF</a>
-                {% endif %}
-                <!-- Se estiver logado -->
-                <span class="nav-item" style="opacity: 0.5;">|</span> 
-                {% if user|tem_acesso:"gerador-pdf" %}
-                <!-- NOVO: CONTADOR DE PÁGINAS -->
-                <span class="nav-item text-warning fw-bold" title="Total de páginas analisadas">
-                    ⚡ {{ user.paginas_processadas }} pgs
-                </span>
-                {% endif %}
-                <span class="nav-item" style="opacity: 0.5;">|</span>
-                
-                <span class="nav-item">{{ user.username }}</span>
-                
-                <form action="{% url 'logout' %}" method="post" style="display:inline;">
-                    {% csrf_token %}
-                    <button type="submit" class="nav-item btn-nav" style="background:none; border: none; cursor:pointer;">Sair</button>
-                </form>
-            {% else %}
-                <!-- Se NÃO estiver logado -->
-                <span class="nav-item" style="opacity: 0.5;">|</span>
-                <a class="nav-item" href="{% url 'login' %}">Login</a>
-                <a class="nav-item btn-nav" href="{% url 'cadastro' %}">Criar Conta</a>
+                {% include 'includes/sidebar.html' %}
             {% endif %}
-                    <div class="dropdown">
-                        <a class="nav-item dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                            Cadastros
-                        </a>
-                        <ul class="dropdown-menu">
-                            <!-- NOVO ITEM AQUI -->
-                            <li><a class="dropdown-item" href="{% url 'lista_usuarios' %}">👥 Usuários do Sistema</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            
-                            <li><a class="dropdown-item" href="{% url 'lista_alunos' %}">🧘‍♀️ Alunos</a></li>
-                            <!-- ... outros itens ... -->
-                        </ul>
-                    </div>
+
+            <!-- COLUNA DA DIREITA: CONTEÚDO -->
+            <div class="flex-grow-1" style="max-height: 100vh; overflow-y: auto;">
+                
+                <!-- Barra de Topo Simples (Só para Mobile ou Título) -->
+                <nav class="navbar navbar-light bg-light shadow-sm mb-4 px-4">
+                    <span class="navbar-brand mb-0 h1">Sistema de Gestão</span>
+                </nav>
+
+                <main class="container-fluid px-4"> 
+                    <!-- Mensagens do Django -->
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <!-- Onde entram as páginas (Listas, Forms) -->
+                    {% block content %}
+                    {% endblock %}
+                </main>
+            </div>
         </div>
-    </nav>
 
-    <!-- CONTEÚDO DA PÁGINA -->
-    <main class="container mt-5 pt-4"> 
-        {% block content %}
-        {% endblock %}
-    </main>
-
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{% static 'js/main.js' %}"></script>
   </body>

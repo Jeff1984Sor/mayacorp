@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from core.views import debug_auth
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -9,6 +10,7 @@ urlpatterns = [
     path('tools/pdf/', include('pdf_tools.urls')), # Apps ficarão organizados
     path('app/', include('portal_aluno.urls')), # O aluno acessa /app/
     path('cadastros/', include('cadastros_fit.urls')), 
+    path('debug-login/', debug_auth),
 ]
 
 if settings.DEBUG:

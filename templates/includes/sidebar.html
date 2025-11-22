@@ -1,0 +1,90 @@
+{% load static %}
+{% load core_extras %}
+
+<div class="d-flex flex-column flex-shrink-0 p-3 bg-white shadow-sm" style="min-height: 100vh;">
+    <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-dark text-decoration-none">
+        <span class="fs-4 fw-bold text-primary">MayaCorp</span>
+    </a>
+    <hr>
+    <ul class="nav nav-pills flex-column mb-auto">
+        
+        <!-- DASHBOARD (Sempre visível) -->
+        <li class="nav-item">
+            <a href="{% url 'home' %}" class="nav-link link-dark" aria-current="page">
+                <i class="fas fa-home me-2"></i> Início
+            </a>
+        </li>
+
+        <!-- ============================================= -->
+        <!-- MÓDULO FIT / PILATES                          -->
+        <!-- ============================================= -->
+        {% if 'suite_pilates' in perms_produtos or user.is_superuser %}
+            
+            <li class="nav-header text-uppercase text-muted mt-3 mb-2 small fw-bold ps-3">
+                Gestão Fit
+            </li>
+
+            <li>
+                <a href="{% url 'aluno_list' %}" class="nav-link link-dark">
+                    <i class="fas fa-users me-2 text-success"></i> Alunos
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'profissional_list' %}" class="nav-link link-dark">
+                    <i class="fas fa-user-md me-2 text-primary"></i> Profissionais
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'unidade_list' %}" class="nav-link link-dark">
+                    <i class="fas fa-building me-2 text-secondary"></i> Unidades
+                </a>
+            </li>
+            
+            <!-- Link Desativado (Futuro) -->
+            <li>
+                <a href="#" class="nav-link text-muted">
+                    <i class="fas fa-calendar-alt me-2"></i> Agenda <small>(Em breve)</small>
+                </a>
+            </li>
+
+        {% endif %}
+
+        <!-- ============================================= -->
+        <!-- MÓDULO PDF                                    -->
+        <!-- ============================================= -->
+        {% if user|tem_acesso:"gerador-pdf" %}
+            <li class="nav-header text-uppercase text-muted mt-3 mb-2 small fw-bold ps-3">
+                Ferramentas
+            </li>
+            <li>
+                <a href="{% url 'pdf_home' %}" class="nav-link link-dark">
+                    <i class="fas fa-file-pdf me-2 text-danger"></i> Conciliador PDF
+                </a>
+            </li>
+        {% endif %}
+
+    </ul>
+    <hr>
+    
+    <!-- MENU DE USUÁRIO (RODAPÉ DO MENU) -->
+    <div class="dropdown">
+        <a href="#" class="d-flex align-items-center link-dark text-decoration-none dropdown-toggle" id="dropdownUser2" data-bs-toggle="dropdown" aria-expanded="false">
+            <div class="rounded-circle bg-secondary text-white d-flex justify-content-center align-items-center me-2" style="width: 32px; height: 32px;">
+                {{ user.username|first|upper }}
+            </div>
+            <strong>{{ user.username }}</strong>
+        </a>
+        <ul class="dropdown-menu text-small shadow" aria-labelledby="dropdownUser2">
+            {% if user.is_superuser %}
+            <li><a class="dropdown-item" href="/admin/">Configurações</a></li>
+            <li><hr class="dropdown-divider"></li>
+            {% endif %}
+            <li>
+                <form action="{% url 'logout' %}" method="post" class="px-2">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-danger w-100">Sair</button>
+                </form>
+            </li>
+        </ul>
+    </div>
+</div>

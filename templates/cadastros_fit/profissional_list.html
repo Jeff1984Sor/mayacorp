@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>👨‍⚕️ Equipe / Profissionais</h2>
+        <a href="{% url 'profissional_create' %}" class="btn btn-primary">
+            + Novo Profissional
+        </a>
+    </div>
+
+    <div class="row">
+        {% for prof in profissionais %}
+        <div class="col-md-4 mb-3">
+            <div class="card h-100 border-start border-5" style="border-left-color: {{ prof.cor_agenda }} !important;">
+                <div class="card-body">
+                    <h5 class="card-title fw-bold">{{ prof.nome }}</h5>
+                    <p class="mb-1 text-muted">CREFITO: {{ prof.crefito|default:"N/A" }}</p>
+                    <p class="mb-1">Valor/Hora: <strong>R$ {{ prof.valor_hora_aula }}</strong></p>
+                    
+                    <div class="d-flex align-items-center mt-3">
+                        <span class="badge {% if prof.ativo %}bg-success{% else %}bg-danger{% endif %} me-auto">
+                            {% if prof.ativo %}Ativo{% else %}Inativo{% endif %}
+                        </span>
+                        
+                        <a href="{% url 'profissional_update' prof.pk %}" class="btn btn-sm btn-outline-secondary">Editar</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center text-muted mt-5">
+            Nenhum profissional cadastrado.
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

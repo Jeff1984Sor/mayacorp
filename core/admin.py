@@ -6,7 +6,7 @@ from .models import CustomUser, Produto, HistoricoConsumo, BannerHome, Organizac
 @admin.register(Organizacao)
 class OrganizacaoAdmin(admin.ModelAdmin):
     list_display = ['nome', 'cnpj']
-    filter_horizontal = ('produtos',) # Aqui sim, pois produtos é da organização
+    filter_horizontal = ('produtos_contratados',) # Aqui sim, pois produtos é da organização
 
 # --- PRODUTOS ---
 @admin.register(Produto)

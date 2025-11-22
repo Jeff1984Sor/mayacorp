@@ -39,7 +39,7 @@ ALLOWED_HOSTS = [
 # Aqui ficam: Admin, Auth, Sessões e o App que controla quem são os clientes
 SHARED_APPS = (
     'django_tenants',  # Obrigatório ser o primeiro
-    'clientes',        # APP NOVO: Onde ficam os models Organizacao e Domain
+    'core',        # APP NOVO: Onde ficam os models Organizacao e Domain
     
     'django.contrib.admin',
     'django.contrib.auth',
@@ -56,7 +56,7 @@ SHARED_APPS = (
 # 2. Apps do Inquilino (TENANT) - Existem isolados em cada Schema
 # Aqui ficam: Seus apps de negócio e o Usuário (para isolar login)
 TENANT_APPS = (
-    'core', # Onde está o CustomUser (Isolado por empresa)
+    #'core', # Onde está o CustomUser (Isolado por empresa)
     
     # Seus Apps de Negócio
     'pdf_tools',
@@ -72,8 +72,8 @@ TENANT_APPS = (
 INSTALLED_APPS = list(SHARED_APPS) + [app for app in TENANT_APPS if app not in SHARED_APPS]
 
 # 3. Modelos que definem o Tenant
-TENANT_MODEL = "clientes.Organizacao" 
-TENANT_DOMAIN_MODEL = "clientes.Domain"
+TENANT_MODEL = "core.Organizacao" 
+TENANT_DOMAIN_MODEL = "core.Domain"
 
 
 # ==============================================================================
@@ -104,6 +104,7 @@ TEMPLATES = [
                 'django.template.context_processors.request', # Obrigatório para o django-tenants
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'core.context_processors.permissoes_produtos', 
             ],
         },
     },
@@ -124,12 +125,12 @@ DATABASE_ROUTERS = (
 # ATENÇÃO: django-tenants EXIGE PostgreSQL. SQLite não funciona com schemas.
 DATABASES = {
     'default': {
-        'ENGINE': 'django_tenants.postgresql_backend', # Engine Especial
-        'NAME': os.getenv('DB_NAME', 'mayacorp_db'),
-        'USER': os.getenv('DB_USER', 'postgres'),
-        'PASSWORD': os.getenv('DB_PASSWORD', 'postgres'),
-        'HOST': os.getenv('DB_HOST', 'localhost'),
-        'PORT': os.getenv('DB_PORT', '5432'),
+        'ENGINE': 'django_tenants.postgresql_backend', # OBRIGATÓRIO SER ESSE
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT'),
     }
 }
 
@@ -189,3 +190,34 @@ if GOOGLE_API_KEY:
     genai.configure(api_key=GOOGLE_API_KEY)
 else:
     print("⚠️ AVISO: GOOGLE_API_KEY não encontrada no arquivo .env")
+
+
+#SESSION_COOKIE_DOMAIN = '.localhost'
+
+# 2. Nome do cookie (para evitar conflito com outros projetos)
+SESSION_COOKIE_NAME = 'mayacorp_session'
+
+# 3. Garante que o backend de autenticação é o padrão (sem invenções)
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+
+
+# 4. Relaxa a segurança apenas para desenvolvimento local
+SESSION_COOKIE_SECURE = False
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = 'Lax'
+
+STORAGES = {
+    "default": {
+        "BACKEND": "django_tenants.files.storages.TenantFileSystemStorage", 
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
+
+# Dica: O MULTITENANT_RELATIVE_MEDIA_ROOT diz para o Django criar pastas dentro do /media/
+# Se você não colocar nada, ele cria media/nome_schema/
+MULTITENANT_RELATIVE_MEDIA_ROOT = "%s"

@@ -14,7 +14,7 @@ def possui_produto(slug_produto):
             
             # --- NOVA LÓGICA ---
             # Verifica se o usuário tem organização E se a organização tem o produto
-            if request.user.organizacao and request.user.organizacao.produtos.filter(slug=slug_produto).exists():
+            if request.user.organizacao and request.user.organizacao.produtos_contratados.filter(slug=slug_produto).exists():
                 return view_func(request, *args, **kwargs)
             
             messages.error(request, "Sua organização não contratou este produto.")
