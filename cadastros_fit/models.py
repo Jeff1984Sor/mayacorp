@@ -1,21 +1,20 @@
 from django.db import models
-from core.models import Organizacao
 
 # ==============================================================================
-# 1. ESTRUTURA BÁSICA (Unidade vem primeiro para evitar erro de dependência)
+# 1. ESTRUTURA BÁSICA
 # ==============================================================================
 
 class Unidade(models.Model):
-    organizacao = models.ForeignKey(Organizacao, on_delete=models.CASCADE, related_name='unidades')
+    # REMOVIDO: organizacao = ForeignKey... (O schema já define a organização)
     nome = models.CharField(max_length=100)
     endereco = models.CharField(max_length=255, blank=True)
     telefone = models.CharField(max_length=20, blank=True)
     
     def __str__(self):
-        return f"{self.nome} - {self.organizacao.nome}"
+        return self.nome
 
 class Profissional(models.Model):
-    organizacao = models.ForeignKey(Organizacao, on_delete=models.CASCADE)
+    # REMOVIDO: organizacao = ForeignKey...
     nome = models.CharField(max_length=100)
     cpf = models.CharField(max_length=14, unique=True)
     crefito = models.CharField(max_length=20, blank=True, verbose_name="Registro Profissional")
@@ -31,7 +30,7 @@ class Profissional(models.Model):
 # ==============================================================================
 
 class Aluno(models.Model):
-    organizacao = models.ForeignKey(Organizacao, on_delete=models.CASCADE)
+    # REMOVIDO: organizacao = ForeignKey...
     nome = models.CharField(max_length=100)
     cpf = models.CharField(max_length=14, blank=True, null=True)
     data_nascimento = models.DateField(blank=True, null=True)
@@ -42,10 +41,10 @@ class Aluno(models.Model):
     # Saúde
     anamnese = models.JSONField(default=dict, blank=True, verbose_name="Ficha de Saúde")
     
-    # Segurança / Catraca
+    # Segurança
     foto_rosto = models.ImageField(upload_to='alunos/fotos/', blank=True, null=True)
-    biometria_template = models.TextField(blank=True, null=True, help_text="Hash da digital ou face para catraca")
-    bloqueado_catraca = models.BooleanField(default=False, help_text="Bloqueio manual ou financeiro")
+    biometria_template = models.TextField(blank=True, null=True, help_text="Hash da digital")
+    bloqueado_catraca = models.BooleanField(default=False, help_text="Bloqueio financeiro")
     
     criado_em = models.DateTimeField(auto_now_add=True)
     ativo = models.BooleanField(default=True)
@@ -63,15 +62,14 @@ class DocumentoAluno(models.Model):
         return self.titulo
 
 # ==============================================================================
-# 3. IOT / CATRACA (Depende de Unidade e Aluno)
+# 3. IOT / CATRACA
 # ==============================================================================
 
 class DispositivoAcesso(models.Model):
-    # Aqui garantimos que Unidade já foi lida pelo Python
     unidade = models.ForeignKey(Unidade, on_delete=models.CASCADE)
     nome = models.CharField(max_length=50, help_text="Ex: Catraca Entrada")
     ip_address = models.GenericIPAddressField(blank=True, null=True)
-    token_api = models.CharField(max_length=100, unique=True, help_text="Token para a catraca se autenticar")
+    token_api = models.CharField(max_length=100, unique=True, help_text="Token de autenticação")
     
     def __str__(self):
         return self.nome
@@ -85,4 +83,4 @@ class LogAcesso(models.Model):
     motivo_bloqueio = models.CharField(max_length=100, blank=True)
 
     def __str__(self):
-        return f"{self.aluno} - {self.status} em {self.data_hora}"
+        return f"{self.aluno} - {self.status}"
