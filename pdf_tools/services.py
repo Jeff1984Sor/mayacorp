@@ -5,33 +5,25 @@ import uuid
 import json
 import re
 import logging
-import shutil
-from difflib import SequenceMatcher # <--- A Mágica da Similaridade
+from difflib import SequenceMatcher
 from pypdf import PdfReader, PdfWriter
-from pdf2image import convert_from_bytes
-import pytesseract
+from pdf2image import convert_from_bytes # Requer poppler-utils instalado no Linux
+from PIL import Image
+import google.generativeai as genai
 from django.conf import settings
 
 # Logger
 logger = logging.getLogger(__name__)
 
-# Configura Tesseract
-if shutil.which('tesseract'):
-    pytesseract.pytesseract.tesseract_cmd = shutil.which('tesseract')
-else:
-    pytesseract.pytesseract.tesseract_cmd = r'/usr/bin/tesseract'
+# Configura Google AI
+genai.configure(api_key=settings.GOOGLE_API_KEY)
 
 # ============================================================
 # FERRAMENTAS MATEMÁTICAS
 # ============================================================
 
 def calcular_similaridade(a, b):
-    """
-    Retorna uma nota de 0.0 a 1.0 de semelhança entre duas strings numéricas.
-    Ex: 
-    '123456' e '123456' -> 1.0 (100%)
-    '123456' e '123499' -> 0.66 (66%)
-    """
+    """Nota de 0.0 a 1.0 de semelhança."""
     if not a or not b: return 0.0
     return SequenceMatcher(None, a, b).ratio()
 
@@ -48,64 +40,65 @@ def normalizar_valor(v_str):
         return float(v)
     except: return 0.0
 
-def formatar_br(valor):
-    return f"{valor:,.2f}".replace('.', 'X').replace(',', '.').replace('X', ',')
-
-# ============================================================
-# EXTRAÇÃO DE DADOS (TEXTO -> OCR -> NOME)
-# ============================================================
-
 def extrair_valor_nome(nome):
+    """Salva-vidas: Lê '402_00' do nome do arquivo."""
     match = re.search(r'R\$\s?(\d+)[_.,-](\d{2})', nome)
     if match:
         try: return float(f"{match.group(1)}.{match.group(2)}")
         except: pass
     return 0.0
 
-def regex_busca(texto):
-    dados = {'codigo': '', 'valor': 0.0}
-    # Código (longo)
-    clean = re.sub(r'[\s\.\-\_]', '', texto)
-    match = re.search(r'\d{36,60}', clean)
-    if match: dados['codigo'] = match.group(0)
-    # Valor
-    vals = re.findall(r'(?:R\$\s?)?(\d{1,3}(?:\.?\d{3})*,\d{2})', texto)
-    floats = [normalizar_valor(v) for v in vals]
-    if floats: dados['valor'] = max(floats)
-    return dados
+# ============================================================
+# EXTRAÇÃO COM GEMINI VISION (O PULO DO GATO 🐈)
+# ============================================================
 
-def extrair_inteligente(pdf_bytes, nome_arquivo=""):
-    res = {'codigo': '', 'valor': 0.0, 'origem': ''}
+def extrair_com_gemini_vision(pdf_bytes, tipo_doc, nome_arquivo=""):
+    """
+    Converte PDF em Imagem e manda para o Gemini 1.5 Flash.
+    Ele 'olha' o documento e extrai os dados com precisão humana.
+    """
+    model = genai.GenerativeModel('gemini-1.5-flash')
+    
     try:
-        # 1. TEXTO
-        reader = PdfReader(io.BytesIO(pdf_bytes))
-        txt = ""
-        for p in reader.pages: txt += p.extract_text() + "\n"
-        if len(txt) > 20:
-            d = regex_busca(txt)
-            if d['valor'] > 0 or d['codigo']:
-                res.update(d)
-                res['origem'] = 'TEXTO'
-        
-        # 2. OCR (Se falhou)
-        if res['valor'] == 0 and not res['codigo']:
-            imgs = convert_from_bytes(pdf_bytes, dpi=200, fmt='jpeg', first_page=True)
-            if imgs:
-                txt_ocr = pytesseract.image_to_string(imgs[0], lang='por')
-                d = regex_busca(txt_ocr)
-                if d['valor'] > 0 or d['codigo']:
-                    res.update(d)
-                    res['origem'] = 'OCR'
-    except: pass
-
-    # 3. NOME (Valor apenas)
-    if res['valor'] == 0 and nome_arquivo:
-        v = extrair_valor_nome(nome_arquivo)
-        if v > 0:
-            res['valor'] = v
-            res['origem'] += '+NOME'
+        # 1. Converte 1ª página do PDF para Imagem
+        # (Isso resolve o problema de PDFs escaneados/imagem)
+        imagens = convert_from_bytes(pdf_bytes, first_page=True, dpi=200, fmt='jpeg')
+        if not imagens:
+            return {'codigo': '', 'valor': 0.0, 'origem': 'FALHA_IMG'}
             
-    return res
+        imagem_pil = imagens[0]
+
+        # 2. Pergunta para a IA
+        prompt = f"""
+        Você é um sistema financeiro. Analise esta imagem de um {tipo_doc}.
+        Extraia EXATAMENTE:
+        1. O Valor Total do documento (float).
+        2. A Linha Digitável ou Código de Barras numérico.
+           - Se for boleto bancário, geralmente começa com o código do banco.
+           - Se for imposto/prefeitura (DAMSP), geralmente começa com 8.
+           - Copie TODOS os números visíveis do código de barras, sem perder nenhum.
+        
+        Retorne APENAS JSON: {{ "valor": 0.00, "codigo": "apenas_numeros" }}
+        """
+
+        # Envia Imagem + Texto
+        response = model.generate_content([prompt, imagem_pil])
+        
+        # 3. Processa Resposta
+        texto_resp = response.text.replace('```json', '').replace('```', '').strip()
+        dados = json.loads(texto_resp)
+        
+        return {
+            'codigo': limpar_numeros(dados.get('codigo')),
+            'valor': normalizar_valor(dados.get('valor')),
+            'origem': 'GEMINI_VISION'
+        }
+
+    except Exception as e:
+        print(f"Erro Gemini Vision: {e}")
+        # Fallback: Se a IA falhar, tenta pegar valor do nome do arquivo
+        val_nome = extrair_valor_nome(nome_arquivo)
+        return {'codigo': '', 'valor': val_nome, 'origem': 'ERRO_IA'}
 
 # ============================================================
 # FLUXO PRINCIPAL
@@ -116,10 +109,10 @@ def processar_reconciliacao(caminho_comprovantes, lista_caminhos_boletos, user):
     def emit(tipo, dados):
         return json.dumps({'type': tipo, 'data': dados}) + "\n"
     
-    yield emit('log', '🚀 Iniciando (Modo: Similaridade de Código)...')
+    yield emit('log', '🚀 Iniciando com GEMINI VISION (IA Visual)...')
 
-    # --- 1. LER COMPROVANTES (INVENTÁRIO) ---
-    yield emit('log', '📂 Indexando Comprovantes...')
+    # --- 1. LER COMPROVANTES ---
+    yield emit('log', '📸 Fotografando Comprovantes...')
     pool_comprovantes = []
     
     try:
@@ -131,28 +124,28 @@ def processar_reconciliacao(caminho_comprovantes, lista_caminhos_boletos, user):
             writer.write(bio)
             b_pag = bio.getvalue()
             
-            # Extrai
-            d = extrair_inteligente(b_pag)
-            cod = limpar_numeros(d['codigo'])
+            # Manda a imagem pro Google ler
+            d = extrair_com_gemini_vision(b_pag, "comprovante de pagamento bancario")
             
             item = {
                 'id': i,
-                'codigo': cod,
+                'codigo': d['codigo'],
                 'valor': d['valor'],
                 'pdf_bytes': b_pag,
                 'usado': False
             }
             pool_comprovantes.append(item)
             
-            show_cod = f"...{cod[-8:]}" if cod else "SEM_COD"
+            show_cod = f"...{item['codigo'][-6:]}" if item['codigo'] else "SEM_COD"
             yield emit('comp_status', {'index': i, 'msg': f"R${item['valor']} ({show_cod})"})
+            yield emit('log', f"   🧾 Comp {i+1}: R${item['valor']} | {show_cod}")
 
     except Exception as e:
         yield emit('log', f"❌ Erro leitura: {e}")
         return
 
-    # --- 2. LER BOLETOS E ENCONTRAR O MELHOR PAR ---
-    yield emit('log', '⚡ Analisando Boletos e buscando Similaridade...')
+    # --- 2. LER BOLETOS E COMPARAR ---
+    yield emit('log', '⚡ Analisando Boletos (Visão Computacional)...')
     lista_final = []
 
     for path in lista_caminhos_boletos:
@@ -161,62 +154,55 @@ def processar_reconciliacao(caminho_comprovantes, lista_caminhos_boletos, user):
         
         try:
             with open(path, 'rb') as f: pdf_bytes = f.read()
-            d = extrair_inteligente(pdf_bytes, nome)
+            
+            # Manda a imagem pro Google ler
+            d = extrair_com_gemini_vision(pdf_bytes, "boleto/guia de imposto", nome)
             
             boleto = {
                 'nome': nome,
-                'codigo': limpar_numeros(d['codigo']),
+                'codigo': d['codigo'],
                 'valor': d['valor'],
                 'pdf_bytes': pdf_bytes,
                 'match': None,
                 'motivo': ''
             }
             
-            # === A MÁGICA DO MATCH ===
+            # === MATCH POR SIMILARIDADE ===
             melhor_candidato = None
             maior_nota = 0.0
             
             if boleto['valor'] > 0:
-                # Filtra APENAS comprovantes com o MESMO VALOR (Margem de 5 centavos)
+                # 1. Filtra por VALOR IGUAL
                 candidatos = [c for c in pool_comprovantes if not c['usado'] and abs(c['valor'] - boleto['valor']) < 0.05]
                 
                 if candidatos:
-                    # Dentre os candidatos de mesmo valor, quem tem o código mais parecido?
+                    # 2. Dentre os de mesmo valor, qual tem código mais parecido?
                     for cand in candidatos:
-                        # Se não tem código, a nota é 0. Se tem, calcula similaridade.
                         nota = calcular_similaridade(boleto['codigo'], cand['codigo'])
-                        
-                        # Debug no log para você ver a mágica acontecendo
-                        # yield emit('log', f"   ⚖️ Comparando com Pag {cand['id']+1}: {int(nota*100)}% de chance")
-                        
                         if nota > maior_nota:
                             maior_nota = nota
                             melhor_candidato = cand
                     
-                    # DECISÃO
-                    # Se tiver código similar (> 60%) OU se for o único candidato de valor (nota 0 mas unico)
-                    eh_match = False
+                    # 3. Regras de Aceite
+                    aceito = False
                     
-                    if boleto['codigo'] and maior_nota > 0.6:
-                        eh_match = True
+                    # Se código muito parecido (>60%)
+                    if maior_nota > 0.6:
+                        aceito = True
                         boleto['motivo'] = f"SIMILARIDADE ({int(maior_nota*100)}%)"
-                    elif not boleto['codigo'] and len(candidatos) == 1:
-                        # Se boleto nao tem código legivel, mas só tem 1 comprovante desse valor
-                        eh_match = True
-                        boleto['motivo'] = "VALOR (Único Disponível)"
-                    elif boleto['codigo'] and maior_nota < 0.6 and len(candidatos) == 1:
-                        # Codigo muito diferente, mas é o unico valor disponivel
-                        eh_match = True
-                        boleto['motivo'] = "VALOR (Único, Baixa Simil.)"
-                    # Se tiver varios candidatos de mesmo valor e nenhum código parecido, NÃO CASA (evita erro)
                     
-                    if eh_match and melhor_candidato:
+                    # Se código ruim/inexistente, mas só tem 1 opção de valor
+                    elif len(candidatos) == 1:
+                        aceito = True
+                        boleto['motivo'] = "VALOR (Único)"
+                        
+                    if aceito and melhor_candidato:
                         boleto['match'] = melhor_candidato
                         melhor_candidato['usado'] = True
                         yield emit('log', f"   ✅ {nome} -> {boleto['motivo']}")
                         yield emit('file_done', {'filename': nome, 'status': 'success'})
                     else:
-                         yield emit('log', f"   ⚠️ {nome} (R${boleto['valor']}) -> Vários valores iguais, nenhum código similar.")
+                         yield emit('log', f"   ⚠️ {nome} (R${boleto['valor']}) -> Código muito diferente.")
                          yield emit('file_done', {'filename': nome, 'status': 'warning'})
 
                 else:
@@ -231,7 +217,7 @@ def processar_reconciliacao(caminho_comprovantes, lista_caminhos_boletos, user):
         except Exception as e:
             yield emit('log', f"⚠️ Erro: {e}")
 
-    # --- 3. GERAR ZIP ---
+    # --- 3. ZIP ---
     yield emit('log', '💾 Gerando Zip...')
     output_zip = io.BytesIO()
     with zipfile.ZipFile(output_zip, 'w', zipfile.ZIP_DEFLATED) as zip_file:
@@ -247,7 +233,7 @@ def processar_reconciliacao(caminho_comprovantes, lista_caminhos_boletos, user):
     # Finaliza
     pasta = os.path.join(settings.MEDIA_ROOT, 'downloads')
     os.makedirs(pasta, exist_ok=True)
-    nome_zip = f"Conciliacao_Smart_{uuid.uuid4().hex[:8]}.zip"
+    nome_zip = f"Conciliacao_Vision_{uuid.uuid4().hex[:8]}.zip"
     with open(os.path.join(pasta, nome_zip), 'wb') as f: f.write(output_zip.getvalue())
         
     yield emit('finish', {'url': f"{settings.MEDIA_URL}downloads/{nome_zip}", 'total': len(lista_final)})
