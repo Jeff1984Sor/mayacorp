@@ -6,6 +6,8 @@ Chave de API lida do .env
 
 import io
 import os
+from pathlib import Path
+from dotenv import load_dotenv
 import re
 import zipfile
 import uuid
@@ -17,6 +19,7 @@ from PIL import Image
 import google.generativeai as genai
 from django.conf import settings
 
+load_dotenv()
 # ============================================================
 # CARREGAR CHAVE DO GEMINI DO .env
 # ============================================================
