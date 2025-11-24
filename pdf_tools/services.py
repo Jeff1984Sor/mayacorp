@@ -8,24 +8,15 @@ import re
 from pypdf import PdfReader, PdfWriter
 from django.conf import settings
 
-# --- FERRAMENTAS DE LIMPEZA ---
+# --- FUNÇÕES DE EXTRAÇÃO PURA ---
 
-def limpar_tudo_deixar_numeros(texto):
-    """
-    Transforma '816-2.00' em '816200'.
-    Adiciona 'A' na frente internamente só para garantir que
-    o sistema trate como Texto e não perca zeros à esquerda.
-    """
+def limpar_numeros(texto):
+    """Remove tudo que não for número."""
     if not texto: return ""
-    numeros = re.sub(r'\D', '', str(texto))
-    if not numeros: return ""
-    return numeros # Retorna string pura de números
+    return re.sub(r'\D', '', str(texto))
 
-def extrair_valor_do_nome(nome_arquivo):
-    """
-    Lê o valor escrito no nome do arquivo.
-    Ex: 'Boleto - R$ 402_00.pdf' -> 402.00
-    """
+def extrair_valor_nome_arquivo(nome_arquivo):
+    """Tenta ler 'R$ 402_00' do nome do arquivo."""
     match = re.search(r'R\$\s?(\d+)[_.,-](\d{2})', nome_arquivo)
     if match:
         try:
@@ -33,20 +24,20 @@ def extrair_valor_do_nome(nome_arquivo):
         except: pass
     return 0.0
 
-def extrair_dados_brutos(texto, nome_arquivo=""):
+def extrair_dados(texto, nome_arquivo=""):
     """
-    Extrai Código (Longo) e Valor (Maior da página).
+    Retorna dicionario com 'codigo' (string limpa) e 'valor' (float).
     """
     dados = {'codigo': '', 'valor': 0.0}
     
-    # 1. CÓDIGO: Procura sequência de pelo menos 36 dígitos
-    # Remove quebras de linha e espaços para juntar o código
+    # 1. Extração de Código (Busca sequencia de numeros longa)
     texto_limpo = texto.replace('\n', '').replace(' ', '').replace('.', '').replace('-', '')
+    # Pega qualquer grupo de numeros com mais de 36 digitos
     match_cod = re.search(r'\d{36,}', texto_limpo)
     if match_cod:
-        dados['codigo'] = match_cod.group(0)
+        dados['codigo'] = match_cod.group(0) # Já está limpo pois texto_limpo tirou pontuação
         
-    # 2. VALOR: Procura formato monetário
+    # 2. Extração de Valor (Texto do PDF)
     valores = re.findall(r'(?:R\$\s?)?(\d{1,3}(?:\.?\d{3})*,\d{2})', texto)
     floats = []
     for v in valores:
@@ -54,17 +45,17 @@ def extrair_dados_brutos(texto, nome_arquivo=""):
         except: pass
     
     if floats:
-        dados['valor'] = max(floats) # Assume o maior valor (Total)
+        dados['valor'] = max(floats)
         
-    # 3. RECUPERAÇÃO: Se valor for 0, tenta ler do nome do arquivo
+    # 3. Fallback: Valor do Nome do Arquivo (Se o PDF falhar)
     if dados['valor'] == 0 and nome_arquivo:
-        val_nome = extrair_valor_do_nome(nome_arquivo)
+        val_nome = extrair_valor_nome_arquivo(nome_arquivo)  # ✅ CORRIGIDO: nome da função
         if val_nome > 0:
             dados['valor'] = val_nome
             
     return dados
 
-# --- MOTOR PRINCIPAL ---
+# --- FLUXO PRINCIPAL ---
 
 def processar_conciliacao_json_stream(lista_caminhos_boletos, caminho_comprovantes, user):
     
@@ -72,151 +63,172 @@ def processar_conciliacao_json_stream(lista_caminhos_boletos, caminho_comprovant
         return json.dumps({'type': type, 'data': data}) + "\n"
 
     yield send('init_list', {'files': [os.path.basename(p) for p in lista_caminhos_boletos]})
-    yield send('log', '🚀 Iniciando Conciliação Exata (String Pura)...')
+    yield send('log', '🚀 Iniciando Análise Detalhada...')
 
-    # Tabela Virtual de Comprovantes (Memória)
-    tabela_comprovantes = []
+    # --- LISTAS (TABELAS VIRTUAIS) ---
+    # Cada item será: {'id': ..., 'codigo': '...', 'valor': 0.0, 'pdf': binary, 'usado': False}
+    tb_comprovantes = []
+    tb_boletos = []
+
+    # ========================================================
+    # ETAPA 1: MAPEAR COMPROVANTES (MOSTRAR CÓDIGOS)
+    # ========================================================
+    yield send('log', '📋 --- TABELA DE COMPROVANTES ---')
     
-    # =======================================================
-    # 1. POPULAR TABELA (LER COMPROVANTES)
-    # =======================================================
-    yield send('log', '📂 Indexando Comprovantes...')
     reader_comp = PdfReader(caminho_comprovantes)
-    
     for i, page in enumerate(reader_comp.pages):
         texto = page.extract_text() or ""
-        dados = extrair_dados_brutos(texto)
+        dados = extrair_dados(texto)
         
+        # Guarda binário
         writer = PdfWriter()
         writer.add_page(page)
         bio = io.BytesIO()
         writer.write(bio)
+        bio.seek(0)  # ✅ CORRIGIDO: resetar ponteiro DEPOIS de escrever
         
         item = {
             'id': i,
             'origem': f"Pag {i+1}",
-            'codigo': limpar_tudo_deixar_numeros(dados['codigo']),
+            'codigo': dados['codigo'],
             'valor': dados['valor'],
             'pdf_bytes': bio,
             'usado': False
         }
-        tabela_comprovantes.append(item)
+        tb_comprovantes.append(item)
         
-        # Mostra começo e fim do código para validação
-        cod_log = "Sem Código"
-        if item['codigo']:
-            c = item['codigo']
-            cod_log = f"{c[:6]}...{c[-6:]}"
-            
-        yield send('comp_status', {'index': i, 'msg': f"R${item['valor']} | {cod_log}"})
+        # LOG DETALHADO NA TELA
+        cod_visivel = item['codigo'][:20] + "..." if item['codigo'] else "SEM_CODIGO"
+        yield send('log', f"🧾 COMP {i+1}: R$ {item['valor']:.2f} | {cod_visivel}")
+        yield send('comp_status', {'index': i, 'msg': f"R${item['valor']:.2f}"})
 
-    # =======================================================
-    # 2. LER BOLETOS E CONCILIAR (LOOP SEQUENCIAL)
-    # =======================================================
-    yield send('log', '⚡ Conciliando Boletos...')
-    
-    lista_boletos_final = []
+    # ========================================================
+    # ETAPA 2: MAPEAR BOLETOS (MOSTRAR CÓDIGOS)
+    # ========================================================
+    yield send('log', '📋 --- TABELA DE BOLETOS ---')
     
     for path in lista_caminhos_boletos:
         nome_arq = os.path.basename(path)
         yield send('file_start', {'filename': nome_arq})
         
-        reader = PdfReader(path)
-        texto = ""
-        for p in reader.pages: texto += p.extract_text() or ""
-        
-        # Extração
-        dados = extrair_dados_brutos(texto, nome_arq)
-        
-        if dados['valor'] == 0:
-             yield send('log', f"⚠️ Valor 0.0 recuperado do nome: {nome_arq}")
+        try:
+            reader = PdfReader(path)
+            texto = ""
+            for p in reader.pages: texto += p.extract_text() or ""
+            
+            dados = extrair_dados(texto, nome_arq)
+            
+            with open(path, 'rb') as f: 
+                bio = io.BytesIO(f.read())
+                bio.seek(0)  # ✅ CORRIGIDO: resetar após ler arquivo
+            
+            item = {
+                'nome': nome_arq,
+                'codigo': dados['codigo'],
+                'valor': dados['valor'],
+                'pdf_bytes': bio,
+                'match': None,
+                'metodo': ''
+            }
+            tb_boletos.append(item)
+            
+            # LOG DETALHADO NA TELA
+            cod_visivel = item['codigo'][:20] + "..." if item['codigo'] else "SEM_CODIGO"
+            yield send('log', f"📄 BOL ({nome_arq}): R$ {item['valor']:.2f} | {cod_visivel}")
+            
+            # Marca como processando visualmente
+            yield send('file_done', {'filename': nome_arq, 'status': 'processing'})
+            
+        except Exception as e:
+            yield send('log', f"❌ ERRO ao ler {nome_arq}: {str(e)}")
+            yield send('file_done', {'filename': nome_arq, 'status': 'error'})
+            continue
 
-        with open(path, 'rb') as f: bio = io.BytesIO(f.read())
+    # ========================================================
+    # ETAPA 3: O CRUZAMENTO (MATCH)
+    # ========================================================
+    yield send('log', '⚡ --- COMPARANDO AS DUAS LISTAS ---')
+    
+    # 3.1 - TENTATIVA POR CÓDIGO
+    for boleto in tb_boletos:
+        if not boleto['codigo']: continue # Se não tem código, pula pra proxima tentativa
         
-        boleto = {
-            'nome': nome_arq,
-            'codigo': limpar_tudo_deixar_numeros(dados['codigo']),
-            'valor': dados['valor'],
-            'pdf_bytes': bio,
-            'match': None,
-            'tipo_match': ''
-        }
-
-        # --- MATCHING ---
-        encontrado = False
-        
-        # TENTATIVA 1: CÓDIGO EXATO (String Completa)
-        # Verifica se a string do boleto é IGUAL ou ESTÁ CONTIDA na do comprovante (ou vice versa)
-        if boleto['codigo']:
-            for comp in tabela_comprovantes:
-                if comp['usado']: continue
+        for comp in tb_comprovantes:
+            if comp['usado']: continue # Se já usou esse comp, pula
+            if not comp['codigo']: continue
+            
+            # Compara se um contém o outro (para resolver o problema de dígitos verificadores)
+            if boleto['codigo'] in comp['codigo'] or comp['codigo'] in boleto['codigo']:
+                boleto['match'] = comp
+                boleto['metodo'] = "CÓDIGO"
+                comp['usado'] = True
+                yield send('log', f"✅ MATCH CÓDIGO: {boleto['nome']} ← COMP {comp['id']+1}")
+                break
                 
-                if comp['codigo'] and (boleto['codigo'] in comp['codigo'] or comp['codigo'] in boleto['codigo']):
-                    encontrado = True
-                    comp['usado'] = True
-                    boleto['match'] = comp
-                    boleto['tipo_match'] = "CÓDIGO EXATO"
-                    break
+    # 3.2 - TENTATIVA POR VALOR (FILA SEQUENCIAL)
+    # Só roda para quem ainda não deu match
+    for boleto in tb_boletos:
+        if boleto['match']: continue # Já achou por código
+        if boleto['valor'] == 0: continue # Sem valor não dá pra comparar
         
-        # TENTATIVA 2: VALOR (Fila Sequencial)
-        # Se o código falhou (por ser diferente ou não existir), usa o valor
-        if not encontrado and boleto['valor'] > 0:
-            for comp in tabela_comprovantes:
-                if comp['usado']: continue
-                
-                # Margem minima de erro float
-                if abs(boleto['valor'] - comp['valor']) < 0.05:
-                    encontrado = True
-                    comp['usado'] = True
-                    boleto['match'] = comp
-                    boleto['tipo_match'] = "VALOR (Fila)"
-                    break
-        
-        # Feedback
-        status_ui = 'warning'
-        if encontrado:
-            status_ui = 'success'
-            yield send('log', f"✅ {nome_arq} -> {boleto['tipo_match']}")
-        else:
-            yield send('log', f"❌ {nome_arq} (R${boleto['valor']}) -> Sem par.")
+        for comp in tb_comprovantes:
+            if comp['usado']: continue # Já usou
+            
+            if abs(boleto['valor'] - comp['valor']) < 0.05:
+                boleto['match'] = comp
+                boleto['metodo'] = "VALOR"
+                comp['usado'] = True
+                yield send('log', f"✅ MATCH VALOR: {boleto['nome']} ← COMP {comp['id']+1}")
+                break
 
-        yield send('file_done', {'filename': nome_arq, 'status': status_ui})
-        lista_boletos_final.append(boleto)
-
-    # =======================================================
-    # 3. GERAR ARQUIVO
-    # =======================================================
-    yield send('log', '💾 Salvando...')
+    # ========================================================
+    # GERAÇÃO DO ARQUIVO FINAL
+    # ========================================================
+    yield send('log', '💾 Gerando Resultados...')
     
     output_zip_buffer = io.BytesIO()
     with zipfile.ZipFile(output_zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
-        for item in lista_boletos_final:
+        for item in tb_boletos:
             writer_final = PdfWriter()
             
-            # Paginas do Boleto
-            item['pdf_bytes'].seek(0)
-            rb = PdfReader(item['pdf_bytes'])
-            for p in rb.pages: writer_final.add_page(p)
-            
-            # Pagina do Comprovante
-            if item['match']:
-                item['match']['pdf_bytes'].seek(0)
-                rc = PdfReader(item['match']['pdf_bytes'])
-                writer_final.add_page(rc.pages[0])
-            
-            bio = io.BytesIO()
-            writer_final.write(bio)
-            zip_file.writestr(item['nome'], bio.getvalue())
+            try:
+                # Boleto
+                item['pdf_bytes'].seek(0)  # ✅ CORRIGIDO: resetar antes de ler
+                rb = PdfReader(item['pdf_bytes'])
+                for p in rb.pages: writer_final.add_page(p)
+                
+                status = 'warning'
+                if item['match']:
+                    status = 'success'
+                    # Comprovante
+                    item['match']['pdf_bytes'].seek(0)  # ✅ CORRIGIDO: resetar antes de ler
+                    rc = PdfReader(item['match']['pdf_bytes'])
+                    writer_final.add_page(rc.pages[0])
+                else:
+                    yield send('log', f"❌ SEM PAR: {item['nome']} (Cod: {item['codigo'][:10] if item['codigo'] else 'N/A'}...)")
+                
+                # Atualiza ícone final na tela
+                yield send('file_done', {'filename': item['nome'], 'status': status})
+                
+                bio = io.BytesIO()
+                writer_final.write(bio)
+                bio.seek(0)  # ✅ CORRIGIDO: resetar antes de salvar no ZIP
+                zip_file.writestr(item['nome'], bio.getvalue())
+                
+            except Exception as e:
+                yield send('log', f"❌ ERRO ao gerar PDF final de {item['nome']}: {str(e)}")
+                yield send('file_done', {'filename': item['nome'], 'status': 'error'})
+                continue
 
     # Finaliza
     pasta = os.path.join(settings.MEDIA_ROOT, 'downloads')
     os.makedirs(pasta, exist_ok=True)
-    nome_zip = f"Conciliacao_Exata_{uuid.uuid4().hex[:8]}.zip"
+    nome_zip = f"Debug_Conciliacao_{uuid.uuid4().hex[:8]}.zip"
     
     with open(os.path.join(pasta, nome_zip), "wb") as f:
         f.write(output_zip_buffer.getvalue())
-        
-    total = len(tabela_comprovantes) + len(lista_boletos_final)
+
+    total = len(tb_comprovantes) + len(tb_boletos)
     if hasattr(user, 'paginas_processadas'):
         user.paginas_processadas += total
         user.save()
