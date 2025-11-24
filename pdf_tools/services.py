@@ -21,7 +21,7 @@ from django.conf import settings
 # CARREGAR CHAVE DO GEMINI
 # ============================================================
 
-GEMINI_API_KEY = None
+GEMINI_API_KEY = 'AIzaSyAeFFYrpTCRDP9NZPRRwoa4vC8KWE7UNVQ'
 
 # 1. Tenta settings.py primeiro (forma Django padrão)
 try:
