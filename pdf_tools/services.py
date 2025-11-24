@@ -5,8 +5,7 @@ import time
 import uuid
 import json
 import re
-from dataclasses import dataclass
-from typing import List, Optional
+from datetime import datetime
 from pypdf import PdfReader, PdfWriter
 import google.generativeai as genai
 from django.conf import settings
@@ -19,309 +18,271 @@ except ImportError:
 
 genai.configure(api_key=settings.GOOGLE_API_KEY)
 
-# --- ESTRUTURA DE DADOS ---
+# --- CLASSE PARA A TABELA VIRTUAL ---
+class ItemFinanceiro:
+    def __init__(self, tipo, origem, texto, pdf_bytes, dados_ia=None):
+        self.tipo = tipo # 'boleto' ou 'comprovante'
+        self.origem = origem # Nome do arquivo ou pagina
+        self.texto = texto
+        self.pdf_bytes = pdf_bytes
+        self.usado = False
+        self.par = None
+        self.match_tipo = ""
+        
+        # Dados Normalizados
+        self.valor = 0.0
+        self.data = ""
+        self.codigo = ""
+        self.empresa = ""
+        
+        if dados_ia:
+            self.processar_dados(dados_ia)
+            
+    def processar_dados(self, dados):
+        # Valor
+        try: self.valor = float(dados.get('valor') or 0)
+        except: self.valor = 0.0
+        
+        # Código (Apenas numeros)
+        self.codigo = re.sub(r'\D', '', str(dados.get('codigo') or ""))
+        
+        # Empresa (Normalizada)
+        raw_emp = str(dados.get('empresa') or "").upper()
+        if any(x in raw_emp for x in ['PMSP', 'PREFEITURA', 'MUNICIPIO', 'SAO PAULO', 'DARF', 'RECEITA']):
+            self.empresa = "GOVERNO"
+        else:
+            self.empresa = unidecode(raw_emp)
+            
+        # Data (Tenta normalizar DD/MM/AAAA)
+        raw_data = str(dados.get('data') or "")
+        match_data = re.search(r'(\d{2}/\d{2}/\d{4})', raw_data)
+        if match_data:
+            self.data = match_data.group(1)
 
-@dataclass
-class Documento:
-    id: str
-    nome_arquivo: str # Para boleto é filename, para comprovante é "Pg X"
-    texto: str
-    pdf_object: io.BytesIO
-    
-    # Dados extraídos
-    valor: float = 0.0
-    codigo: str = ""
-    empresa: str = ""
-    
-    # Estado
-    conciliado_com: Optional['Documento'] = None
-    metodo_match: str = ""
+# --- EXTRAÇÃO INTELIGENTE ---
 
-# --- FERRAMENTAS DE EXTRAÇÃO ---
-
-def limpar_digitos(t):
-    return re.sub(r'\D', '', str(t or ""))
-
-def normalizar_empresa(nome):
-    if not nome: return ""
-    nome = nome.upper().replace('.', ' ').replace('-', ' ').replace('/', ' ')
-    try: nome = unidecode(nome)
-    except: pass
-    
-    # Normalização agressiva para Governo
-    if any(x in nome for x in ['PMSP', 'PREFEITURA', 'MUNICIPIO', 'SAO PAULO', 'RECEITA', 'FEDERAL', 'DARF']):
-        return "GOVERNO"
-    
-    ignorar = ['LTDA', 'S.A.', 'BANCO', 'PAGAMENTO', 'BOLETO', 'BENEFICIARIO']
-    palavras = [p for p in nome.split() if p not in ignorar and len(p) > 2]
-    return " ".join(palavras)
-
-def extrair_dados_ia(texto, tipo_doc):
-    """Usa IA para extrair tudo de uma vez."""
+def extrair_tudo_ia(texto, tipo_doc):
+    """Extrai Valor, Data, Código e Empresa de uma vez."""
     model = genai.GenerativeModel('gemini-2.0-flash')
     prompt = f"""
-    Analise este {tipo_doc}. Extraia JSON: {{ "valor": float, "codigo": "string", "empresa": "string" }}
-    DICA: Para DAMSP/Prefeitura, o valor geralmente está no campo "Total a Pagar".
+    Analise este {tipo_doc}. Extraia JSON:
+    {{ 
+        "valor": float (ex: 402.00), 
+        "data": "DD/MM/AAAA" (Data do pagamento ou vencimento),
+        "codigo": "string" (Linha digitável), 
+        "empresa": "Nome do Beneficiário" 
+    }}
+    Se for imposto/taxa, a empresa é o órgão público.
     Texto: {texto[:4000]}
     """
     for _ in range(2):
         try:
             resp = model.generate_content(prompt)
             clean = resp.text.replace('```json', '').replace('```', '').strip()
-            d = json.loads(clean)
-            return {
-                'valor': float(d.get('valor') or 0),
-                'codigo': limpar_digitos(d.get('codigo')),
-                'empresa': d.get('empresa') or ""
-            }
+            return json.loads(clean)
         except: time.sleep(0.5)
-    return {'valor': 0.0, 'codigo': '', 'empresa': ''}
+    return {}
 
-def extrair_forca_bruta(texto):
-    """
-    Tenta salvar boletos que a IA falhou (especialmente PMSP).
-    """
-    dados = {'valor': 0.0, 'codigo': ''}
+def extrair_backup_regex(texto):
+    """Salva quando a IA falha no valor ou data."""
+    dados = {}
     
-    # 1. Código
-    t_limpo = texto.replace('\n','').replace(' ','').replace('.','').replace('-','')
-    match_cod = re.search(r'\d{44,48}', t_limpo)
-    if match_cod: dados['codigo'] = match_cod.group(0)
-    
-    # 2. Valor (Procura formato monetário brasileiro)
-    # Pega todos os valores possiveis
+    # Busca valor maior da página
     valores = re.findall(r'(?:R\$\s?)?(\d{1,3}(?:\.?\d{3})*,\d{2})', texto)
     floats = []
     for v in valores:
         try: floats.append(float(v.replace('.','').replace(',','.')))
         except: pass
+    if floats: dados['valor'] = max(floats)
     
-    if floats:
-        # Heurística: O valor do boleto geralmente é o maior valor numérico na página
-        # (para fugir de juros, multas, ou valores parciais menores)
-        dados['valor'] = max(floats)
-        
+    # Busca Data
+    datas = re.findall(r'\d{2}/\d{2}/\d{4}', texto)
+    if datas: dados['data'] = datas[0] # Pega a primeira data que achar
+    
     return dados
 
-# --- LÓGICA DO FUNIL ---
+# --- LÓGICA PRINCIPAL ---
 
 def processar_conciliacao_json_stream(lista_caminhos_boletos, caminho_comprovantes, user):
     
     def send(type, data):
         return json.dumps({'type': type, 'data': data}) + "\n"
 
-    # Atualiza lista visual
     yield send('init_list', {'files': [os.path.basename(p) for p in lista_caminhos_boletos]})
-    yield send('log', '🚀 Iniciando Estratégia de Funil (Eliminação)...')
+    yield send('log', '🚀 Iniciando Tabela Virtual e Indexação...')
 
-    # Listas Globais
-    todos_boletos: List[Documento] = []
-    todos_comprovantes: List[Documento] = []
-    total_paginas = 0
-
-    # ==========================================
-    # FASE 1: LEITURA COMPLETA (CARREGAR TUDO)
-    # ==========================================
-    yield send('log', '📥 Lendo TODOS os Comprovantes...')
+    # TABELA VIRTUAL DE COMPROVANTES
+    tabela_comprovantes = []
     
+    # =================================================
+    # 1. POPULAR A TABELA VIRTUAL (LER COMPROVANTES)
+    # =================================================
+    yield send('log', '📂 Lendo Comprovantes e criando Tabela...')
     reader_comp = PdfReader(caminho_comprovantes)
-    total_paginas += len(reader_comp.pages)
+    total_paginas = len(reader_comp.pages)
     
     for i, page in enumerate(reader_comp.pages):
         texto = page.extract_text() or ""
         
-        # Extração
-        dados = extrair_dados_ia(texto, "comprovante bancario")
+        # Extração IA
+        dados_ia = extrair_tudo_ia(texto, "comprovante bancario")
         
-        # Cria Objeto
+        # Backup Regex (se IA falhou no valor)
+        if not dados_ia.get('valor'):
+            backup = extrair_backup_regex(texto)
+            if backup.get('valor'): dados_ia['valor'] = backup['valor']
+            if backup.get('data') and not dados_ia.get('data'): dados_ia['data'] = backup['data']
+
+        # Prepara binário
         writer = PdfWriter()
         writer.add_page(page)
         bio = io.BytesIO()
         writer.write(bio)
         
-        doc = Documento(
-            id=f"COMP-{i}",
-            nome_arquivo=f"Página {i+1}",
-            texto=texto,
-            pdf_object=bio,
-            valor=dados['valor'],
-            codigo=dados['codigo'],
-            empresa=dados['empresa']
-        )
-        todos_comprovantes.append(doc)
+        item = ItemFinanceiro('comprovante', f"Pag {i+1}", texto, bio, dados_ia)
+        tabela_comprovantes.append(item)
         
-        emp_curta = (doc.empresa or "?")[:10]
-        yield send('comp_status', {'index': i, 'msg': f'R${doc.valor} ({emp_curta})'})
+        yield send('comp_status', {'index': i, 'msg': f"R${item.valor} | {item.data}"})
 
-    yield send('log', '📥 Lendo TODOS os Boletos...')
+    # =================================================
+    # 2. LER BOLETOS E TENTAR MATCH IMEDIATO
+    # =================================================
+    yield send('log', '⚡ Lendo Boletos e Conciliando...')
+    
+    lista_boletos_obj = [] # Guardamos para a repescagem depois
     
     for path in lista_caminhos_boletos:
-        nome = os.path.basename(path)
-        yield send('file_start', {'filename': nome})
+        nome_arq = os.path.basename(path)
+        yield send('file_start', {'filename': nome_arq})
         
         reader = PdfReader(path)
         texto = ""
         for p in reader.pages: texto += p.extract_text() or ""
         total_paginas += len(reader.pages)
         
-        # Tenta Regex primeiro (rápido)
-        dados = extrair_forca_bruta(texto)
-        if dados['valor'] == 0:
-            # Se regex falhou, IA neles
-            yield send('log', f'   > IA analisando {nome}...')
-            dados_ia = extrair_dados_ia(texto, "boleto/guia")
-            # Merge: o que a IA achou substitui
-            if dados_ia['valor'] > 0: dados['valor'] = dados_ia['valor']
-            if dados_ia['codigo']: dados['codigo'] = dados_ia['codigo']
-            dados['empresa'] = dados_ia.get('empresa', '')
-
-        # Binário
-        with open(path, 'rb') as f:
-            bio = io.BytesIO(f.read())
-
-        doc = Documento(
-            id=f"BOL-{nome}",
-            nome_arquivo=nome,
-            texto=texto,
-            pdf_object=bio,
-            valor=dados['valor'],
-            codigo=dados['codigo'],
-            empresa=dados.get('empresa', '')
-        )
-        todos_boletos.append(doc)
+        # Extração IA
+        dados_ia = extrair_tudo_ia(texto, "boleto cobranca ou imposto")
+        # Backup Regex
+        if not dados_ia.get('valor'):
+            backup = extrair_backup_regex(texto)
+            if backup.get('valor'): dados_ia['valor'] = backup['valor']
         
-        # Correção visual na lista
-        status_icon = 'warning' if doc.valor == 0 else 'processing'
-        yield send('file_done', {'filename': nome, 'status': status_icon})
+        with open(path, 'rb') as f: bio = io.BytesIO(f.read())
+        boleto = ItemFinanceiro('boleto', nome_arq, texto, bio, dados_ia)
+        lista_boletos_obj.append(boleto)
 
-    # ==========================================
-    # FASE 2: O FUNIL DE ELIMINAÇÃO
-    # ==========================================
-    yield send('log', '🌪️ Iniciando Cruzamento de Dados...')
-    
-    # Rodada 1: CÓDIGO DE BARRAS (Alta Confiança)
-    yield send('log', '   > Passada 1: Código de Barras...')
-    count_r1 = 0
-    for bol in todos_boletos:
-        if bol.conciliado_com: continue
-        for comp in todos_comprovantes:
-            if comp.conciliado_com: continue
-            
-            if bol.codigo and comp.codigo:
-                # Match exato ou match dos primeiros 20 digitos
-                if bol.codigo == comp.codigo or \
-                   (len(bol.codigo)>20 and bol.codigo.startswith(comp.codigo[:20])) or \
-                   (len(comp.codigo)>20 and comp.codigo.startswith(bol.codigo[:20])):
+        # --- TENTATIVA DE MATCH IMEDIATA ---
+        match_encontrado = False
+        
+        # Critério 1: Código de Barras (Certeza Absoluta)
+        if boleto.codigo and len(boleto.codigo) > 20:
+            for comp in tabela_comprovantes:
+                if comp.usado: continue
+                if boleto.codigo == comp.codigo or boleto.codigo.startswith(comp.codigo[:20]) or comp.codigo.startswith(boleto.codigo[:20]):
+                    boleto.par = comp
+                    comp.usado = True
+                    boleto.match_tipo = "CÓDIGO"
+                    match_encontrado = True
+                    break
+        
+        # Critério 2: Valor + Data (Alta precisão para duplicatas)
+        if not match_encontrado and boleto.valor > 0 and boleto.data:
+            for comp in tabela_comprovantes:
+                if comp.usado: continue
+                if abs(boleto.valor - comp.valor) < 0.05 and boleto.data == comp.data:
+                    boleto.par = comp
+                    comp.usado = True
+                    boleto.match_tipo = f"VALOR+DATA ({boleto.data})"
+                    match_encontrado = True
+                    break
+
+        # Critério 3: Valor + Empresa (Se a data falhar ou não existir)
+        if not match_encontrado and boleto.valor > 0:
+            for comp in tabela_comprovantes:
+                if comp.usado: continue
+                if abs(boleto.valor - comp.valor) < 0.05:
+                    # Verifica nome
+                    n1 = boleto.empresa
+                    n2 = comp.empresa
+                    match_nome = False
+                    if n1 == "GOVERNO" and n2 == "GOVERNO": match_nome = True
+                    elif n1 and n2 and (n1 in n2 or n2 in n1): match_nome = True
                     
-                    bol.conciliado_com = comp
-                    comp.conciliado_com = bol
-                    bol.metodo_match = "CÓDIGO"
-                    count_r1 += 1
-                    break
-    yield send('log', f'     {count_r1} conciliados.')
+                    if match_nome:
+                        boleto.par = comp
+                        comp.usado = True
+                        boleto.match_tipo = "VALOR+EMPRESA"
+                        match_encontrado = True
+                        break
 
-    # Rodada 2: VALOR + EMPRESA (Média Confiança)
-    yield send('log', '   > Passada 2: Valor + Empresa...')
-    count_r2 = 0
-    for bol in todos_boletos:
-        if bol.conciliado_com: continue
-        if bol.valor == 0: continue
+        # Atualiza Status na Tela
+        status = 'success' if match_encontrado else 'warning'
+        yield send('file_done', {'filename': nome_arq, 'status': status})
         
-        for comp in todos_comprovantes:
-            if comp.conciliado_com: continue
-            
-            # Tolerância de 5 centavos
-            if abs(bol.valor - comp.valor) < 0.05:
-                # Checa nomes
-                n1 = normalizar_empresa(bol.empresa)
-                n2 = normalizar_empresa(comp.empresa)
-                
-                match_nome = False
-                if n1 == "GOVERNO" and n2 == "GOVERNO": match_nome = True
-                elif n1 and n2 and (n1 in n2 or n2 in n1): match_nome = True
-                elif n1 and n2 and n1.split()[0] == n2.split()[0]: match_nome = True
-                
-                if match_nome:
-                    bol.conciliado_com = comp
-                    comp.conciliado_com = bol
-                    bol.metodo_match = f"VALOR+NOME ({n1})"
-                    count_r2 += 1
-                    break
-    yield send('log', f'     {count_r2} conciliados.')
+        if match_encontrado:
+            yield send('log', f"✅ Match Imediato: {nome_arq} -> {boleto.match_tipo}")
+        else:
+            yield send('log', f"⏳ Boleto em espera: {nome_arq} (R${boleto.valor})")
 
-    # Rodada 3: VALOR EXATO (Baixa Confiança - "O que sobrou")
-    yield send('log', '   > Passada 3: Apenas Valor (Sobra)...')
-    count_r3 = 0
-    for bol in todos_boletos:
-        if bol.conciliado_com: continue
-        if bol.valor == 0: continue
-        
-        candidatos = [c for c in todos_comprovantes if not c.conciliado_com and abs(c.valor - bol.valor) < 0.01]
-        
-        # Se houver APENAS UM comprovante sobrando com esse valor exato, é match
-        if len(candidatos) == 1:
-            comp = candidatos[0]
-            bol.conciliado_com = comp
-            comp.conciliado_com = bol
-            bol.metodo_match = "VALOR (Único)"
-            count_r3 += 1
-            
-    yield send('log', f'     {count_r3} conciliados.')
-
-    # Rodada 4: A REPESCAGEM FINAL (Desespero)
-    # Se sobrou 1 boleto e 1 comprovante, assume que são par
-    sobras_bol = [b for b in todos_boletos if not b.conciliado_com]
-    sobras_comp = [c for c in todos_comprovantes if not c.conciliado_com]
+    # =================================================
+    # 3. REPESCAGEM (O LOOP NOS SOBRANTES)
+    # =================================================
+    yield send('log', '🔄 Iniciando Repescagem (Itens sem match)...')
     
-    if len(sobras_bol) == 1 and len(sobras_comp) == 1:
-        sb = sobras_bol[0]
-        sc = sobras_comp[0]
-        # Só casa se os valores não forem absurdamente diferentes (tipo 10 reais vs 1000 reais)
-        # Se for 402.00 vs 0.00 (erro de leitura), a gente casa
-        sb.conciliado_com = sc
-        sc.conciliado_com = sb
-        sb.metodo_match = "REPESCAGEM (Últimos)"
-        yield send('log', '   > Passada 4: Repescagem final (1x1).')
+    boletos_sem_match = [b for b in lista_boletos_obj if not b.par]
+    
+    if boletos_sem_match:
+        for boleto in boletos_sem_match:
+            # Procura qualquer comprovante livre com o MESMO VALOR
+            # Aqui usamos a lógica da "Fila": o primeiro livre que servir, pega.
+            for comp in tabela_comprovantes:
+                if comp.usado: continue
+                
+                if abs(boleto.valor - comp.valor) < 0.05:
+                    boleto.par = comp
+                    comp.usado = True
+                    boleto.match_tipo = "REPESCAGEM (Valor)"
+                    yield send('log', f"   🔗 Match Repescagem: {boleto.origem}")
+                    
+                    # Atualiza icone na tela para verde
+                    yield send('file_done', {'filename': boleto.origem, 'status': 'success'})
+                    break
+            
+            if not boleto.par:
+                 yield send('log', f"   ❌ Definitivamente sem comprovante: {boleto.origem}")
+    else:
+        yield send('log', '   Nenhum boleto pendente.')
 
-    # ==========================================
-    # FASE 3: GERAR SAÍDA
-    # ==========================================
-    yield send('log', '💾 Gerando arquivos finais...')
+    # =================================================
+    # 4. GERAR ARQUIVO
+    # =================================================
+    yield send('log', '💾 Gerando Zip Final...')
     
     output_zip_buffer = io.BytesIO()
     with zipfile.ZipFile(output_zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
-        for bol in todos_boletos:
+        for bol in lista_boletos_obj:
             writer_final = PdfWriter()
             
-            # Boleto Original
-            bol.pdf_object.seek(0)
-            reader_b = PdfReader(bol.pdf_object)
-            for p in reader_b.pages: writer_final.add_page(p)
+            # Adiciona Boleto
+            bol.pdf_bytes.seek(0)
+            rb = PdfReader(bol.pdf_bytes)
+            for p in rb.pages: writer_final.add_page(p)
             
-            status = 'warning'
-            msg = 'Não encontrado'
+            # Adiciona Comprovante (se tiver)
+            if bol.par:
+                bol.par.pdf_bytes.seek(0)
+                rc = PdfReader(bol.par.pdf_bytes)
+                writer_final.add_page(rc.pages[0])
             
-            if bol.conciliado_com:
-                status = 'success'
-                msg = bol.metodo_match
-                # Comprovante
-                bol.conciliado_com.pdf_object.seek(0)
-                reader_c = PdfReader(bol.conciliado_com.pdf_object)
-                writer_final.add_page(reader_c.pages[0])
-            
-            # Atualiza UI final
-            yield send('file_done', {'filename': bol.nome_arquivo, 'status': status})
-            yield send('log', f"{'✅' if status=='success' else '❌'} {bol.nome_arquivo} -> {msg}")
-            
-            # Salva no ZIP
+            # Salva
             bio = io.BytesIO()
             writer_final.write(bio)
-            zip_file.writestr(bol.nome_arquivo, bio.getvalue())
+            zip_file.writestr(bol.origem, bio.getvalue())
 
-    # Finaliza
+    # Finaliza e Salva
     pasta = os.path.join(settings.MEDIA_ROOT, 'downloads')
     os.makedirs(pasta, exist_ok=True)
-    nome_zip = f"Conciliacao_Funil_{uuid.uuid4().hex[:8]}.zip"
+    nome_zip = f"Conciliacao_Final_{uuid.uuid4().hex[:8]}.zip"
     
     with open(os.path.join(pasta, nome_zip), "wb") as f:
         f.write(output_zip_buffer.getvalue())
