@@ -1,6 +1,6 @@
 """
 PROJETO: Reconciliação de Boletos com Comprovantes
-Usando Google Gemini Vision + Conversão de formato de números (. → ,)
+Usando Google Gemini Vision + Extração do nome do arquivo como fallback
 """
 
 import io
@@ -26,29 +26,45 @@ genai.configure(api_key=GEMINI_API_KEY)
 print(f"✅ Gemini configurado com sucesso!")
 
 # ============================================================
+# FUNÇÃO: EXTRAIR VALOR DO NOME DO ARQUIVO
+# ============================================================
+
+def extrair_valor_do_nome(nome_arquivo):
+    """
+    Extrai valor de nomes como:
+    - '1465 - Bruno (Cyrela) - R$ 148,08 - Sigam Georgia.pdf'
+    - '1450 - Bruno (Tenda) - R$ 672,24 - Cenprot (SP).pdf'
+    """
+    # Padrão: R$ XXX,XX ou R$ X.XXX,XX
+    matches = re.findall(r'R\$\s*([\d.]+,\d{2})', nome_arquivo)
+    
+    if matches:
+        valor_str = matches[0]  # Pega o primeiro match
+        try:
+            # Converte para float
+            valor = float(valor_str.replace('.', '').replace(',', '.'))
+            return valor
+        except:
+            return 0.0
+    
+    return 0.0
+
+# ============================================================
 # UTILITÁRIOS: CONVERSÃO DE NÚMEROS
 # ============================================================
 
 def converter_para_virgula(valor_ou_string):
     """
     Converte número de formato com ponto para vírgula (formato brasileiro).
-    
-    Exemplos:
-    - 402.00 → 402,00
-    - 402,00 → 402,00
-    - 1234.56 → 1.234,56
-    - 1,234.56 → 1.234,56
     """
     if not valor_ou_string:
         return "0,00"
     
     valor_str = str(valor_ou_string).strip()
     
-    # Se já tem vírgula (tipo 402,00), retorna como está
     if ',' in valor_str and '.' not in valor_str:
         return valor_str
     
-    # Se tem ponto como decimal (tipo 402.00 ou 1234.56)
     if '.' in valor_str and ',' not in valor_str:
         partes = valor_str.split('.')
         
@@ -60,11 +76,9 @@ def converter_para_virgula(valor_ou_string):
             if len(numero_sem_pontos) > 2:
                 return numero_sem_pontos[:-2] + ',' + numero_sem_pontos[-2:]
     
-    # Formato misto (1.234,56) - já está certo
     if '.' in valor_str and ',' in valor_str:
         return valor_str
     
-    # Se é só número sem separadores
     if valor_str.isdigit():
         if len(valor_str) > 2:
             return valor_str[:-2] + ',' + valor_str[-2:]
@@ -75,20 +89,14 @@ def converter_para_virgula(valor_ou_string):
 
 
 def normalizar_valor(valor):
-    """
-    Normaliza qualquer tipo de valor (string, float, int) para float.
-    Entende múltiplos formatos.
-    """
+    """Normaliza qualquer tipo de valor para float."""
     if isinstance(valor, (int, float)):
         return float(valor)
     
     if isinstance(valor, str):
         valor = valor.strip()
-        
-        # Remove R$ se tiver
         valor = valor.replace('R$', '').strip()
         
-        # Converte vírgula em ponto se necessário
         if ',' in valor:
             valor = valor.replace('.', '').replace(',', '.')
         
@@ -106,7 +114,6 @@ def normalizar_valor(valor):
 def extrair_com_gemini(pdf_bytes_ou_caminho, use_first_page_only=True):
     """
     Usa Google Gemini Vision para extrair código de barras e valor de um PDF.
-    Retorna: {'codigo': '...', 'valor': 0.0, 'valor_formatado': 'XXX,XX', 'empresa': '...'}
     """
     
     try:
@@ -119,7 +126,6 @@ def extrair_com_gemini(pdf_bytes_ou_caminho, use_first_page_only=True):
         if not images:
             return {'codigo': None, 'valor': 0.0, 'valor_formatado': '0,00', 'empresa': 'N/A'}
         
-        # Pega primeira página
         image = images[0]
         
         # Converter imagem para base64
@@ -151,15 +157,14 @@ Responda em JSON com EXATAMENTE este formato (sem markdown, só JSON puro):
 
 IMPORTANTE: 
 - Se houver um código de barras na imagem, extraia TODOS os números
-- O valor deve ser um número com ponto como decimal (ex: 402.00 não '402,00')
+- O valor deve ser um número com ponto como decimal (ex: 402.00)
 - Se não encontrar, coloque null ou 0.00"""
             ]
         )
         
-        # Parse resposta JSON
         response_text = response.text
         
-        # Limpar markdown se tiver
+        # Limpar markdown
         if "```json" in response_text:
             response_text = response_text.split("```json")[1].split("```")[0]
         elif "```" in response_text:
@@ -173,7 +178,6 @@ IMPORTANTE:
         if dados.get('valor') and dados['valor'] not in ['0.00', 'null', None]:
             valor = normalizar_valor(dados['valor'])
         
-        # Converter para formato brasileiro (com vírgula)
         valor_formatado = converter_para_virgula(f"{valor:.2f}")
         
         return {
@@ -184,32 +188,11 @@ IMPORTANTE:
         }
     
     except Exception as e:
-        print(f"❌ Erro ao processar com Gemini: {str(e)}")
+        print(f"⚠️  Gemini falhou: {str(e)}")
         return {'codigo': None, 'valor': 0.0, 'valor_formatado': '0,00', 'empresa': 'N/A'}
 
 # ============================================================
-# 2. FALLBACK: Extração com regex
-# ============================================================
-
-def extrair_valor_fallback(texto):
-    """Fallback para extrair valor se Gemini falhar."""
-    if not texto:
-        return 0.0
-    
-    matches = re.findall(r'R\$\s*([\d.]+,\d{2})', texto)
-    if not matches:
-        matches = re.findall(r'R\$\s*(\d+,\d{2})', texto)
-    
-    if matches:
-        try:
-            return float(matches[0].replace('.', '').replace(',', '.'))
-        except:
-            pass
-    
-    return 0.0
-
-# ============================================================
-# 3. TABELA TEMPORÁRIA
+# 2. TABELA TEMPORÁRIA
 # ============================================================
 
 class TabelaComprovantes:
@@ -258,17 +241,14 @@ class TabelaComprovantes:
     
     def marcar_usado(self, id_comp):
         self.usados.add(id_comp)
-    
-    def listar_nao_usados(self):
-        return [c for c in self.comprovantes if c['id'] not in self.usados]
 
 # ============================================================
-# 4. PROCESSAMENTO PRINCIPAL
+# 3. PROCESSAMENTO PRINCIPAL
 # ============================================================
 
 def processar_reconciliacao(caminho_comprovantes, lista_caminhos_boletos, user):
     """
-    Processamento com Google Gemini Vision + conversão de números.
+    Processamento com Google Gemini Vision + Extração do nome do arquivo
     """
     
     def emit(tipo, dados):
@@ -291,7 +271,6 @@ def processar_reconciliacao(caminho_comprovantes, lista_caminhos_boletos, user):
         yield emit('log', f'🤖 Usando Google Gemini para extrair códigos...')
         
         for idx, page in enumerate(reader_comp.pages):
-            # Extrair texto simples como fallback
             texto = page.extract_text() or ""
             
             # Salvar página como PDF bytes
@@ -310,11 +289,6 @@ def processar_reconciliacao(caminho_comprovantes, lista_caminhos_boletos, user):
             valor_formatado = dados_gemini['valor_formatado']
             empresa = dados_gemini['empresa']
             
-            # Fallback: se Gemini não achou valor, tenta regex
-            if valor == 0.0:
-                valor = extrair_valor_fallback(texto)
-                valor_formatado = converter_para_virgula(f"{valor:.2f}")
-            
             # Adicionar à tabela
             item = tabela.adicionar(
                 id_comp=idx,
@@ -325,7 +299,6 @@ def processar_reconciliacao(caminho_comprovantes, lista_caminhos_boletos, user):
                 pdf_bytes=bio
             )
             
-            # Log com valor formatado em vírgula
             cod_display = codigo[:25] + "..." if codigo else "SEM_CODIGO"
             yield emit('log', f'  ✓ Pág {idx+1}: R$ {valor_formatado} | {cod_display} | {empresa}')
             yield emit('comp_status', {'index': idx, 'msg': f'R$ {valor_formatado}'})
@@ -364,7 +337,13 @@ def processar_reconciliacao(caminho_comprovantes, lista_caminhos_boletos, user):
             
             codigo_boleto = dados_gemini['codigo']
             valor_boleto = dados_gemini['valor']
-            valor_boleto_formatado = dados_gemini['valor_formatado']
+            
+            # ⭐ FALLBACK: Se Gemini não conseguiu extrair valor, tenta do NOME DO ARQUIVO
+            if valor_boleto == 0.0:
+                valor_boleto = extrair_valor_do_nome(nome_boleto)
+                yield emit('log', f'   [Fallback] Valor extraído do nome: R$ {converter_para_virgula(f"{valor_boleto:.2f}")}')
+            
+            valor_boleto_formatado = converter_para_virgula(f"{valor_boleto:.2f}")
             
             # Salvar boleto como bytes
             bio_boleto = io.BytesIO(pdf_bytes)
@@ -388,7 +367,7 @@ def processar_reconciliacao(caminho_comprovantes, lista_caminhos_boletos, user):
                     metodo_match = "CÓDIGO"
                     yield emit('log', f'   ✅ MATCH por CÓDIGO (página {comp["id"]+1})')
             
-            # 2️⃣ Tentar por VALOR (se não achou por código)
+            # 2️⃣ Tentar por VALOR
             if not comprovante_encontrado and valor_boleto > 0:
                 comp = tabela.buscar_por_valor(valor_boleto)
                 if comp:
