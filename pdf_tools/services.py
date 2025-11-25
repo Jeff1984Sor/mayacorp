@@ -66,7 +66,7 @@ def chamar_gemini_imagem(imagem_pil, tipo_doc):
     Inclui lógica de retry para lidar com limites de requisições da API.
     """
     # Usando o modelo Flash mais recente e estável.
-    model = genai.GenerativeModel('gemini-1.5-flash-latest')
+    model = genai.GenerativeModel('gemini-flash-latest')
     
     # Prompt refinado para maior precisão e robustez.
     prompt = f"""
