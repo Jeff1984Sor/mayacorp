@@ -23,18 +23,7 @@ class AlunoCreateView(LoginRequiredMixin, CreateView):
     form_class = AlunoForm
     template_name = 'cadastros_fit/aluno_form.html'
     success_url = reverse_lazy('aluno_list')
-
-    def form_valid(self, form):
-        # Cria o objeto na memória (não salva no banco ainda)
-        aluno = form.save(commit=False)
-        
-        # Força a gravação da Organização
-        aluno.organizacao = self.request.tenant
-        
-        # Agora salva de verdade
-        aluno.save()
-        
-        return redirect(self.success_url)
+    # REMOVIDO: form_valid manual (não precisa mais injetar organização)
 
 class AlunoUpdateView(LoginRequiredMixin, UpdateView):
     model = Aluno
@@ -96,19 +85,7 @@ class ProfissionalCreateView(LoginRequiredMixin, CreateView):
     form_class = ProfissionalForm
     template_name = 'cadastros_fit/profissional_form.html'
     success_url = reverse_lazy('profissional_list')
-
-    # CORREÇÃO: Preenche a Organização automaticamente
-    def form_valid(self, form):
-        # Cria o objeto na memória (não salva no banco ainda)
-        aluno = form.save(commit=False)
-        
-        # Força a gravação da Organização
-        aluno.organizacao = self.request.tenant
-        
-        # Agora salva de verdade
-        aluno.save()
-        
-        return redirect(self.success_url)
+    # REMOVIDO: form_valid manual
 
 class ProfissionalUpdateView(LoginRequiredMixin, UpdateView):
     model = Profissional
@@ -127,19 +104,7 @@ class UnidadeCreateView(LoginRequiredMixin, CreateView):
     form_class = UnidadeForm
     template_name = 'cadastros_fit/unidade_form.html'
     success_url = reverse_lazy('unidade_list')
-
-    # CORREÇÃO: Preenche a Organização automaticamente
-    def form_valid(self, form):
-        # Cria o objeto na memória (não salva no banco ainda)
-        aluno = form.save(commit=False)
-        
-        # Força a gravação da Organização
-        aluno.organizacao = self.request.tenant
-        
-        # Agora salva de verdade
-        aluno.save()
-        
-        return redirect(self.success_url)
+    # REMOVIDO: form_valid manual
 
 class UnidadeUpdateView(LoginRequiredMixin, UpdateView):
     model = Unidade

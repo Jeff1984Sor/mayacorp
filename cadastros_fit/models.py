@@ -1,11 +1,19 @@
 from django.db import models
 
+# Função utilitária para deixar nomes bonitos (Ex: "joão da silva" -> "João da Silva")
+def formatar_nome(nome):
+    if not nome: return ""
+    excecoes = ['da', 'de', 'do', 'das', 'dos', 'e']
+    palavras = nome.lower().split()
+    nome_formatado = [p if p in excecoes else p.capitalize() for p in palavras]
+    return " ".join(nome_formatado)
+
 # ==============================================================================
 # 1. ESTRUTURA BÁSICA
 # ==============================================================================
 
 class Unidade(models.Model):
-    # REMOVIDO: organizacao = ForeignKey... (O schema já define a organização)
+    # OBS: Removemos 'organizacao' pois o Schema já isola os dados
     nome = models.CharField(max_length=100)
     endereco = models.CharField(max_length=255, blank=True, null=True)
     telefone = models.CharField(max_length=20, blank=True)
@@ -14,7 +22,6 @@ class Unidade(models.Model):
         return self.nome
 
 class Profissional(models.Model):
-    # REMOVIDO: organizacao = ForeignKey...
     nome = models.CharField(max_length=100)
     cpf = models.CharField(max_length=14, unique=True)
     crefito = models.CharField(max_length=20, blank=True, verbose_name="Registro Profissional")
@@ -22,30 +29,30 @@ class Profissional(models.Model):
     valor_hora_aula = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, verbose_name="Valor por Aula Dada")
     ativo = models.BooleanField(default=True)
 
+    def save(self, *args, **kwargs):
+        if self.nome:
+            self.nome = formatar_nome(self.nome)
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return self.nome
 
 # ==============================================================================
 # 2. ALUNOS
 # ==============================================================================
-def formatar_nome(nome):
-    excecoes = ['da', 'de', 'do', 'das', 'dos', 'e']
-    palavras = nome.lower().split()
-    nome_formatado = [p if p in excecoes else p.capitalize() for p in palavras]
-    return " ".join(nome_formatado)
 
 class Aluno(models.Model):
     # --- DADOS PESSOAIS ---
     nome = models.CharField(max_length=100)
-    cpf = models.CharField(max_length=14, unique=True, null=True, blank=True) # CPF deve ser único se existir
+    cpf = models.CharField(max_length=14, unique=True, null=True, blank=True) 
     data_nascimento = models.DateField(blank=True, null=True)
     telefone = models.CharField(max_length=20, blank=True)
     email = models.EmailField(blank=True)
     
-    # Documento de Identificação (Digitalizado)
+    # Documento de Identificação
     doc_identidade_foto = models.ImageField(upload_to='alunos/docs_pessoais/', blank=True, null=True, verbose_name="Foto RG/CNH")
 
-    # --- ENDEREÇO (Quebrado para facilitar) ---
+    # --- ENDEREÇO ---
     cep = models.CharField(max_length=9, blank=True)
     logradouro = models.CharField(max_length=150, blank=True, verbose_name="Rua/Av")
     numero = models.CharField(max_length=20, blank=True, verbose_name="Número")
@@ -54,7 +61,7 @@ class Aluno(models.Model):
     cidade = models.CharField(max_length=100, blank=True)
     estado = models.CharField(max_length=2, blank=True) # UF (SP, RJ...)
     
-    # Comprovante de Endereço (Digitalizado)
+    # Comprovante de Residência
     comprovante_residencia_foto = models.ImageField(upload_to='alunos/docs_residencia/', blank=True, null=True)
     
     # --- SAÚDE ---
@@ -69,6 +76,7 @@ class Aluno(models.Model):
     ativo = models.BooleanField(default=True)
 
     def save(self, *args, **kwargs):
+        # Formatação automática antes de salvar
         if self.nome:
             self.nome = formatar_nome(self.nome)
         if self.logradouro:
@@ -78,7 +86,7 @@ class Aluno(models.Model):
         if self.cidade:
             self.cidade = formatar_nome(self.cidade)
         if self.estado:
-            self.estado = self.estado.upper() # Estado sempre MAIÚSCULO (SP, RJ)
+            self.estado = self.estado.upper() 
         super().save(*args, **kwargs)
 
     def __str__(self):
