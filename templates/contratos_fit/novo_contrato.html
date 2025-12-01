@@ -90,7 +90,7 @@
                 <!-- OBRIGATÓRIO: Gerenciador do Formset -->
                 {{ formset.management_form }}
 
-                <!-- Exibe erros de validação do conjunto (Ex: selecionou mais horários que o plano permite) -->
+                <!-- Exibe erros de validação do conjunto -->
                 {% if formset.non_form_errors %}
                     <div class="alert alert-danger m-3 border-0">
                         <i class="fas fa-exclamation-triangle me-2"></i> {{ formset.non_form_errors.0 }}
@@ -156,5 +156,40 @@
 
     </form>
 </div>
+
+<!-- ========================================================= -->
+<!-- SCRIPT DE AUTOMAÇÃO DE VALORES                            -->
+<!-- ========================================================= -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Recebe os dados do Django (View)
+        const planosData = {{ planos_json|default:"{}"|safe }};
+        
+        const selectPlano = document.getElementById('select_plano');
+        const inputValor = document.getElementById('id_valor_total');
+        const inputParcelas = document.getElementById('id_qtde_parcelas');
+        
+        if (selectPlano) {
+            selectPlano.addEventListener('change', function() {
+                const planoId = this.value;
+                
+                if (planoId && planosData[planoId]) {
+                    const dados = planosData[planoId];
+                    
+                    // 1. Calcula Valor Total (Mensal * Meses)
+                    const total = (dados.valor * dados.meses).toFixed(2);
+                    
+                    // Atualiza o campo de valor
+                    if(inputValor) inputValor.value = total;
+                    
+                    // 2. Define o número de parcelas
+                    if(inputParcelas) inputParcelas.value = dados.meses;
+                    
+                    console.log(`Plano selecionado: ${total} em ${dados.meses}x`);
+                }
+            });
+        }
+    });
+</script>
 
 {% endblock %}
