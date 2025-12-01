@@ -99,8 +99,16 @@ class ProfissionalCreateView(LoginRequiredMixin, CreateView):
 
     # CORREÇÃO: Preenche a Organização automaticamente
     def form_valid(self, form):
-        form.instance.organizacao = self.request.tenant
-        return super().form_valid(form)
+        # Cria o objeto na memória (não salva no banco ainda)
+        aluno = form.save(commit=False)
+        
+        # Força a gravação da Organização
+        aluno.organizacao = self.request.tenant
+        
+        # Agora salva de verdade
+        aluno.save()
+        
+        return redirect(self.success_url)
 
 class ProfissionalUpdateView(LoginRequiredMixin, UpdateView):
     model = Profissional
@@ -122,8 +130,16 @@ class UnidadeCreateView(LoginRequiredMixin, CreateView):
 
     # CORREÇÃO: Preenche a Organização automaticamente
     def form_valid(self, form):
-        form.instance.organizacao = self.request.tenant
-        return super().form_valid(form)
+        # Cria o objeto na memória (não salva no banco ainda)
+        aluno = form.save(commit=False)
+        
+        # Força a gravação da Organização
+        aluno.organizacao = self.request.tenant
+        
+        # Agora salva de verdade
+        aluno.save()
+        
+        return redirect(self.success_url)
 
 class UnidadeUpdateView(LoginRequiredMixin, UpdateView):
     model = Unidade
