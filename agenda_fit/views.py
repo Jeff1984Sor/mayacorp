@@ -60,6 +60,42 @@ def calendario_semanal(request):
     }
 
     return render(request, 'agenda_fit/calendario_semanal.html', context)
+
+@login_required
+def acao_marcar_presenca(request, presenca_id):
+    p = get_object_or_404(Presenca, id=presenca_id)
+    p.status = 'PRESENTE'
+    p.save()
+    messages.success(request, "Presença confirmada!")
+    return redirect('lista_aulas_aluno', aluno_id=p.aluno.id)
+
+@login_required
+def acao_marcar_realizada(request, presenca_id):
+    p = get_object_or_404(Presenca, id=presenca_id)
+    # Marca a AULA inteira como realizada
+    aula = p.aula
+    aula.status = 'REALIZADA'
+    aula.save()
+    messages.success(request, "Aula marcada como Realizada!")
+    return redirect('lista_aulas_aluno', aluno_id=p.aluno.id)
+
+@login_required
+def acao_deletar_agendamento(request, presenca_id):
+    p = get_object_or_404(Presenca, id=presenca_id)
+    aluno_id = p.aluno.id
+    p.delete()
+    messages.warning(request, "Agendamento removido.")
+    return redirect('lista_aulas_aluno', aluno_id=aluno_id)
+
+@login_required
+def acao_remarcar_aula(request, presenca_id):
+    # Lógica simples: Remove a atual e manda para o calendário para escolher outra
+    p = get_object_or_404(Presenca, id=presenca_id)
+    aluno_id = p.aluno.id
+    p.delete() # Remove a atual
+    messages.info(request, "Agendamento anterior removido. Escolha o novo horário no calendário.")
+    return redirect('calendario_semanal')
+
 @login_required
 def lista_aulas_aluno(request, aluno_id):
     aluno = get_object_or_404(Aluno, pk=aluno_id)
