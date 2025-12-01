@@ -1,5 +1,5 @@
 from django import forms
-from .models import CategoriaFinanceira, ContaBancaria
+from .models import CategoriaFinanceira, ContaBancaria, Lancamento # <--- Importante!
 
 class CategoriaForm(forms.ModelForm):
     class Meta:
@@ -22,7 +22,6 @@ class ContaBancariaForm(forms.ModelForm):
 class DespesaForm(forms.ModelForm):
     class Meta:
         model = Lancamento
-        # Excluímos 'aluno' e 'contrato' pois despesa geralmente é da empresa
         fields = ['descricao', 'categoria', 'conta', 'valor', 'data_vencimento', 'status']
         widgets = {
             'descricao': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ex: Conta de Luz'}),
@@ -35,5 +34,5 @@ class DespesaForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Filtra apenas categorias de DESPESA para não confundir
+        # Filtra apenas categorias de DESPESA
         self.fields['categoria'].queryset = CategoriaFinanceira.objects.filter(tipo='DESPESA')
