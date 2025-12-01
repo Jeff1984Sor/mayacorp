@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}Aulas de {{ aluno.nome }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="fw-bold mb-0">Agenda do Aluno</h4>
+            <p class="text-muted mb-0">Aluno: <strong>{{ aluno.nome }}</strong></p>
+        </div>
+        <a href="{% url 'aluno_detail' aluno.id %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Voltar para Ficha
+        </a>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Data e Hora</th>
+                        <th>Profissional</th>
+                        <th>Status da Aula</th>
+                        <th>Presença do Aluno</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in presencas %}
+                    <tr>
+                        <td>
+                            <span class="fw-bold text-dark">{{ p.aula.data_hora_inicio|date:"d/m/Y" }}</span>
+                            <br>
+                            <span class="small text-muted">{{ p.aula.data_hora_inicio|date:"H:i" }} às {{ p.aula.data_hora_fim|date:"H:i" }}</span>
+                        </td>
+                        <td>
+                            {{ p.aula.profissional.nome }}
+                        </td>
+                        <td>
+                            {% if p.aula.status == 'AGENDADA' %}
+                                <span class="badge bg-primary">Agendada</span>
+                            {% elif p.aula.status == 'REALIZADA' %}
+                                <span class="badge bg-success">Realizada</span>
+                            {% elif p.aula.status == 'CANCELADA' %}
+                                <span class="badge bg-danger">Cancelada</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if p.status == 'PRESENTE' %}
+                                <i class="fas fa-check-circle text-success me-1"></i> Presente
+                            {% elif p.status == 'FALTA' %}
+                                <i class="fas fa-times-circle text-danger me-1"></i> Falta
+                            {% elif p.status == 'FALTA_JUSTIFICADA' %}
+                                <i class="fas fa-exclamation-circle text-warning me-1"></i> Justificada
+                            {% else %}
+                                <i class="far fa-circle text-muted me-1"></i> -
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center py-5 text-muted">
+                            Nenhuma aula encontrada para este aluno.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

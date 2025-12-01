@@ -4,6 +4,7 @@ from django.shortcuts import render
 from datetime import timedelta
 from django.shortcuts import render
 from django.utils import timezone
+from cadastros_fit.models import Aluno
 from django.contrib.auth.decorators import login_required
 from .models import Aula, Presenca
 from django.shortcuts import get_object_or_404, redirect
@@ -59,6 +60,17 @@ def calendario_semanal(request):
     }
 
     return render(request, 'agenda_fit/calendario_semanal.html', context)
+@login_required
+def lista_aulas_aluno(request, aluno_id):
+    aluno = get_object_or_404(Aluno, pk=aluno_id)
+    
+    # Busca todas as aulas que o aluno está vinculado (Ordenadas da mais recente para a antiga)
+    presencas = Presenca.objects.filter(aluno=aluno).select_related('aula', 'aula__profissional').order_by('-aula__data_hora_inicio')
+    
+    return render(request, 'agenda_fit/aluno_aulas_list.html', {
+        'aluno': aluno,
+        'presencas': presencas
+    })
 
 @login_required
 def gerenciar_aula(request, aula_id):
