@@ -7,6 +7,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils import timezone
 from django.contrib import messages
 from django.db.models import Sum
+from cadastros_fit.models import Aluno 
 
 from .models import Lancamento, ContaBancaria
 
@@ -14,36 +15,45 @@ class LancamentoListView(LoginRequiredMixin, ListView):
     model = Lancamento
     template_name = 'financeiro_fit/lancamento_list.html'
     context_object_name = 'lancamentos'
-    paginate_by = 20
+    paginate_by = 50 # Aumentei para ver mais parcelas de uma vez
 
     def get_queryset(self):
         queryset = super().get_queryset()
         
-        # Filtros da URL
+        # Filtros
         status = self.request.GET.get('status')
         inicio = self.request.GET.get('inicio')
         fim = self.request.GET.get('fim')
-        aluno_id = self.request.GET.get('aluno_id')  # <--- NOVO
+        aluno_id = self.request.GET.get('aluno_id')
         
         if status:
             queryset = queryset.filter(status=status)
-        
         if inicio and fim:
             queryset = queryset.filter(data_vencimento__range=[inicio, fim])
-            
-        if aluno_id:  # <--- LÓGICA NOVA
+        if aluno_id:
             queryset = queryset.filter(aluno__id=aluno_id)
             
-        return queryset.order_by('data_vencimento')
+        # Ordena: Atrasados primeiro, depois os futuros
+        return queryset.order_by('status', 'data_vencimento')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Totais para o cabeçalho
+        
+        # Passa a data de hoje para calcular atrasos no HTML
+        context['hoje'] = timezone.now().date()
+        
+        # Se estiver filtrando por aluno, passa o objeto aluno para o título
+        aluno_id = self.request.GET.get('aluno_id')
+        if aluno_id:
+            context['aluno_filtro'] = Aluno.objects.filter(pk=aluno_id).first()
+            
+        # Totais (mantém a lógica anterior)
         qs = self.get_queryset()
         context['total_receitas'] = qs.filter(categoria__tipo='RECEITA').aggregate(Sum('valor'))['valor__sum'] or 0
         context['total_despesas'] = qs.filter(categoria__tipo='DESPESA').aggregate(Sum('valor'))['valor__sum'] or 0
+        
         return context
-
+    
 # Função para Receber/Pagar (Dar Baixa)
 def baixar_lancamento(request, pk):
     lancamento = get_object_or_404(Lancamento, pk=pk)
