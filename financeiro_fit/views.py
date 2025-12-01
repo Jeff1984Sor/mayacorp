@@ -9,6 +9,12 @@ from django.contrib import messages
 from django.db.models import Sum
 from cadastros_fit.models import Aluno 
 
+from django.urls import reverse_lazy
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from .models import CategoriaFinanceira, ContaBancaria
+from .forms import CategoriaForm, ContaBancariaForm
+from .forms import DespesaForm
+
 from .models import Lancamento, ContaBancaria
 
 class LancamentoListView(LoginRequiredMixin, ListView):
@@ -76,3 +82,38 @@ def baixar_lancamento(request, pk):
         messages.success(request, f"Lançamento '{lancamento.descricao}' baixado com sucesso!")
         
     return redirect('financeiro_lista')
+
+# --- CATEGORIAS ---
+class CategoriaListView(LoginRequiredMixin, ListView):
+    model = CategoriaFinanceira
+    template_name = 'financeiro_fit/config_categorias_list.html'
+    context_object_name = 'categorias'
+
+class CategoriaCreateView(LoginRequiredMixin, CreateView):
+    model = CategoriaFinanceira
+    form_class = CategoriaForm
+    template_name = 'financeiro_fit/form_generico.html'
+    success_url = reverse_lazy('categoria_list')
+
+    # Se precisar injetar organizacao (se ainda existir no model):
+    # def form_valid(self, form):
+    #     form.instance.organizacao = self.request.tenant
+    #     return super().form_valid(form)
+
+# --- CONTAS BANCÁRIAS ---
+class ContaListView(LoginRequiredMixin, ListView):
+    model = ContaBancaria
+    template_name = 'financeiro_fit/config_contas_list.html'
+    context_object_name = 'contas'
+
+class ContaCreateView(LoginRequiredMixin, CreateView):
+    model = ContaBancaria
+    form_class = ContaBancariaForm
+    template_name = 'financeiro_fit/form_generico.html'
+    success_url = reverse_lazy('conta_list')
+
+class DespesaCreateView(LoginRequiredMixin, CreateView):
+    model = Lancamento
+    form_class = DespesaForm
+    template_name = 'financeiro_fit/despesa_form.html'
+    success_url = reverse_lazy('financeiro_lista')

@@ -8,12 +8,21 @@
 
     <!-- CABEÇALHO INTELIGENTE -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            {% if aluno_filtro %}
-                <h3 class="fw-bold text-dark mb-0"><i class="fas fa-user-tag me-2"></i>Extrato: {{ aluno_filtro.nome }}</h3>
-                <a href="{% url 'aluno_detail' aluno_filtro.id %}" class="small text-decoration-none">Voltar para ficha do aluno</a>
-            {% else %}
-                <h3 class="fw-bold text-dark mb-0"><i class="fas fa-chart-pie me-2"></i>Fluxo de Caixa Geral</h3>
+        <div class="d-flex align-items-center gap-3">
+            <div>
+                {% if aluno_filtro %}
+                    <h3 class="fw-bold text-dark mb-0"><i class="fas fa-user-tag me-2"></i>Extrato: {{ aluno_filtro.nome }}</h3>
+                    <a href="{% url 'aluno_detail' aluno_filtro.id %}" class="small text-decoration-none">Voltar para ficha do aluno</a>
+                {% else %}
+                    <h3 class="fw-bold text-dark mb-0"><i class="fas fa-chart-pie me-2"></i>Fluxo de Caixa Geral</h3>
+                {% endif %}
+            </div>
+            
+            <!-- BOTÃO NOVA DESPESA (Só aparece no geral) -->
+            {% if not aluno_filtro %}
+                <a href="{% url 'despesa_create' %}" class="btn btn-danger btn-sm fw-bold shadow-sm">
+                    <i class="fas fa-minus-circle me-1"></i> Pagar Conta
+                </a>
             {% endif %}
         </div>
         
@@ -62,7 +71,7 @@
                     <tr>
                         <th>Vencimento</th>
                         <th>Descrição</th>
-                        {% if not aluno_filtro %}<th>Aluno</th>{% endif %}
+                        {% if not aluno_filtro %}<th>Categoria / Aluno</th>{% endif %}
                         <th>Valor</th>
                         <th class="text-center">Situação</th>
                         <th class="text-end">Ações</th>
@@ -79,22 +88,24 @@
                         </td>
                         <td>
                             {{ lanc.descricao }}
-                            {% if not aluno_filtro %}
-                                <br><small class="text-muted">{{ lanc.categoria.nome }}</small>
-                            {% endif %}
                         </td>
                         
                         {% if not aluno_filtro %}
                         <td>
-                            {% if lanc.aluno %}
-                                <a href="{% url 'aluno_detail' lanc.aluno.id %}" class="text-decoration-none fw-bold">{{ lanc.aluno.nome }}</a>
-                            {% else %}
-                                <span class="text-muted">-</span>
-                            {% endif %}
+                            <div class="d-flex flex-column">
+                                <!-- Categoria -->
+                                <span class="badge w-auto align-self-start mb-1 {% if lanc.categoria.tipo == 'RECEITA' %}bg-success bg-opacity-10 text-success{% else %}bg-danger bg-opacity-10 text-danger{% endif %}">
+                                    {{ lanc.categoria.nome }}
+                                </span>
+                                <!-- Aluno -->
+                                {% if lanc.aluno %}
+                                    <a href="{% url 'aluno_detail' lanc.aluno.id %}" class="text-decoration-none small fw-bold text-dark">{{ lanc.aluno.nome }}</a>
+                                {% endif %}
+                            </div>
                         </td>
                         {% endif %}
 
-                        <td class="fw-bold text-dark">
+                        <td class="fw-bold {% if lanc.categoria.tipo == 'RECEITA' %}text-success{% else %}text-danger{% endif %}">
                             R$ {{ lanc.valor|floatformat:2 }}
                         </td>
                         
@@ -121,7 +132,8 @@
                         <td class="text-end">
                             {% if lanc.status == 'PENDENTE' %}
                                 <button class="btn btn-sm btn-outline-success fw-bold" data-bs-toggle="modal" data-bs-target="#modalBaixa{{ lanc.id }}">
-                                    <i class="fas fa-dollar-sign"></i> Receber
+                                    <i class="fas fa-dollar-sign"></i> 
+                                    {% if lanc.categoria.tipo == 'RECEITA' %}Receber{% else %}Pagar{% endif %}
                                 </button>
                             {% else %}
                                 <button class="btn btn-sm btn-light text-muted" disabled><i class="fas fa-check"></i></button>
@@ -135,8 +147,11 @@
                             <div class="modal-content">
                                 <form action="{% url 'baixar_lancamento' lanc.id %}" method="post">
                                     {% csrf_token %}
-                                    <div class="modal-header bg-success text-white">
-                                        <h5 class="modal-title"><i class="fas fa-hand-holding-usd me-2"></i>Confirmar Recebimento</h5>
+                                    <div class="modal-header {% if lanc.categoria.tipo == 'RECEITA' %}bg-success{% else %}bg-danger{% endif %} text-white">
+                                        <h5 class="modal-title">
+                                            <i class="fas fa-hand-holding-usd me-2"></i>
+                                            {% if lanc.categoria.tipo == 'RECEITA' %}Confirmar Recebimento{% else %}Confirmar Pagamento{% endif %}
+                                        </h5>
                                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                                     </div>
                                     <div class="modal-body">
@@ -147,13 +162,13 @@
                                         <select name="forma_pagamento" class="form-select form-select-lg mb-3" required>
                                             <option value="PIX" selected>Pix</option>
                                             <option value="DINHEIRO">Dinheiro</option>
-                                            <option value="CARTAO">Cartão de Crédito/Débito</option>
+                                            <option value="CARTAO">Cartão</option>
                                             <option value="BOLETO">Boleto</option>
                                         </select>
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                        <button type="submit" class="btn btn-success fw-bold px-4">Confirmar Baixa</button>
+                                        <button type="submit" class="btn {% if lanc.categoria.tipo == 'RECEITA' %}btn-success{% else %}btn-danger{% endif %} fw-bold px-4">Confirmar</button>
                                     </div>
                                 </form>
                             </div>
@@ -172,7 +187,7 @@
             </table>
         </div>
         
-        <!-- Paginação Simples -->
+        <!-- Paginação -->
         {% if is_paginated %}
         <div class="card-footer bg-white">
             <div class="d-flex justify-content-center">

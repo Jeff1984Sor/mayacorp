@@ -1,0 +1,39 @@
+from django import forms
+from .models import CategoriaFinanceira, ContaBancaria
+
+class CategoriaForm(forms.ModelForm):
+    class Meta:
+        model = CategoriaFinanceira
+        exclude = ['organizacao']
+        widgets = {
+            'nome': forms.TextInput(attrs={'class': 'form-control'}),
+            'tipo': forms.Select(attrs={'class': 'form-select'}),
+        }
+
+class ContaBancariaForm(forms.ModelForm):
+    class Meta:
+        model = ContaBancaria
+        exclude = ['organizacao']
+        widgets = {
+            'nome': forms.TextInput(attrs={'class': 'form-control'}),
+            'saldo_atual': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+        }
+
+class DespesaForm(forms.ModelForm):
+    class Meta:
+        model = Lancamento
+        # Excluímos 'aluno' e 'contrato' pois despesa geralmente é da empresa
+        fields = ['descricao', 'categoria', 'conta', 'valor', 'data_vencimento', 'status']
+        widgets = {
+            'descricao': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ex: Conta de Luz'}),
+            'categoria': forms.Select(attrs={'class': 'form-select'}),
+            'conta': forms.Select(attrs={'class': 'form-select'}),
+            'valor': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'data_vencimento': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'status': forms.Select(attrs={'class': 'form-select'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Filtra apenas categorias de DESPESA para não confundir
+        self.fields['categoria'].queryset = CategoriaFinanceira.objects.filter(tipo='DESPESA')
