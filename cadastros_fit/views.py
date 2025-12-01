@@ -24,8 +24,8 @@ class AlunoCreateView(LoginRequiredMixin, CreateView):
     template_name = 'cadastros_fit/aluno_form.html'
     success_url = reverse_lazy('aluno_list')
 
-    # CORREÇÃO: Preenche a Organização automaticamente
     def form_valid(self, form):
+        # Garanta que esta linha tem 4 espaços a mais que o "def"
         form.instance.organizacao = self.request.tenant
         return super().form_valid(form)
 
