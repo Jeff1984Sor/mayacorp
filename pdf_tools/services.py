@@ -7,7 +7,7 @@ import re
 import logging
 import time
 import fitz  # PyMuPDF
-from diflib import SequenceMatcher
+from difflib import SequenceMatcher
 from pypdf import PdfReader, PdfWriter
 from PIL import Image
 import google.generativeai as genai
