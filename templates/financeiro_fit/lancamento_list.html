@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Fluxo de Caixa{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+
+    <!-- CABEÇALHO COM TOTAIS -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h3 class="fw-bold text-dark"><i class="fas fa-chart-pie me-2"></i>Fluxo de Caixa</h3>
+        </div>
+        <div class="col-md-6 text-end">
+            <span class="badge bg-success fs-6 p-2 me-2">
+                Receitas: R$ {{ total_receitas|floatformat:2 }}
+            </span>
+            <span class="badge bg-danger fs-6 p-2">
+                Despesas: R$ {{ total_despesas|floatformat:2 }}
+            </span>
+        </div>
+    </div>
+
+    <!-- FILTROS -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body py-2">
+            <form method="get" class="row g-2 align-items-center">
+                <div class="col-auto">
+                    <select name="status" class="form-select form-select-sm">
+                        <option value="">Todos Status</option>
+                        <option value="PENDENTE">Pendente</option>
+                        <option value="PAGO">Pago</option>
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <input type="date" name="inicio" class="form-control form-control-sm">
+                </div>
+                <div class="col-auto">
+                    <input type="date" name="fim" class="form-control form-control-sm">
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-filter"></i> Filtrar</button>
+                    <a href="{% url 'financeiro_lista' %}" class="btn btn-outline-secondary btn-sm">Limpar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- TABELA DE LANÇAMENTOS -->
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Vencimento</th>
+                        <th>Descrição</th>
+                        <th>Categoria</th>
+                        <th>Aluno</th>
+                        <th>Valor</th>
+                        <th>Status</th>
+                        <th class="text-end">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for lanc in lancamentos %}
+                    <tr>
+                        <td>
+                            <div class="fw-bold">{{ lanc.data_vencimento|date:"d/m/Y" }}</div>
+                            {% if lanc.status == 'PAGO' %}
+                                <small class="text-muted">Pgto: {{ lanc.data_pagamento|date:"d/m" }}</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {{ lanc.descricao }}
+                            <br><small class="text-muted">{{ lanc.conta.nome }}</small>
+                        </td>
+                        <td>
+                            <span class="badge {% if lanc.categoria.tipo == 'RECEITA' %}bg-success bg-opacity-10 text-success{% else %}bg-danger bg-opacity-10 text-danger{% endif %}">
+                                {{ lanc.categoria.nome }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if lanc.aluno %}
+                                <a href="{% url 'aluno_detail' lanc.aluno.id %}" class="text-decoration-none">{{ lanc.aluno.nome }}</a>
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td class="fw-bold {% if lanc.categoria.tipo == 'RECEITA' %}text-success{% else %}text-danger{% endif %}">
+                            R$ {{ lanc.valor|floatformat:2 }}
+                        </td>
+                        <td>
+                            {% if lanc.status == 'PAGO' %}
+                                <span class="badge bg-success">PAGO</span>
+                            {% elif lanc.status == 'PENDENTE' %}
+                                <span class="badge bg-warning text-dark">PENDENTE</span>
+                            {% else %}
+                                <span class="badge bg-secondary">CANCELADO</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            {% if lanc.status == 'PENDENTE' %}
+                                <button class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#modalBaixa{{ lanc.id }}">
+                                    <i class="fas fa-check"></i> Baixar
+                                </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+
+                    <!-- MODAL DE BAIXA (Um por linha) -->
+                    <div class="modal fade" id="modalBaixa{{ lanc.id }}" tabindex="-1">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <form action="{% url 'baixar_lancamento' lanc.id %}" method="post">
+                                    {% csrf_token %}
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Confirmar Pagamento</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>Confirmar o recebimento de <strong>R$ {{ lanc.valor }}</strong> referente a <strong>{{ lanc.descricao }}</strong>?</p>
+                                        
+                                        <label class="form-label">Forma de Pagamento:</label>
+                                        <select name="forma_pagamento" class="form-select" required>
+                                            <option value="PIX">Pix</option>
+                                            <option value="DINHEIRO">Dinheiro</option>
+                                            <option value="CARTAO">Cartão</option>
+                                            <option value="BOLETO">Boleto</option>
+                                        </select>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                        <button type="submit" class="btn btn-success">Confirmar Baixa</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-5 text-muted">Nenhum lançamento encontrado.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

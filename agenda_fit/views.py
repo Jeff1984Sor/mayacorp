@@ -1,3 +1,92 @@
 from django.shortcuts import render
 
 # Create your views here.
+from datetime import timedelta
+from django.shortcuts import render
+from django.utils import timezone
+from django.contrib.auth.decorators import login_required
+from .models import Aula, Presenca
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib import messages
+
+@login_required
+def calendario_semanal(request):
+    # 1. Determina a data base (hoje ou passada via GET)
+    data_get = request.GET.get('data')
+    if data_get:
+        data_base = timezone.datetime.strptime(data_get, '%Y-%m-%d').date()
+    else:
+        data_base = timezone.now().date()
+
+    # 2. Calcula o início (Segunda) e fim (Domingo) da semana
+    inicio_semana = data_base - timedelta(days=data_base.weekday())
+    fim_semana = inicio_semana + timedelta(days=6)
+
+    # 3. Busca as aulas do período
+    aulas = Aula.objects.filter(
+        data_hora_inicio__date__gte=inicio_semana,
+        data_hora_inicio__date__lte=fim_semana
+    ).select_related('profissional', 'unidade', 'organizacao').order_by('data_hora_inicio')
+
+    # 4. Organiza os dados para o Template (Dicionário: {0: [aulas_seg], 1: [aulas_ter]...})
+    # Criamos também uma lista de cabeçalhos com as datas dos dias
+    dias_da_semana = []
+    grade_semanal = {i: [] for i in range(7)} # 0 a 6
+    
+    for i in range(7):
+        dia_atual = inicio_semana + timedelta(days=i)
+        dias_da_semana.append({
+            'data': dia_atual,
+            'nome': dia_atual.strftime('%A'), # Nome do dia (ex: Monday) - vamos traduzir no template
+            'hoje': dia_atual == timezone.now().date()
+        })
+
+    for aula in aulas:
+        dia_index = aula.data_hora_inicio.weekday()
+        grade_semanal[dia_index].append(aula)
+
+    # Navegação (Semana anterior e próxima)
+    prox_semana = (inicio_semana + timedelta(days=7)).strftime('%Y-%m-%d')
+    ant_semana = (inicio_semana - timedelta(days=7)).strftime('%Y-%m-%d')
+
+    context = {
+        'dias_da_semana': dias_da_semana, # Cabeçalhos
+        'grade_semanal': grade_semanal,   # Conteúdo
+        'inicio_semana': inicio_semana,
+        'fim_semana': fim_semana,
+        'prox_semana': prox_semana,
+        'ant_semana': ant_semana,
+    }
+
+    return render(request, 'agenda_fit/calendario_semanal.html', context)
+
+@login_required
+def gerenciar_aula(request, aula_id):
+    aula = get_object_or_404(Aula, id=aula_id)
+    
+    if request.method == 'POST':
+        # 1. Salva a Evolução (Texto do que foi feito na aula)
+        evolucao = request.POST.get('evolucao_texto')
+        aula.evolucao_texto = evolucao
+        
+        # Se todos foram atendidos, marca aula como REALIZADA
+        # (Você pode refinar essa lógica depois)
+        aula.status = 'REALIZADA'
+        aula.save()
+
+        # 2. Salva a Chamada (Presença de cada aluno)
+        # O form vai mandar dados como: presenca_10 = 'PRESENTE', presenca_12 = 'FALTA'
+        for presenca in aula.presencas.all():
+            key = f"status_{presenca.id}" # Nome do input no HTML
+            novo_status = request.POST.get(key)
+            
+            if novo_status:
+                presenca.status = novo_status
+                presenca.save()
+        
+        messages.success(request, "Chamada e evolução salvas com sucesso!")
+        return redirect('calendario_semanal') # Ou volta para a mesma aula
+
+    return render(request, 'agenda_fit/gerenciar_aula.html', {
+        'aula': aula
+    })

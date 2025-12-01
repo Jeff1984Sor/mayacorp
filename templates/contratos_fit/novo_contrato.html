@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Novo Contrato - {{ aluno.nome }}{% endblock %}
+
+{% block content %}
+
+<div class="container py-4">
+    
+    <!-- CABEÇALHO -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold mb-0">Novo Contrato</h3>
+            <p class="text-muted">Aluno: <strong>{{ aluno.nome }}</strong></p>
+        </div>
+        <a href="{% url 'aluno_detail' aluno.id %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Voltar
+        </a>
+    </div>
+
+    <!-- FORMULÁRIO -->
+    <form method="post" novalidate>
+        {% csrf_token %}
+
+        <!-- CARD 1: DADOS DO PLANO -->
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 text-primary"><i class="fas fa-file-signature me-2"></i>Dados do Plano</h5>
+            </div>
+            <div class="card-body">
+                
+                <!-- Exibe erros gerais do form principal -->
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                {% endif %}
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">{{ form.plano.label }}</label>
+                        {{ form.plano }}
+                        <div class="text-danger small">{{ form.plano.errors }}</div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">{{ form.unidade.label }}</label>
+                        {{ form.unidade }}
+                        <div class="text-danger small">{{ form.unidade.errors }}</div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">{{ form.data_inicio.label }}</label>
+                        {{ form.data_inicio }}
+                        <div class="text-danger small">{{ form.data_inicio.errors }}</div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">{{ form.valor_total.label }}</label>
+                        <div class="input-group">
+                            <span class="input-group-text">R$</span>
+                            {{ form.valor_total }}
+                        </div>
+                        <div class="text-danger small">{{ form.valor_total.errors }}</div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">{{ form.qtde_parcelas.label }}</label>
+                        {{ form.qtde_parcelas }}
+                        <div class="text-danger small">{{ form.qtde_parcelas.errors }}</div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">{{ form.dia_vencimento.label }}</label>
+                        {{ form.dia_vencimento }}
+                        <div class="text-danger small">{{ form.dia_vencimento.errors }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CARD 2: GRADE DE HORÁRIOS (FORMSET) -->
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="mb-0 text-success"><i class="fas fa-clock me-2"></i>Grade de Horários Fixos</h5>
+                    <small class="text-muted">Defina os dias e horários da aula recorrente.</small>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                
+                <!-- OBRIGATÓRIO: Gerenciador do Formset -->
+                {{ formset.management_form }}
+
+                <!-- Exibe erros de validação do conjunto (Ex: selecionou mais horários que o plano permite) -->
+                {% if formset.non_form_errors %}
+                    <div class="alert alert-danger m-3 border-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i> {{ formset.non_form_errors.0 }}
+                    </div>
+                {% endif %}
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 30%;">Dia da Semana</th>
+                                <th style="width: 25%;">Horário</th>
+                                <th style="width: 35%;">Profissional</th>
+                                <th style="width: 10%;" class="text-center">Remover</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for form_h in formset %}
+                                <!-- Campos Ocultos Obrigatórios (ID) -->
+                                {% for hidden in form_h.hidden_fields %}
+                                    {{ hidden }}
+                                {% endfor %}
+
+                                <tr class="{% if form_h.errors %}table-danger{% endif %}">
+                                    <td class="p-3">
+                                        {{ form_h.dia_semana }}
+                                        <div class="text-danger small mt-1">{{ form_h.dia_semana.errors }}</div>
+                                    </td>
+                                    <td class="p-3">
+                                        {{ form_h.horario }}
+                                        <div class="text-danger small mt-1">{{ form_h.horario.errors }}</div>
+                                    </td>
+                                    <td class="p-3">
+                                        {{ form_h.profissional }}
+                                        <div class="text-danger small mt-1">{{ form_h.profissional.errors }}</div>
+                                    </td>
+                                    <td class="text-center p-3">
+                                        {% if formset.can_delete %}
+                                            <div class="form-check d-flex justify-content-center">
+                                                {{ form_h.DELETE }}
+                                            </div>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="p-3 bg-light text-muted small border-top">
+                    <i class="fas fa-info-circle"></i> O sistema irá gerar a agenda automaticamente para os dias selecionados acima.
+                </div>
+            </div>
+        </div>
+
+        <!-- BOTÕES DE AÇÃO -->
+        <div class="d-flex justify-content-end gap-2 pb-5">
+            <a href="{% url 'aluno_detail' aluno.id %}" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-success px-4 fw-bold">
+                <i class="fas fa-check me-2"></i> Finalizar Contrato
+            </button>
+        </div>
+
+    </form>
+</div>
+
+{% endblock %}

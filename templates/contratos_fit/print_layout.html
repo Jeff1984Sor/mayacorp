@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ titulo }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        body {
+            background-color: #525659; /* Cor de fundo estilo visualizador de PDF */
+            font-family: 'Times New Roman', Times, serif; /* Fonte formal */
+        }
+        
+        .page {
+            background: white;
+            width: 21cm;
+            min-height: 29.7cm;
+            display: block;
+            margin: 0.5cm auto;
+            padding: 2cm; /* Margens A4 */
+            box-shadow: 0 0 0.5cm rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        /* Área de Assinaturas no final da página */
+        .assinaturas {
+            margin-top: 50px;
+            display: flex;
+            justify-content: space-between;
+            page-break-inside: avoid;
+        }
+        .linha-assinatura {
+            width: 45%;
+            border-top: 1px solid black;
+            text-align: center;
+            padding-top: 5px;
+            font-size: 14px;
+        }
+
+        /* Configurações de Impressão (Oculta botões e fundo) */
+        @media print {
+            body { background: none; margin: 0; }
+            .page {
+                margin: 0;
+                box-shadow: none;
+                width: 100%;
+                border: none;
+            }
+            .no-print { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- BARRA DE FERRAMENTAS (Só aparece na tela) -->
+    <nav class="navbar navbar-dark bg-dark mb-4 no-print fixed-top">
+        <div class="container-fluid justify-content-center gap-3">
+            <button onclick="window.print()" class="btn btn-success fw-bold">
+                <i class="fas fa-print"></i> Imprimir / Salvar PDF
+            </button>
+            <button onclick="window.close()" class="btn btn-secondary">
+                Fechar
+            </button>
+        </div>
+    </nav>
+    <div style="height: 60px;" class="no-print"></div> <!-- Espaço para a barra fixa -->
+
+    <!-- FOLHA A4 -->
+    <div class="page">
+        
+        <!-- Conteúdo vindo do Banco de Dados -->
+        <div class="conteudo-contrato">
+            {{ conteudo|safe }}
+        </div>
+
+        <!-- Rodapé Padrão (Opcional) -->
+        <div class="assinaturas">
+            <div class="linha-assinatura">
+                <strong>MayaCorp Fit</strong><br>
+                CNPJ: 00.000.000/0001-00
+            </div>
+            <div class="linha-assinatura">
+                <strong>{{ contrato.aluno.nome }}</strong><br>
+                Contratante
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>

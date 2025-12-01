@@ -10,7 +10,12 @@ from .services import OCRService
 from django.views.generic import DetailView
 from django.shortcuts import get_object_or_404, redirect
 from .forms import DocumentoExtraForm
-
+from django.shortcuts import render, get_object_or_404, redirect
+from django.views.generic import DetailView, ListView, CreateView, UpdateView, DeleteView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.utils import timezone # Importante para saber data atual
+from .models import Aluno
+from agenda_fit.models import Presenca, Aula 
 # --- ALUNOS ---
 class AlunoListView(LoginRequiredMixin, ListView):
     model = Aluno
@@ -97,19 +102,40 @@ def api_ler_documento(request):
 class AlunoDetailView(LoginRequiredMixin, DetailView):
     model = Aluno
     template_name = 'cadastros_fit/aluno_detail.html'
-    context_object_name = 'aluno' # No HTML vamos usar {{ aluno.nome }}
+    context_object_name = 'aluno'
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        aluno = self.object
+        agora = timezone.now()
+
+        # 1. BUSCAR PRÓXIMA AULA
+        # Filtra presenças onde a aula é no futuro e está agendada/confirmada
+        proxima_presenca = Presenca.objects.filter(
+            aluno=aluno,
+            aula__data_hora_inicio__gte=agora,
+            aula__status__in=['AGENDADA', 'CONFIRMADA']
+        ).select_related('aula', 'aula__profissional').order_by('aula__data_hora_inicio').first()
         
-        # 1. Documentos (que você já tinha)
-        context['documentos_extras'] = self.object.documentos.all()
-        
-        # 2. Dados Fictícios para o Dashboard (Futuramente você importa dos apps financeiro_fit/agenda_fit)
-        # Exemplo: context['total_servicos_ativos'] = ServicoRecorrente.objects.filter(aluno=self.object, ativo=True).count()
-        context['qtd_recorrentes'] = 1 
-        context['qtd_pacotes_fixos'] = 0
-        context['qtd_pacotes_personal'] = 0
+        context['proxima_aula'] = proxima_presenca.aula if proxima_presenca else None
+
+        # 2. CONTAGEM DE PRESENÇAS (Para estatística)
+        total_aulas = Presenca.objects.filter(aluno=aluno, aula__data_hora_inicio__lt=agora).count()
+        total_faltas = Presenca.objects.filter(aluno=aluno, status='FALTA').count()
+        context['total_aulas_realizadas'] = total_aulas
+        context['total_faltas'] = total_faltas
+
+        # 3. ÚLTIMA EVOLUÇÃO (Prontuário)
+        # Pega a última aula realizada que tenha algum texto de evolução
+        ultima_evolucao = Aula.objects.filter(
+            presencas__aluno=aluno,
+            data_hora_inicio__lt=agora,
+        ).exclude(evolucao_texto='').order_by('-data_hora_inicio').first()
+
+        context['ultima_evolucao'] = ultima_evolucao
+
+        # Documentos extras (que já tinha)
+        context['documentos_extras'] = aluno.documentos.all()
         
         return context
     

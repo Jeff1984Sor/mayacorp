@@ -12,11 +12,29 @@ from django.contrib.auth import authenticate, login
 from django.http import HttpResponse
 from django.db import connection
 from django_tenants.utils import schema_context
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from django.utils import timezone
+from cadastros_fit.models import Aluno
+from agenda_fit.models import Aula
+from financeiro_fit.models import Lancamento
 
 
 # Essa função agora manda o HTML completo (com menu)
+@login_required
 def home(request):
-    return render(request, 'home.html')
+    hoje = timezone.now().date()
+    
+    context = {
+        'total_alunos': Aluno.objects.count(),
+        'aulas_hoje': Aula.objects.filter(data_hora_inicio__date=hoje).count(),
+        'receber_hoje': Lancamento.objects.filter(
+            categoria__tipo='RECEITA', 
+            data_vencimento=hoje, 
+            status='PENDENTE'
+        ).count(),
+    }
+    return render(request, 'home.html', context)
 
 def cadastro(request):
     if request.method == 'POST':

@@ -43,14 +43,20 @@
             
             <li class="nav-item">
                 <a href="{% url 'home' %}" class="nav-link link-dark">
-                    <i class="fas fa-home fa-fw me-2"></i> Início
+                    <i class="fas fa-tachometer-alt fa-fw me-2"></i> Início
                 </a>
             </li>
 
             <!-- MÓDULO FIT -->
             {% if 'suite_pilates' in perms_produtos or user.is_superuser %}
                 <li class="nav-header text-uppercase text-muted mt-3 mb-2 small fw-bold ps-3">Gestão Fit</li>
-                <li><a href="{% url 'aluno_list' %}" class="nav-link link-dark"><i class="fas fa-users fa-fw me-2 text-success"></i> Alunos</a></li>
+                
+                <!-- Links de Operação Diária -->
+                <li><a href="{% url 'calendario_semanal' %}" class="nav-link link-dark"><i class="fas fa-calendar-alt fa-fw me-2 text-warning"></i> Agenda</a></li>
+                <li><a href="{% url 'financeiro_lista' %}" class="nav-link link-dark"><i class="fas fa-dollar-sign fa-fw me-2 text-success"></i> Financeiro</a></li>
+                
+                <!-- Links de Cadastro -->
+                <li><a href="{% url 'aluno_list' %}" class="nav-link link-dark"><i class="fas fa-users fa-fw me-2 text-info"></i> Alunos</a></li>
                 <li><a href="{% url 'profissional_list' %}" class="nav-link link-dark"><i class="fas fa-user-md fa-fw me-2 text-primary"></i> Profissionais</a></li>
                 <li><a href="{% url 'unidade_list' %}" class="nav-link link-dark"><i class="fas fa-building fa-fw me-2 text-secondary"></i> Unidades</a></li>
             {% endif %}

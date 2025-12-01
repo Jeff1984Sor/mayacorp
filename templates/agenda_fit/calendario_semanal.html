@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Agenda Semanal{% endblock %}
+
+{% block content %}
+
+<style>
+    /* Efeito ao passar o mouse sobre a aula */
+    .aula-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15) !important;
+        cursor: pointer;
+    }
+</style>
+
+<div class="container-fluid py-3">
+
+    <!-- CABEÇALHO E NAVEGAÇÃO -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold mb-0 text-primary"><i class="fas fa-calendar-alt me-2"></i>Agenda Semanal</h3>
+        
+        <div class="d-flex align-items-center bg-white p-2 rounded shadow-sm border">
+            <a href="?data={{ ant_semana }}" class="btn btn-outline-secondary btn-sm border-0">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+            <span class="mx-3 fw-bold text-dark" style="min-width: 200px; text-align: center;">
+                {{ inicio_semana|date:"d/M" }} a {{ fim_semana|date:"d/M" }}
+            </span>
+            <a href="?data={{ prox_semana }}" class="btn btn-outline-secondary btn-sm border-0">
+                <i class="fas fa-chevron-right"></i>
+            </a>
+            <a href="{% url 'calendario_semanal' %}" class="btn btn-sm btn-primary ms-3">Hoje</a>
+        </div>
+
+        <div>
+            <button class="btn btn-success"><i class="fas fa-plus"></i> Agendar Avulso</button>
+        </div>
+    </div>
+
+    <!-- GRADE DA AGENDA (SCROLL HORIZONTAL) -->
+    <div class="table-responsive">
+        <div class="d-flex gap-3" style="min-width: 1200px; padding-bottom: 20px;">
+            
+            {% for dia in dias_da_semana %}
+            <!-- COLUNA DO DIA -->
+            <div class="flex-fill rounded shadow-sm border bg-light" style="min-width: 160px; max-width: 200px;">
+                
+                <!-- CABEÇALHO DO DIA -->
+                <div class="p-2 text-center border-bottom {% if dia.hoje %}bg-warning bg-opacity-25{% else %}bg-white{% endif %}">
+                    <div class="fw-bold text-uppercase small text-muted">
+                        <!-- Tradução manual simples dos dias -->
+                        {% if forloop.counter0 == 0 %}SEGUNDA{% elif forloop.counter0 == 1 %}TERÇA{% elif forloop.counter0 == 2 %}QUARTA{% elif forloop.counter0 == 3 %}QUINTA{% elif forloop.counter0 == 4 %}SEXTA{% elif forloop.counter0 == 5 %}SÁBADO{% else %}DOMINGO{% endif %}
+                    </div>
+                    <div class="fs-4 fw-bold {% if dia.hoje %}text-primary{% endif %}">
+                        {{ dia.data|date:"d/m" }}
+                    </div>
+                </div>
+
+                <!-- LISTA DE AULAS DO DIA -->
+                <div class="p-2 d-flex flex-column gap-2" style="min-height: 400px;">
+                    
+                    {% for dia_index, lista_aulas in grade_semanal.items %}
+                        {% if dia_index == forloop.parentloop.counter0 %}
+                            
+                            {% for aula in lista_aulas %}
+                            
+                            <!-- LINK PARA GERENCIAR A AULA -->
+                            <a href="{% url 'gerenciar_aula' aula.id %}" class="text-decoration-none text-dark">
+                                
+                                <div class="card border-0 shadow-sm p-2 position-relative aula-card" style="border-left: 4px solid #6f42c1 !important; transition: 0.2s;">
+                                    <div class="d-flex justify-content-between align-items-start mb-1">
+                                        <span class="badge bg-light text-dark border">{{ aula.data_hora_inicio|date:"H:i" }}</span>
+                                        
+                                        <!-- Status Icon -->
+                                        {% if aula.status == 'REALIZADA' %}
+                                            <i class="fas fa-check-circle text-success" title="Realizada"></i>
+                                        {% elif aula.status == 'CANCELADA' %}
+                                            <i class="fas fa-times-circle text-danger" title="Cancelada"></i>
+                                        {% else %}
+                                            <i class="far fa-clock text-muted" title="Agendada"></i>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="small fw-bold text-truncate">{{ aula.profissional.nome_social|default:aula.profissional.nome }}</div>
+                                    
+                                    <!-- Lista de Alunos (Presenças) -->
+                                    <div class="mt-2 border-top pt-1">
+                                        {% for presenca in aula.presencas.all %}
+                                            <div class="d-flex align-items-center small text-muted mb-1">
+                                                
+                                                <!-- Ícone muda cor se faltou ou veio -->
+                                                {% if presenca.status == 'PRESENTE' %}
+                                                    <i class="fas fa-check text-success me-1" style="font-size: 0.7rem;"></i>
+                                                {% elif presenca.status == 'FALTA' %}
+                                                    <i class="fas fa-times text-danger me-1" style="font-size: 0.7rem;"></i>
+                                                {% else %}
+                                                    <i class="far fa-circle text-muted me-1" style="font-size: 0.7rem;"></i> 
+                                                {% endif %}
+
+                                                <span class="text-truncate">{{ presenca.aluno.nome }}</span>
+                                            </div>
+                                        {% empty %}
+                                            <div class="small text-danger fst-italic">Sem alunos</div>
+                                        {% endfor %}
+                                    </div>
+                                    
+                                    <!-- Capacidade -->
+                                    <div class="position-absolute bottom-0 end-0 p-1 opacity-50" style="font-size: 0.6rem;">
+                                        {{ aula.presencas.count }}/{{ aula.capacidade_maxima }}
+                                    </div>
+                                </div>
+                            </a>
+
+                            {% empty %}
+                                <div class="text-center text-muted small mt-5 opacity-50">
+                                    <i class="fas fa-coffee mb-2 fs-4"></i><br>Livre
+                                </div>
+                            {% endfor %}
+
+                        {% endif %}
+                    {% endfor %}
+                    
+                </div>
+            </div>
+            {% endfor %}
+
+        </div>
+    </div>
+</div>
+{% endblock %}

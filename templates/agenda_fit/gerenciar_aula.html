@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Gerenciar Aula{% endblock %}
+
+{% block content %}
+<div class="container py-4" style="max-width: 800px;">
+    
+    <!-- TÍTULO -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="fw-bold mb-0">Gerenciar Aula</h4>
+            <div class="text-muted">
+                {{ aula.data_hora_inicio|date:"d/m/Y" }} às {{ aula.data_hora_inicio|date:"H:i" }} | 
+                Prof. {{ aula.profissional.nome_social|default:aula.profissional.nome }}
+            </div>
+        </div>
+        <a href="{% url 'calendario_semanal' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-times"></i> Fechar
+        </a>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        
+        <!-- LISTA DE ALUNOS (CHAMADA) -->
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 text-primary"><i class="fas fa-user-check me-2"></i>Lista de Chamada</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-3">Aluno</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for presenca in aula.presencas.all %}
+                            <tr>
+                                <td class="ps-3 fw-bold text-dark">
+                                    {{ presenca.aluno.nome }}
+                                </td>
+                                <td>
+                                    <!-- Radio Buttons para Check-in -->
+                                    <div class="btn-group" role="group">
+                                        
+                                        <input type="radio" class="btn-check" name="status_{{ presenca.id }}" id="p_{{ presenca.id }}" value="PRESENTE" 
+                                            {% if presenca.status == 'PRESENTE' %}checked{% endif %}>
+                                        <label class="btn btn-outline-success btn-sm" for="p_{{ presenca.id }}">Presente</label>
+
+                                        <input type="radio" class="btn-check" name="status_{{ presenca.id }}" id="f_{{ presenca.id }}" value="FALTA" 
+                                            {% if presenca.status == 'FALTA' %}checked{% endif %}>
+                                        <label class="btn btn-outline-danger btn-sm" for="f_{{ presenca.id }}">Falta</label>
+
+                                        <input type="radio" class="btn-check" name="status_{{ presenca.id }}" id="j_{{ presenca.id }}" value="FALTA_JUSTIFICADA" 
+                                            {% if presenca.status == 'FALTA_JUSTIFICADA' %}checked{% endif %}>
+                                        <label class="btn btn-outline-warning btn-sm" for="j_{{ presenca.id }}">Justificada</label>
+                                    
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="2" class="text-center py-4 text-muted">
+                                    Nenhum aluno agendado nesta aula.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- EVOLUÇÃO / PRONTUÁRIO -->
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-white py-3 border-bottom-0">
+                <h5 class="mb-0 text-success"><i class="fas fa-file-medical me-2"></i>Evolução / Prontuário</h5>
+            </div>
+            <div class="card-body pt-0">
+                <label class="form-label small text-muted">Descreva os exercícios realizados e observações sobre os alunos:</label>
+                <textarea name="evolucao_texto" class="form-control" rows="5" placeholder="Ex: Alongamento de cadeia posterior, fortalecimento de core...">{{ aula.evolucao_texto|default:'' }}</textarea>
+            </div>
+        </div>
+
+        <!-- BOTÕES FINAIS -->
+        <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary btn-lg fw-bold">
+                <i class="fas fa-save me-2"></i> Salvar Chamada e Evolução
+            </button>
+        </div>
+
+    </form>
+</div>
+{% endblock %}
