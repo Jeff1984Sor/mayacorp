@@ -58,9 +58,9 @@ def novo_contrato(request, aluno_id):
             formset = HorarioFixoFormSet(request.POST)
 
     else:
-        # GET: Abre o formulário vazio
-        # Tenta preencher a Unidade automaticamente com a unidade do aluno
-        form = ContratoForm(initial={'unidade': aluno.unidade})
+        # GET: Formulário vazio
+        # REMOVIDO: initial={'unidade': aluno.unidade} pois aluno não tem unidade fixa mais
+        form = ContratoForm() 
         formset = HorarioFixoFormSet()
 
     return render(request, 'contratos_fit/novo_contrato.html', {
