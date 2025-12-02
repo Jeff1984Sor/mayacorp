@@ -78,7 +78,7 @@ def gerar_agenda(contrato, data_inicio_forcada=None):
                     data_hora_inicio=inicio,
                     profissional=h.profissional,
                     defaults={
-                        'organizacao': contrato.plano.organizacao, # Atenção se removeu campo organizacao do plano
+                         # Atenção se removeu campo organizacao do plano
                         'unidade': contrato.unidade,
                         'data_hora_fim': fim,
                         'status': 'AGENDADA'
