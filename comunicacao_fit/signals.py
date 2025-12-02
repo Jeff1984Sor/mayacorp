@@ -7,7 +7,7 @@ import json
 
 # IMPORTANTE: Coloque aqui a URL do Webhook do seu n8n
 # Como você está usando o tunnel, pegue a URL que começa com https://....hooks.n8n.cloud
-N8N_WEBHOOK_URL = "https://dry-octopus-5.hooks.n8n.cloud/webhook-test/comunicacao"
+N8N_WEBHOOK_URL = "https://dry-octopus-5.hooks.n8n.cloud/webhook/comunicacao"
 
 def enviar_n8n_background(payload):
     """Envia os dados para o n8n em segundo plano para não travar o cadastro"""
