@@ -198,3 +198,57 @@ class ContratoDeleteView(LoginRequiredMixin, DeleteView):
     model = Contrato
     template_name = 'contratos_fit/contrato_confirm_delete.html'
     success_url = reverse_lazy('contrato_list')
+
+class TemplateListView(LoginRequiredMixin, ListView):
+    model = TemplateContrato
+    template_name = 'contratos_fit/template_list.html'
+    context_object_name = 'templates'
+
+class TemplateEditorView(LoginRequiredMixin, UpdateView):
+    model = TemplateContrato
+    fields = ['nome', 'texto_html', 'ativo']
+    template_name = 'contratos_fit/template_editor.html'
+    success_url = reverse_lazy('template_list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Lista de variáveis disponíveis para o usuário clicar
+        context['variaveis'] = [
+            {'codigo': '{{ aluno.nome }}', 'desc': 'Nome do Aluno'},
+            {'codigo': '{{ aluno.cpf }}', 'desc': 'CPF do Aluno'},
+            {'codigo': '{{ aluno.rg }}', 'desc': 'RG do Aluno'},
+            {'codigo': '{{ aluno.endereco_completo }}', 'desc': 'Endereço Completo'},
+            {'codigo': '{{ contrato.data_inicio }}', 'desc': 'Início do Contrato'},
+            {'codigo': '{{ contrato.data_fim }}', 'desc': 'Fim do Contrato'},
+            {'codigo': '{{ contrato.valor_total }}', 'desc': 'Valor Total'},
+            {'codigo': '{{ contrato.qtde_parcelas }}', 'desc': 'Nº de Parcelas'},
+            {'codigo': '{{ plano.nome }}', 'desc': 'Nome do Plano'},
+            {'codigo': '{{ unidade.nome }}', 'desc': 'Nome da Unidade'},
+            {'codigo': '{{ empresa_nome }}', 'desc': 'Nome da Sua Empresa'},
+            {'codigo': '{{ hoje }}', 'desc': 'Data de Hoje'},
+        ]
+        return context
+
+class TemplateCreateView(LoginRequiredMixin, CreateView):
+    model = TemplateContrato
+    fields = ['nome', 'texto_html', 'ativo']
+    template_name = 'contratos_fit/template_editor.html'
+    success_url = reverse_lazy('template_list')
+
+    def form_valid(self, form):
+        form.instance.organizacao = self.request.tenant
+        return super().form_valid(form)
+    
+    def get_context_data(self, **kwargs):
+        # Mesma lista de variáveis para a criação
+        context = super().get_context_data(**kwargs)
+        context['variaveis'] = [
+            {'codigo': '{{ aluno.nome }}', 'desc': 'Nome do Aluno'},
+            {'codigo': '{{ aluno.cpf }}', 'desc': 'CPF do Aluno'},
+            # ... (Copie a lista da UpdateView ou crie um mixin para não repetir)
+             {'codigo': '{{ aluno.endereco_completo }}', 'desc': 'Endereço'},
+             {'codigo': '{{ contrato.valor_total }}', 'desc': 'Valor'},
+             {'codigo': '{{ plano.nome }}', 'desc': 'Plano'},
+        ]
+        return context

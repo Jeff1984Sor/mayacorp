@@ -111,3 +111,21 @@ class HorarioFixo(models.Model):
     
     def __str__(self):
         return f"{self.get_dia_semana_display()} às {self.horario}"
+    
+class TemplateContrato(models.Model):
+    organizacao = models.ForeignKey(Organizacao, on_delete=models.CASCADE)
+    nome = models.CharField(max_length=100)
+    
+    # Campo que guarda o HTML do contrato
+    texto_html = models.TextField(default="""
+        <div style="text-align: center;">
+            <img src="https://via.placeholder.com/150" alt="Logo" style="max-height: 100px;">
+            <h2>CONTRATO DE PRESTAÇÃO DE SERVIÇOS</h2>
+        </div>
+        <p>Eu, {{ aluno.nome }}, CPF {{ aluno.cpf }}...</p>
+    """)
+    
+    ativo = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.nome

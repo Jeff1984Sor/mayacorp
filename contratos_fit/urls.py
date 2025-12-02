@@ -16,4 +16,8 @@ urlpatterns = [
 
     path('editar/<int:pk>/', views.ContratoUpdateView.as_view(), name='contrato_update'),
     path('excluir/<int:pk>/', views.ContratoDeleteView.as_view(), name='contrato_delete'),
+
+    path('templates/', views.TemplateListView.as_view(), name='template_list'),
+    path('templates/novo/', views.TemplateCreateView.as_view(), name='template_create'),
+    path('templates/editar/<int:pk>/', views.TemplateEditorView.as_view(), name='template_update'),
 ]
