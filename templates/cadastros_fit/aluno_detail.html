@@ -147,7 +147,7 @@
                         </p>
                     {% else %}
                         <p class="text-muted small mb-0">Nenhuma aula futura agendada.</p>
-                        <a href="{% url 'calendario_semanal' %}" class="btn btn-sm btn-link px-0 text-decoration-none">Ver grade completa</a>
+                        <a href="#" class="btn btn-sm btn-link px-0 text-decoration-none">Ver grade completa</a>
                     {% endif %}
                 </div>
             </div>
@@ -180,15 +180,19 @@
             <div class="lh-1">Central<br><small>Cadastro</small></div>
         </a>
         
-        <!-- LINK CORRIGIDO: Financeiro (Filtra por este aluno na URL se você implementar filtro na view, senão vai pra lista geral) -->
+        <!-- Link Financeiro (Filtrado) -->
         <a href="{% url 'financeiro_lista' %}?aluno_id={{ aluno.id }}" class="app-nav-item">
             <i class="fas fa-dollar-sign fs-5"></i> Financeiro
         </a>
         
-        <!-- LINK CORRIGIDO: Agenda -->
+        <!-- Link Agenda (Filtrado/Específico) -->
+        <!-- NOTA: Precisamos criar essa rota 'lista_aulas_aluno' no agenda_fit/urls.py -->
         <a href="{% url 'lista_aulas_aluno' aluno.id %}" class="app-nav-item">
             <i class="fas fa-calendar-alt fs-5"></i> Agenda
         </a>
+
+        <!-- Link Contratos -->
+        <!-- NOTA: Precisamos criar essa rota 'lista_contratos_aluno' no contratos_fit/urls.py -->
         <a href="{% url 'lista_contratos_aluno' aluno.id %}" class="app-nav-item">
             <i class="fas fa-file-contract fs-5"></i> Contratos
         </a>

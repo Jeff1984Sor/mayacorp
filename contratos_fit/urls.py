@@ -20,4 +20,7 @@ urlpatterns = [
     path('templates/', views.TemplateListView.as_view(), name='template_list'),
     path('templates/novo/', views.TemplateCreateView.as_view(), name='template_create'),
     path('templates/editar/<int:pk>/', views.TemplateEditorView.as_view(), name='template_update'),
+
+    path('contratos/aluno/<int:aluno_id>/', views.lista_contratos_aluno, name='lista_contratos_aluno'),
+
 ]

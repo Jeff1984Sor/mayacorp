@@ -51,3 +51,15 @@ class MacroEvolucao(models.Model):
     
     def __str__(self):
         return self.titulo
+    
+
+class ConfiguracaoIntegracao(models.Model):
+    # Não precisa de 'organizacao' se for tenant, o schema isola
+    totalpass_token = models.CharField("Token TotalPass", max_length=255, blank=True)
+    totalpass_ativo = models.BooleanField(default=False)
+    
+    gympass_id = models.CharField("Gympass ID", max_length=255, blank=True)
+    gympass_ativo = models.BooleanField(default=False)
+
+    def __str__(self):
+        return "Configurações de Integração"

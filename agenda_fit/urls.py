@@ -10,4 +10,7 @@ urlpatterns = [
     path('acao/realizada/<int:presenca_id>/', views.acao_marcar_realizada, name='acao_marcar_realizada'),
     path('acao/deletar/<int:presenca_id>/', views.acao_deletar_agendamento, name='acao_deletar_agendamento'),
     path('acao/remarcar/<int:presenca_id>/', views.acao_remarcar_aula, name='acao_remarcar_aula'),
+
+    path('api/totalpass/checkin/', views.checkin_totalpass, name='api_totalpass_checkin'),
+    path('aulas/aluno/<int:aluno_id>/', views.lista_aulas_aluno, name='lista_aulas_aluno'),
 ]

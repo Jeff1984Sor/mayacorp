@@ -9,6 +9,17 @@ from django.contrib.auth.decorators import login_required
 from .models import Aula, Presenca
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
+from .models import ConfiguracaoIntegracao
+from .forms import IntegracaoForm
+from django.views.generic import UpdateView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.urls import reverse_lazy
+from .models import ConfiguracaoIntegracao
+from .forms import IntegracaoForm
+from django.http import JsonResponse
+from .services_totalpass import TotalPassService
+from cadastros_fit.models import Aluno
+from .models import Aula, Presenca
 
 @login_required
 def calendario_semanal(request):
@@ -137,3 +148,43 @@ def gerenciar_aula(request, aula_id):
     return render(request, 'agenda_fit/gerenciar_aula.html', {
         'aula': aula
     })
+
+class ConfiguracaoIntegracaoView(LoginRequiredMixin, UpdateView):
+    model = ConfiguracaoIntegracao
+    form_class = IntegracaoForm
+    template_name = 'agenda_fit/config_integracao.html'
+    success_url = reverse_lazy('home') # Ou volta pra mesma tela
+
+    def get_object(self, queryset=None):
+        # Pega a primeira configuração ou cria se não existir
+        obj, created = ConfiguracaoIntegracao.objects.get_or_create(pk=1)
+        return obj
+    
+@login_required
+def checkin_totalpass(request):
+    if request.method == "POST":
+        aluno_id = request.POST.get('aluno_id')
+        token = request.POST.get('token_totalpass')
+        aula_id = request.POST.get('aula_id') # Opcional: Se já quiser vincular na aula
+
+        aluno = get_object_or_404(Aluno, pk=aluno_id)
+
+        # 1. Chama a API da TotalPass
+        resultado = TotalPassService.validar_token(token, aluno.cpf)
+
+        if resultado['sucesso']:
+            # 2. Se a TotalPass aprovou, marca presença no seu sistema
+            if aula_id:
+                aula = get_object_or_404(Aula, pk=aula_id)
+                Presenca.objects.create(
+                    aula=aula, 
+                    aluno=aluno, 
+                    status='PRESENTE'
+                )
+                # Opcional: Salvar no Log Financeiro como "A Receber TotalPass"
+            
+            return JsonResponse({'status': 'ok', 'msg': resultado['mensagem']})
+        else:
+            return JsonResponse({'status': 'error', 'msg': resultado['mensagem']}, status=400)
+
+    return JsonResponse({'status': 'error', 'msg': 'Método inválido'}, status=405)
