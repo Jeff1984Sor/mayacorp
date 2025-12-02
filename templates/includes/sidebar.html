@@ -3,14 +3,13 @@
 
 <div class="d-flex flex-column flex-shrink-0 p-3 bg-white border-end" style="width: 260px; height: 100%;">
     
-    <!-- 1. LOGO -->
+    <!-- LOGO -->
     <a href="/" class="d-flex align-items-center mb-3 mb-md-0 link-dark text-decoration-none">
         <span class="fs-4 fw-bold text-primary px-2">MayaCorp</span>
     </a>
-    
     <hr>
 
-    <!-- 2. ÁREA DE USUÁRIO / LOGIN -->
+    <!-- USUÁRIO -->
     <div class="mb-3 px-2">
         {% if user.is_authenticated %}
             <div class="p-2 bg-light rounded border d-flex align-items-center gap-2">
@@ -32,7 +31,7 @@
         {% endif %}
     </div>
 
-    <!-- 3. MENUS -->
+    <!-- MENUS -->
     <ul class="nav nav-pills flex-column mb-auto custom-scroll" style="overflow-y: auto;">
         
         {% if user.is_authenticated %}
@@ -43,11 +42,11 @@
                 </a>
             </li>
 
-            <!-- MÓDULO FIT -->
+            <!-- GESTÃO FIT -->
             {% if 'suite_pilates' in perms_produtos or user.is_superuser %}
                 <li class="nav-header text-uppercase text-muted mt-3 mb-2 small fw-bold ps-3">Gestão Fit</li>
                 
-                <!-- MENU FINANCEIRO -->
+                <!-- FINANCEIRO -->
                 <li>
                     <a class="nav-link link-dark d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#menuFinanceiro" role="button" aria-expanded="false">
                         <span><i class="fas fa-dollar-sign fa-fw me-2 text-success"></i> Financeiro</span>
@@ -55,18 +54,18 @@
                     </a>
                     <div class="collapse" id="menuFinanceiro">
                         <ul class="nav flex-column ms-3 border-start border-secondary ps-2 mt-1">
-                            <li><a href="{% url 'financeiro_lista' %}" class="nav-link link-secondary py-1 small">Extrato / Lançamentos</a></li>
-                            <!-- Adicione estas URLs se existirem no seu financeiro_fit/urls.py, senão comente -->
-                            <!-- <li><a href="#" class="nav-link link-secondary py-1 small">Categorias</a></li> -->
-                            <!-- <li><a href="#" class="nav-link link-secondary py-1 small">Contas Bancárias</a></li> -->
+                            <li><a href="{% url 'financeiro_lista' %}" class="nav-link link-secondary py-1 small">Lançamentos</a></li>
                             <li><a href="{% url 'contrato_list' %}" class="nav-link link-secondary py-1 small">Contratos</a></li>
+                            <!-- LINKS ATIVADOS AGORA -->
+                            <li><a href="{% url 'categoria_list' %}" class="nav-link link-secondary py-1 small">Categorias</a></li>
+                            <li><a href="{% url 'conta_list' %}" class="nav-link link-secondary py-1 small">Contas Bancárias</a></li>
                         </ul>
                     </div>
                 </li>
 
                 <li><a href="{% url 'calendario_semanal' %}" class="nav-link link-dark"><i class="fas fa-calendar-alt fa-fw me-2 text-warning"></i> Agenda</a></li>
                 
-                <!-- MENU CADASTROS -->
+                <!-- CADASTROS -->
                 <li>
                     <a class="nav-link link-dark d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#menuCadastros" role="button" aria-expanded="false">
                         <span><i class="fas fa-folder fa-fw me-2 text-info"></i> Cadastros</span>
@@ -77,18 +76,14 @@
                             <li><a href="{% url 'aluno_list' %}" class="nav-link link-secondary py-1 small">Alunos</a></li>
                             <li><a href="{% url 'profissional_list' %}" class="nav-link link-secondary py-1 small">Profissionais</a></li>
                             <li><a href="{% url 'plano_list' %}" class="nav-link link-secondary py-1 small">Planos e Preços</a></li>
-                            
-                            <!-- NOVO LINK AQUI -->
                             <li><a href="{% url 'template_list' %}" class="nav-link link-secondary py-1 small">Modelos de Contrato</a></li>
-                            
                             <li><a href="{% url 'unidade_list' %}" class="nav-link link-secondary py-1 small">Unidades</a></li>
                         </ul>
                     </div>
                 </li>
-
             {% endif %}
 
-            <!-- MÓDULO PDF -->
+            <!-- FERRAMENTAS -->
             {% if user|tem_acesso:"gerador-pdf" %}
                 <li class="nav-header text-uppercase text-muted mt-3 mb-2 small fw-bold ps-3">Ferramentas</li>
                 <li><a href="{% url 'pdf_home' %}" class="nav-link link-dark"><i class="fas fa-file-pdf fa-fw me-2 text-danger"></i> Conciliador PDF</a></li>
@@ -96,14 +91,11 @@
 
         {% else %}
             <div class="alert alert-info mt-3 small">
-                <i class="fas fa-info-circle"></i> Faça login acima.
+                <i class="fas fa-info-circle"></i> Faça login.
             </div>
         {% endif %}
-
     </ul>
     
     <hr>
-    <div class="text-center text-muted small">
-        v1.0.0
-    </div>
+    <div class="text-center text-muted small">v1.0.0</div>
 </div>
