@@ -16,6 +16,8 @@ from cadastros_fit.models import Aluno
 from .models import Contrato, TemplateContrato, Plano
 from .forms import ContratoForm, HorarioFixoFormSet, PlanoForm
 from .services import processar_novo_contrato
+from .services import regenerar_contrato
+
 
 @login_required
 def novo_contrato(request, aluno_id):
@@ -184,14 +186,22 @@ class ContratoListView(LoginRequiredMixin, ListView):
         context['planos'] = Plano.objects.filter(ativo=True)
         return context
     
-# 2. EDITAR CONTRATO
+from .services import regenerar_contrato
+
 class ContratoUpdateView(LoginRequiredMixin, UpdateView):
     model = Contrato
     form_class = ContratoForm
-    template_name = 'contratos_fit/novo_contrato.html' # Reutilizamos o template de form
-    
-    def get_success_url(self):
-        return reverse_lazy('contrato_list')
+    template_name = 'contratos_fit/novo_contrato.html'
+    success_url = reverse_lazy('contrato_list')
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        
+        # Após salvar as mudanças no contrato, chama a regeneração
+        # (Isso vai apagar parcelas pendentes e recriar com o novo valor)
+        regenerar_contrato(self.object)
+        
+        return response
 
 # 3. EXCLUIR CONTRATO
 class ContratoDeleteView(LoginRequiredMixin, DeleteView):
