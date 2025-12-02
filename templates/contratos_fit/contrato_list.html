@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+
+{% block title %}Gestão de Contratos{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    
+    <!-- Título e Botão de Novo -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold text-dark"><i class="fas fa-file-contract me-2"></i>Contratos</h3>
+        
+        <!-- Botão que abre o Modal -->
+        <button type="button" class="btn btn-primary fw-bold" data-bs-toggle="modal" data-bs-target="#modalNovoContrato">
+            <i class="fas fa-plus"></i> Novo Contrato
+        </button>
+    </div>
+
+    <!-- Tabela -->
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Nº</th>
+                        <th>Aluno</th>
+                        <th>Plano</th>
+                        <th>Status</th>
+                        <th>Vencimento</th>
+                        <th>Valor Total</th>
+                        <th class="text-end">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for contrato in contratos %}
+                    <tr>
+                        <td>#{{ contrato.id }}</td>
+                        <td>
+                            <a href="{% url 'aluno_detail' contrato.aluno.id %}" class="fw-bold text-decoration-none text-dark">
+                                {{ contrato.aluno.nome }}
+                            </a>
+                        </td>
+                        <td>{{ contrato.plano.nome }}</td>
+                        <td>
+                            {% if contrato.status == 'ATIVO' %}
+                                <span class="badge bg-success">Ativo</span>
+                            {% elif contrato.status == 'CANCELADO' %}
+                                <span class="badge bg-danger">Cancelado</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ contrato.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ contrato.data_fim|date:"d/m/Y" }}</td>
+                        <td class="fw-bold">R$ {{ contrato.valor_total }}</td>
+                        <td class="text-end">
+                            <a href="{% url 'imprimir_contrato' contrato.id %}" target="_blank" class="btn btn-sm btn-outline-dark" title="Imprimir PDF">
+                                <i class="fas fa-print"></i>
+                            </a>
+                            <!-- Botão Editar (se tiver a view) -->
+                            <!-- <a href="#" class="btn btn-sm btn-outline-primary"><i class="fas fa-pen"></i></a> -->
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-5 text-muted">Nenhum contrato encontrado.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL PARA SELECIONAR ALUNO (Intermediário) -->
+<div class="modal fade" id="modalNovoContrato" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Iniciar Nova Venda</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Selecione o aluno para criar o contrato:</p>
+                
+                <!-- Select com busca nativa do navegador (datalist) -->
+                <label class="form-label fw-bold">Buscar Aluno:</label>
+                <input class="form-control" list="datalistOptions" id="alunoSearch" placeholder="Digite o nome...">
+                <datalist id="datalistOptions">
+                    {% for aluno in alunos_para_venda %}
+                        <!-- O value é o nome, mas guardamos o ID no data-value via JS depois, ou usamos lógica simples -->
+                        <option data-id="{{ aluno.id }}" value="{{ aluno.nome }}">
+                    {% endfor %}
+                </datalist>
+
+                <div class="d-grid mt-4">
+                    <button type="button" class="btn btn-success fw-bold" onclick="irParaVenda()">
+                        Continuar <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function irParaVenda() {
+        const inputVal = document.getElementById('alunoSearch').value;
+        const options = document.querySelectorAll('#datalistOptions option');
+        let alunoId = null;
+
+        // Procura o ID baseado no nome digitado
+        for (let option of options) {
+            if (option.value === inputVal) {
+                alunoId = option.getAttribute('data-id');
+                break;
+            }
+        }
+
+        if (alunoId) {
+            // Redireciona para a tela de venda que já criamos (/contratos/novo/ID/)
+            window.location.href = "{% url 'novo_contrato' 0 %}".replace('0', alunoId);
+        } else {
+            alert("Por favor, selecione um aluno válido da lista.");
+        }
+    }
+</script>
+{% endblock %}

@@ -143,3 +143,15 @@ def lista_contratos_aluno(request, aluno_id):
         'contratos': contratos,
         'hoje': timezone.now().date()
     })
+
+class ContratoListView(LoginRequiredMixin, ListView):
+    model = Contrato
+    template_name = 'contratos_fit/contrato_list.html'
+    context_object_name = 'contratos'
+    ordering = ['-criado_em']
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Mandamos a lista de alunos para o Modal de "Novo Contrato"
+        context['alunos_para_venda'] = Aluno.objects.filter(ativo=True).order_by('nome')
+        return context
