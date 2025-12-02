@@ -3,15 +3,30 @@ from dateutil.relativedelta import relativedelta  # Precisa instalar: pip instal
 from core.models import Organizacao
 from cadastros_fit.models import Aluno, Profissional, Unidade
 
+# ==============================================================================
+# 1. TEMPLATES DE CONTRATO
+# ==============================================================================
 class TemplateContrato(models.Model):
     organizacao = models.ForeignKey(Organizacao, on_delete=models.CASCADE)
     nome = models.CharField(max_length=100, help_text="Ex: Contrato Padrão 2025")
-    texto_html = models.TextField(help_text="Use {{aluno_nome}}, {{valor}}, {{data_inicio}} como variáveis.")
+    
+    # Campo que guarda o HTML do contrato com um valor padrão bonitinho
+    texto_html = models.TextField(help_text="Use {{aluno.nome}}, {{valor}}, {{data_inicio}} como variáveis.", default="""
+        <div style="text-align: center;">
+            <img src="https://via.placeholder.com/150" alt="Logo" style="max-height: 100px;">
+            <h2>CONTRATO DE PRESTAÇÃO DE SERVIÇOS</h2>
+        </div>
+        <p>Eu, {{ aluno.nome }}, CPF {{ aluno.cpf }}...</p>
+    """)
+    
     ativo = models.BooleanField(default=True)
 
     def __str__(self):
         return self.nome
 
+# ==============================================================================
+# 2. PLANOS / PACOTES
+# ==============================================================================
 class Plano(models.Model):
     # Definição das opções para o dropdown funcionar
     DURACAO_CHOICES = [
@@ -21,7 +36,7 @@ class Plano(models.Model):
         (12, 'Anual (12 Meses)'),
     ]
     
-    # Se ainda tiver organizacao aqui, pode remover se quiser seguir o padrão novo
+    # Se precisar de organização por plano, descomente abaixo
     # organizacao = models.ForeignKey(Organizacao, on_delete=models.CASCADE) 
     
     nome = models.CharField(max_length=100, help_text="Ex: Pilates Solo 2x - Trimestral")
@@ -42,6 +57,9 @@ class Plano(models.Model):
     def __str__(self):
         return f"{self.nome} ({self.duracao_meses} meses)"
 
+# ==============================================================================
+# 3. CONTRATO (A VENDA)
+# ==============================================================================
 class Contrato(models.Model):
     STATUS_CHOICES = [
         ('ATIVO', 'Ativo'),
@@ -65,6 +83,8 @@ class Contrato(models.Model):
     
     # Dados de Controle
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDENTE')
+    
+    # Agora funciona porque TemplateContrato foi definido antes!
     template_usado = models.ForeignKey(TemplateContrato, on_delete=models.SET_NULL, null=True, blank=True)
     arquivo_assinado = models.FileField(upload_to='contratos/assinados/', blank=True, null=True)
     
@@ -89,6 +109,9 @@ class Contrato(models.Model):
     def __str__(self):
         return f"Contrato {self.id} - {self.aluno.nome}"
 
+# ==============================================================================
+# 4. HORÁRIOS FIXOS DA GRADE
+# ==============================================================================
 class HorarioFixo(models.Model):
     """
     Define a Grade Fixa do aluno.
@@ -111,21 +134,3 @@ class HorarioFixo(models.Model):
     
     def __str__(self):
         return f"{self.get_dia_semana_display()} às {self.horario}"
-    
-class TemplateContrato(models.Model):
-    organizacao = models.ForeignKey(Organizacao, on_delete=models.CASCADE)
-    nome = models.CharField(max_length=100)
-    
-    # Campo que guarda o HTML do contrato
-    texto_html = models.TextField(default="""
-        <div style="text-align: center;">
-            <img src="https://via.placeholder.com/150" alt="Logo" style="max-height: 100px;">
-            <h2>CONTRATO DE PRESTAÇÃO DE SERVIÇOS</h2>
-        </div>
-        <p>Eu, {{ aluno.nome }}, CPF {{ aluno.cpf }}...</p>
-    """)
-    
-    ativo = models.BooleanField(default=True)
-
-    def __str__(self):
-        return self.nome
