@@ -32,6 +32,7 @@
                         <th class="text-end">Ações</th>
                     </tr>
                 </thead>
+                
                 <tbody>
                     {% for c in contratos %}
                     <tr>
@@ -63,10 +64,22 @@
                             {% endif %}
                         </td>
                         <td class="text-end">
-                            <a href="{% url 'imprimir_contrato' c.id %}" target="_blank" class="btn btn-sm btn-outline-dark" title="Imprimir PDF">
-                                <i class="fas fa-print"></i> Imprimir
-                            </a>
-                            <!-- Aqui poderia ter um botão de Cancelar Contrato futuramente -->
+                            <div class="btn-group">
+                                <!-- Imprimir -->
+                                <a href="{% url 'imprimir_contrato' c.id %}" target="_blank" class="btn btn-sm btn-outline-dark" title="Imprimir PDF">
+                                    <i class="fas fa-print"></i>
+                                </a>
+                                
+                                <!-- Editar -->
+                                <a href="{% url 'contrato_update' c.id %}" class="btn btn-sm btn-outline-primary" title="Editar Contrato">
+                                    <i class="fas fa-pen"></i>
+                                </a>
+                                
+                                <!-- Excluir -->
+                                <a href="{% url 'contrato_delete' c.id %}" class="btn btn-sm btn-outline-danger" title="Excluir Contrato">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
                         </td>
                     </tr>
                     {% empty %}
