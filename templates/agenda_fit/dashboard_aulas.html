@@ -8,12 +8,12 @@
 
 <div class="container-fluid py-4">
     
-    <!-- FILTRO DE DATA -->
+    <!-- FILTRO -->
     <form class="d-flex align-items-center gap-2 mb-4 bg-white p-3 rounded shadow-sm">
         <h4 class="fw-bold text-primary mb-0 me-auto"><i class="fas fa-chart-line me-2"></i>Performance Aulas</h4>
         
         <div class="d-flex align-items-center gap-2">
-            <span class="text-muted small">Filtrar Indicadores:</span>
+            <span class="text-muted small">Referência:</span>
             <select name="mes" class="form-select" style="width: 140px;" onchange="this.form.submit()">
                 <option value="1" {% if mes_atual == 1 %}selected{% endif %}>Janeiro</option>
                 <option value="2" {% if mes_atual == 2 %}selected{% endif %}>Fevereiro</option>
@@ -36,37 +36,34 @@
         </div>
     </form>
 
+    <!-- GRÁFICO 1: EVOLUÇÃO POR PROFISSIONAL -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white fw-bold py-3 border-bottom">
+            <i class="fas fa-user-tie me-2 text-primary"></i>Evolução de Aulas por Profissional ({{ ano_atual }})
+        </div>
+        <div class="card-body">
+            <div style="height: 300px; width: 100%;">
+                <canvas id="chartProf"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- GRÁFICO 2: EVOLUÇÃO DA FREQUÊNCIA (NOVO!) -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white fw-bold py-3 border-bottom">
+            <i class="fas fa-users me-2 text-success"></i>Evolução da Frequência (Presenças vs Faltas - {{ ano_atual }})
+        </div>
+        <div class="card-body">
+            <div style="height: 300px; width: 100%;">
+                <canvas id="chartFreq"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- LISTAS TOP 5 -->
     <div class="row g-4">
-        
-        <!-- GRÁFICO DE LINHAS: EVOLUÇÃO ANUAL POR PROFISSIONAL -->
-        <div class="col-md-8">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white fw-bold d-flex justify-content-between">
-                    <span>Evolução Anual (Aulas Realizadas)</span>
-                    <span class="badge bg-light text-dark border">{{ ano_atual }}</span>
-                </div>
-                <div class="card-body">
-                    <div style="height: 350px; width: 100%;">
-                        <canvas id="chartProf"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- CARD DE DESTAQUE: AULAS RESTANTES DO MÊS -->
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm bg-primary text-white h-100">
-                <div class="card-body d-flex flex-column justify-content-center align-items-center position-relative overflow-hidden">
-                    <h1 class="display-1 fw-bold mb-0" style="z-index: 2;">{{ aulas_restantes }}</h1>
-                    <p class="fs-5 opacity-75" style="z-index: 2;">Aulas Agendadas (Mês Atual)</p>
-                    <i class="fas fa-calendar-check fa-5x opacity-25 position-absolute" style="right: -10px; bottom: -10px; transform: rotate(-15deg);"></i>
-                </div>
-            </div>
-        </div>
-
-        <!-- TOP 5 ASSÍDUOS -->
         <div class="col-md-6">
-            <div class="card border-0 shadow-sm">
+            <div class="card border-0 shadow-sm h-100">
                 <div class="card-header bg-success text-white fw-bold">
                     <i class="fas fa-trophy me-2"></i>Top 5 Assíduos ({{ mes_atual }}/{{ ano_atual }})
                 </div>
@@ -74,7 +71,7 @@
                     {% for item in top_assiduos %}
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         <span>
-                            <span class="fw-bold text-secondary me-2">{{ forloop.counter }}º</span>
+                            <span class="fw-bold text-secondary me-2">{{ forloop.counter }}º</span> 
                             {{ item.aluno__nome }}
                         </span>
                         <span class="badge bg-success rounded-pill">{{ item.total }} presenças</span>
@@ -86,9 +83,8 @@
             </div>
         </div>
 
-        <!-- TOP 5 FALTOSOS -->
         <div class="col-md-6">
-            <div class="card border-0 shadow-sm">
+            <div class="card border-0 shadow-sm h-100">
                 <div class="card-header bg-danger text-white fw-bold">
                     <i class="fas fa-thumbs-down me-2"></i>Top 5 Faltosos ({{ mes_atual }}/{{ ano_atual }})
                 </div>
@@ -96,50 +92,66 @@
                     {% for item in top_faltosos %}
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         <span>
-                            <span class="fw-bold text-secondary me-2">{{ forloop.counter }}º</span>
+                            <span class="fw-bold text-secondary me-2">{{ forloop.counter }}º</span> 
                             {{ item.aluno__nome }}
                         </span>
                         <span class="badge bg-danger rounded-pill">{{ item.total }} faltas</span>
                     </li>
                     {% empty %}
-                    <li class="list-group-item text-muted text-center py-4">Sem faltas neste mês.</li>
+                    <li class="list-group-item text-muted text-center py-4">Sem faltas registradas.</li>
                     {% endfor %}
                 </ul>
             </div>
         </div>
-
     </div>
 </div>
 
+<!-- CONFIGURAÇÃO DOS GRÁFICOS -->
 <script>
-    const ctx = document.getElementById('chartProf').getContext('2d');
-    new Chart(ctx, {
+    const labelsMeses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+    const commonOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: { legend: { position: 'bottom' } },
+        scales: { y: { beginAtZero: true } }
+    };
+
+    // GRÁFICO 1: PROFISSIONAIS
+    new Chart(document.getElementById('chartProf'), {
         type: 'line',
         data: {
-            labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
-            datasets: {{ chart_prof_datasets|safe }} 
+            labels: labelsMeses,
+            datasets: {{ chart_prof_datasets|safe }}
         },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            interaction: {
-                mode: 'index',
-                intersect: false,
-            },
-            plugins: {
-                legend: { position: 'bottom' },
-                tooltip: {
-                    mode: 'index',
-                    intersect: false,
+        options: commonOptions
+    });
+
+    // GRÁFICO 2: FREQUÊNCIA
+    new Chart(document.getElementById('chartFreq'), {
+        type: 'line',
+        data: {
+            labels: labelsMeses,
+            datasets: [
+                {
+                    label: 'Presenças',
+                    data: {{ chart_presente|safe }},
+                    borderColor: '#198754', // Verde
+                    backgroundColor: 'rgba(25, 135, 84, 0.1)', // Fundo transparente verde
+                    fill: true,
+                    tension: 0.4
+                },
+                {
+                    label: 'Faltas',
+                    data: {{ chart_falta|safe }},
+                    borderColor: '#dc3545', // Vermelho
+                    backgroundColor: 'rgba(220, 53, 69, 0.1)', // Fundo transparente vermelho
+                    fill: true,
+                    tension: 0.4
                 }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: { display: true, text: 'Qtd Aulas' }
-                }
-            }
-        }
+            ]
+        },
+        options: commonOptions
     });
 </script>
 {% endblock %}

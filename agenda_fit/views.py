@@ -19,6 +19,14 @@ from django.views.generic import TemplateView
 from cadastros_fit.models import Aluno
 from .models import Aula, Presenca, ConfiguracaoIntegracao
 from .forms import IntegracaoForm
+
+from django.views.generic import TemplateView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Count
+from django.db.models.functions import ExtractMonth
+from django.utils import timezone
+import calendar
+from .models import Aula, Presenca
 # Se você tiver o serviço TotalPass, mantenha. Se não, comente para evitar erro.
 # from .services_totalpass import TotalPassService
 
@@ -256,8 +264,12 @@ class DashboardAulasView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         
         hoje = timezone.now()
-        ano = int(self.request.GET.get('ano', hoje.year))
-        mes = int(self.request.GET.get('mes', hoje.month))
+        try:
+            ano = int(self.request.GET.get('ano', hoje.year))
+            mes = int(self.request.GET.get('mes', hoje.month))
+        except ValueError:
+            ano = hoje.year
+            mes = hoje.month
         
         _, last_day = calendar.monthrange(ano, mes)
         inicio_mes = timezone.datetime(ano, mes, 1).date()
@@ -267,7 +279,7 @@ class DashboardAulasView(LoginRequiredMixin, TemplateView):
         context['mes_atual'] = mes
         context['anos_select'] = range(hoje.year - 2, hoje.year + 3)
 
-        # --- 1. GRÁFICO ANUAL POR PROFISSIONAL (LINHAS) ---
+        # --- GRÁFICO 1: AULAS POR PROFISSIONAL (ANUAL) ---
         aulas_ano = Aula.objects.filter(
             data_hora_inicio__year=ano,
             status='REALIZADA'
@@ -275,28 +287,20 @@ class DashboardAulasView(LoginRequiredMixin, TemplateView):
          .values('mes', 'profissional__nome') \
          .annotate(total=Count('id'))
         
-        # Processa dados para o Chart.js
-        # Estrutura: { 'Nome Prof': [jan, fev, mar...] }
         dados_profs = {}
-        
         for item in aulas_ano:
             nome = item['profissional__nome'] or "Sem Prof."
             mes_idx = item['mes'] - 1
-            total = item['total']
-            
             if nome not in dados_profs:
                 dados_profs[nome] = [0] * 12
+            dados_profs[nome][mes_idx] = item['total']
             
-            dados_profs[nome][mes_idx] = total
-            
-        # Monta os Datasets com cores diferentes
-        datasets = []
+        datasets_prof = []
         cores = ['#0d6efd', '#198754', '#dc3545', '#ffc107', '#0dcaf0', '#6610f2', '#fd7e14', '#20c997']
         i = 0
-        
         for nome, dados in dados_profs.items():
             cor = cores[i % len(cores)]
-            datasets.append({
+            datasets_prof.append({
                 'label': nome,
                 'data': dados,
                 'borderColor': cor,
@@ -305,10 +309,29 @@ class DashboardAulasView(LoginRequiredMixin, TemplateView):
                 'fill': False
             })
             i += 1
-            
-        context['chart_prof_datasets'] = datasets
+        context['chart_prof_datasets'] = datasets_prof
 
-        # --- 2. Outros Indicadores (Mantidos) ---
+        # --- GRÁFICO 2: FREQUÊNCIA (PRESENÇAS vs FALTAS - ANUAL) ---
+        frequencia_ano = Presenca.objects.filter(
+            aula__data_hora_inicio__year=ano
+        ).annotate(mes=ExtractMonth('aula__data_hora_inicio')) \
+         .values('mes', 'status') \
+         .annotate(total=Count('id'))
+         
+        data_presente = [0] * 12
+        data_falta = [0] * 12
+        
+        for item in frequencia_ano:
+            idx = item['mes'] - 1
+            if item['status'] == 'PRESENTE':
+                data_presente[idx] = item['total']
+            elif item['status'] == 'FALTA':
+                data_falta[idx] = item['total']
+        
+        context['chart_presente'] = data_presente
+        context['chart_falta'] = data_falta
+
+        # --- INDICADORES MENSAIS ---
         context['aulas_restantes'] = Aula.objects.filter(
             data_hora_inicio__date__range=[timezone.now().date(), fim_mes],
             status='AGENDADA'
