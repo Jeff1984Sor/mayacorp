@@ -12,6 +12,7 @@ from cadastros_fit.models import Profissional
 from django.db.models import Count, Q
 from django.db.models.functions import TruncMonth
 import calendar
+from django.db.models.functions import ExtractMonth
 from django.views.generic import TemplateView
 
 # Imports Locais
@@ -254,7 +255,6 @@ class DashboardAulasView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
-        # Filtros de Data (Padrão: Mês Atual)
         hoje = timezone.now()
         ano = int(self.request.GET.get('ano', hoje.year))
         mes = int(self.request.GET.get('mes', hoje.month))
@@ -267,38 +267,61 @@ class DashboardAulasView(LoginRequiredMixin, TemplateView):
         context['mes_atual'] = mes
         context['anos_select'] = range(hoje.year - 2, hoje.year + 3)
 
-        # 1. Aulas por Profissional (Conta Aulas únicas, não presenças)
-        aulas_prof = Aula.objects.filter(
-            data_hora_inicio__date__range=[inicio_mes, fim_mes],
-            status='REALIZADA' # Ou contar agendadas também? Vou contar Realizadas
-        ).values('profissional__nome').annotate(total=Count('id')).order_by('-total')
+        # --- 1. GRÁFICO ANUAL POR PROFISSIONAL (LINHAS) ---
+        aulas_ano = Aula.objects.filter(
+            data_hora_inicio__year=ano,
+            status='REALIZADA'
+        ).annotate(mes=ExtractMonth('data_hora_inicio')) \
+         .values('mes', 'profissional__nome') \
+         .annotate(total=Count('id'))
         
-        context['chart_prof_labels'] = [x['profissional__nome'] for x in aulas_prof]
-        context['chart_prof_data'] = [x['total'] for x in aulas_prof]
+        # Processa dados para o Chart.js
+        # Estrutura: { 'Nome Prof': [jan, fev, mar...] }
+        dados_profs = {}
+        
+        for item in aulas_ano:
+            nome = item['profissional__nome'] or "Sem Prof."
+            mes_idx = item['mes'] - 1
+            total = item['total']
+            
+            if nome not in dados_profs:
+                dados_profs[nome] = [0] * 12
+            
+            dados_profs[nome][mes_idx] = total
+            
+        # Monta os Datasets com cores diferentes
+        datasets = []
+        cores = ['#0d6efd', '#198754', '#dc3545', '#ffc107', '#0dcaf0', '#6610f2', '#fd7e14', '#20c997']
+        i = 0
+        
+        for nome, dados in dados_profs.items():
+            cor = cores[i % len(cores)]
+            datasets.append({
+                'label': nome,
+                'data': dados,
+                'borderColor': cor,
+                'backgroundColor': cor,
+                'tension': 0.4,
+                'fill': False
+            })
+            i += 1
+            
+        context['chart_prof_datasets'] = datasets
 
-        # 2. Aulas Restantes no Mês
+        # --- 2. Outros Indicadores (Mantidos) ---
         context['aulas_restantes'] = Aula.objects.filter(
             data_hora_inicio__date__range=[timezone.now().date(), fim_mes],
             status='AGENDADA'
         ).count()
 
-        # 3. Top 5 Assíduos (Quem mais veio)
-        assiduos = Presenca.objects.filter(
+        context['top_assiduos'] = Presenca.objects.filter(
             aula__data_hora_inicio__date__range=[inicio_mes, fim_mes],
             status='PRESENTE'
         ).values('aluno__nome').annotate(total=Count('id')).order_by('-total')[:5]
-        context['top_assiduos'] = assiduos
 
-        # 4. Top 5 Faltosos
-        faltosos = Presenca.objects.filter(
+        context['top_faltosos'] = Presenca.objects.filter(
             aula__data_hora_inicio__date__range=[inicio_mes, fim_mes],
             status='FALTA'
         ).values('aluno__nome').annotate(total=Count('id')).order_by('-total')[:5]
-        context['top_faltosos'] = faltosos
-        
-        # 5. Cancelamentos no Mês (Contratos cancelados neste mês)
-        # Precisaria de um campo 'data_cancelamento' no contrato, mas vamos usar updated_at aproximado
-        # ou assumir status CANCELADO
-        # Vou usar uma lógica simples baseada nos contratos que terminaram ou foram cancelados
-        
+
         return context

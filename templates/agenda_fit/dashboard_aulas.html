@@ -12,46 +12,54 @@
     <form class="d-flex align-items-center gap-2 mb-4 bg-white p-3 rounded shadow-sm">
         <h4 class="fw-bold text-primary mb-0 me-auto"><i class="fas fa-chart-line me-2"></i>Performance Aulas</h4>
         
-        <select name="mes" class="form-select" style="width: 150px;" onchange="this.form.submit()">
-            <option value="1" {% if mes_atual == 1 %}selected{% endif %}>Janeiro</option>
-            <option value="2" {% if mes_atual == 2 %}selected{% endif %}>Fevereiro</option>
-            <option value="3" {% if mes_atual == 3 %}selected{% endif %}>Março</option>
-            <option value="4" {% if mes_atual == 4 %}selected{% endif %}>Abril</option>
-            <option value="5" {% if mes_atual == 5 %}selected{% endif %}>Maio</option>
-            <option value="6" {% if mes_atual == 6 %}selected{% endif %}>Junho</option>
-            <option value="7" {% if mes_atual == 7 %}selected{% endif %}>Julho</option>
-            <option value="8" {% if mes_atual == 8 %}selected{% endif %}>Agosto</option>
-            <option value="9" {% if mes_atual == 9 %}selected{% endif %}>Setembro</option>
-            <option value="10" {% if mes_atual == 10 %}selected{% endif %}>Outubro</option>
-            <option value="11" {% if mes_atual == 11 %}selected{% endif %}>Novembro</option>
-            <option value="12" {% if mes_atual == 12 %}selected{% endif %}>Dezembro</option>
-        </select>
-        <select name="ano" class="form-select" style="width: 100px;" onchange="this.form.submit()">
-            {% for y in anos_select %}
-            <option value="{{ y }}" {% if ano_atual == y %}selected{% endif %}>{{ y }}</option>
-            {% endfor %}
-        </select>
+        <div class="d-flex align-items-center gap-2">
+            <span class="text-muted small">Filtrar Indicadores:</span>
+            <select name="mes" class="form-select" style="width: 140px;" onchange="this.form.submit()">
+                <option value="1" {% if mes_atual == 1 %}selected{% endif %}>Janeiro</option>
+                <option value="2" {% if mes_atual == 2 %}selected{% endif %}>Fevereiro</option>
+                <option value="3" {% if mes_atual == 3 %}selected{% endif %}>Março</option>
+                <option value="4" {% if mes_atual == 4 %}selected{% endif %}>Abril</option>
+                <option value="5" {% if mes_atual == 5 %}selected{% endif %}>Maio</option>
+                <option value="6" {% if mes_atual == 6 %}selected{% endif %}>Junho</option>
+                <option value="7" {% if mes_atual == 7 %}selected{% endif %}>Julho</option>
+                <option value="8" {% if mes_atual == 8 %}selected{% endif %}>Agosto</option>
+                <option value="9" {% if mes_atual == 9 %}selected{% endif %}>Setembro</option>
+                <option value="10" {% if mes_atual == 10 %}selected{% endif %}>Outubro</option>
+                <option value="11" {% if mes_atual == 11 %}selected{% endif %}>Novembro</option>
+                <option value="12" {% if mes_atual == 12 %}selected{% endif %}>Dezembro</option>
+            </select>
+            <select name="ano" class="form-select" style="width: 100px;" onchange="this.form.submit()">
+                {% for y in anos_select %}
+                <option value="{{ y }}" {% if ano_atual == y %}selected{% endif %}>{{ y }}</option>
+                {% endfor %}
+            </select>
+        </div>
     </form>
 
     <div class="row g-4">
         
-        <!-- GRÁFICO DE BARRAS: AULAS POR PROFESSOR -->
+        <!-- GRÁFICO DE LINHAS: EVOLUÇÃO ANUAL POR PROFISSIONAL -->
         <div class="col-md-8">
             <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white fw-bold">Aulas Realizadas por Profissional</div>
+                <div class="card-header bg-white fw-bold d-flex justify-content-between">
+                    <span>Evolução Anual (Aulas Realizadas)</span>
+                    <span class="badge bg-light text-dark border">{{ ano_atual }}</span>
+                </div>
                 <div class="card-body">
-                    <canvas id="chartProf"></canvas>
+                    <div style="height: 350px; width: 100%;">
+                        <canvas id="chartProf"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- CARD DE DESTAQUE: AULAS RESTANTES -->
+        <!-- CARD DE DESTAQUE: AULAS RESTANTES DO MÊS -->
         <div class="col-md-4">
             <div class="card border-0 shadow-sm bg-primary text-white h-100">
-                <div class="card-body d-flex flex-column justify-content-center align-items-center">
-                    <h1 class="display-1 fw-bold mb-0">{{ aulas_restantes }}</h1>
-                    <p class="fs-5 opacity-75">Aulas Agendadas (Restantes)</p>
-                    <i class="fas fa-calendar-check fa-5x opacity-25 position-absolute top-0 end-0 p-3"></i>
+                <div class="card-body d-flex flex-column justify-content-center align-items-center position-relative overflow-hidden">
+                    <h1 class="display-1 fw-bold mb-0" style="z-index: 2;">{{ aulas_restantes }}</h1>
+                    <p class="fs-5 opacity-75" style="z-index: 2;">Aulas Agendadas (Mês Atual)</p>
+                    <i class="fas fa-calendar-check fa-5x opacity-25 position-absolute" style="right: -10px; bottom: -10px; transform: rotate(-15deg);"></i>
                 </div>
             </div>
         </div>
@@ -60,16 +68,19 @@
         <div class="col-md-6">
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-success text-white fw-bold">
-                    <i class="fas fa-trophy me-2"></i>Top 5 Mais Assíduos
+                    <i class="fas fa-trophy me-2"></i>Top 5 Assíduos ({{ mes_atual }}/{{ ano_atual }})
                 </div>
                 <ul class="list-group list-group-flush">
                     {% for item in top_assiduos %}
                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <span>{{ forloop.counter }}. {{ item.aluno__nome }}</span>
+                        <span>
+                            <span class="fw-bold text-secondary me-2">{{ forloop.counter }}º</span>
+                            {{ item.aluno__nome }}
+                        </span>
                         <span class="badge bg-success rounded-pill">{{ item.total }} presenças</span>
                     </li>
                     {% empty %}
-                    <li class="list-group-item text-muted text-center">Sem dados ainda.</li>
+                    <li class="list-group-item text-muted text-center py-4">Sem dados neste mês.</li>
                     {% endfor %}
                 </ul>
             </div>
@@ -79,16 +90,19 @@
         <div class="col-md-6">
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-danger text-white fw-bold">
-                    <i class="fas fa-thumbs-down me-2"></i>Top 5 Mais Faltosos
+                    <i class="fas fa-thumbs-down me-2"></i>Top 5 Faltosos ({{ mes_atual }}/{{ ano_atual }})
                 </div>
                 <ul class="list-group list-group-flush">
                     {% for item in top_faltosos %}
                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <span>{{ forloop.counter }}. {{ item.aluno__nome }}</span>
+                        <span>
+                            <span class="fw-bold text-secondary me-2">{{ forloop.counter }}º</span>
+                            {{ item.aluno__nome }}
+                        </span>
                         <span class="badge bg-danger rounded-pill">{{ item.total }} faltas</span>
                     </li>
                     {% empty %}
-                    <li class="list-group-item text-muted text-center">Sem faltas registradas.</li>
+                    <li class="list-group-item text-muted text-center py-4">Sem faltas neste mês.</li>
                     {% endfor %}
                 </ul>
             </div>
@@ -100,19 +114,31 @@
 <script>
     const ctx = document.getElementById('chartProf').getContext('2d');
     new Chart(ctx, {
-        type: 'bar',
+        type: 'line',
         data: {
-            labels: {{ chart_prof_labels|safe }},
-            datasets: [{
-                label: 'Quantidade de Aulas',
-                data: {{ chart_prof_data|safe }},
-                backgroundColor: '#6f42c1',
-                borderRadius: 5
-            }]
+            labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+            datasets: {{ chart_prof_datasets|safe }} 
         },
         options: {
             responsive: true,
-            scales: { y: { beginAtZero: true } }
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            plugins: {
+                legend: { position: 'bottom' },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: { display: true, text: 'Qtd Aulas' }
+                }
+            }
         }
     });
 </script>
