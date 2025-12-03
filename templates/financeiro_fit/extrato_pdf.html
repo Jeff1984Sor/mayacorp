@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Helvetica, sans-serif; font-size: 12px; }
+        h1 { color: #333; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .credito { color: green; }
+        .debito { color: red; }
+    </style>
+</head>
+<body>
+    <h1>Extrato: {{ conta.nome }}</h1>
+    <p>Período: {{ inicio|default:"Início" }} a {{ fim|default:"Hoje" }}</p>
+    <hr>
+    <table>
+        <thead>
+            <tr>
+                <th>Data</th>
+                <th>Descrição</th>
+                <th>Categoria</th>
+                <th>Valor</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in lancamentos %}
+            <tr>
+                <td>{{ item.data_pagamento|date:"d/m/Y" }}</td>
+                <td>{{ item.descricao }}</td>
+                <td>{{ item.categoria.nome }}</td>
+                <td class="{% if item.categoria.tipo == 'RECEITA' %}credito{% else %}debito{% endif %}">
+                    R$ {{ item.valor }}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

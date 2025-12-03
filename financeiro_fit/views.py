@@ -15,6 +15,11 @@ from .models import Lancamento, CategoriaFinanceira, ContaBancaria, Fornecedor
 from .forms import CategoriaForm, ContaBancariaForm, DespesaForm, FornecedorForm
 from cadastros_fit.models import Aluno
 
+import csv
+from django.http import HttpResponse
+from xhtml2pdf import pisa
+from django.template.loader import get_template
+
 # ==============================================================================
 # 1. CONTAS A RECEBER (ANTIGO FLUXO DE CAIXA GERAL)
 # ==============================================================================
@@ -249,3 +254,59 @@ class ContaExtratoView(LoginRequiredMixin, DetailView):
         context['resultado_periodo'] = entradas - saidas
         
         return context
+    
+@login_required
+def exportar_extrato_csv(request, pk):
+    conta = get_object_or_404(ContaBancaria, pk=pk)
+    
+    # Filtros (Mesma lógica da tela)
+    inicio = request.GET.get('inicio')
+    fim = request.GET.get('fim')
+    
+    lancamentos = Lancamento.objects.filter(conta=conta, status='PAGO').order_by('-data_pagamento')
+    if inicio and fim:
+        lancamentos = lancamentos.filter(data_pagamento__range=[inicio, fim])
+
+    # Cria o CSV
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="extrato_{conta.nome}.csv"'
+    
+    writer = csv.writer(response)
+    writer.writerow(['Data', 'Descrição', 'Categoria', 'Valor', 'Tipo']) # Cabeçalho
+
+    for l in lancamentos:
+        writer.writerow([
+            l.data_pagamento.strftime('%d/%m/%Y'),
+            l.descricao,
+            l.categoria.nome,
+            f"{l.valor}".replace('.', ','),
+            l.categoria.get_tipo_display()
+        ])
+
+    return response
+
+@login_required
+def exportar_extrato_pdf(request, pk):
+    conta = get_object_or_404(ContaBancaria, pk=pk)
+    inicio = request.GET.get('inicio')
+    fim = request.GET.get('fim')
+    
+    lancamentos = Lancamento.objects.filter(conta=conta, status='PAGO').order_by('-data_pagamento')
+    if inicio and fim:
+        lancamentos = lancamentos.filter(data_pagamento__range=[inicio, fim])
+
+    # Renderiza o HTML para PDF (Reusa o template de impressão ou cria um simples)
+    template_path = 'financeiro_fit/extrato_pdf.html' # Vamos criar esse arquivo simples abaixo
+    context = {'conta': conta, 'lancamentos': lancamentos, 'inicio': inicio, 'fim': fim}
+    
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="extrato_{conta.nome}.pdf"'
+    
+    template = get_template(template_path)
+    html = template.render(context)
+    
+    pisa_status = pisa.CreatePDF(html, dest=response)
+    
+    if pisa_status.err:
+        return HttpResponse('Erro ao gerar PDF', status=500)
+    return response
