@@ -8,6 +8,7 @@ from django.urls import reverse_lazy
 from django.http import JsonResponse
 from django.contrib import messages
 from django.utils.dateparse import parse_datetime
+from cadastros_fit.models import Profissional
 
 # Imports Locais
 from cadastros_fit.models import Aluno
@@ -22,6 +23,7 @@ from .forms import IntegracaoForm
 
 @login_required
 def calendario_semanal(request):
+    # 1. Data Base
     data_get = request.GET.get('data')
     if data_get:
         data_base = timezone.datetime.strptime(data_get, '%Y-%m-%d').date()
@@ -31,11 +33,22 @@ def calendario_semanal(request):
     inicio_semana = data_base - timedelta(days=data_base.weekday())
     fim_semana = inicio_semana + timedelta(days=6)
 
+    # 2. Busca Aulas (Base)
     aulas = Aula.objects.filter(
         data_hora_inicio__date__gte=inicio_semana,
         data_hora_inicio__date__lte=fim_semana
     ).select_related('profissional', 'unidade').order_by('data_hora_inicio')
 
+    # --- NOVO: FILTRO POR PROFISSIONAL ---
+    prof_id = request.GET.get('prof_id')
+    if prof_id:
+        aulas = aulas.filter(profissional_id=prof_id)
+    
+    # Pega lista para o dropdown
+    lista_profissionais = Profissional.objects.filter(ativo=True)
+    # -------------------------------------
+
+    # 3. Organiza Grade
     dias_da_semana = []
     grade_semanal = {i: [] for i in range(7)}
     
@@ -61,6 +74,8 @@ def calendario_semanal(request):
         'fim_semana': fim_semana,
         'prox_semana': prox_semana,
         'ant_semana': ant_semana,
+        'lista_profissionais': lista_profissionais, # Envia para o template
+        'prof_selecionado': int(prof_id) if prof_id else None
     }
 
     return render(request, 'agenda_fit/calendario_semanal.html', context)
