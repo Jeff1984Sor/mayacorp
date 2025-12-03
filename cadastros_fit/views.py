@@ -5,6 +5,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils import timezone 
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from financeiro_fit.models import Lancamento
 
 # Imports Locais
 from .models import Aluno, Profissional, Unidade
@@ -46,30 +47,24 @@ class AlunoDetailView(LoginRequiredMixin, DetailView):
         aluno = self.object
         agora = timezone.now()
 
-        # 1. BUSCAR PRÓXIMA AULA
+        # Resumo (Visão Geral)
         proxima_presenca = Presenca.objects.filter(
             aluno=aluno,
             aula__data_hora_inicio__gte=agora,
             aula__status__in=['AGENDADA', 'CONFIRMADA']
         ).select_related('aula', 'aula__profissional').order_by('aula__data_hora_inicio').first()
-        
         context['proxima_aula'] = proxima_presenca.aula if proxima_presenca else None
 
-        # 2. CONTAGEM DE PRESENÇAS
-        total_aulas = Presenca.objects.filter(aluno=aluno, aula__data_hora_inicio__lt=agora).count()
-        total_faltas = Presenca.objects.filter(aluno=aluno, status='FALTA').count()
-        context['total_aulas_realizadas'] = total_aulas
-        context['total_faltas'] = total_faltas
-
-        # 3. ÚLTIMA EVOLUÇÃO
         ultima_evolucao = Aula.objects.filter(
             presencas__aluno=aluno,
             data_hora_inicio__lt=agora,
         ).exclude(evolucao_texto='').order_by('-data_hora_inicio').first()
-
         context['ultima_evolucao'] = ultima_evolucao
 
-        # Documentos extras
+        # Histórico Completo (Para as abas)
+        context['agenda_completa'] = Presenca.objects.filter(aluno=aluno).select_related('aula', 'aula__profissional').order_by('-aula__data_hora_inicio')
+        context['financeiro_completo'] = Lancamento.objects.filter(aluno=aluno).select_related('categoria').order_by('data_vencimento')
+        context['contratos_completo'] = aluno.contratos.all().order_by('-criado_em')
         context['documentos_extras'] = aluno.documentos.all()
         
         return context
