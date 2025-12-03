@@ -78,56 +78,139 @@
             </div>
 
             <!-- LISTA DE AULAS -->
+            <!-- LISTA DE AULAS -->
             <div class="p-2 d-flex flex-column gap-2 bg-light bg-opacity-25 h-100" style="min-height: 400px;">
                 
                 {% for dia_index, lista_aulas in grade_semanal.items %}
                     {% if dia_index == forloop.parentloop.counter0 %}
                         
                         {% for aula in lista_aulas %}
-                        <!-- CARD DA AULA -->
-                        <a href="{% url 'gerenciar_aula' aula.id %}" class="text-decoration-none text-dark">
-                            <div class="card border-0 shadow-sm p-2 aula-card position-relative bg-white">
-                                <div class="d-flex justify-content-between align-items-start mb-1">
-                                    <span class="badge bg-light text-dark border fw-normal">{{ aula.data_hora_inicio|date:"H:i" }}</span>
-                                    
-                                    <!-- Status Icon -->
-                                    {% if aula.status == 'REALIZADA' %}
-                                        <i class="fas fa-check-circle text-success" title="Realizada"></i>
-                                    {% elif aula.status == 'CANCELADA' %}
-                                        <i class="fas fa-times-circle text-danger" title="Cancelada"></i>
-                                    {% else %}
-                                        <i class="far fa-clock text-secondary opacity-50"></i>
-                                    {% endif %}
-                                </div>
+                        
+                        <!-- CARD DA AULA (Agora abre Modal) -->
+                        <div class="card border-0 shadow-sm p-2 aula-card position-relative bg-white" 
+                             data-bs-toggle="modal" data-bs-target="#modalGerenciar{{ aula.id }}">
+                            
+                            <div class="d-flex justify-content-between align-items-start mb-1">
+                                <span class="badge bg-light text-dark border fw-normal">{{ aula.data_hora_inicio|date:"H:i" }}</span>
                                 
-                                <div class="small fw-bold text-truncate mb-1 text-primary">
-                                    {{ aula.profissional.nome|default:"Sem Prof." }}
-                                </div>
-                                
-                                <!-- Alunos -->
-                                <div class="border-top pt-1 mt-1">
-                                    {% for presenca in aula.presencas.all %}
-                                        <div class="d-flex align-items-center small text-muted" style="font-size: 0.75rem;">
-                                            {% if presenca.status == 'PRESENTE' %}
-                                                <i class="fas fa-check text-success me-1"></i>
-                                            {% elif presenca.status == 'FALTA' %}
-                                                <i class="fas fa-times text-danger me-1"></i>
-                                            {% else %}
-                                                <i class="fas fa-user me-1 text-secondary opacity-50"></i>
-                                            {% endif %}
-                                            <span class="text-truncate">{{ presenca.aluno.nome }}</span>
+                                <!-- Status Icon -->
+                                {% if aula.status == 'REALIZADA' %}
+                                    <i class="fas fa-check-circle text-success" title="Realizada"></i>
+                                {% elif aula.status == 'CANCELADA' %}
+                                    <i class="fas fa-times-circle text-danger" title="Cancelada"></i>
+                                {% else %}
+                                    <i class="far fa-clock text-secondary opacity-50"></i>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="small fw-bold text-truncate mb-1 text-primary">
+                                {{ aula.profissional.nome|default:"Sem Prof." }}
+                            </div>
+                            
+                            <!-- Alunos (Resumo Visual) -->
+                            <div class="border-top pt-1 mt-1">
+                                {% for presenca in aula.presencas.all %}
+                                    <div class="d-flex align-items-center small text-muted" style="font-size: 0.75rem;">
+                                        {% if presenca.status == 'PRESENTE' %}
+                                            <i class="fas fa-check text-success me-1"></i>
+                                        {% elif presenca.status == 'FALTA' %}
+                                            <i class="fas fa-times text-danger me-1"></i>
+                                        {% else %}
+                                            <i class="fas fa-user me-1 text-secondary opacity-50"></i>
+                                        {% endif %}
+                                        <span class="text-truncate">{{ presenca.aluno.nome }}</span>
+                                    </div>
+                                {% empty %}
+                                    <div class="small text-muted fst-italic opacity-50">Vazio</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- ========================================== -->
+                        <!-- MODAL DE GERENCIAMENTO (EMBUTIDO)          -->
+                        <!-- ========================================== -->
+                        <div class="modal fade" id="modalGerenciar{{ aula.id }}" tabindex="-1">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <form action="{% url 'gerenciar_aula' aula.id %}" method="post">
+                                        {% csrf_token %}
+                                        
+                                        <div class="modal-header bg-primary text-white">
+                                            <h5 class="modal-title fw-bold">
+                                                <i class="fas fa-clipboard-list me-2"></i> Gerenciar Aula
+                                            </h5>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                                         </div>
-                                    {% empty %}
-                                        <div class="small text-muted fst-italic opacity-50">Vazio</div>
-                                    {% endfor %}
-                                </div>
-                                
-                                <!-- Capacidade (Badge Flutuante) -->
-                                <div class="position-absolute bottom-0 end-0 p-1 opacity-25" style="font-size: 0.6rem; font-weight:bold;">
-                                    {{ aula.presencas.count }}/{{ aula.capacidade_maxima }}
+                                        
+                                        <div class="modal-body">
+                                            <!-- Info da Aula -->
+                                            <div class="alert alert-light border d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <strong>{{ aula.data_hora_inicio|date:"d/m/Y" }} às {{ aula.data_hora_inicio|date:"H:i" }}</strong><br>
+                                                    Prof. {{ aula.profissional.nome }}
+                                                </div>
+                                                <span class="badge bg-primary">{{ aula.get_status_display }}</span>
+                                            </div>
+
+                                            <!-- LISTA DE CHAMADA -->
+                                            <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">
+                                                <i class="fas fa-user-check me-2"></i>Lista de Chamada
+                                            </h6>
+                                            
+                                            <div class="table-responsive mb-4">
+                                                <table class="table align-middle table-hover border">
+                                                    <thead class="table-light">
+                                                        <tr>
+                                                            <th>Aluno</th>
+                                                            <th class="text-center">Status</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for presenca in aula.presencas.all %}
+                                                        <tr>
+                                                            <td class="fw-bold">{{ presenca.aluno.nome }}</td>
+                                                            <td class="text-center">
+                                                                <div class="btn-group" role="group">
+                                                                    <!-- Presente -->
+                                                                    <input type="radio" class="btn-check" name="status_{{ presenca.id }}" id="p_{{ presenca.id }}" value="PRESENTE" {% if presenca.status == 'PRESENTE' %}checked{% endif %}>
+                                                                    <label class="btn btn-outline-success btn-sm" for="p_{{ presenca.id }}">Presente</label>
+
+                                                                    <!-- Falta -->
+                                                                    <input type="radio" class="btn-check" name="status_{{ presenca.id }}" id="f_{{ presenca.id }}" value="FALTA" {% if presenca.status == 'FALTA' %}checked{% endif %}>
+                                                                    <label class="btn btn-outline-danger btn-sm" for="f_{{ presenca.id }}">Falta</label>
+
+                                                                    <!-- Justificada -->
+                                                                    <input type="radio" class="btn-check" name="status_{{ presenca.id }}" id="j_{{ presenca.id }}" value="FALTA_JUSTIFICADA" {% if presenca.status == 'FALTA_JUSTIFICADA' %}checked{% endif %}>
+                                                                    <label class="btn btn-outline-warning btn-sm" for="j_{{ presenca.id }}">Justif.</label>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                        {% empty %}
+                                                        <tr><td colspan="2" class="text-center py-3 text-muted">Nenhum aluno.</td></tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+
+                                            <!-- EVOLUÇÃO -->
+                                            <h6 class="fw-bold text-success border-bottom pb-2 mb-3">
+                                                <i class="fas fa-notes-medical me-2"></i>Evolução / Prontuário
+                                            </h6>
+                                            <textarea name="evolucao_texto" class="form-control" rows="4" placeholder="Descreva os exercícios e observações...">{{ aula.evolucao_texto|default:'' }}</textarea>
+                                        </div>
+
+                                        <div class="modal-footer bg-light">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                            <button type="submit" class="btn btn-primary fw-bold px-4">
+                                                <i class="fas fa-save me-2"></i> Salvar Tudo
+                                            </button>
+                                        </div>
+                                    </form>
                                 </div>
                             </div>
-                        </a>
+                        </div>
+                        <!-- FIM MODAL -->
+
                         {% endfor %}
 
                     {% endif %}
