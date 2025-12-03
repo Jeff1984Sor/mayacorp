@@ -33,6 +33,7 @@ from .models import Aula, Presenca
 # ==============================================================================
 # 1. AGENDA SEMANAL (CALENDÁRIO GERAL)
 # ==============================================================================
+API_KEY_N8N = "segredo_mayacorp_n8n_123" 
 
 @login_required
 def calendario_semanal(request):
@@ -345,3 +346,39 @@ class DashboardAulasView(LoginRequiredMixin, TemplateView):
         ).values('aluno__nome').annotate(total=Count('id')).order_by('-total')[:5]
 
         return context
+    
+@csrf_exempt
+def api_agenda_amanha(request):
+    token = request.headers.get('X-API-KEY')
+    if token != API_KEY_N8N:
+        return JsonResponse({'erro': 'Acesso negado'}, status=403)
+
+    amanha = timezone.now().date() + timedelta(days=1)
+    
+    aulas = Aula.objects.filter(
+        data_hora_inicio__date=amanha
+    ).exclude(status='CANCELADA').select_related('profissional').prefetch_related('presencas__aluno')
+
+    dados_envio = {}
+
+    for aula in aulas:
+        prof = aula.profissional
+        if not prof.email: continue
+            
+        if prof.id not in dados_envio:
+            dados_envio[prof.id] = {
+                "profissional": prof.nome,
+                "email": prof.email,
+                "data": amanha.strftime('%d/%m/%Y'),
+                "aulas": []
+            }
+        
+        alunos_lista = [p.aluno.nome for p in aula.presencas.all()]
+        if not alunos_lista: alunos_lista = ["Vaga livre"]
+
+        dados_envio[prof.id]["aulas"].append({
+            "horario": aula.data_hora_inicio.strftime('%H:%M'),
+            "alunos": ", ".join(alunos_lista)
+        })
+
+    return JsonResponse(list(dados_envio.values()), safe=False)
