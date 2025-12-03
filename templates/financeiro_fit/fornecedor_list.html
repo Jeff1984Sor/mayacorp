@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %}Fornecedores{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold text-dark"><i class="fas fa-truck me-2"></i>Fornecedores</h3>
+        <a href="{% url 'fornecedor_create' %}" class="btn btn-primary fw-bold">
+            <i class="fas fa-plus"></i> Novo Fornecedor
+        </a>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Nome / Razão Social</th>
+                        <th>CNPJ / CPF</th>
+                        <th>Telefone / E-mail</th>
+                        <th>Status</th>
+                        <th class="text-end">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for f in fornecedores %}
+                    <tr>
+                        <td class="fw-bold text-dark">
+                            {{ f.nome }}
+                            {% if f.nome_fantasia %}
+                                <br><small class="text-muted">{{ f.nome_fantasia }}</small>
+                            {% endif %}
+                        </td>
+                        <td>{{ f.cnpj_cpf|default:"-" }}</td>
+                        <td>
+                            <div><i class="fas fa-phone me-1 text-muted"></i> {{ f.telefone|default:"-" }}</div>
+                            {% if f.email %}
+                                <div class="small text-muted"><i class="fas fa-envelope me-1"></i> {{ f.email }}</div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if f.ativo %}
+                                <span class="badge bg-success">Ativo</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Inativo</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <button class="btn btn-sm btn-outline-secondary"><i class="fas fa-pen"></i></button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5 text-muted">
+                            <i class="fas fa-truck-loading fa-2x mb-3"></i><br>
+                            Nenhum fornecedor cadastrado.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
