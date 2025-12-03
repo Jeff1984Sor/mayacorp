@@ -29,10 +29,10 @@
                     <button type="submit" class="btn btn-primary btn-sm">Filtrar</button>
                     <button type="button" class="btn btn-outline-dark btn-sm" onclick="window.print()"><i class="fas fa-print"></i> Imprimir</button>
                     <div class="btn-group ms-2">
-                        <a href="{% url 'exportar_extrato_excel' conta.pk %}?inicio={{ request.GET.inicio }}&fim={{ request.GET.fim }}" class="btn btn-sm btn-success" target="_blank">
-                            <i class="fas fa-file-excel"></i> Excel
+                        <a href="{% url 'exportar_extrato_pdf' conta.pk %}?inicio={{ request.GET.inicio }}&fim={{ request.GET.fim }}" class="btn btn-sm btn-danger" target="_blank">
+                            <i class="fas fa-file-pdf"></i> PDF
                         </a>
-                        <a href="{% url 'exportar_extrato_csv' conta.pk %}?inicio={{ request.GET.inicio }}&fim={{ request.GET.fim }}" class="btn btn-sm btn-success" target="_blank">
+                        <a href="{% url 'exportar_extrato_excel' conta.pk %}?inicio={{ request.GET.inicio }}&fim={{ request.GET.fim }}" class="btn btn-sm btn-success" target="_blank">
                             <i class="fas fa-file-excel"></i> Excel
                         </a>
                     </div>
