@@ -1,25 +1,25 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.contrib import messages
 from django.db.models import Sum
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
+from django.template.loader import get_template
+
 import uuid
+import csv
 from dateutil.relativedelta import relativedelta
-from django.views.generic import DetailView
-from django.contrib.auth.decorators import login_required
+from xhtml2pdf import pisa
+import openpyxl
+from openpyxl.styles import Font, PatternFill, Alignment
 
 # Imports Locais
 from .models import Lancamento, CategoriaFinanceira, ContaBancaria, Fornecedor
 from .forms import CategoriaForm, ContaBancariaForm, DespesaForm, FornecedorForm
 from cadastros_fit.models import Aluno
-
-import csv
-from django.http import HttpResponse
-from xhtml2pdf import pisa
-from django.template.loader import get_template
 
 # ==============================================================================
 # 1. CONTAS A RECEBER (ANTIGO FLUXO DE CAIXA GERAL)
@@ -89,11 +89,8 @@ class ContasPagarListView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['hoje'] = timezone.now().date()
-        
-        # Lista de Fornecedores para o Filtro
         context['fornecedores'] = Fornecedor.objects.filter(ativo=True)
         
-        # Totais
         qs = self.get_queryset()
         context['total_pago'] = qs.filter(status='PAGO').aggregate(Sum('valor'))['valor__sum'] or 0
         context['total_pendente'] = qs.filter(status='PENDENTE').aggregate(Sum('valor'))['valor__sum'] or 0
@@ -109,8 +106,7 @@ class DespesaCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         # --- LÓGICA DE RECORRÊNCIA ---
         dados = form.save(commit=False)
-        # Se você removeu 'organizacao' do model, apague esta linha:
-        # dados.organizacao = self.request.tenant 
+        # dados.organizacao = self.request.tenant  (Se não tiver o campo no model, mantenha comentado)
         
         repetir = form.cleaned_data.get('repetir')
         frequencia = form.cleaned_data.get('frequencia')
@@ -121,8 +117,6 @@ class DespesaCreateView(LoginRequiredMixin, CreateView):
             
             for i in range(qtd):
                 nova_despesa = Lancamento(
-                    # Se removeu organizacao, apague aqui tb
-                    # organizacao=self.request.tenant, 
                     descricao=f"{dados.descricao} ({i+1}/{qtd})",
                     fornecedor=dados.fornecedor,
                     profissional=dados.profissional,
@@ -134,7 +128,6 @@ class DespesaCreateView(LoginRequiredMixin, CreateView):
                     status='PENDENTE'
                 )
                 
-                # Calcula Vencimento
                 base_date = dados.data_vencimento
                 if frequencia == 'MENSAL':
                     nova_despesa.data_vencimento = base_date + relativedelta(months=i)
@@ -143,7 +136,7 @@ class DespesaCreateView(LoginRequiredMixin, CreateView):
                 elif frequencia == 'ANUAL':
                     nova_despesa.data_vencimento = base_date + relativedelta(years=i)
                 else: 
-                    nova_despesa.data_vencimento = base_date # Caso não selecione, salva na mesma data (ou + dias)
+                    nova_despesa.data_vencimento = base_date
                 
                 nova_despesa.save()
             
@@ -151,7 +144,6 @@ class DespesaCreateView(LoginRequiredMixin, CreateView):
             return redirect(self.success_url)
         
         else:
-            # Salva normal (única)
             return super().form_valid(form)
 
 # ==============================================================================
@@ -167,7 +159,6 @@ def baixar_lancamento(request, pk):
         lancamento.forma_pagamento = request.POST.get('forma_pagamento')
         lancamento.save()
         
-        # Atualiza Saldo da Conta
         if lancamento.conta:
             if lancamento.categoria.tipo == 'RECEITA':
                 lancamento.conta.saldo_atual += lancamento.valor
@@ -177,7 +168,6 @@ def baixar_lancamento(request, pk):
         
         messages.success(request, "Baixa realizada!")
         
-    # Volta pra onde estava (Receber ou Pagar)
     next_url = request.META.get('HTTP_REFERER')
     if next_url: return HttpResponseRedirect(next_url)
     return redirect('contas_receber')
@@ -186,7 +176,6 @@ def baixar_lancamento(request, pk):
 # 4. CADASTROS AUXILIARES
 # ==============================================================================
 
-# Fornecedores
 class FornecedorListView(LoginRequiredMixin, ListView):
     model = Fornecedor
     template_name = 'financeiro_fit/fornecedor_list.html'
@@ -198,7 +187,6 @@ class FornecedorCreateView(LoginRequiredMixin, CreateView):
     template_name = 'financeiro_fit/form_generico.html'
     success_url = reverse_lazy('fornecedor_list')
 
-# Categorias
 class CategoriaListView(LoginRequiredMixin, ListView):
     model = CategoriaFinanceira
     template_name = 'financeiro_fit/categoria_list.html'
@@ -210,7 +198,6 @@ class CategoriaCreateView(LoginRequiredMixin, CreateView):
     template_name = 'financeiro_fit/form_generico.html'
     success_url = reverse_lazy('categoria_list')
 
-# Contas Bancárias
 class ContaListView(LoginRequiredMixin, ListView):
     model = ContaBancaria
     template_name = 'financeiro_fit/conta_list.html'
@@ -231,22 +218,19 @@ class ContaExtratoView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
-        # Filtros de Data (Padrão: Últimos 30 dias se não informado)
         inicio = self.request.GET.get('inicio')
         fim = self.request.GET.get('fim')
         
-        # Pega lançamentos PAGOS desta conta
         lancamentos = Lancamento.objects.filter(
             conta=self.object, 
             status='PAGO'
-        ).order_by('-data_pagamento') # Mais recentes primeiro
+        ).order_by('-data_pagamento')
         
         if inicio and fim:
             lancamentos = lancamentos.filter(data_pagamento__range=[inicio, fim])
             
         context['lancamentos'] = lancamentos
         
-        # Resumo do Período
         entradas = lancamentos.filter(categoria__tipo='RECEITA').aggregate(Sum('valor'))['valor__sum'] or 0
         saidas = lancamentos.filter(categoria__tipo='DESPESA').aggregate(Sum('valor'))['valor__sum'] or 0
         
@@ -255,12 +239,14 @@ class ContaExtratoView(LoginRequiredMixin, DetailView):
         context['resultado_periodo'] = entradas - saidas
         
         return context
+
+# ==============================================================================
+# 5. EXPORTAÇÃO (EXCEL E PDF)
+# ==============================================================================
     
 @login_required
-def exportar_extrato_csv(request, pk):
+def exportar_extrato_excel(request, pk):
     conta = get_object_or_404(ContaBancaria, pk=pk)
-    
-    # Filtros (Mesma lógica da tela)
     inicio = request.GET.get('inicio')
     fim = request.GET.get('fim')
     
@@ -268,22 +254,48 @@ def exportar_extrato_csv(request, pk):
     if inicio and fim:
         lancamentos = lancamentos.filter(data_pagamento__range=[inicio, fim])
 
-    # Cria o CSV
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = f'attachment; filename="extrato_{conta.nome}.csv"'
+    # Cria o arquivo Excel
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = f"Extrato {conta.nome}"
+
+    # Estilos
+    header_font = Font(bold=True, color="FFFFFF")
+    header_fill = PatternFill(start_color="4F81BD", end_color="4F81BD", fill_type="solid")
+    money_format = 'R$ #,##0.00'
     
-    writer = csv.writer(response)
-    writer.writerow(['Data', 'Descrição', 'Categoria', 'Valor', 'Tipo']) # Cabeçalho
+    # Cabeçalho
+    headers = ["Data Pgto", "Descrição", "Categoria", "Tipo", "Valor"]
+    ws.append(headers)
+    
+    for cell in ws[1]:
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.alignment = Alignment(horizontal='center')
 
+    # Dados
     for l in lancamentos:
-        writer.writerow([
-            l.data_pagamento.strftime('%d/%m/%Y'),
-            l.descricao,
-            l.categoria.nome,
-            f"{l.valor}".replace('.', ','),
-            l.categoria.get_tipo_display()
-        ])
+        valor = float(l.valor)
+        if l.categoria.tipo == 'DESPESA':
+            valor = valor * -1
+            
+        row = [l.data_pagamento, l.descricao, l.categoria.nome, l.categoria.get_tipo_display(), valor]
+        ws.append(row)
+        
+        last_row = ws.max_row
+        cell_valor = ws.cell(row=last_row, column=5)
+        cell_valor.number_format = money_format
+        if valor < 0:
+            cell_valor.font = Font(color="FF0000")
+        else:
+            cell_valor.font = Font(color="006100")
 
+    ws.column_dimensions['A'].width = 15
+    ws.column_dimensions['B'].width = 40
+    
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = f'attachment; filename="Extrato_{conta.nome}.xlsx"'
+    wb.save(response)
     return response
 
 @login_required
@@ -296,8 +308,7 @@ def exportar_extrato_pdf(request, pk):
     if inicio and fim:
         lancamentos = lancamentos.filter(data_pagamento__range=[inicio, fim])
 
-    # Renderiza o HTML para PDF (Reusa o template de impressão ou cria um simples)
-    template_path = 'financeiro_fit/extrato_pdf.html' # Vamos criar esse arquivo simples abaixo
+    template_path = 'financeiro_fit/extrato_pdf.html'
     context = {'conta': conta, 'lancamentos': lancamentos, 'inicio': inicio, 'fim': fim}
     
     response = HttpResponse(content_type='application/pdf')

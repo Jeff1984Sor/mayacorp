@@ -24,7 +24,7 @@ urlpatterns = [
 
     path('config/contas/<int:pk>/extrato/', views.ContaExtratoView.as_view(), name='conta_extrato'),
 
-    path('contas/<int:pk>/exportar/csv/', views.exportar_extrato_csv, name='exportar_extrato_csv'),
+    path('contas/<int:pk>/exportar/excel/', views.exportar_extrato_excel, name='exportar_extrato_excel'),
     path('contas/<int:pk>/exportar/pdf/', views.exportar_extrato_pdf, name='exportar_extrato_pdf'),
 
 ]
