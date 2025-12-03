@@ -192,6 +192,43 @@ class CategoriaListView(LoginRequiredMixin, ListView):
     template_name = 'financeiro_fit/categoria_list.html'
     context_object_name = 'categorias'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Função auxiliar para montar a árvore (Pai -> Filho -> Neto)
+        def organizar_arvore(tipo):
+            lista_ordenada = []
+            
+            # 1. Pega os PAIS (Nível 0) - aqueles que não tem pai
+            pais = CategoriaFinanceira.objects.filter(
+                tipo=tipo, 
+                categoria_pai__isnull=True
+            ).order_by('nome')
+
+            for pai in pais:
+                pai.nivel = 0 # Define o nível visual
+                lista_ordenada.append(pai)
+                
+                # 2. Pega os FILHOS (Nível 1)
+                filhos = CategoriaFinanceira.objects.filter(categoria_pai=pai).order_by('nome')
+                for filho in filhos:
+                    filho.nivel = 1
+                    lista_ordenada.append(filho)
+                    
+                    # 3. Pega os NETOS (Nível 2)
+                    netos = CategoriaFinanceira.objects.filter(categoria_pai=filho).order_by('nome')
+                    for neto in netos:
+                        neto.nivel = 2
+                        lista_ordenada.append(neto)
+            
+            return lista_ordenada
+
+        # Separa as listas para exibir organizado na tela
+        context['arvore_receitas'] = organizar_arvore('RECEITA')
+        context['arvore_despesas'] = organizar_arvore('DESPESA')
+        
+        return context
+
 class CategoriaCreateView(LoginRequiredMixin, CreateView):
     model = CategoriaFinanceira
     form_class = CategoriaForm
