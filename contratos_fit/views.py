@@ -9,22 +9,135 @@ from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 import json
-from django.db.models import Q
+import locale
+from datetime import datetime
 
 # Imports Locais
 from cadastros_fit.models import Aluno
 from .models import Contrato, TemplateContrato, Plano
 from .forms import ContratoForm, HorarioFixoFormSet, PlanoForm
-from .services import processar_novo_contrato
-from .services import regenerar_contrato
+from .services import processar_novo_contrato, regenerar_contrato
 
+# Tenta configurar local para datas em Português (pode depender do sistema operacional do servidor)
+try:
+    locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
+except:
+    pass # Se der erro no servidor linux/windows, segue o padrão
+
+# ==============================================================================
+# LISTA MESTRA DE VARIÁVEIS (Para usar no Editor e na Impressão)
+# ==============================================================================
+def get_variaveis_contrato():
+    """Retorna a lista completa de variáveis disponíveis para o editor"""
+    return [
+        # --- ALUNO ---
+        {'cat': 'Aluno', 'codigo': '{{ aluno.nome }}', 'desc': 'Nome Completo'},
+        {'cat': 'Aluno', 'codigo': '{{ aluno.cpf }}', 'desc': 'CPF'},
+        {'cat': 'Aluno', 'codigo': '{{ aluno.rg }}', 'desc': 'RG (Se houver)'},
+        {'cat': 'Aluno', 'codigo': '{{ aluno.data_nascimento }}', 'desc': 'Data de Nascimento (dd/mm/aaaa)'},
+        {'cat': 'Aluno', 'codigo': '{{ aluno.telefone }}', 'desc': 'Telefone / Celular'},
+        {'cat': 'Aluno', 'codigo': '{{ aluno.email }}', 'desc': 'E-mail'},
+        {'cat': 'Aluno', 'codigo': '{{ aluno.endereco_completo }}', 'desc': 'Endereço Completo (Rua, Nº, Bairro...)'},
+        {'cat': 'Aluno', 'codigo': '{{ aluno.cep }}', 'desc': 'CEP'},
+        {'cat': 'Aluno', 'codigo': '{{ aluno.cidade }}', 'desc': 'Cidade'},
+        {'cat': 'Aluno', 'codigo': '{{ aluno.estado }}', 'desc': 'Estado (UF)'},
+
+        # --- CONTRATO ---
+        {'cat': 'Contrato', 'codigo': '{{ contrato.id }}', 'desc': 'Número do Contrato'},
+        {'cat': 'Contrato', 'codigo': '{{ contrato.data_inicio }}', 'desc': 'Data Início (dd/mm/aaaa)'},
+        {'cat': 'Contrato', 'codigo': '{{ contrato.data_fim }}', 'desc': 'Data Fim (dd/mm/aaaa)'},
+        {'cat': 'Contrato', 'codigo': '{{ contrato.dia_vencimento }}', 'desc': 'Dia do Vencimento'},
+        {'cat': 'Contrato', 'codigo': '{{ contrato.criado_em }}', 'desc': 'Data de Criação do Registro'},
+
+        # --- FINANCEIRO ---
+        {'cat': 'Financeiro', 'codigo': '{{ contrato.valor_total }}', 'desc': 'Valor Total do Contrato (R$)'},
+        {'cat': 'Financeiro', 'codigo': '{{ contrato.qtde_parcelas }}', 'desc': 'Quantidade de Parcelas'},
+        {'cat': 'Financeiro', 'codigo': '{{ valor_parcela }}', 'desc': 'Valor da Parcela Mensal (R$)'},
+        {'cat': 'Financeiro', 'codigo': '{{ valor_extenso }}', 'desc': 'Valor Total por Extenso'},
+
+        # --- PLANO / SERVIÇO ---
+        {'cat': 'Plano', 'codigo': '{{ plano.nome }}', 'desc': 'Nome do Plano'},
+        {'cat': 'Plano', 'codigo': '{{ plano.frequencia_semanal }}', 'desc': 'Vezes por Semana'},
+        {'cat': 'Plano', 'codigo': '{{ plano.duracao_meses }}', 'desc': 'Duração em Meses'},
+
+        # --- EMPRESA / UNIDADE ---
+        {'cat': 'Empresa', 'codigo': '{{ empresa_nome }}', 'desc': 'Nome da Empresa (Tenant)'},
+        {'cat': 'Empresa', 'codigo': '{{ unidade.nome }}', 'desc': 'Nome da Unidade'},
+        {'cat': 'Empresa', 'codigo': '{{ unidade.endereco }}', 'desc': 'Endereço da Unidade'},
+        {'cat': 'Empresa', 'codigo': '{{ unidade.telefone }}', 'desc': 'Telefone da Unidade'},
+
+        # --- DATAS ---
+        {'cat': 'Datas', 'codigo': '{{ hoje }}', 'desc': 'Data de Hoje (dd/mm/aaaa)'},
+        {'cat': 'Datas', 'codigo': '{{ hoje_extenso }}', 'desc': 'Data por Extenso (Ex: 01 de Janeiro de 2025)'},
+        {'cat': 'Datas', 'codigo': '{{ ano_atual }}', 'desc': 'Ano Atual (Ex: 2025)'},
+    ]
+
+# ==============================================================================
+# 1. IMPRESSÃO (Onde a mágica acontece)
+# ==============================================================================
+@login_required
+def imprimir_contrato(request, pk):
+    contrato = get_object_or_404(Contrato, pk=pk)
+    
+    template_obj = contrato.template_usado
+    if not template_obj:
+        template_obj = TemplateContrato.objects.filter(ativo=True).first()
+        
+    if not template_obj:
+        return HttpResponse("<h1>Erro:</h1> <p>Nenhum modelo de contrato cadastrado.</p>")
+
+    # Cálculos Extras para o Template
+    valor_parcela = 0
+    if contrato.qtde_parcelas > 0:
+        valor_parcela = contrato.valor_total / contrato.qtde_parcelas
+    
+    hoje = timezone.now().date()
+    
+    # Formatação por extenso (gambiarra simples caso o locale falhe no servidor)
+    meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
+    hoje_extenso = f"{hoje.day} de {meses[hoje.month-1]} de {hoje.year}"
+
+    # Monta o dicionário de dados
+    contexto_dados = Context({
+        # Objetos
+        'aluno': contrato.aluno,
+        'contrato': contrato,
+        'plano': contrato.plano,
+        'unidade': contrato.unidade,
+        
+        # Empresa (Tenant)
+        'empresa_nome': request.tenant.nome if hasattr(request.tenant, 'nome') else "MayaCorp Fit",
+        
+        # Calculados
+        'valor_parcela': f"{valor_parcela:.2f}".replace('.', ','),
+        'valor_total': f"{contrato.valor_total:.2f}".replace('.', ','), # Sobrescreve para formatar pt-BR
+        'valor_extenso': "Valor por extenso indisponível (instalar num2words)", # Opcional: instalar lib num2words
+        
+        # Datas
+        'hoje': hoje.strftime('%d/%m/%Y'),
+        'hoje_extenso': hoje_extenso,
+        'ano_atual': hoje.year,
+    })
+
+    try:
+        template_django = Template(template_obj.texto_html)
+        conteudo_final = template_django.render(contexto_dados)
+    except Exception as e:
+        return HttpResponse(f"Erro ao processar variáveis do contrato: {e}")
+
+    return render(request, 'contratos_fit/print_layout.html', {
+        'conteudo': conteudo_final,
+        'titulo': f"Contrato - {contrato.aluno.nome}"
+    })
+
+# ==============================================================================
+# 2. VENDA DE CONTRATO
+# ==============================================================================
 
 @login_required
 def novo_contrato(request, aluno_id):
     aluno = get_object_or_404(Aluno, pk=aluno_id)
     
-    # --- PREPARA DADOS DOS PLANOS PARA O JAVASCRIPT ---
-    # Isso permite o preenchimento automático de valor e parcelas
     planos_data = {}
     for p in Plano.objects.filter(ativo=True):
         planos_data[p.id] = {
@@ -36,83 +149,76 @@ def novo_contrato(request, aluno_id):
 
     if request.method == 'POST':
         form = ContratoForm(request.POST)
-        
-        # Validamos o contrato
         if form.is_valid():
-            # Cria instância na memória (sem salvar) para passar ao formset
             contrato = form.save(commit=False)
             contrato.aluno = aluno
             
-            # Passa a instância com o plano selecionado para validar a frequência
             formset = HorarioFixoFormSet(request.POST, instance=contrato)
             
             if formset.is_valid():
                 try:
                     with transaction.atomic():
-                        contrato.save() # Salva Contrato
-                        formset.save()  # Salva Horários
-                        
-                        # Roda a Automação (Gera Aulas e Financeiro)
+                        contrato.save()
+                        formset.save()
                         processar_novo_contrato(contrato)
-                    
                     messages.success(request, "Contrato criado com sucesso!")
                     return redirect('aluno_detail', pk=aluno.pk)
-                
                 except Exception as e:
-                    messages.error(request, f"Erro ao processar contrato: {e}")
+                    messages.error(request, f"Erro ao processar: {e}")
             else:
-                messages.error(request, "Erro nos horários. Verifique se a quantidade condiz com o Plano.")
+                messages.error(request, "Verifique os horários.")
         else:
-            messages.error(request, "Verifique os dados do formulário.")
-            # Recria o formset vazio se falhar, para não quebrar o HTML
+            messages.error(request, "Verifique os dados.")
             formset = HorarioFixoFormSet(request.POST)
-
     else:
-        # GET: Formulário vazio
         form = ContratoForm() 
         formset = HorarioFixoFormSet()
 
     return render(request, 'contratos_fit/novo_contrato.html', {
-        'form': form,
-        'formset': formset,
-        'aluno': aluno,
-        'planos_json': planos_json # <--- Envia dados para o JS
+        'form': form, 'formset': formset, 'aluno': aluno, 'planos_json': planos_json
     })
 
 @login_required
-def imprimir_contrato(request, pk):
-    contrato = get_object_or_404(Contrato, pk=pk)
-    
-    # Busca template
-    template_obj = contrato.template_usado
-    if not template_obj:
-        template_obj = TemplateContrato.objects.filter(ativo=True).first()
-        
-    if not template_obj:
-        return HttpResponse("<h1>Erro:</h1> <p>Nenhum 'Template de Contrato' cadastrado no sistema. Vá ao Admin e crie um.</p>")
-
-    # Contexto para substituir as variáveis {{ aluno.nome }}
-    contexto_dados = Context({
-        'aluno': contrato.aluno,
-        'contrato': contrato,
-        'plano': contrato.plano,
-        'unidade': contrato.unidade,
-        'hoje': timezone.now().date(),
-        'empresa_nome': "MayaCorp Fit",
+def lista_contratos_aluno(request, aluno_id):
+    aluno = get_object_or_404(Aluno, pk=aluno_id)
+    contratos = aluno.contratos.all().order_by('-data_inicio')
+    return render(request, 'contratos_fit/lista_contratos_aluno.html', {
+        'aluno': aluno, 'contratos': contratos, 'hoje': timezone.now().date()
     })
 
-    try:
-        template_django = Template(template_obj.texto_html)
-        conteudo_final = template_django.render(contexto_dados)
-    except Exception as e:
-        return HttpResponse(f"Erro ao gerar contrato: {e}")
+class ContratoListView(LoginRequiredMixin, ListView):
+    model = Contrato
+    template_name = 'contratos_fit/contrato_list.html'
+    context_object_name = 'contratos'
+    ordering = ['-criado_em']
+    paginate_by = 20
 
-    return render(request, 'contratos_fit/print_layout.html', {
-        'conteudo': conteudo_final,
-        'titulo': f"Contrato - {contrato.aluno.nome}"
-    })
+    def get_queryset(self):
+        qs = super().get_queryset()
+        aluno = self.request.GET.get('aluno')
+        if aluno:
+            qs = qs.filter(aluno__nome__icontains=aluno)
+        return qs
 
-# --- CRUD DE PLANOS ---
+class ContratoUpdateView(LoginRequiredMixin, UpdateView):
+    model = Contrato
+    form_class = ContratoForm
+    template_name = 'contratos_fit/novo_contrato.html'
+    success_url = reverse_lazy('contrato_list')
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        regenerar_contrato(self.object)
+        return response
+
+class ContratoDeleteView(LoginRequiredMixin, DeleteView):
+    model = Contrato
+    template_name = 'contratos_fit/contrato_confirm_delete.html'
+    success_url = reverse_lazy('contrato_list')
+
+# ==============================================================================
+# 3. PLANOS
+# ==============================================================================
 
 class PlanoListView(LoginRequiredMixin, ListView):
     model = Plano
@@ -136,109 +242,14 @@ class PlanoDeleteView(LoginRequiredMixin, DeleteView):
     template_name = 'contratos_fit/plano_confirm_delete.html'
     success_url = reverse_lazy('plano_list')
 
-@login_required
-def lista_contratos_aluno(request, aluno_id):
-    aluno = get_object_or_404(Aluno, pk=aluno_id)
-    contratos = aluno.contratos.all().order_by('-data_inicio')
-    
-    return render(request, 'contratos_fit/aluno_contratos_list.html', {
-        'aluno': aluno,
-        'contratos': contratos,
-        'hoje': timezone.now().date()
-    })
-
-# 1. LISTAGEM COM FILTROS
-class ContratoListView(LoginRequiredMixin, ListView):
-    model = Contrato
-    template_name = 'contratos_fit/contrato_list.html'
-    context_object_name = 'contratos'
-    ordering = ['-criado_em']
-    paginate_by = 20
-
-    def get_queryset(self):
-        qs = super().get_queryset()
-        
-        # Filtros
-        aluno = self.request.GET.get('aluno')
-        status = self.request.GET.get('status')
-        plano = self.request.GET.get('plano')
-        inicio = self.request.GET.get('inicio') # Vencimento Inicial
-        fim = self.request.GET.get('fim')       # Vencimento Final
-
-        if aluno:
-            qs = qs.filter(aluno__nome__icontains=aluno)
-        
-        if status:
-            qs = qs.filter(status=status)
-            
-        if plano:
-            qs = qs.filter(plano_id=plano)
-            
-        if inicio and fim:
-            qs = qs.filter(data_fim__range=[inicio, fim])
-            
-        return qs
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        # Dados para preencher os selects do filtro e do modal
-        context['alunos_para_venda'] = Aluno.objects.filter(ativo=True).order_by('nome')
-        context['planos'] = Plano.objects.filter(ativo=True)
-        return context
-    
-from .services import regenerar_contrato
-
-class ContratoUpdateView(LoginRequiredMixin, UpdateView):
-    model = Contrato
-    form_class = ContratoForm
-    template_name = 'contratos_fit/novo_contrato.html'
-    success_url = reverse_lazy('contrato_list')
-
-    def form_valid(self, form):
-        response = super().form_valid(form)
-        
-        # Após salvar as mudanças no contrato, chama a regeneração
-        # (Isso vai apagar parcelas pendentes e recriar com o novo valor)
-        regenerar_contrato(self.object)
-        
-        return response
-
-# 3. EXCLUIR CONTRATO
-class ContratoDeleteView(LoginRequiredMixin, DeleteView):
-    model = Contrato
-    template_name = 'contratos_fit/contrato_confirm_delete.html'
-    success_url = reverse_lazy('contrato_list')
+# ==============================================================================
+# 4. TEMPLATES (MODELOS)
+# ==============================================================================
 
 class TemplateListView(LoginRequiredMixin, ListView):
     model = TemplateContrato
     template_name = 'contratos_fit/template_list.html'
     context_object_name = 'templates'
-
-class TemplateEditorView(LoginRequiredMixin, UpdateView):
-    model = TemplateContrato
-    fields = ['nome', 'texto_html', 'ativo']
-    template_name = 'contratos_fit/template_editor.html'
-    success_url = reverse_lazy('template_list')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        
-        # Lista de variáveis disponíveis para o usuário clicar
-        context['variaveis'] = [
-            {'codigo': '{{ aluno.nome }}', 'desc': 'Nome do Aluno'},
-            {'codigo': '{{ aluno.cpf }}', 'desc': 'CPF do Aluno'},
-            {'codigo': '{{ aluno.rg }}', 'desc': 'RG do Aluno'},
-            {'codigo': '{{ aluno.endereco_completo }}', 'desc': 'Endereço Completo'},
-            {'codigo': '{{ contrato.data_inicio }}', 'desc': 'Início do Contrato'},
-            {'codigo': '{{ contrato.data_fim }}', 'desc': 'Fim do Contrato'},
-            {'codigo': '{{ contrato.valor_total }}', 'desc': 'Valor Total'},
-            {'codigo': '{{ contrato.qtde_parcelas }}', 'desc': 'Nº de Parcelas'},
-            {'codigo': '{{ plano.nome }}', 'desc': 'Nome do Plano'},
-            {'codigo': '{{ unidade.nome }}', 'desc': 'Nome da Unidade'},
-            {'codigo': '{{ empresa_nome }}', 'desc': 'Nome da Sua Empresa'},
-            {'codigo': '{{ hoje }}', 'desc': 'Data de Hoje'},
-        ]
-        return context
 
 class TemplateCreateView(LoginRequiredMixin, CreateView):
     model = TemplateContrato
@@ -252,41 +263,16 @@ class TemplateCreateView(LoginRequiredMixin, CreateView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        
-        # Lista Completa de Variáveis
-        context['variaveis'] = [
-            # DADOS DO ALUNO
-            {'codigo': '{{ aluno.nome }}', 'desc': 'Nome do Aluno'},
-            {'codigo': '{{ aluno.cpf }}', 'desc': 'CPF do Aluno'},
-            {'codigo': '{{ aluno.rg }}', 'desc': 'RG do Aluno (se houver)'},
-            {'codigo': '{{ aluno.data_nascimento }}', 'desc': 'Data de Nascimento'},
-            {'codigo': '{{ aluno.telefone }}', 'desc': 'Telefone / WhatsApp'},
-            {'codigo': '{{ aluno.email }}', 'desc': 'E-mail'},
-            {'codigo': '{{ aluno.endereco_completo }}', 'desc': 'Endereço Completo'},
-            {'codigo': '{{ aluno.cep }}', 'desc': 'CEP'},
-            
-            # DADOS DO CONTRATO
-            {'codigo': '{{ contrato.data_inicio }}', 'desc': 'Data de Início'},
-            {'codigo': '{{ contrato.data_fim }}', 'desc': 'Data de Término'},
-            {'codigo': '{{ contrato.valor_total }}', 'desc': 'Valor Total (R$)'},
-            {'codigo': '{{ contrato.qtde_parcelas }}', 'desc': 'Nº de Parcelas'},
-            {'codigo': '{{ contrato.dia_vencimento }}', 'desc': 'Dia do Vencimento'},
-            
-            # DADOS DO PLANO / SERVIÇO
-            {'codigo': '{{ plano.nome }}', 'desc': 'Nome do Plano'},
-            {'codigo': '{{ plano.frequencia_semanal }}', 'desc': 'Frequência Semanal'},
-            
-            # DADOS DA EMPRESA / UNIDADE
-            {'codigo': '{{ unidade.nome }}', 'desc': 'Nome da Unidade'},
-            {'codigo': '{{ unidade.endereco }}', 'desc': 'Endereço da Unidade'},
-            {'codigo': '{{ empresa_nome }}', 'desc': 'Nome da Sua Empresa'},
-            
-            # EXTRAS
-            {'codigo': '{{ hoje }}', 'desc': 'Data de Hoje (Extenso)'},
-        ]
+        context['variaveis'] = get_variaveis_contrato() # <--- Pega a lista completa
         return context
-    
-def lista_contratos_aluno(request, aluno_id):
-    # Pode redirecionar para o admin ou uma lista simples
-    # Por enquanto, redireciona de volta para o aluno
-    return redirect('aluno_detail', pk=aluno_id)
+
+class TemplateEditorView(LoginRequiredMixin, UpdateView):
+    model = TemplateContrato
+    fields = ['nome', 'texto_html', 'ativo']
+    template_name = 'contratos_fit/template_editor.html'
+    success_url = reverse_lazy('template_list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['variaveis'] = get_variaveis_contrato() # <--- Pega a lista completa
+        return context
