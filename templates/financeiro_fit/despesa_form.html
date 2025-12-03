@@ -1,26 +1,60 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
 
-{% block title %}Nova Despesa{% endblock %}
+{% block title %}Lançar Despesa{% endblock %}
 
 {% block content %}
-<div class="container py-4" style="max-width: 600px;">
-    <div class="card shadow-sm border-danger">
+<div class="container py-4" style="max-width: 800px;">
+    <div class="card shadow-sm border-0">
         <div class="card-header bg-danger text-white py-3">
-            <h4 class="mb-0 fw-bold"><i class="fas fa-minus-circle me-2"></i>Nova Despesa</h4>
+            <h4 class="mb-0 fw-bold">Nova Despesa</h4>
         </div>
         <div class="card-body p-4">
-            <form method="post">
+            <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 
-                {{ form|crispy }}
+                <div class="row">
+                    <div class="col-md-8">{{ form.descricao|as_crispy_field }}</div>
+                    <div class="col-md-4">{{ form.valor|as_crispy_field }}</div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">{{ form.fornecedor|as_crispy_field }}</div>
+                    <div class="col-md-6">{{ form.categoria|as_crispy_field }}</div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">{{ form.data_vencimento|as_crispy_field }}</div>
+                    <div class="col-md-6">{{ form.conta|as_crispy_field }}</div>
+                </div>
+                
+                <div class="p-3 bg-light rounded border mt-3 mb-3">
+                    <div class="form-check form-switch">
+                        {{ form.repetir }}
+                        <label class="form-check-label fw-bold" for="id_repetir">Repetir esta conta (Parcelamento/Recorrência)</label>
+                    </div>
+                    <div id="area-recorrencia" style="display:none;" class="row mt-3">
+                        <div class="col-md-6">{{ form.frequencia|as_crispy_field }}</div>
+                        <div class="col-md-6">{{ form.qtd_repeticoes|as_crispy_field }}</div>
+                    </div>
+                </div>
 
-                <div class="d-grid gap-2 mt-4">
-                    <button type="submit" class="btn btn-danger btn-lg fw-bold">Registrar Saída</button>
-                    <a href="{% url 'financeiro_lista' %}" class="btn btn-light">Cancelar</a>
+                <div class="row">
+                    <div class="col-md-6">{{ form.arquivo_boleto|as_crispy_field }}</div>
+                    <div class="col-md-6">{{ form.status|as_crispy_field }}</div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 mt-4">
+                    <a href="{% url 'contas_pagar' %}" class="btn btn-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-danger px-5 fw-bold">Salvar Despesa</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+<script>
+    // Script para mostrar/ocultar a recorrência
+    document.getElementById('id_repetir').addEventListener('change', function() {
+        document.getElementById('area-recorrencia').style.display = this.checked ? 'flex' : 'none';
+    });
+</script>
 {% endblock %}

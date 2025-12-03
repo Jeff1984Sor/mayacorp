@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}Contas a Receber{% endblock %}
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold text-success"><i class="fas fa-hand-holding-usd me-2"></i>Contas a Receber</h3>
+        <div class="h5">
+            Total a Receber: <span class="badge bg-warning text-dark">R$ {{ total_pendente }}</span>
+        </div>
+    </div>
+    
+    <!-- AQUI VAI A TABELA QUE VOCÊ JÁ TINHA (Igual ao lancamento_list.html) -->
+    <!-- (Se quiser eu mando o código completo, mas é basicamente a mesma tabela) -->
+    {% include 'financeiro_fit/tabela_lancamentos.html' %} 
+</div>
+{% endblock %}

@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}Contas a Pagar{% endblock %}
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold text-danger"><i class="fas fa-file-invoice-dollar me-2"></i>Contas a Pagar</h3>
+        <a href="{% url 'despesa_create' %}" class="btn btn-danger fw-bold"><i class="fas fa-plus"></i> Nova Despesa</a>
+    </div>
+
+    <!-- TABELA DE DESPESAS -->
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Vencimento</th>
+                        <th>Descrição</th>
+                        <th>Fornecedor</th>
+                        <th>Categoria</th>
+                        <th>Valor</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for lanc in lancamentos %}
+                    <tr>
+                        <td>{{ lanc.data_vencimento|date:"d/m/Y" }}</td>
+                        <td>
+                            {{ lanc.descricao }}
+                            {% if lanc.arquivo_boleto %}
+                                <a href="{{ lanc.arquivo_boleto.url }}" target="_blank" class="ms-1 text-danger"><i class="fas fa-file-pdf"></i></a>
+                            {% endif %}
+                        </td>
+                        <td>{{ lanc.fornecedor.nome|default:"-" }}</td>
+                        <td><span class="badge bg-light text-dark border">{{ lanc.categoria.nome }}</span></td>
+                        <td class="fw-bold text-danger">R$ {{ lanc.valor }}</td>
+                        <td>
+                            {% if lanc.status == 'PAGO' %}
+                                <span class="badge bg-success">PAGO</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">PENDENTE</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if lanc.status == 'PENDENTE' %}
+                            <form action="{% url 'baixar_lancamento' lanc.id %}" method="post" class="d-inline">
+                                {% csrf_token %}
+                                <button class="btn btn-sm btn-outline-success" title="Pagar"><i class="fas fa-check"></i></button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="7" class="text-center py-4">Nenhuma conta a pagar.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
