@@ -77,7 +77,7 @@ class AlunoDetailView(LoginRequiredMixin, DetailView):
         # --- ABA 4: CONTRATOS ---
         context['contratos_completo'] = Contrato.objects.filter(
             aluno=aluno
-        ).select_related('plano').order_by('-created_at')
+        ).select_related('plano').order_by('-criado_em')
 
         # Docs Extras
         context['documentos_extras'] = aluno.documentos.all()
