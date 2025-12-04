@@ -5,6 +5,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils import timezone 
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from datetime import timedelta
 
 # Imports Locais
 from .models import Aluno, Profissional, Unidade
@@ -155,3 +156,32 @@ def upload_documento_extra(request, pk):
             doc.save()
             
     return redirect('aluno_detail', pk=pk)
+
+@csrf_exempt
+def api_agenda_amanha(request):
+    # Token simples para proteger (defina o mesmo no N8N)
+    API_KEY = "segredo_mayacorp_123"
+    
+    token = request.headers.get('X-API-KEY')
+    if token != API_KEY:
+        return JsonResponse({'erro': 'Acesso negado'}, status=403)
+
+    amanha = timezone.now().date() + timedelta(days=1)
+    
+    # Busca aulas de amanhã
+    aulas = Aula.objects.filter(
+        data_hora_inicio__date=amanha
+    ).exclude(status='CANCELADA').select_related('profissional').prefetch_related('presencas__aluno')
+
+    dados_envio = []
+
+    for aula in aulas:
+        # Monta o objeto
+        dados_envio.append({
+            "profissional": aula.profissional.nome,
+            # "email_prof": aula.profissional.email, # Cuidado: Seu model Profissional tem email? Se não, comente.
+            "horario": aula.data_hora_inicio.strftime('%H:%M'),
+            "alunos": [p.aluno.nome for p in aula.presencas.all()]
+        })
+
+    return JsonResponse(dados_envio, safe=False)
