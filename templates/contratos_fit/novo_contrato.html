@@ -1,47 +1,20 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}
-    {% if form.instance.pk %}Editar Contrato{% else %}Novo Contrato{% endif %}
-{% endblock %}
+{% block title %}Novo Contrato{% endblock %}
 
 {% block content %}
-
 <div class="container py-4">
     
-    <!-- CABEÇALHO INTELIGENTE -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h3 class="fw-bold mb-0">
-                {% if form.instance.pk %}Editar Contrato{% else %}Novo Contrato{% endif %}
-            </h3>
-            <p class="text-muted">Aluno: <strong>
-                {% if aluno %}
-                    {{ aluno.nome }}
-                {% elif form.instance.aluno %}
-                    {{ form.instance.aluno.nome }}
-                {% endif %}
-            </strong></p>
+            <h3 class="fw-bold mb-0">Novo Contrato</h3>
+            <p class="text-muted">Aluno: <strong>{{ aluno.nome }}</strong></p>
         </div>
-        
-        <!-- Botão Voltar (Resolve o erro do ID) -->
-        {% if aluno %}
-            <a href="{% url 'aluno_detail' aluno.id %}" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left"></i> Voltar
-            </a>
-        {% elif form.instance.aluno %}
-            <a href="{% url 'aluno_detail' form.instance.aluno.id %}" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left"></i> Voltar
-            </a>
-        {% else %}
-            <a href="{% url 'contrato_list' %}" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left"></i> Voltar
-            </a>
-        {% endif %}
+        <a href="{% url 'aluno_detail' aluno.id %}" class="btn btn-outline-secondary">Voltar</a>
     </div>
 
-    <!-- FORMULÁRIO -->
-    <form method="post" novalidate>
+    <form method="post" id="formContrato">
         {% csrf_token %}
 
         <!-- CARD 1: DADOS DO PLANO -->
@@ -50,77 +23,55 @@
                 <h5 class="mb-0 text-primary"><i class="fas fa-file-signature me-2"></i>Dados do Plano</h5>
             </div>
             <div class="card-body">
-                
-                <!-- Exibe erros gerais do form principal -->
-                {% if form.non_field_errors %}
-                    <div class="alert alert-danger">{{ form.non_field_errors }}</div>
-                {% endif %}
+                {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
 
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label fw-bold">{{ form.plano.label }}</label>
                         {{ form.plano }}
-                        <div class="text-danger small">{{ form.plano.errors }}</div>
                     </div>
-                    
                     <div class="col-md-6">
                         <label class="form-label fw-bold">{{ form.unidade.label }}</label>
                         {{ form.unidade }}
-                        <div class="text-danger small">{{ form.unidade.errors }}</div>
                     </div>
 
+                    <!-- LINHA 2 -->
                     <div class="col-md-3">
                         <label class="form-label fw-bold">{{ form.data_inicio.label }}</label>
                         {{ form.data_inicio }}
-                        <div class="text-danger small">{{ form.data_inicio.errors }}</div>
                     </div>
-
                     <div class="col-md-3">
-                        <label class="form-label fw-bold">{{ form.valor_total.label }}</label>
-                        <div class="input-group">
-                            <span class="input-group-text">R$</span>
-                            {{ form.valor_total }}
-                        </div>
-                        <div class="text-danger small">{{ form.valor_total.errors }}</div>
+                        <label class="form-label fw-bold">{{ form.data_encerramento.label }}</label>
+                        {{ form.data_encerramento }}
                     </div>
-
-                    <div class="col-md-3">
-                        <label class="form-label fw-bold">{{ form.qtde_parcelas.label }}</label>
-                        {{ form.qtde_parcelas }}
-                        <div class="text-danger small">{{ form.qtde_parcelas.errors }}</div>
-                    </div>
-
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <label class="form-label fw-bold">{{ form.dia_vencimento.label }}</label>
                         {{ form.dia_vencimento }}
-                        <div class="text-danger small">{{ form.dia_vencimento.errors }}</div>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label fw-bold">{{ form.qtde_parcelas.label }}</label>
+                        {{ form.qtde_parcelas }}
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label fw-bold">{{ form.valor_total.label }}</label>
+                        {{ form.valor_total }}
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- CARD 2: GRADE DE HORÁRIOS (FORMSET) -->
+        <!-- CARD 2: GRADE DE HORÁRIOS -->
         <div class="card shadow-sm border-0 mb-4">
-            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                <div>
-                    <h5 class="mb-0 text-success"><i class="fas fa-clock me-2"></i>Grade de Horários Fixos</h5>
-                    <small class="text-muted">Defina os dias e horários da aula recorrente.</small>
-                </div>
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 text-success"><i class="fas fa-clock me-2"></i>Grade de Horários Fixos</h5>
+                <small class="text-muted" id="freq-info">Selecione um plano para liberar os horários.</small>
             </div>
             <div class="card-body p-0">
-                
-                <!-- OBRIGATÓRIO: Gerenciador do Formset -->
                 {{ formset.management_form }}
-
-                <!-- Exibe erros de validação do conjunto -->
-                {% if formset.non_form_errors %}
-                    <div class="alert alert-danger m-3 border-0">
-                        <i class="fas fa-exclamation-triangle me-2"></i> {{ formset.non_form_errors.0 }}
-                    </div>
-                {% endif %}
+                {% if formset.non_form_errors %}<div class="alert alert-danger m-3">{{ formset.non_form_errors }}</div>{% endif %}
 
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
+                    <table class="table table-hover align-middle mb-0" id="tabela-horarios">
                         <thead class="table-light">
                             <tr>
                                 <th style="width: 30%;">Dia da Semana</th>
@@ -131,59 +82,99 @@
                         </thead>
                         <tbody>
                             {% for form_h in formset %}
-                                <!-- Campos Ocultos Obrigatórios (ID) -->
-                                {% for hidden in form_h.hidden_fields %}
-                                    {{ hidden }}
-                                {% endfor %}
-
-                                <tr class="{% if form_h.errors %}table-danger{% endif %}">
-                                    <td class="p-3">
-                                        {{ form_h.dia_semana }}
-                                        <div class="text-danger small mt-1">{{ form_h.dia_semana.errors }}</div>
-                                    </td>
-                                    <td class="p-3">
-                                        {{ form_h.horario }}
-                                        <div class="text-danger small mt-1">{{ form_h.horario.errors }}</div>
-                                    </td>
-                                    <td class="p-3">
-                                        {{ form_h.profissional }}
-                                        <div class="text-danger small mt-1">{{ form_h.profissional.errors }}</div>
-                                    </td>
-                                    <td class="text-center p-3">
-                                        {% if formset.can_delete %}
-                                            <div class="form-check d-flex justify-content-center">
-                                                {{ form_h.DELETE }}
-                                            </div>
-                                        {% endif %}
-                                    </td>
+                                <!-- Adicionamos a classe 'horario-row' para manipular via JS -->
+                                <tr class="horario-row" style="display:none;"> 
+                                    {% for hidden in form_h.hidden_fields %}{{ hidden }}{% endfor %}
+                                    <td class="p-2">{{ form_h.dia_semana }}</td>
+                                    <td class="p-2">{{ form_h.horario }}</td>
+                                    <td class="p-2">{{ form_h.profissional }}</td>
+                                    <td class="text-center p-2">{{ form_h.DELETE }}</td>
                                 </tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 </div>
-                
-                <div class="p-3 bg-light text-muted small border-top">
-                    <i class="fas fa-info-circle"></i> O sistema irá gerar a agenda automaticamente para os dias selecionados acima.
-                </div>
             </div>
         </div>
 
-        <!-- BOTÕES DE AÇÃO -->
         <div class="d-flex justify-content-end gap-2 pb-5">
-            {% if aluno %}
-                <a href="{% url 'aluno_detail' aluno.id %}" class="btn btn-secondary">Cancelar</a>
-            {% elif form.instance.aluno %}
-                <a href="{% url 'aluno_detail' form.instance.aluno.id %}" class="btn btn-secondary">Cancelar</a>
-            {% else %}
-                <a href="{% url 'contrato_list' %}" class="btn btn-secondary">Cancelar</a>
-            {% endif %}
-            
-            <button type="submit" class="btn btn-success px-4 fw-bold">
-                <i class="fas fa-check me-2"></i> Salvar Contrato
-            </button>
+            <button type="submit" class="btn btn-success px-4 fw-bold">Salvar Contrato</button>
         </div>
-
     </form>
 </div>
 
+<!-- SCRIPT DE AUTOMAÇÃO -->
+<script>
+    // 1. Recebe os dados do Backend
+    const planosData = JSON.parse('{{ planos_json|safe }}');
+
+    // Elementos do DOM
+    const selectPlano = document.getElementById('select_plano');
+    const inputInicio = document.getElementById('id_data_inicio');
+    const inputFim = document.getElementById('id_data_encerramento');
+    const inputValor = document.getElementById('id_valor_total');
+    const inputParcelas = document.getElementById('id_qtde_parcelas');
+    const inputDiaVenc = document.getElementById('id_dia_vencimento');
+    const linhasHorario = document.querySelectorAll('.horario-row');
+    const txtFreq = document.getElementById('freq-info');
+
+    // Função Principal
+    function atualizarFormulario() {
+        const planoId = selectPlano.value;
+        const dataInicioVal = inputInicio.value;
+
+        if (planoId && planosData[planoId]) {
+            const dados = planosData[planoId];
+
+            // A. Preenche Valor e Parcelas
+            // Só preenche se o campo estiver vazio ou o usuário acabou de trocar o plano
+            // (Aqui forçamos a atualização para garantir consistência)
+            inputValor.value = dados.valor.toFixed(2);
+            inputParcelas.value = dados.meses; // Geralmente 1 parcela por mês
+
+            // B. Atualiza Grade de Horários (Esconde/Mostra linhas)
+            const freq = dados.freq;
+            txtFreq.innerText = `Plano de ${freq}x na semana. Preencha ${freq} horários abaixo.`;
+            
+            linhasHorario.forEach((row, index) => {
+                if (index < freq) {
+                    row.style.display = 'table-row'; // Mostra
+                } else {
+                    row.style.display = 'none'; // Esconde
+                    // Opcional: Limpar valores das linhas escondidas para não dar erro
+                    row.querySelectorAll('input, select').forEach(i => i.value = '');
+                }
+            });
+
+            // C. Calcula Data de Encerramento e Dia Vencimento
+            if (dataInicioVal) {
+                const data = new Date(dataInicioVal);
+                
+                // Dia do Vencimento = Dia do Início (Limitado a 31)
+                // O Date do JS pode bugar com fuso, vamos usar a string direto
+                const diaInicio = parseInt(dataInicioVal.split('-')[2]);
+                inputDiaVenc.value = diaInicio;
+
+                // Data Fim = Inicio + Meses do Plano
+                // Adiciona os meses
+                data.setMonth(data.getMonth() + dados.meses);
+                // Ajusta formato YYYY-MM-DD
+                const isoDate = data.toISOString().split('T')[0];
+                inputFim.value = isoDate;
+            }
+        }
+    }
+
+    // Event Listeners
+    selectPlano.addEventListener('change', atualizarFormulario);
+    inputInicio.addEventListener('change', atualizarFormulario);
+
+    // Roda uma vez ao carregar (caso seja edição ou reload)
+    document.addEventListener("DOMContentLoaded", () => {
+        // Se já tiver plano selecionado, roda a lógica
+        if (selectPlano.value) {
+            atualizarFormulario();
+        }
+    });
+</script>
 {% endblock %}

@@ -13,6 +13,13 @@ import locale
 from datetime import datetime
 from financeiro_fit.models import Lancamento
 from agenda_fit.models import Presenca
+import json
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.db import transaction
+from django.contrib import messages
+from .models import Plano # Importe o Plano
+
 
 # Imports Locais
 from cadastros_fit.models import Aluno
@@ -140,46 +147,47 @@ def imprimir_contrato(request, pk):
 def novo_contrato(request, aluno_id):
     aluno = get_object_or_404(Aluno, pk=aluno_id)
     
-    planos_data = {}
-    for p in Plano.objects.filter(ativo=True):
-        planos_data[p.id] = {
-            'valor': float(p.valor_mensal),
-            'meses': p.duracao_meses,
-            'frequencia': p.frequencia_semanal
-        }
-    planos_json = json.dumps(planos_data)
+    # Criar um dicionário JSON com os dados dos planos para o JavaScript usar
+    # Estrutura: { '1': {'valor': 100, 'freq': 2, 'meses': 1}, ... }
+    planos_data = {
+        p.id: {
+            'valor': float(p.valor_total_sugerido), # Usa a propriedade que calcula mensal * meses
+            'freq': p.frequencia_semanal,
+            'meses': p.duracao_meses
+        } 
+        for p in Plano.objects.all()
+    }
 
     if request.method == 'POST':
         form = ContratoForm(request.POST)
-        if form.is_valid():
-            contrato = form.save(commit=False)
-            contrato.aluno = aluno
-            
-            formset = HorarioFixoFormSet(request.POST, instance=contrato)
-            
-            if formset.is_valid():
-                try:
-                    with transaction.atomic():
-                        contrato.save()
-                        formset.save()
-                        processar_novo_contrato(contrato)
-                    messages.success(request, "Contrato criado com sucesso!")
-                    return redirect('aluno_detail', pk=aluno.pk)
-                except Exception as e:
-                    messages.error(request, f"Erro ao processar: {e}")
-            else:
-                messages.error(request, "Verifique os horários.")
-        else:
-            messages.error(request, "Verifique os dados.")
-            formset = HorarioFixoFormSet(request.POST)
+        # Precisamos passar a instância para o formset validar corretamente
+        contrato_instance = form.save(commit=False) if form.is_valid() else None
+        formset = HorarioFixoFormSet(request.POST, instance=contrato_instance)
+        
+        if form.is_valid() and formset.is_valid():
+            try:
+                with transaction.atomic():
+                    contrato = form.save(commit=False)
+                    contrato.aluno = aluno
+                    contrato.save()
+                    formset.instance = contrato # Garante vínculo
+                    formset.save()
+                    processar_novo_contrato(contrato)
+                    
+                    messages.success(request, "Contrato gerado com sucesso!")
+                    return redirect('aluno_detail', pk=aluno.id)
+            except Exception as e:
+                messages.error(request, f"Erro: {e}")
     else:
-        form = ContratoForm() 
+        form = ContratoForm()
         formset = HorarioFixoFormSet()
 
     return render(request, 'contratos_fit/novo_contrato.html', {
-        'form': form, 'formset': formset, 'aluno': aluno, 'planos_json': planos_json
+        'form': form,
+        'formset': formset,
+        'aluno': aluno,
+        'planos_json': json.dumps(planos_data) # <--- Enviamos o JSON aqui
     })
-
 @login_required
 def lista_contratos_aluno(request, aluno_id):
     aluno = get_object_or_404(Aluno, pk=aluno_id)

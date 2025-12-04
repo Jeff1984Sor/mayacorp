@@ -4,49 +4,52 @@ from django.core.exceptions import ValidationError
 from django.forms.models import BaseInlineFormSet
 from .models import Contrato, HorarioFixo, Plano
 
-# 1. Classe de Validação Customizada (Sua lógica entra aqui)
+# 1. Validação Customizada dos Horários
 class BaseHorarioFixoFormSet(BaseInlineFormSet):
     def clean(self):
         super().clean()
-        
-        # Se houver erros nos formulários filhos (ex: campo vazio), para aqui
-        if any(self.errors):
-            return
+        if any(self.errors): return
 
-        # Conta quantos horários estão sendo salvos (ignorando os marcados para deletar)
         count = 0
         for form in self.forms:
             if form.cleaned_data and not form.cleaned_data.get('DELETE', False):
                 count += 1
         
-        # Pega a instância do contrato (pai)
         contrato = self.instance
         
-        # Validação da Frequência
-        # Nota: Isso depende que na View você faça contrato = form.save(commit=False) antes de validar o formset
         if contrato.plano:
+            # Garante que não salvou mais horários do que o permitido
             if count > contrato.plano.frequencia_semanal:
                 raise ValidationError(
-                    f"O plano '{contrato.plano.nome}' permite apenas {contrato.plano.frequencia_semanal} horários por semana. "
-                    f"Você tentou adicionar {count}."
+                    f"O plano '{contrato.plano.nome}' permite apenas {contrato.plano.frequencia_semanal} horários. "
+                    f"Você preencheu {count}."
                 )
-            # Opcional: Validar se selecionou MENOS horários que o permitido
-            # elif count < contrato.plano.frequencia_semanal:
-            #     raise ValidationError(f"O plano exige {contrato.plano.frequencia_semanal} horários. Você selecionou apenas {count}.")
 
-# 2. Formulário do Contrato (Pai) com Bootstrap
+# 2. Formulário do Contrato
 class ContratoForm(forms.ModelForm):
+    # Campo visual (não salva no banco direto) para mostrar ao usuário quando acaba
+    data_encerramento = forms.DateField(
+        label="Data Prevista Encerramento",
+        required=False,
+        widget=forms.DateInput(attrs={
+            'class': 'form-control', 
+            'readonly': 'readonly', 
+            'id': 'id_data_encerramento',
+            'style': 'background-color: #e9ecef;'
+        })
+    )
+
     class Meta:
         model = Contrato
         fields = ['plano', 'unidade', 'data_inicio', 'valor_total', 'qtde_parcelas', 'dia_vencimento']
         
         widgets = {
-            'data_inicio': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'data_inicio': forms.DateInput(attrs={'type': 'date', 'class': 'form-control', 'id': 'id_data_inicio'}),
             'plano': forms.Select(attrs={'class': 'form-select', 'id': 'select_plano'}),
             'unidade': forms.Select(attrs={'class': 'form-select'}),
-            'valor_total': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'placeholder': 'Ex: 1200.00'}),
-            'qtde_parcelas': forms.NumberInput(attrs={'class': 'form-control'}),
-            'dia_vencimento': forms.NumberInput(attrs={'class': 'form-control', 'max': 31, 'min': 1}),
+            'valor_total': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'id': 'id_valor_total'}),
+            'qtde_parcelas': forms.NumberInput(attrs={'class': 'form-control', 'id': 'id_qtde_parcelas'}),
+            'dia_vencimento': forms.NumberInput(attrs={'class': 'form-control', 'max': 31, 'min': 1, 'id': 'id_dia_vencimento'}),
         }
         
         labels = {
@@ -56,13 +59,13 @@ class ContratoForm(forms.ModelForm):
             'dia_vencimento': 'Dia do Vencimento'
         }
 
-# 3. Factory do Formset (Juntando a validação com os Widgets)
+# 3. Formset dos Horários
 HorarioFixoFormSet = inlineformset_factory(
     Contrato, 
     HorarioFixo,
-    formset=BaseHorarioFixoFormSet, # <--- Aqui conectamos a sua classe de validação
+    formset=BaseHorarioFixoFormSet,
     fields=['dia_semana', 'horario', 'profissional'],
-    extra=2, # Começa com 2 linhas (pode ser ajustado via JS)
+    extra=7, # Mudei para 7 (para cobrir todos os dias da semana se necessário)
     can_delete=True,
     widgets={
         'dia_semana': forms.Select(attrs={'class': 'form-select'}),
@@ -71,12 +74,11 @@ HorarioFixoFormSet = inlineformset_factory(
     }
 )
 
+# 4. Cadastro de Planos
 class PlanoForm(forms.ModelForm):
     class Meta:
         model = Plano
-        # Se você ainda tiver 'organizacao' no model, exclua aqui
         exclude = ['organizacao', 'ativo'] 
-        
         widgets = {
             'nome': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ex: Pilates 2x - Trimestral'}),
             'valor_mensal': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '0.00'}),
