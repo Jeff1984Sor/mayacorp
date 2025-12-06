@@ -464,59 +464,6 @@ def assinar_contrato_view(request, token):
         'texto_contrato': texto_renderizado
     })
 
-from financeiro_fit.models import Lancamento
-from contratos_fit.models import Contrato
-
-class AlunoDetailView(LoginRequiredMixin, DetailView):
-    model = Aluno
-    template_name = 'cadastros_fit/aluno_detail.html'
-    context_object_name = 'aluno'
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        aluno = self.object
-        agora = timezone.now()
-        context['agora'] = agora
-
-        # 1. RESUMOS (Cards do Topo)
-        proxima_presenca = Presenca.objects.filter(
-            aluno=aluno,
-            aula__data_hora_inicio__gte=agora,
-            aula__status__in=['AGENDADA', 'CONFIRMADA']
-        ).select_related('aula', 'aula__profissional').order_by('aula__data_hora_inicio').first()
-        
-        ultima_evolucao = Aula.objects.filter(
-            presencas__aluno=aluno,
-            data_hora_inicio__lt=agora,
-        ).exclude(evolucao_texto='').order_by('-data_hora_inicio').first()
-
-        context['proxima_aula'] = proxima_presenca.aula if proxima_presenca else None
-        context['ultima_evolucao'] = ultima_evolucao
-
-        # 2. LISTAS COMPLETAS (Para as Abas novas)
-        
-        # Agenda Completa (Histórico)
-        context['agenda_completa'] = Presenca.objects.filter(
-            aluno=aluno
-        ).select_related('aula', 'aula__profissional').order_by('-aula__data_hora_inicio')
-
-        # Financeiro Completo
-        context['financeiro_completo'] = Lancamento.objects.filter(
-            aluno=aluno
-        ).order_by('data_vencimento')
-
-        # Contratos Completos
-        context['contratos_completo'] = Contrato.objects.filter(
-            aluno=aluno
-        ).order_by('-data_inicio')
-
-        # Docs
-        context['documentos_extras'] = aluno.documentos.all()
-        
-        return context
-    
-from django.core.mail import send_mail
-from django.urls import reverse
 
 def enviar_contrato_email(request, pk):
     contrato = get_object_or_404(Contrato, pk=pk)
