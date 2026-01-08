@@ -1,18 +1,77 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Confirmar Exclusão de Contrato - MayaCorp{% endblock %}
+
 {% block content %}
-<div class="container py-5" style="max-width: 500px;">
-    <div class="card shadow border-danger">
-        <div class="card-header bg-danger text-white fw-bold">Confirmar Exclusão</div>
-        <div class="card-body text-center">
-            <p>Tem certeza que deseja excluir o contrato de <strong>{{ object.aluno.nome }}</strong>?</p>
-            <p class="text-muted small">Isso pode afetar o histórico financeiro e de agenda.</p>
+<div class="max-w-xl mx-auto py-16">
+    
+    <!-- CARD PRINCIPAL (Soft UI Danger Style) -->
+    <div class="bg-white rounded-[40px] shadow-2xl shadow-rose-100/50 border border-rose-50 overflow-hidden animate-in fade-in zoom-in duration-500">
+        
+        <!-- HEADER VISUAL -->
+        <div class="bg-rose-50/50 py-12 flex justify-center border-b border-rose-100/20">
+            <div class="relative">
+                <!-- Ícone de Contrato -->
+                <div class="w-24 h-24 bg-white rounded-[2.5rem] shadow-xl shadow-rose-200/50 flex items-center justify-center text-rose-500 transition-transform hover:scale-105">
+                    <i class="fas fa-file-contract text-3xl"></i>
+                </div>
+                <!-- Mini ícone de exclusão sobreposto -->
+                <div class="absolute -bottom-2 -right-2 w-10 h-10 bg-rose-500 border-4 border-white rounded-full flex items-center justify-center text-white shadow-lg">
+                    <i class="fas fa-trash-alt text-xs"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-8 md:p-12 text-center">
+            <h1 class="text-3xl font-black text-slate-800 tracking-tight mb-4">Excluir Contrato?</h1>
+            
+            <p class="text-slate-500 font-medium leading-relaxed mb-8 px-4">
+                Você está prestes a remover o contrato ativo de:
+            </p>
+            
+            <!-- CONTEXTO DO CONTRATO (Destaque Soft) -->
+            <div class="mb-10 p-6 bg-slate-50 rounded-[32px] border border-slate-100 flex flex-col items-center gap-2">
+                <span class="text-xl font-black text-slate-700 italic">"{{ object.aluno.nome }}"</span>
+                <span class="badge bg-white border-slate-200 text-slate-400 font-bold px-4 py-3 rounded-xl uppercase text-[10px] tracking-widest">
+                    Plano: {{ object.plano.nome }}
+                </span>
+            </div>
+            
+            <!-- ALERTA DE IMPACTO (Pílula Informativa) -->
+            <div class="bg-amber-50 rounded-2xl p-4 border border-amber-100 mb-10 flex items-start gap-3 text-left">
+                <i class="fas fa-exclamation-triangle text-amber-500 mt-1"></i>
+                <div>
+                    <h6 class="text-[10px] font-black text-amber-600 uppercase tracking-widest mb-1">Aviso de Impacto</h6>
+                    <p class="text-xs text-amber-700 font-medium leading-tight">
+                        A exclusão poderá afetar o histórico financeiro e os agendamentos futuros vinculados a este plano.
+                    </p>
+                </div>
+            </div>
+
+            <!-- FORMULÁRIO DE AÇÕES -->
             <form method="post">
                 {% csrf_token %}
-                <div class="d-flex justify-content-center gap-2 mt-4">
-                    <a href="{% url 'contrato_list' %}" class="btn btn-secondary">Cancelar</a>
-                    <button type="submit" class="btn btn-danger">Sim, Excluir</button>
+                
+                <div class="flex flex-col md:flex-row gap-4 justify-center">
+                    <!-- CANCELAR -->
+                    <a href="{% url 'contrato_list' %}" 
+                       class="btn btn-ghost flex-1 h-14 rounded-2xl text-slate-400 font-black uppercase tracking-widest hover:bg-slate-100 transition-all">
+                        Cancelar
+                    </a>
+
+                    <!-- EXCLUIR -->
+                    <button type="submit" 
+                            class="btn flex-1 h-14 bg-rose-500 border-none text-white font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-rose-200 hover:bg-rose-600 hover:scale-[1.02] transition-all">
+                        Sim, Excluir
+                    </button>
                 </div>
             </form>
+        </div>
+        
+        <!-- FOOTER DISCRETO -->
+        <div class="py-4 bg-slate-50/50 text-center border-t border-slate-50">
+            <p class="text-[9px] text-slate-300 font-black uppercase tracking-[3px]">MayaCorp Compliance Protocol</p>
         </div>
     </div>
 </div>

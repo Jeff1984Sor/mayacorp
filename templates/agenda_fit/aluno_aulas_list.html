@@ -1,102 +1,125 @@
 {% extends 'base.html' %}
 
-{% block title %}Aulas de {{ aluno.nome }}{% endblock %}
+{% block title %}Aulas de {{ aluno.nome }} - MayaCorp{% endblock %}
 
 {% block content %}
-<div class="container py-4">
+<div class="max-w-6xl mx-auto">
     
-    <!-- Título e Voltar -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <!-- HEADER: Título e Voltar -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
         <div>
-            <h4 class="fw-bold mb-0 text-primary"><i class="fas fa-calendar-check me-2"></i>Agenda do Aluno</h4>
-            <p class="text-muted mb-0">Aluno: <strong>{{ aluno.nome }}</strong></p>
+            <div class="flex items-center gap-3 mb-2">
+                <div class="w-10 h-10 bg-serene-blue/20 rounded-2xl flex items-center justify-center text-serene-blue">
+                    <i class="fas fa-calendar-check text-lg"></i>
+                </div>
+                <h1 class="text-2xl font-black text-slate-800 tracking-tight">Agenda do Aluno</h1>
+            </div>
+            <p class="text-slate-400 font-medium ml-1">
+                Acompanhando: <span class="text-slate-600 font-bold">{{ aluno.nome }}</span>
+            </p>
         </div>
-        <a href="{% url 'aluno_detail' aluno.id %}" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left"></i> Voltar para Ficha
+        
+        <a href="{% url 'aluno_detail' aluno.id %}" 
+           class="btn btn-ghost bg-white shadow-sm border-slate-100 rounded-2xl hover:bg-slate-50 transition-all text-slate-500 normal-case font-bold">
+            <i class="fas fa-arrow-left mr-2"></i> Voltar para Ficha
         </a>
     </div>
 
-    <!-- Tabela de Aulas -->
-    <div class="card shadow-sm border-0">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th style="width: 20%;">Data e Hora</th>
-                        <th style="width: 20%;">Profissional</th>
-                        <th style="width: 15%;">Status da Aula</th>
-                        <th style="width: 15%;">Presença</th>
-                        <th style="width: 30%;" class="text-end">Ações Rápidas</th> <!-- NOVA COLUNA -->
+    <!-- CONTAINER DA TABELA (ESTILO CARD SOFT UI) -->
+    <div class="bg-white rounded-[32px] shadow-xl shadow-slate-200/50 overflow-hidden border border-white">
+        <div class="overflow-x-auto">
+            <table class="table w-full border-collapse">
+                <!-- CABEÇALHO -->
+                <thead>
+                    <tr class="border-b border-slate-50">
+                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[2px] font-black py-6 pl-8">Data e Hora</th>
+                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[2px] font-black py-6">Profissional</th>
+                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[2px] font-black py-6 text-center">Status Aula</th>
+                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[2px] font-black py-6 text-center">Presença</th>
+                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[2px] font-black py-6 pr-8 text-right">Ações</th>
                     </tr>
                 </thead>
-                <tbody>
+                
+                <tbody class="divide-y divide-slate-50">
                     {% for p in presencas %}
-                    <tr>
+                    <tr class="hover:bg-slate-50/50 transition-colors group">
                         <!-- DATA -->
-                        <td>
-                            <span class="fw-bold text-dark">{{ p.aula.data_hora_inicio|date:"d/m/Y" }}</span>
-                            <br>
-                            <span class="small text-muted">
-                                {{ p.aula.data_hora_inicio|date:"H:i" }} às {{ p.aula.data_hora_fim|date:"H:i" }}
-                            </span>
+                        <td class="py-6 pl-8">
+                            <div class="flex flex-col">
+                                <span class="text-slate-800 font-bold">{{ p.aula.data_hora_inicio|date:"d/m/Y" }}</span>
+                                <span class="text-[11px] text-slate-400 font-medium tracking-wide">
+                                    {{ p.aula.data_hora_inicio|date:"H:i" }} — {{ p.aula.data_hora_fim|date:"H:i" }}
+                                </span>
+                            </div>
                         </td>
 
                         <!-- PROFISSIONAL -->
-                        <td>{{ p.aula.profissional.nome }}</td>
+                        <td class="py-6">
+                            <div class="flex items-center gap-2">
+                                <div class="w-2 h-2 rounded-full bg-serene-blue/40"></div>
+                                <span class="text-sm font-medium text-slate-600">{{ p.aula.profissional.nome }}</span>
+                            </div>
+                        </td>
 
-                        <!-- STATUS DA AULA -->
-                        <td>
+                        <!-- STATUS DA AULA (BADGES PASTEL) -->
+                        <td class="py-6 text-center">
                             {% if p.aula.status == 'AGENDADA' %}
-                                <span class="badge bg-primary bg-opacity-75">Agendada</span>
+                                <span class="badge bg-serene-blue/10 border-none text-blue-600 text-[10px] font-bold py-3 px-4 rounded-xl">AGENDADA</span>
                             {% elif p.aula.status == 'REALIZADA' %}
-                                <span class="badge bg-success">Realizada</span>
+                                <span class="badge bg-mint-green/20 border-none text-emerald-700 text-[10px] font-bold py-3 px-4 rounded-xl">REALIZADA</span>
                             {% elif p.aula.status == 'CANCELADA' %}
-                                <span class="badge bg-secondary text-decoration-line-through">Cancelada</span>
+                                <span class="badge bg-slate-100 border-none text-slate-400 text-[10px] font-bold py-3 px-4 rounded-xl line-through">CANCELADA</span>
                             {% else %}
-                                <span class="badge bg-secondary">{{ p.aula.status }}</span>
+                                <span class="badge bg-slate-50 border-none text-slate-500 text-[10px] font-bold py-3 px-4 rounded-xl">{{ p.aula.status }}</span>
                             {% endif %}
                         </td>
 
-                        <!-- PRESENÇA DO ALUNO -->
-                        <td>
+                        <!-- PRESENÇA (TEXTOS COLORIDOS SUAVES) -->
+                        <td class="py-6 text-center">
                             {% if p.aula.data_hora_inicio > agora %}
-                                <!-- Futuro -->
-                                <span class="text-muted small"><i class="far fa-clock"></i> Aguardando</span>
+                                <div class="flex items-center justify-center gap-2 text-slate-300">
+                                    <i class="far fa-clock text-[10px]"></i>
+                                    <span class="text-[11px] font-bold uppercase tracking-tighter">Aguardando</span>
+                                </div>
                             {% else %}
-                                <!-- Passado -->
                                 {% if p.status == 'PRESENTE' %}
-                                    <span class="text-success fw-bold small"><i class="fas fa-check-circle"></i> Presente</span>
+                                    <div class="flex items-center justify-center gap-2 text-emerald-500">
+                                        <i class="fas fa-check-circle"></i>
+                                        <span class="text-[11px] font-bold uppercase">Presente</span>
+                                    </div>
                                 {% elif p.status == 'FALTA' %}
-                                    <span class="text-danger fw-bold small"><i class="fas fa-times-circle"></i> Falta</span>
+                                    <div class="flex items-center justify-center gap-2 text-rose-400">
+                                        <i class="fas fa-times-circle"></i>
+                                        <span class="text-[11px] font-bold uppercase">Falta</span>
+                                    </div>
                                 {% elif p.status == 'FALTA_JUSTIFICADA' %}
-                                    <span class="text-warning fw-bold small"><i class="fas fa-exclamation-circle"></i> Justif.</span>
+                                    <div class="flex items-center justify-center gap-2 text-orange-400">
+                                        <i class="fas fa-exclamation-circle"></i>
+                                        <span class="text-[11px] font-bold uppercase">Justificada</span>
+                                    </div>
                                 {% else %}
-                                    <span class="text-muted small fst-italic">Pendente</span>
+                                    <span class="text-[11px] text-slate-400 italic">Pendente</span>
                                 {% endif %}
                             {% endif %}
                         </td>
 
-                        <!-- BOTÕES DE AÇÃO -->
-                        <td class="text-end">
-                            <div class="btn-group btn-group-sm shadow-sm" role="group">
+                        <!-- AÇÕES (BOTÕES SOFT) -->
+                        <td class="py-6 pr-8 text-right">
+                            <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                 
-                                <!-- 1. Confirmar Presença -->
-                                <a href="{% url 'acao_marcar_presenca' p.id %}" class="btn btn-outline-success" title="Confirmar Presença">
+                                <a href="{% url 'acao_marcar_presenca' p.id %}" 
+                                   class="btn btn-square btn-sm rounded-xl bg-mint-green/10 border-none text-emerald-600 hover:bg-mint-green hover:text-white" title="Presente">
                                     <i class="fas fa-check"></i>
                                 </a>
 
-                                <!-- 2. Marcar como Realizada -->
-                                <a href="{% url 'acao_marcar_realizada' p.id %}" class="btn btn-outline-primary" title="Marcar Aula como Realizada">
-                                    <i class="fas fa-check-double"></i>
-                                </a>
-
-                                <!-- 3. Remarcar (Mover) -->
-                                <a href="{% url 'acao_remarcar_aula' p.id %}" class="btn btn-outline-warning text-dark" title="Remarcar (Reagendar)">
+                                <a href="{% url 'acao_remarcar_aula' p.id %}" 
+                                   class="btn btn-square btn-sm rounded-xl bg-soft-lavender/20 border-none text-purple-600 hover:bg-soft-lavender hover:text-white" title="Remarcar">
                                     <i class="fas fa-calendar-alt"></i>
                                 </a>
 
-                                <!-- 4. Excluir -->
-                                <a href="{% url 'acao_deletar_agendamento' p.id %}" class="btn btn-outline-danger" title="Cancelar Agendamento" onclick="return confirm('Tem certeza que deseja cancelar esta aula?');">
+                                <a href="{% url 'acao_deletar_agendamento' p.id %}" 
+                                   class="btn btn-square btn-sm rounded-xl bg-red-50 border-none text-red-400 hover:bg-red-500 hover:text-white" 
+                                   onclick="return confirm('Cancelar esta aula?');" title="Excluir">
                                     <i class="fas fa-trash-alt"></i>
                                 </a>
 
@@ -105,15 +128,27 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="5" class="text-center py-5 text-muted">
-                            <i class="fas fa-calendar-times fs-1 mb-3 text-secondary opacity-25"></i><br>
-                            Nenhuma aula encontrada para este aluno.
+                        <td colspan="5" class="py-20 text-center">
+                            <div class="flex flex-col items-center">
+                                <div class="w-20 h-20 bg-slate-50 rounded-[2rem] flex items-center justify-center text-slate-200 mb-4 border border-dashed border-slate-200">
+                                    <i class="fas fa-calendar-times text-3xl"></i>
+                                </div>
+                                <h3 class="text-slate-400 font-bold">Nenhuma aula encontrada</h3>
+                                <p class="text-slate-300 text-sm">Este aluno ainda não possui agendamentos.</p>
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
+    </div>
+
+    <!-- RODAPÉ DA PÁGINA -->
+    <div class="mt-8 flex justify-center">
+        <button class="btn btn-wide bg-white border-slate-100 rounded-2xl shadow-sm text-slate-400 hover:text-serene-blue normal-case gap-2">
+            <i class="fas fa-print text-xs"></i> Imprimir Agenda do Aluno
+        </button>
     </div>
 </div>
 {% endblock %}

@@ -1,369 +1,315 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load meus_filtros %}
-{% block title %}{{ aluno.nome }} | Gestão{% endblock %}
+
+{% block title %}{{ aluno.nome }} | Gestão MayaCorp{% endblock %}
 
 {% block content %}
+<div class="max-w-7xl mx-auto pb-20">
 
-<style>
-    /* Avatar e Status */
-    .avatar-circle { width: 90px; height: 90px; object-fit: cover; border: 4px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-    .status-badge { position: absolute; bottom: 0; right: 0; width: 20px; height: 20px; background: #28a745; border: 3px solid #fff; border-radius: 50%; }
-    
-    /* Botões de Ação Rápida */
-    .action-btn { transition: 0.2s; border: 1px solid #dee2e6; }
-    .action-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.05); border-color: #0d6efd; color: #0d6efd; }
-    
-    /* Estilo das Abas (Tabs) */
-    .nav-tabs .nav-link { color: #6c757d; border: none; border-bottom: 3px solid transparent; padding: 1rem 1.5rem; font-weight: 500; transition: 0.2s; }
-    .nav-tabs .nav-link:hover { color: #0d6efd; background: #f8f9fa; }
-    .nav-tabs .nav-link.active { color: #0d6efd; border-bottom: 3px solid #0d6efd; background: transparent; font-weight: bold; }
-    .nav-tabs .nav-link i { margin-right: 8px; }
-</style>
-
-<div class="container-fluid py-4">
-
-    <!-- CABEÇALHO DO PERFIL -->
-    <div class="card border-0 shadow-sm mb-4 overflow-hidden">
-        <div class="card-body p-4 pb-0">
-            <div class="d-flex align-items-center gap-4 mb-4">
-                
-                <!-- Avatar -->
-                <div class="position-relative">
+    <!-- 1. CABEÇALHO DO PERFIL (Estilo Profile Card) -->
+    <header class="bg-white rounded-[40px] shadow-xl shadow-slate-200/50 border border-white p-8 mb-8 relative overflow-hidden">
+        <!-- Detalhe decorativo de fundo -->
+        <div class="absolute top-0 right-0 w-64 h-64 bg-serene-blue/5 rounded-full -mr-32 -mt-32"></div>
+        
+        <div class="relative flex flex-col md:flex-row items-center md:items-start gap-8">
+            <!-- Avatar com Soft Shadow -->
+            <div class="relative">
+                <div class="w-32 h-32 rounded-[2.5rem] overflow-hidden border-4 border-white shadow-2xl shadow-slate-300">
                     {% if aluno.foto_rosto %}
-                        <img src="{{ aluno.foto_rosto.url }}" class="avatar-circle rounded-circle">
-                    {% elif aluno.doc_identidade_foto %}
-                        <img src="{{ aluno.doc_identidade_foto.url }}" class="avatar-circle rounded-circle">
+                        <img src="{{ aluno.foto_rosto.url }}" class="w-full h-full object-cover">
                     {% else %}
-                        <div class="avatar-circle rounded-circle bg-secondary d-flex align-items-center justify-content-center text-white fs-1">
+                        <div class="w-full h-full bg-slate-100 flex items-center justify-center text-slate-300 text-4xl font-black">
                             {{ aluno.nome|first }}
                         </div>
                     {% endif %}
-                    <div class="status-badge" title="Ativo"></div>
                 </div>
-
-                <!-- Info Principal -->
-                <div class="flex-grow-1">
-                    <h3 class="fw-bold mb-1">{{ aluno.nome }}</h3>
-                    <div class="text-muted small mb-2">
-                        <i class="fas fa-id-badge me-1"></i> ID: {{ aluno.id }} &bull; 
-                        <i class="fas fa-birthday-cake ms-2 me-1"></i> {{ aluno.data_nascimento|default:"--" }}
-                    </div>
-                    <div class="d-flex gap-2">
-                        <span class="badge bg-light text-dark border">Padrão</span>
-                        {% if aluno.telefone %}
-                            <a href="https://wa.me/55{{ aluno.telefone|cut:' '|cut:'-'|cut:'('|cut:')' }}" target="_blank" class="badge bg-success text-decoration-none">
-                                <i class="fab fa-whatsapp me-1"></i> WhatsApp
-                            </a>
-                        {% endif %}
-                    </div>
-                </div>
-
-                <!-- Botões Topo -->
-                <div class="d-flex flex-column gap-2 text-end">
-                    <a href="{% url 'novo_contrato' aluno.pk %}" class="btn btn-primary fw-bold shadow-sm">
-                        <i class="fas fa-plus-circle me-2"></i> Nova Venda
-                    </a>
-                    <div class="btn-group">
-                        <a href="{% url 'aluno_update' aluno.pk %}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-pen"></i> Editar</a>
-                        <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#modalTotalPass"><i class="fas fa-ticket-alt"></i> TotalPass</button>
-                    </div>
-                </div>
+                <div class="absolute -bottom-2 -right-2 w-8 h-8 bg-mint-green border-4 border-white rounded-full shadow-lg" title="Aluno Ativo"></div>
             </div>
 
-            <!-- MENU DE ABAS -->
-            <ul class="nav nav-tabs" id="alunoTab" role="tablist">
-                <li class="nav-item">
-                    <button class="nav-link active" id="visao-tab" data-bs-toggle="tab" data-bs-target="#visao" type="button"><i class="fas fa-home"></i> Visão Geral</button>
-                </li>
-                <li class="nav-item">
-                    <button class="nav-link" id="agenda-tab" data-bs-toggle="tab" data-bs-target="#agenda" type="button"><i class="fas fa-calendar-alt"></i> Agenda</button>
-                </li>
-                <li class="nav-item">
-                    <button class="nav-link" id="financeiro-tab" data-bs-toggle="tab" data-bs-target="#financeiro" type="button"><i class="fas fa-dollar-sign"></i> Financeiro</button>
-                </li>
-                <li class="nav-item">
-                    <button class="nav-link" id="contratos-tab" data-bs-toggle="tab" data-bs-target="#contratos" type="button"><i class="fas fa-file-contract"></i> Contratos</button>
-                </li>
-            </ul>
+            <!-- Info Principal -->
+            <div class="flex-1 text-center md:text-left">
+                <div class="flex flex-col md:flex-row md:items-center gap-3 mb-2">
+                    <h1 class="text-3xl font-black text-slate-800 tracking-tight">{{ aluno.nome }}</h1>
+                    <span class="badge bg-slate-50 border-slate-100 text-slate-400 font-bold px-4 py-3 rounded-xl">ID #{{ aluno.id }}</span>
+                </div>
+                
+                <div class="flex flex-wrap justify-center md:justify-start gap-4 text-slate-400 text-sm font-medium mb-6">
+                    <span class="flex items-center gap-2"><i class="far fa-calendar-alt text-serene-blue"></i> {{ aluno.data_nascimento|default:"--" }}</span>
+                    {% if aluno.telefone %}
+                        <a href="https://wa.me/55{{ aluno.telefone|apenas_numeros }}" target="_blank" class="flex items-center gap-2 text-emerald-500 hover:underline">
+                            <i class="fab fa-whatsapp"></i> {{ aluno.telefone }}
+                        </a>
+                    {% endif %}
+                </div>
+
+                <!-- Botões de Ação Rápida -->
+                <div class="flex flex-wrap justify-center md:justify-start gap-3">
+                    <a href="{% url 'novo_contrato' aluno.pk %}" class="btn bg-serene-blue border-none text-white rounded-2xl px-8 shadow-lg shadow-blue-200 hover:bg-blue-400 normal-case font-black italic">
+                        <i class="fas fa-plus-circle mr-2"></i> Nova Venda
+                    </a>
+                    <a href="{% url 'aluno_update' aluno.pk %}" class="btn btn-ghost bg-slate-50 text-slate-500 rounded-2xl hover:bg-slate-100 px-6 normal-case font-bold">
+                        <i class="fas fa-pen mr-2 text-xs"></i> Editar
+                    </a>
+                    <button onclick="modal_totalpass.showModal()" class="btn btn-ghost bg-rose-50 text-rose-400 rounded-2xl hover:bg-rose-100 px-6 normal-case font-bold">
+                        <i class="fas fa-ticket-alt mr-2 text-xs"></i> TotalPass
+                    </button>
+                </div>
+            </div>
         </div>
+    </header>
+
+    <!-- 2. NAVEGAÇÃO POR ABAS (Estilo Soft Tabs) -->
+    <div class="tabs tabs-boxed bg-transparent gap-2 mb-8 justify-center md:justify-start">
+        <button class="tab tab-lg !rounded-2xl font-black uppercase text-[10px] tracking-[2px] active bg-white shadow-sm border border-slate-100 transition-all" onclick="openTab(event, 'visao')">Visão Geral</button>
+        <button class="tab tab-lg !rounded-2xl font-black uppercase text-[10px] tracking-[2px] bg-transparent text-slate-400 hover:bg-white transition-all" onclick="openTab(event, 'agenda')">Agenda</button>
+        <button class="tab tab-lg !rounded-2xl font-black uppercase text-[10px] tracking-[2px] bg-transparent text-slate-400 hover:bg-white transition-all" onclick="openTab(event, 'financeiro')">Financeiro</button>
+        <button class="tab tab-lg !rounded-2xl font-black uppercase text-[10px] tracking-[2px] bg-transparent text-slate-400 hover:bg-white transition-all" onclick="openTab(event, 'contratos')">Contratos</button>
     </div>
 
-    <!-- CONTEÚDO DAS ABAS -->
-    <div class="tab-content" id="alunoTabContent">
+    <!-- 3. CONTEÚDO DAS ABAS -->
+    <div id="tab-content">
         
-        <!-- 1. VISÃO GERAL -->
-        <div class="tab-pane fade show active" id="visao" role="tabpanel">
-            <div class="row g-4">
-                <div class="col-md-8">
-                    <!-- Cards de Resumo -->
-                    <div class="row g-3 mb-4">
-                        <div class="col-md-6">
-                            <div class="card border-0 shadow-sm h-100 border-start border-4 border-primary">
-                                <div class="card-body">
-                                    <h6 class="text-primary fw-bold mb-2"><i class="fas fa-clock me-2"></i> Próxima Aula</h6>
-                                    {% if proxima_aula %}
-                                        <h4 class="mb-0">{{ proxima_aula.data_hora_inicio|date:"d/m - H:i" }}</h4>
-                                        <small class="text-muted">Prof. {{ proxima_aula.profissional.nome }}</small>
-                                    {% else %}
-                                        <p class="text-muted mb-0">Nenhum agendamento futuro.</p>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="card border-0 shadow-sm h-100 border-start border-4 border-warning">
-                                <div class="card-body">
-                                    <h6 class="text-warning fw-bold mb-2" style="color:#d39e00!important"><i class="fas fa-notes-medical me-2"></i> Última Evolução</h6>
-                                    {% if ultima_evolucao %}
-                                        <small class="fw-bold d-block">{{ ultima_evolucao.data_hora_inicio|date:"d/m/Y" }}</small>
-                                        <p class="small text-muted mb-0 fst-italic">"{{ ultima_evolucao.evolucao_texto|truncatechars:60 }}"</p>
-                                    {% else %}
-                                        <p class="text-muted mb-0">Sem registros recentes.</p>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- CONTRATOS RESUMO (Card Branco) -->
-                    <div class="card border-0 shadow-sm mb-4">
-                        <div class="card-header bg-white py-3">
-                            <h6 class="fw-bold mb-0"><i class="fas fa-file-signature me-2"></i>Contratos Ativos</h6>
-                        </div>
-                        <div class="card-body p-0">
-                            {% if aluno.contratos.all %}
-                                <div class="list-group list-group-flush">
-                                    {% for c in aluno.contratos.all %}
-                                        <div class="list-group-item d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <div class="fw-bold">{{ c.plano.nome }}</div>
-                                                <small class="text-muted">
-                                                    {% if c.status == 'PENDENTE' %}
-                                                        <span class="text-warning fw-bold"><i class="fas fa-exclamation-circle"></i> Pendente Assinatura</span>
-                                                    {% else %}
-                                                        <span class="text-success"><i class="fas fa-check-circle"></i> Assinado</span>
-                                                    {% endif %}
-                                                    &bull; Vence: {{ c.data_fim|date:"d/m/Y" }}
-                                                </small>
-                                            </div>
-                                            <div class="btn-group">
-                                                {% if c.status == 'PENDENTE' %}
-                                                    <a href="{% url 'assinar_contrato' c.token_assinatura %}" class="btn btn-sm btn-primary" target="_blank" title="Assinar Agora"><i class="fas fa-pen-nib"></i></a>
-                                                {% endif %}
-                                                <a href="{% url 'imprimir_contrato' c.id %}" target="_blank" class="btn btn-sm btn-light border" title="Imprimir PDF"><i class="fas fa-print"></i></a>
-                                            </div>
-                                        </div>
-                                    {% endfor %}
-                                </div>
+        <!-- ABA: VISÃO GERAL -->
+        <div id="visao" class="tab-pane block animate-in fade-in duration-500">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                
+                <div class="lg:col-span-8 space-y-8">
+                    <!-- Cards de Resumo Rápido -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-white p-8 rounded-[32px] shadow-xl shadow-slate-200/40 border border-white">
+                            <h6 class="text-[10px] font-black text-serene-blue uppercase tracking-widest mb-4">Próxima Aula</h6>
+                            {% if proxima_aula %}
+                                <h4 class="text-2xl font-black text-slate-700">{{ proxima_aula.data_hora_inicio|date:"d/m • H:i" }}</h4>
+                                <p class="text-xs text-slate-400 font-medium mt-1 italic">Prof. {{ proxima_aula.profissional.nome }}</p>
                             {% else %}
-                                <div class="p-4 text-center text-muted">Nenhum contrato ativo.</div>
+                                <p class="text-slate-300 text-sm italic">Nenhum agendamento futuro.</p>
+                            {% endif %}
+                        </div>
+                        <div class="bg-white p-8 rounded-[32px] shadow-xl shadow-slate-200/40 border border-white">
+                            <h6 class="text-[10px] font-black text-orange-400 uppercase tracking-widest mb-4">Última Evolução</h6>
+                            {% if ultima_evolucao %}
+                                <h4 class="text-sm font-bold text-slate-700">{{ ultima_evolucao.data_hora_inicio|date:"d/m/Y" }}</h4>
+                                <p class="text-xs text-slate-400 mt-2 leading-relaxed">"{{ ultima_evolucao.evolucao_texto|truncatechars:80 }}"</p>
+                            {% else %}
+                                <p class="text-slate-300 text-sm italic">Sem registros recentes.</p>
                             {% endif %}
                         </div>
                     </div>
+
+                    <!-- Contratos Ativos -->
+                    <div class="bg-white rounded-[32px] shadow-xl shadow-slate-200/50 border border-white overflow-hidden">
+                        <div class="p-6 border-b border-slate-50 flex items-center justify-between">
+                            <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Contratos em Vigor</h3>
+                            <i class="fas fa-file-signature text-slate-200"></i>
+                        </div>
+                        <div class="divide-y divide-slate-50">
+                            {% for c in aluno.contratos.all %}
+                                <div class="p-6 flex items-center justify-between hover:bg-slate-50/50 transition-colors">
+                                    <div>
+                                        <div class="text-sm font-bold text-slate-700">{{ c.plano.nome }}</div>
+                                        <div class="flex items-center gap-3 mt-1">
+                                            {% if c.status == 'PENDENTE' %}
+                                                <span class="text-[9px] font-black text-orange-400 uppercase"><i class="fas fa-clock mr-1"></i> Aguardando Assinatura</span>
+                                            {% else %}
+                                                <span class="text-[9px] font-black text-emerald-500 uppercase"><i class="fas fa-check mr-1"></i> Ativo</span>
+                                            {% endif %}
+                                            <span class="text-[9px] text-slate-300 font-bold uppercase">Vence: {{ c.data_fim|date:"d/m/Y" }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        {% if c.status == 'PENDENTE' %}
+                                            <a href="{% url 'assinar_contrato' c.token_assinatura %}" class="btn btn-square btn-sm rounded-xl bg-serene-blue/10 border-none text-serene-blue hover:bg-serene-blue hover:text-white" title="Assinar"><i class="fas fa-pen-nib text-xs"></i></a>
+                                        {% endif %}
+                                        <a href="{% url 'imprimir_contrato' c.id %}" target="_blank" class="btn btn-square btn-sm rounded-xl bg-slate-50 border-none text-slate-400 hover:bg-slate-200" title="Imprimir"><i class="fas fa-print text-xs"></i></a>
+                                    </div>
+                                </div>
+                            {% empty %}
+                                <div class="p-12 text-center text-slate-300 italic text-sm">Nenhum contrato ativo.</div>
+                            {% endfor %}
+                        </div>
+                    </div>
                 </div>
 
-                <!-- AÇÕES RÁPIDAS (Coluna Direita) -->
-                <div class="col-md-4">
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-header bg-white py-3"><h6 class="fw-bold mb-0">Ações Rápidas</h6></div>
-                        <div class="card-body p-2">
-                            <div class="d-grid gap-2">
-                                <button class="btn btn-light text-start p-3 action-btn" data-bs-toggle="modal" data-bs-target="#modalDocumento">
-                                    <i class="fas fa-cloud-upload-alt me-3 text-primary"></i> Anexar Documento
-                                </button>
-                                <a href="{% url 'novo_contrato' aluno.pk %}" class="btn btn-light text-start p-3 action-btn">
-                                    <i class="fas fa-cart-plus me-3 text-success"></i> Vender Avulso/Pacote
-                                </a>
-                                <button class="btn btn-light text-start p-3 action-btn text-danger" onclick="if(confirm('Tem certeza?')) location.href='{% url 'aluno_delete' aluno.pk %}'">
-                                    <i class="fas fa-user-times me-3"></i> Excluir Aluno
-                                </button>
-                            </div>
+                <!-- AÇÕES RÁPIDAS (Coluna Lateral) -->
+                <div class="lg:col-span-4 space-y-6">
+                    <div class="bg-white p-8 rounded-[32px] shadow-xl shadow-slate-200/50 border border-white">
+                        <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Ações Rápidas</h3>
+                        <div class="flex flex-col gap-3">
+                            <button onclick="modal_documento.showModal()" class="btn btn-ghost bg-slate-50 hover:bg-serene-blue/10 justify-start h-14 rounded-2xl border-none group transition-all">
+                                <i class="fas fa-cloud-upload-alt w-8 text-serene-blue group-hover:scale-125 transition-transform"></i>
+                                <span class="text-xs font-bold text-slate-600">Anexar Documento</span>
+                            </button>
+                            <a href="{% url 'novo_contrato' aluno.pk %}" class="btn btn-ghost bg-slate-50 hover:bg-mint-green/20 justify-start h-14 rounded-2xl border-none group transition-all">
+                                <i class="fas fa-cart-plus w-8 text-emerald-500 group-hover:scale-125 transition-transform"></i>
+                                <span class="text-xs font-bold text-slate-600">Vender Pacote</span>
+                            </a>
+                            <button onclick="if(confirm('Deseja realmente excluir este aluno?')) location.href='{% url 'aluno_delete' aluno.pk %}'" 
+                                    class="btn btn-ghost bg-slate-50 hover:bg-rose-50 justify-start h-14 rounded-2xl border-none group transition-all mt-4">
+                                <i class="fas fa-user-times w-8 text-rose-300 group-hover:text-rose-500 transition-colors"></i>
+                                <span class="text-xs font-bold text-slate-400 group-hover:text-rose-500">Excluir Registro</span>
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- 2. ABA AGENDA (COMPLETA) -->
-        <div class="tab-pane fade" id="agenda" role="tabpanel">
-            <div class="card border-0 shadow-sm">
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light">
-                            <tr><th>Data</th><th>Horário</th><th>Profissional</th><th>Status</th><th class="text-end">Ações</th></tr>
-                        </thead>
-                        <tbody>
-                            {% for p in agenda_completa %}
-                            <tr>
-                                <td>{{ p.aula.data_hora_inicio|date:"d/m/Y" }}</td>
-                                <td>{{ p.aula.data_hora_inicio|date:"H:i" }}</td>
-                                <td>{{ p.aula.profissional.nome }}</td>
-                                <td>
-                                    {% if p.status == 'FALTA' %}
-                                        <span class="badge bg-danger">Falta</span>
-                                    {% elif p.status == 'CANCELADA' %}
-                                        <span class="badge bg-secondary text-decoration-line-through">Cancelada</span>
-                                    {% elif p.status == 'PRESENTE' %}
-                                        <span class="badge bg-success">Concluída</span>
-                                    {% elif p.aula.data_hora_inicio > agora %}
-                                        <span class="badge bg-info text-dark">Agendada</span>
-                                    {% else %}
-                                        <span class="badge bg-warning text-dark">Pendente</span>
-                                    {% endif %}
-                                </td>
-                                <td class="text-end">
-                                    <a href="{% url 'gerenciar_aula' p.aula.id %}" class="btn btn-sm btn-outline-secondary" title="Ver Aula"><i class="fas fa-eye"></i></a>
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr><td colspan="5" class="text-center py-4 text-muted">Nenhuma aula no histórico.</td></tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- 3. ABA FINANCEIRO -->
-        <div class="tab-pane fade" id="financeiro" role="tabpanel">
-            <div class="card border-0 shadow-sm">
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light">
-                            <tr><th>Vencimento</th><th>Descrição</th><th>Valor</th><th>Status</th><th>Ações</th></tr>
-                        </thead>
-                        <tbody>
-                            {% for lanc in financeiro_completo %}
-                            <tr>
-                                <td>{{ lanc.data_vencimento|date:"d/m/Y" }}</td>
-                                <td>{{ lanc.descricao }}</td>
-                                <td class="fw-bold">R$ {{ lanc.valor }}</td>
-                                <td>{% if lanc.status == 'PAGO' %}<span class="badge bg-success">PAGO</span>{% else %}<span class="badge bg-warning text-dark">PENDENTE</span>{% endif %}</td>
-                                <td>
-                                    {% if lanc.status == 'PENDENTE' %}
-                                    <form action="{% url 'baixar_lancamento' lanc.id %}" method="post" class="d-inline">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="forma_pagamento" value="PIX"> 
-                                        <button class="btn btn-sm btn-outline-success" onclick="return confirm('Confirmar recebimento?')"><i class="fas fa-check"></i> Baixar</button>
-                                    </form>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr><td colspan="5" class="text-center py-4 text-muted">Nenhum lançamento financeiro.</td></tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- 4. ABA CONTRATOS -->
-        <div class="tab-pane fade" id="contratos" role="tabpanel">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body p-0">
-                    <div class="list-group list-group-flush">
-                        {% for c in contratos_completo %}
-                            <div class="list-group-item d-flex justify-content-between align-items-center p-3">
-                                
-                                <!-- Info do Contrato -->
-                                <div>
-                                    <h5 class="mb-1 d-flex align-items-center gap-2">
-                                        {{ c.plano.nome }}
-                                        {% if c.status == 'ATIVO' or c.status == 'ASSINADO_DIGITAL' or c.status == 'ASSINADO_PRESENCIAL' %}
-                                            <span class="badge bg-success" style="font-size: 0.6rem;">Ativo/Assinado</span>
-                                        {% elif c.status == 'PENDENTE' %}
-                                            <span class="badge bg-warning text-dark" style="font-size: 0.6rem;">Pendente Assinatura</span>
-                                        {% elif c.status == 'CANCELADO' %}
-                                            <span class="badge bg-danger" style="font-size: 0.6rem;">Cancelado</span>
-                                        {% else %}
-                                            <span class="badge bg-secondary" style="font-size: 0.6rem;">{{ c.get_status_display }}</span>
-                                        {% endif %}
-                                    </h5>
-                                    <p class="mb-0 small text-muted">
-                                        {{ c.data_inicio|date:"d/m/Y" }} a {{ c.data_fim|date:"d/m/Y" }} 
-                                        &bull; Total: R$ {{ c.valor_total }}
-                                    </p>
+        <!-- ABA: AGENDA -->
+        <div id="agenda" class="tab-pane hidden animate-in fade-in duration-500">
+            <div class="bg-white rounded-[32px] shadow-xl shadow-slate-200/50 border border-white overflow-hidden">
+                <table class="table w-full border-collapse">
+                    <thead>
+                        <tr class="border-b border-slate-50">
+                            <th class="bg-white text-[10px] font-black text-slate-400 uppercase tracking-widest py-6 pl-8">Data/Hora</th>
+                            <th class="bg-white text-[10px] font-black text-slate-400 uppercase tracking-widest py-6">Profissional</th>
+                            <th class="bg-white text-[10px] font-black text-slate-400 uppercase tracking-widest py-6 text-center">Status</th>
+                            <th class="bg-white text-[10px] font-black text-slate-400 uppercase tracking-widest py-6 pr-8 text-right">Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-50 text-slate-600 font-medium">
+                        {% for p in agenda_completa %}
+                        <tr class="hover:bg-slate-50 transition-colors group">
+                            <td class="py-6 pl-8">
+                                <div class="flex flex-col">
+                                    <span class="font-bold text-slate-700 text-sm">{{ p.aula.data_hora_inicio|date:"d/m/Y" }}</span>
+                                    <span class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">{{ p.aula.data_hora_inicio|date:"H:i" }}</span>
                                 </div>
-
-                                <!-- Botões de Ação -->
-                                <div class="btn-group">
-                                    {% if c.status == 'PENDENTE' or c.status == 'ENVIADO_EMAIL' %}
-                                        <!-- Botão Email -->
-                                        <a href="https://api.whatsapp.com/send?phone=55{{ aluno.telefone|apenas_numeros }}&text=Olá {{ aluno.nome }}, segue o link para assinatura: {{ request.scheme }}://{{ request.get_host }}{% url 'assinar_contrato' c.token_assinatura %}" 
-                                            target="_blank" 
-                                            class="btn btn-sm btn-outline-success" 
-                                            title="Enviar no WhatsApp">
-                                                <i class="fab fa-whatsapp"></i>
-                                        </a>
-                                        <a href="{% url 'enviar_contrato_email' c.id %}" class="btn btn-sm btn-outline-primary" title="Enviar por E-mail">
-                                            <i class="fas fa-envelope"></i>
-                                        </a>
-                                        
-                                        <a href="{% url 'assinar_contrato' c.token_assinatura %}" target="_blank" class="btn btn-sm btn-primary" title="Assinar na Tela"><i class="fas fa-pen-nib"></i></a>
-                                    {% endif %}
-                                    <a href="{% url 'imprimir_contrato' c.id %}" target="_blank" class="btn btn-sm btn-outline-dark" title="Imprimir PDF"><i class="fas fa-print"></i></a>
-                                </div>
-                               
-                            </div>
-                        {% empty %}
-                            <div class="p-5 text-center text-muted">Nenhum contrato encontrado.</div>
+                            </td>
+                            <td class="py-6 text-sm">{{ p.aula.profissional.nome }}</td>
+                            <td class="py-6 text-center">
+                                {% if p.status == 'PRESENTE' %}
+                                    <span class="badge bg-mint-green/20 border-none text-emerald-700 text-[10px] font-black px-4 py-3 rounded-xl uppercase">CONCLUÍDA</span>
+                                {% elif p.status == 'FALTA' %}
+                                    <span class="badge bg-rose-50 border-none text-rose-600 text-[10px] font-black px-4 py-3 rounded-xl uppercase">FALTA</span>
+                                {% else %}
+                                    <span class="badge bg-serene-blue/10 border-none text-blue-600 text-[10px] font-black px-4 py-3 rounded-xl uppercase tracking-tighter">AGENDADA</span>
+                                {% endif %}
+                            </td>
+                            <td class="py-6 pr-8 text-right">
+                                <a href="{% url 'gerenciar_aula' p.aula.id %}" class="btn btn-ghost btn-circle btn-sm text-slate-300 hover:text-serene-blue"><i class="fas fa-eye"></i></a>
+                            </td>
+                        </tr>
                         {% endfor %}
-                    </div>
-                </div>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ABA: FINANCEIRO (LAVENDER STYLE) -->
+        <div id="financeiro" class="tab-pane hidden animate-in fade-in duration-500">
+            <div class="bg-white rounded-[32px] shadow-xl shadow-slate-200/50 border border-white overflow-hidden">
+                <table class="table w-full">
+                    <thead>
+                        <tr class="border-b border-slate-50">
+                            <th class="bg-white text-[10px] font-black text-slate-400 uppercase tracking-widest py-6 pl-8">Vencimento</th>
+                            <th class="bg-white text-[10px] font-black text-slate-400 uppercase tracking-widest py-6">Descrição</th>
+                            <th class="bg-white text-[10px] font-black text-slate-400 uppercase tracking-widest py-6">Valor</th>
+                            <th class="bg-white text-[10px] font-black text-slate-400 uppercase tracking-widest py-6 text-center">Status</th>
+                            <th class="bg-white text-[10px] font-black text-slate-400 uppercase tracking-widest py-6 pr-8 text-right">Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-50 font-medium">
+                        {% for lanc in financeiro_completo %}
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="py-6 pl-8 font-bold text-slate-700">{{ lanc.data_vencimento|date:"d/m/Y" }}</td>
+                            <td class="py-6 text-xs text-slate-500">{{ lanc.descricao }}</td>
+                            <td class="py-6 font-black text-slate-800 text-sm italic">R$ {{ lanc.valor }}</td>
+                            <td class="py-6 text-center">
+                                {% if lanc.status == 'PAGO' %}
+                                    <span class="badge bg-emerald-50 text-emerald-600 border-none text-[9px] font-black px-4 py-3 rounded-xl uppercase">LIQUIDADO</span>
+                                {% else %}
+                                    <span class="badge bg-soft-lavender/30 text-purple-700 border-none text-[9px] font-black px-4 py-3 rounded-xl uppercase">EM ABERTO</span>
+                                {% endif %}
+                            </td>
+                            <td class="py-6 pr-8 text-right">
+                                {% if lanc.status == 'PENDENTE' %}
+                                    <form action="{% url 'baixar_lancamento' lanc.id %}" method="post">
+                                        {% csrf_token %}<input type="hidden" name="forma_pagamento" value="PIX">
+                                        <button class="btn btn-sm rounded-xl bg-purple-100 text-purple-700 border-none font-bold normal-case hover:bg-purple-600 hover:text-white" onclick="return confirm('Confirmar recebimento?')">Baixar</button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
 
     </div>
 </div>
 
-<!-- MANTENHA OS MODAIS (TotalPass e Docs) -->
-<div class="modal fade" id="modalTotalPass" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title fw-bold">TotalPass</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body text-center">
-                <div class="form-floating mb-3">
-                    <input type="text" id="tp_token" class="form-control text-center fs-3 fw-bold" placeholder="Token">
-                    <label>Token</label>
-                </div>
-                <button onclick="validarTotalPass()" class="btn btn-danger w-100 py-3 fw-bold">VALIDAR TOKEN</button>
-                <div id="tp_msg" class="mt-3"></div>
-            </div>
-        </div>
+<!-- MODAL: TOTALPASS -->
+<dialog id="modal_totalpass" class="modal">
+  <div class="modal-box bg-white rounded-[32px] p-10 text-center">
+    <div class="w-20 h-20 bg-rose-50 rounded-[2.5rem] flex items-center justify-center text-rose-500 mx-auto mb-6">
+        <i class="fas fa-ticket-alt text-3xl"></i>
     </div>
-</div>
+    <h3 class="text-2xl font-black text-slate-800 tracking-tight">Validar TotalPass</h3>
+    <p class="text-slate-400 font-medium mb-8">Digite o token apresentado pelo aluno</p>
+    
+    <div class="form-control w-full mb-8">
+        <input type="text" id="tp_token" placeholder="000 000" class="input input-bordered h-20 text-center text-4xl font-black border-slate-100 bg-slate-50 rounded-3xl focus:ring-rose-200 focus:border-rose-300" />
+    </div>
+    
+    <button onclick="validarTotalPass()" class="btn btn-primary bg-rose-500 border-none text-white w-full h-16 rounded-2xl shadow-xl shadow-rose-200 font-black uppercase tracking-widest">
+        Verificar Token
+    </button>
+    <div id="tp_msg" class="mt-4"></div>
 
-<div class="modal fade" id="modalDocumento" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Adicionar Documento</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <form action="{% url 'upload_documento_extra' aluno.pk %}" method="post" enctype="multipart/form-data">
-              {% csrf_token %}
-              <div class="mb-3"><label class="form-label">Arquivo</label><input type="file" name="arquivo" class="form-control" required></div>
-              <div class="mb-3"><label class="form-label">Descrição</label><input type="text" name="descricao" class="form-control" placeholder="Ex: Laudo Médico"></div>
-              <button type="submit" class="btn btn-primary w-100">Enviar</button>
-          </form>
-        </div>
-      </div>
+    <form method="dialog" class="mt-4">
+        <button class="btn btn-ghost btn-sm text-slate-300 font-bold">Fechar</button>
+    </form>
+  </div>
+  <form method="dialog" class="modal-backdrop bg-slate-900/20 backdrop-blur-sm"><button>close</button></form>
+</dialog>
+
+<!-- MODAL: DOCUMENTO -->
+<dialog id="modal_documento" class="modal">
+    <div class="modal-box bg-white rounded-[32px] p-10">
+      <h3 class="text-xl font-black text-slate-800 mb-6">Anexar Documento</h3>
+      <form action="{% url 'upload_documento_extra' aluno.pk %}" method="post" enctype="multipart/form-data" class="space-y-6">
+          {% csrf_token %}
+          <div class="form-control">
+            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Arquivo (PDF ou Imagem)</label>
+            <input type="file" name="arquivo" class="file-input file-input-bordered bg-slate-50 border-slate-100 rounded-xl w-full" required />
+          </div>
+          <div class="form-control">
+            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Descrição Curta</label>
+            <input type="text" name="descricao" class="input input-bordered bg-slate-50 border-slate-100 rounded-xl" placeholder="Ex: Atestado de Saúde" />
+          </div>
+          <button type="submit" class="btn btn-primary w-full h-14 bg-serene-blue border-none text-white rounded-xl shadow-lg shadow-blue-200 font-black italic">Upload Documento</button>
+      </form>
+      <form method="dialog" class="mt-4 text-center"><button class="btn btn-ghost btn-xs text-slate-300">Cancelar</button></form>
     </div>
-</div>
+    <form method="dialog" class="modal-backdrop bg-slate-900/20 backdrop-blur-sm"><button>close</button></form>
+</dialog>
 
 <script>
+    function openTab(evt, tabName) {
+        var i, tabcontent, tablinks;
+        tabcontent = document.getElementsByClassName("tab-pane");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].classList.add("hidden");
+        }
+        tablinks = document.getElementsByClassName("tab");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].classList.remove("active", "bg-white", "shadow-sm", "border-slate-100");
+            tablinks[i].classList.add("bg-transparent", "text-slate-400");
+        }
+        document.getElementById(tabName).classList.remove("hidden");
+        document.getElementById(tabName).classList.add("block");
+        evt.currentTarget.classList.add("active", "bg-white", "shadow-sm", "border-slate-100");
+        evt.currentTarget.classList.remove("bg-transparent", "text-slate-400");
+    }
+
     function validarTotalPass() {
         const token = document.getElementById('tp_token').value;
         const msgDiv = document.getElementById('tp_msg');
-        if(!token) { alert('Digite o token!'); return; }
-        msgDiv.innerHTML = '<div class="spinner-border text-danger"></div> Validando...';
-        setTimeout(() => { msgDiv.innerHTML = '<span class="text-success fw-bold">Confirmado!</span>'; }, 1000);
+        if(!token) return;
+        msgDiv.innerHTML = '<span class="loading loading-dots loading-md text-rose-500"></span>';
+        setTimeout(() => { msgDiv.innerHTML = '<span class="text-emerald-500 font-black uppercase text-xs tracking-widest">✓ Token Validado</span>'; }, 1500);
     }
 </script>
 

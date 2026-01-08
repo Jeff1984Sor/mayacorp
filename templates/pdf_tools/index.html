@@ -1,48 +1,122 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Conciliador Inteligente - Mayacorp{% endblock %}
+{% block title %}Conciliador Inteligente - MayaCorp{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-lg">
-                <div class="card-header bg-dark text-white">
-                    <h4 class="mb-0">🤖 Conciliador de Boletos + Comprovantes (By Mayacorp)</h4>
-                </div>
-                <div class="card-body p-5">
-                    
-                    <form method="post" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        
-                        <!-- 1. Vários Boletos -->
-                        <div class="mb-4">
-                            <label class="form-label fw-bold">1. Selecione os Arquivos dos Boletos (PDFs separados)</label>
-                            <input class="form-control form-control-lg" type="file" name="boletos" multiple accept=".pdf" required>
-                            <div class="form-text">Pode selecionar 10, 20, 50 arquivos de uma vez.</div>
-                        </div>
-
-                        <!-- 2. Arquivão de Comprovantes -->
-                        <div class="mb-4">
-                            <label class="form-label fw-bold">2. Selecione o Arquivo com os Comprovantes (PDF Único)</label>
-                            <input class="form-control form-control-lg" type="file" name="comprovantes" accept=".pdf" required>
-                            <div class="form-text">O sistema vai ler página por página desse arquivo.</div>
-                        </div>
-
-                        <div class="alert alert-warning">
-                            <small>⏳ O processamento usa Inteligência Artificial. Pode levar alguns segundos por boleto. Aguarde o download iniciar.</small>
-                        </div>
-
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary btn-lg">
-                                ⚡ Iniciar Conciliação e Baixar ZIP
-                            </button>
-                        </div>
-                    </form>
-
-                </div>
+<div class="max-w-4xl mx-auto pb-20">
+    
+    <!-- HEADER: Identidade Visual de IA -->
+    <header class="flex flex-col md:flex-row justify-between items-center mb-10 gap-6 px-2 animate-in fade-in duration-700">
+        <div class="flex items-center gap-5">
+            <div class="w-16 h-16 bg-serene-blue/20 rounded-[24px] flex items-center justify-center text-serene-blue shadow-sm border border-white">
+                <i class="fas fa-robot text-2xl"></i>
+            </div>
+            <div>
+                <h1 class="text-3xl font-black text-slate-800 tracking-tight">Conciliador Inteligente</h1>
+                <p class="text-[10px] text-slate-400 font-black uppercase tracking-[2px] mt-1">
+                    Processamento Automatizado via Inteligência MayaCorp
+                </p>
             </div>
         </div>
-    </div>
+        
+        <div class="badge bg-mint-green/20 border-none text-emerald-700 font-black py-4 px-6 rounded-xl animate-pulse">
+            <i class="fas fa-bolt mr-2"></i> MOTOR IA ATIVO
+        </div>
+    </header>
+
+    <form method="post" enctype="multipart/form-data" class="space-y-8">
+        {% csrf_token %}
+
+        <!-- CARD 1: BOLETOS (Azul Sereno) -->
+        <section class="bg-white rounded-[40px] shadow-2xl shadow-slate-200/50 border border-white overflow-hidden transition-all hover:shadow-slate-300/50">
+            <div class="p-8 md:p-10 border-b border-slate-50 flex items-center gap-4">
+                <div class="w-10 h-10 bg-serene-blue/10 rounded-xl flex items-center justify-center text-serene-blue">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                </div>
+                <h3 class="text-sm font-black text-slate-700 uppercase tracking-widest">1. Base de Boletos</h3>
+            </div>
+            
+            <div class="p-8 md:p-10">
+                <div class="form-control w-full">
+                    <label class="label mb-4">
+                        <span class="label-text text-slate-500 font-medium">Selecione os arquivos PDF dos boletos (pode ser múltiplos):</span>
+                    </label>
+                    <input type="file" name="boletos" multiple accept=".pdf" required 
+                           class="file-input file-input-bordered w-full bg-slate-50 border-slate-100 rounded-2xl h-16 text-slate-600 font-bold focus:ring-2 focus:ring-serene-blue/20" />
+                    <div class="mt-4 flex items-center gap-2 px-2">
+                        <i class="fas fa-info-circle text-serene-blue text-xs"></i>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Limite sugerido: até 100 arquivos por vez</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CARD 2: COMPROVANTES (Lavanda) -->
+        <section class="bg-white rounded-[40px] shadow-2xl shadow-slate-200/50 border border-white overflow-hidden transition-all hover:shadow-slate-300/50">
+            <div class="p-8 md:p-10 border-b border-slate-50 flex items-center gap-4">
+                <div class="w-10 h-10 bg-soft-lavender/30 rounded-xl flex items-center justify-center text-purple-600">
+                    <i class="fas fa-receipt"></i>
+                </div>
+                <h3 class="text-sm font-black text-slate-700 uppercase tracking-widest">2. Arquivo de Comprovantes</h3>
+            </div>
+            
+            <div class="p-8 md:p-10">
+                <div class="form-control w-full">
+                    <label class="label mb-4">
+                        <span class="label-text text-slate-500 font-medium">Selecione o PDF único contendo todos os comprovantes:</span>
+                    </label>
+                    <input type="file" name="comprovantes" accept=".pdf" required 
+                           class="file-input file-input-bordered w-full bg-slate-50 border-slate-100 rounded-2xl h-16 text-slate-600 font-bold focus:ring-2 focus:ring-purple-200" />
+                    <div class="mt-4 flex items-center gap-2 px-2">
+                        <i class="fas fa-lightbulb text-purple-400 text-xs"></i>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">A IA lerá cada página em busca de matches</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- AVISO E BOTÃO DE AÇÃO -->
+        <div class="pt-6 space-y-6">
+            <!-- Alerta Soft UI -->
+            <div class="bg-amber-50 rounded-[28px] p-6 border border-amber-100 flex items-start gap-4 shadow-sm">
+                <div class="w-10 h-10 bg-white rounded-2xl flex items-center justify-center text-amber-500 shadow-sm shrink-0">
+                    <i class="fas fa-hourglass-half"></i>
+                </div>
+                <div>
+                    <h4 class="text-xs font-black text-amber-700 uppercase tracking-widest mb-1">Processamento Inteligente</h4>
+                    <p class="text-xs text-amber-600/80 font-medium leading-relaxed">
+                        A IA irá analisar dados bancários, valores e datas. Este processo pode levar alguns segundos por arquivo. 
+                        <strong>O download do arquivo .ZIP iniciará automaticamente após o término.</strong>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Botão Gigante -->
+            <button type="submit" class="btn w-full h-20 bg-mint-green border-none text-emerald-900 rounded-[2rem] shadow-xl shadow-mint-green/30 normal-case font-black text-xl italic hover:bg-emerald-400 hover:scale-[1.01] transition-all flex items-center justify-center gap-4">
+                <i class="fas fa-bolt text-2xl"></i> Iniciar Conciliação e Gerar ZIP
+            </button>
+            
+            <p class="text-center text-[9px] text-slate-300 font-black uppercase tracking-[5px]">
+                MayaCorp Automation Engine v3.0
+            </p>
+        </div>
+    </form>
 </div>
+
+<style>
+    /* Customização do File Input do DaisyUI para o estilo MayaCorp */
+    .file-input::file-selector-button {
+        @apply bg-slate-200 border-none text-slate-600 font-black uppercase text-[10px] tracking-widest px-8 h-full mr-6 hover:bg-slate-300 transition-all !important;
+    }
+</style>
+
+<script>
+    // Feedback visual ao clicar no botão
+    document.querySelector('form').addEventListener('submit', function() {
+        const btn = this.querySelector('button[type="submit"]');
+        btn.innerHTML = '<span class="loading loading-spinner loading-lg"></span> PROCESSANDO ARQUIVOS...';
+        btn.classList.add('opacity-80', 'cursor-not-allowed');
+    });
+</script>
 {% endblock %}

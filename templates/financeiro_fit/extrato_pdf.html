@@ -1,41 +1,166 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-br">
 <head>
+    <meta charset="UTF-8">
     <style>
-        body { font-family: Helvetica, sans-serif; font-size: 12px; }
-        h1 { color: #333; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
-        .credito { color: green; }
-        .debito { color: red; }
+        /* Configurações de Página (Padrão PDF) */
+        @page {
+            size: a4;
+            margin: 1.5cm;
+            @bottom-right { content: "Página " counter(page) " de " counter(pages); font-size: 8pt; color: #94a3b8; }
+        }
+
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            color: #334155;
+            line-height: 1.4;
+            background: white;
+        }
+
+        /* Estilo MayaCorp Header */
+        .header { margin-bottom: 30px; border-bottom: 2px solid #f1f5f9; padding-bottom: 20px; }
+        .logo-box { color: #A5D8FF; font-size: 24pt; font-weight: bold; margin-bottom: 5px; }
+        .subtitle { color: #94a3b8; font-size: 9pt; text-transform: uppercase; letter-spacing: 2px; font-weight: bold; }
+        
+        .info-tab { width: 100%; margin-bottom: 30px; }
+        .info-tab td { vertical-align: top; }
+        .label-sm { font-size: 8pt; color: #94a3b8; text-transform: uppercase; font-weight: bold; margin-bottom: 4px; }
+        .value-md { font-size: 11pt; color: #1e293b; font-weight: bold; }
+
+        /* Widget de Resumo (Estilo Dashboard no PDF) */
+        .summary-box {
+            background-color: #f8fafc;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+        .summary-table { width: 100%; text-align: center; }
+        .summary-item-title { font-size: 8pt; color: #64748b; text-transform: uppercase; font-weight: bold; }
+        .summary-item-value { font-size: 14pt; font-weight: bold; margin-top: 5px; }
+        .text-mint { color: #10b981; } /* Verde Suave */
+        .text-rose { color: #fb7185; } /* Rose Suave */
+        .text-lavender { color: #8b5cf6; } /* Lavanda */
+
+        /* Tabela de Movimentações */
+        table.main-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th {
+            background-color: #f8fafc;
+            color: #64748b;
+            font-size: 8pt;
+            text-transform: uppercase;
+            font-weight: bold;
+            padding: 12px 10px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        td {
+            padding: 12px 10px;
+            font-size: 9pt;
+            border-bottom: 1px solid #f1f5f9;
+            color: #475569;
+        }
+        .row-even { background-color: #ffffff; }
+        .row-odd { background-color: #fafafa; }
+
+        /* Tipografia de Valores */
+        .val-bold { font-weight: bold; font-family: 'Courier', monospace; font-size: 10pt; }
+        .indicator { width: 4px; height: 12px; display: inline-block; margin-right: 5px; border-radius: 2px; }
+        .bg-mint { background-color: #b2f2bb; }
+        .bg-rose { background-color: #fbd5d5; }
+
+        .footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 8pt;
+            color: #cbd5e1;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 10px;
+        }
     </style>
 </head>
 <body>
-    <h1>Extrato: {{ conta.nome }}</h1>
-    <p>Período: {{ inicio|default:"Início" }} a {{ fim|default:"Hoje" }}</p>
-    <hr>
-    <table>
+
+    <div class="header">
+        <div class="logo-box">MayaCorp <span style="font-weight: lighter; color: #cbd5e1;">Fit</span></div>
+        <div class="subtitle">Extrato Bancário Detalhado</div>
+    </div>
+
+    <table class="info-tab">
+        <tr>
+            <td width="50%">
+                <div class="label-sm">Conta / Caixa</div>
+                <div class="value-md">{{ conta.nome }}</div>
+            </td>
+            <td width="50%" align="right">
+                <div class="label-sm">Período de Referência</div>
+                <div class="value-md">{{ inicio|default:"Início" }} — {{ fim|default:"Hoje" }}</div>
+            </td>
+        </tr>
+    </table>
+
+    <!-- Widgets de Resumo -->
+    <div class="summary-box">
+        <table class="summary-table">
+            <tr>
+                <td width="33%">
+                    <div class="summary-item-title">Total Entradas</div>
+                    <div class="summary-item-value text-mint">+ R$ {{ total_entradas }}</div>
+                </td>
+                <td width="33%" style="border-left: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">
+                    <div class="summary-item-title">Total Saídas</div>
+                    <div class="summary-item-value text-rose">- R$ {{ total_saidas }}</div>
+                </td>
+                <td width="33%">
+                    <div class="summary-item-title">Saldo Final</div>
+                    <div class="summary-item-value text-lavender">R$ {{ conta.saldo_atual }}</div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Lista de Movimentações -->
+    <table class="main-table">
         <thead>
             <tr>
-                <th>Data</th>
-                <th>Descrição</th>
-                <th>Categoria</th>
-                <th>Valor</th>
+                <th width="15%">Data</th>
+                <th width="45%">Descrição / Identificação</th>
+                <th width="20%">Categoria</th>
+                <th width="20%" align="right" style="text-align: right;">Valor (R$)</th>
             </tr>
         </thead>
         <tbody>
             {% for item in lancamentos %}
-            <tr>
+            <tr class="{% cycle 'row-even' 'row-odd' %}">
                 <td>{{ item.data_pagamento|date:"d/m/Y" }}</td>
-                <td>{{ item.descricao }}</td>
-                <td>{{ item.categoria.nome }}</td>
-                <td class="{% if item.categoria.tipo == 'RECEITA' %}credito{% else %}debito{% endif %}">
-                    R$ {{ item.valor }}
+                <td>
+                    <strong>{{ item.descricao }}</strong>
+                    {% if item.aluno %}
+                        <br><span style="font-size: 7pt; color: #94a3b8;">Origem: {{ item.aluno.nome }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <span style="font-size: 8pt; color: #64748b;">{{ item.categoria.nome }}</span>
+                </td>
+                <td align="right" style="text-align: right;">
+                    <div class="val-bold {% if item.categoria.tipo == 'RECEITA' %}text-mint{% else %}text-rose{% endif %}">
+                        <span class="indicator {% if item.categoria.tipo == 'RECEITA' %}bg-mint{% else %}bg-rose{% endif %}"></span>
+                        {% if item.categoria.tipo == 'DESPESA' %}-{% endif %} {{ item.valor }}
+                    </div>
                 </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
+
+    <div class="footer">
+        Relatório gerado via MayaCorp Management System em {% now "d/m/Y H:i" %}
+    </div>
+
 </body>
 </html>

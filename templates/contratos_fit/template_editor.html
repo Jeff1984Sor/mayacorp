@@ -1,63 +1,114 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Editor de Contrato{% endblock %}
+{% block title %}Editor de Modelo - MayaCorp{% endblock %}
 
 {% block content %}
 <!-- Carrega o CKEditor da nuvem -->
 <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
 
-<div class="container-fluid py-3">
+<div class="max-w-7xl mx-auto pb-20">
     
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h4 class="fw-bold">Editor de Modelo de Contrato</h4>
-        <a href="{% url 'template_list' %}" class="btn btn-outline-secondary">Voltar</a>
-    </div>
+    <!-- HEADER -->
+    <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4 px-2">
+        <div class="flex items-center gap-4">
+            <div class="w-14 h-14 bg-soft-lavender/30 rounded-[22px] flex items-center justify-center text-purple-600 shadow-sm border border-white">
+                <i class="fas fa-edit text-2xl"></i>
+            </div>
+            <div>
+                <h1 class="text-3xl font-black text-slate-800 tracking-tight">Editor de Modelos</h1>
+                <p class="text-[10px] text-slate-400 font-black uppercase tracking-[2px] mt-1">
+                    Crie contratos dinâmicos usando variáveis inteligentes
+                </p>
+            </div>
+        </div>
+        
+        <a href="{% url 'template_list' %}" 
+           class="btn btn-ghost bg-white shadow-sm border-slate-100 rounded-2xl hover:bg-slate-50 transition-all text-slate-400 normal-case font-bold px-6">
+            <i class="fas fa-arrow-left mr-2 text-xs"></i> Voltar à Lista
+        </a>
+    </header>
 
     <form method="post">
         {% csrf_token %}
         
-        <div class="row">
-            <!-- COLUNA DA ESQUERDA: EDITOR -->
-            <div class="col-md-9">
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Nome do Modelo</label>
-                    <input type="text" name="nome" class="form-control" value="{{ form.instance.nome|default:'' }}" required>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Conteúdo do Contrato</label>
-                    <textarea name="texto_html" id="editor1">{{ form.instance.texto_html }}</textarea>
-                </div>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+            
+            <!-- COLUNA DA ESQUERDA: EDITOR (9/12) -->
+            <div class="lg:col-span-9 space-y-8">
                 
-                <div class="form-check mb-3">
-                    <input type="checkbox" name="ativo" class="form-check-input" id="id_ativo" {% if form.instance.ativo %}checked{% endif %}>
-                    <label class="form-check-label" for="id_ativo">Modelo Ativo</label>
+                <!-- Nome do Modelo Card -->
+                <div class="bg-white p-8 rounded-[32px] shadow-xl shadow-slate-200/40 border border-white">
+                    <div class="form-control w-full">
+                        <label class="label mb-2">
+                            <span class="label-text text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nome Identificador do Modelo</span>
+                        </label>
+                        <input type="text" name="nome" value="{{ form.instance.nome|default:'' }}" placeholder="Ex: Contrato de Pilates - Semestral" required
+                               class="input w-full bg-slate-50 border-slate-100 rounded-2xl focus:ring-2 focus:ring-serene-blue/20 focus:border-serene-blue/30 focus:outline-none transition-all text-slate-700 font-bold h-14 px-6">
+                    </div>
                 </div>
 
-                <button type="submit" class="btn btn-success btn-lg px-5">Salvar Modelo</button>
+                <!-- Editor Card -->
+                <div class="bg-white rounded-[32px] shadow-2xl shadow-slate-200/50 border border-white overflow-hidden">
+                    <div class="p-6 border-b border-slate-50 flex items-center justify-between bg-slate-50/30">
+                        <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Conteúdo do Documento</h3>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] font-bold text-slate-400 mr-2">Status:</span>
+                            <input type="checkbox" name="ativo" class="toggle toggle-success toggle-sm" id="id_ativo" {% if form.instance.ativo %}checked{% endif %}>
+                        </div>
+                    </div>
+                    
+                    <!-- Container do CKEditor com bordas suavizadas -->
+                    <div class="p-2 bg-white">
+                        <textarea name="texto_html" id="editor1">{{ form.instance.texto_html }}</textarea>
+                    </div>
+                </div>
+
+                <!-- Botão Salvar -->
+                <div class="flex justify-end gap-6 items-center">
+                    <p class="text-[9px] text-slate-300 font-bold uppercase tracking-widest italic">O conteúdo é salvo em formato HTML compatível com PDF</p>
+                    <button type="submit" class="btn bg-mint-green border-none text-emerald-900 rounded-2xl px-12 h-16 shadow-xl shadow-mint-green/30 normal-case font-black text-lg italic hover:bg-emerald-400 hover:scale-[1.02] transition-all">
+                        Salvar Modelo
+                    </button>
+                </div>
             </div>
 
-            <!-- COLUNA DA DIREITA: VARIÁVEIS -->
-            <div class="col-md-3">
-                <div class="card shadow-sm border-0 sticky-top" style="top: 20px;">
-                    <div class="card-header bg-primary text-white fw-bold">
-                        <i class="fas fa-magic me-2"></i> Variáveis Dinâmicas
+            <!-- COLUNA DA DIREITA: VARIÁVEIS (3/12) -->
+            <div class="lg:col-span-3">
+                <div class="bg-white rounded-[32px] shadow-xl shadow-slate-200/50 border border-white sticky top-10 overflow-hidden">
+                    <div class="p-6 bg-serene-blue/10 border-b border-serene-blue/10">
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-magic text-serene-blue"></i>
+                            <h3 class="text-[10px] font-black text-serene-blue uppercase tracking-widest">Variáveis Mágicas</h3>
+                        </div>
                     </div>
-                    <div class="card-body bg-light p-2" style="max-height: 500px; overflow-y: auto;">
-                        <p class="small text-muted mb-2">Clique duas vezes para inserir no texto:</p>
+                    
+                    <div class="p-4 overflow-y-auto custom-scroll" style="max-height: calc(100vh - 300px);">
+                        <p class="text-[10px] text-slate-400 font-medium mb-4 px-2 leading-relaxed">
+                            <i class="fas fa-info-circle mr-1"></i> <strong>Clique duplo</strong> para inserir no texto onde estiver o cursor.
+                        </p>
                         
-                        <div class="list-group">
+                        <div class="space-y-1">
                             {% for var in variaveis %}
-                                <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" 
-                                        ondblclick="inserirVariavel('{{ var.codigo }}')" title="Clique duplo para inserir">
-                                    <span class="small fw-bold">{{ var.desc }}</span>
-                                    <span class="badge bg-secondary rounded-pill" style="font-size: 0.6rem;">VAR</span>
+                                <button type="button" 
+                                        class="w-full text-left p-3 rounded-xl border border-transparent hover:border-serene-blue/20 hover:bg-serene-blue/5 group transition-all"
+                                        ondblclick="inserirVariavel('{{ var.codigo }}')">
+                                    <div class="flex flex-col">
+                                        <span class="text-xs font-bold text-slate-600 group-hover:text-serene-blue transition-colors">{{ var.desc }}</span>
+                                        <code class="text-[9px] text-slate-300 font-mono mt-1 group-hover:text-slate-400">{{ var.codigo }}</code>
+                                    </div>
                                 </button>
                             {% endfor %}
                         </div>
                     </div>
-                    <div class="card-footer small text-muted">
-                        Para colocar o Logo, clique no ícone de Imagem do editor e cole o link da sua logo.
+                    
+                    <div class="p-6 bg-slate-50 border-t border-slate-100">
+                        <div class="flex items-start gap-3">
+                            <i class="fas fa-image text-slate-300 mt-1"></i>
+                            <p class="text-[9px] text-slate-400 leading-relaxed font-medium">
+                                Para incluir sua <strong>Logomarca</strong>, use o ícone de imagem no editor e cole a URL da sua logo.
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -65,17 +116,44 @@
     </form>
 </div>
 
+<style>
+    /* Estilização para "amansar" o CKEditor */
+    .cke_chrome { border: none !important; box-shadow: none !important; }
+    .cke_top { background: #f8f9fa !important; border-bottom: 1px solid #f1f5f9 !important; padding: 10px !important; }
+    .cke_bottom { background: #fff !important; border-top: none !important; }
+    
+    /* Scroll suave para a lista de variáveis */
+    .custom-scroll::-webkit-scrollbar { width: 4px; }
+    .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+</style>
+
 <script>
-    // Inicia o CKEditor
+    // Inicialização do CKEditor focada em simplicidade
     CKEDITOR.replace('editor1', {
-        height: 500,
-        removePlugins: 'elementspath', // Limpa a barra inferior
-        resize_enabled: false
+        height: 550,
+        removePlugins: 'elementspath',
+        resize_enabled: false,
+        uiColor: '#FFFFFF',
+        toolbar: [
+            { name: 'document', items: ['Source', '-', 'Preview', 'Print'] },
+            { name: 'clipboard', items: ['Cut', 'Copy', 'Paste', 'Undo', 'Redo'] },
+            { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'Strike', '-', 'RemoveFormat'] },
+            { name: 'paragraph', items: ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'] },
+            { name: 'insert', items: ['Image', 'Table', 'HorizontalRule', 'SpecialChar'] },
+            { name: 'styles', items: ['Format', 'FontSize'] },
+            { name: 'colors', items: ['TextColor', 'BGColor'] }
+        ]
     });
 
-    // Função Mágica para inserir onde o cursor está
     function inserirVariavel(texto) {
         CKEDITOR.instances.editor1.insertText(texto);
+        // Feedback visual sutil ao inserir
+        const notification = document.createElement('div');
+        notification.className = 'fixed bottom-10 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-6 py-3 rounded-2xl shadow-2xl text-xs font-bold animate-bounce z-[9999]';
+        notification.innerText = 'Variável inserida com sucesso! ✨';
+        document.body.appendChild(notification);
+        setTimeout(() => notification.remove(), 2000);
     }
 </script>
 {% endblock %}

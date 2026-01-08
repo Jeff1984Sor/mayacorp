@@ -1,26 +1,122 @@
 {% extends 'base.html' %}
+{% load static %}
 {% load crispy_forms_tags %}
 
-{% block title %}Cadastro de Plano{% endblock %}
+{% block title %}{% if form.instance.pk %}Editar Plano{% else %}Novo Plano{% endif %} - MayaCorp{% endblock %}
 
 {% block content %}
-<div class="container py-4" style="max-width: 600px;">
-    <div class="card shadow-sm border-0">
-        <div class="card-header bg-white py-3">
-            <h4 class="mb-0 fw-bold">{% if form.instance.pk %}Editar Plano{% else %}Novo Plano{% endif %}</h4>
+<div class="max-w-2xl mx-auto pb-20">
+    
+    <!-- HEADER -->
+    <header class="flex justify-between items-center mb-10 px-2">
+        <div class="flex items-center gap-4">
+            <div class="w-14 h-14 bg-soft-lavender/30 rounded-[22px] flex items-center justify-center text-purple-600 shadow-sm border border-white">
+                <i class="fas fa-tags text-2xl"></i>
+            </div>
+            <div>
+                <h1 class="text-3xl font-black text-slate-800 tracking-tight">
+                    {% if form.instance.pk %}Editar Plano{% else %}Novo Plano{% endif %}
+                </h1>
+                <p class="text-[10px] text-slate-400 font-black uppercase tracking-[2px] mt-1">Configuração de Pacotes e Preços</p>
+            </div>
         </div>
-        <div class="card-body p-4">
-            <form method="post">
-                {% csrf_token %}
-                
-                {{ form|crispy }}
+    </header>
 
-                <div class="d-grid gap-2 mt-4">
-                    <button type="submit" class="btn btn-success btn-lg fw-bold">Salvar Plano</button>
-                    <a href="{% url 'plano_list' %}" class="btn btn-light">Cancelar</a>
+    <!-- CARD PRINCIPAL (Soft UI Style) -->
+    <div class="bg-white rounded-[40px] shadow-2xl shadow-slate-200/50 border border-white overflow-hidden">
+        
+        <form method="post" class="p-8 md:p-12 space-y-10">
+            {% csrf_token %}
+
+            <!-- SEÇÃO 1: IDENTIFICAÇÃO -->
+            <section>
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-2 h-6 bg-serene-blue rounded-full"></div>
+                    <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-[3px]">Identificação do Plano</h3>
                 </div>
-            </form>
-        </div>
+                
+                <div class="grid grid-cols-1 gap-6">
+                    <div class="form-control">
+                        <label class="label mb-1">
+                            <span class="label-text text-[10px] font-black text-slate-400 uppercase tracking-widest">{{ form.nome.label }}</span>
+                        </label>
+                        {{ form.nome }}
+                    </div>
+                    
+                    <div class="form-control">
+                        <label class="label mb-1">
+                            <span class="label-text text-[10px] font-black text-slate-400 uppercase tracking-widest">{{ form.descricao.label }}</span>
+                        </label>
+                        {{ form.descricao }}
+                    </div>
+                </div>
+            </section>
+
+            <!-- SEÇÃO 2: REGRAS E PREÇO (Estilo Lavender) -->
+            <section class="bg-soft-lavender/10 p-8 rounded-[32px] border border-soft-lavender/20">
+                <div class="flex items-center gap-3 mb-8">
+                    <div class="w-2 h-6 bg-soft-lavender rounded-full"></div>
+                    <h3 class="text-[10px] font-black text-purple-600 uppercase tracking-[3px]">Preço e Vigência</h3>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Frequência Semanal -->
+                    <div class="form-control">
+                        <label class="label mb-1">
+                            <span class="label-text text-[10px] font-black text-slate-400 uppercase tracking-widest">Freq. Semanal</span>
+                        </label>
+                        {{ form.frequencia_semanal }}
+                    </div>
+                    
+                    <!-- Duração (Meses) -->
+                    <div class="form-control">
+                        <label class="label mb-1">
+                            <span class="label-text text-[10px] font-black text-slate-400 uppercase tracking-widest">Duração (Meses)</span>
+                        </label>
+                        {{ form.duracao_meses }}
+                    </div>
+
+                    <!-- Valor do Plano -->
+                    <div class="form-control">
+                        <label class="label mb-1">
+                            <span class="label-text text-[10px] font-black text-slate-400 uppercase tracking-widest">Valor Total</span>
+                        </label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-black text-purple-400 italic">R$</span>
+                            {{ form.valor }}
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- BOTÕES DE AÇÃO -->
+            <div class="flex flex-col gap-4 pt-6">
+                <button type="submit" class="btn bg-mint-green border-none text-emerald-900 rounded-2xl h-16 shadow-xl shadow-mint-green/30 normal-case font-black text-lg italic hover:bg-emerald-400 hover:scale-[1.01] transition-all">
+                    Salvar Configurações do Plano
+                </button>
+                <a href="{% url 'plano_list' %}" class="btn btn-ghost rounded-2xl text-slate-400 font-bold normal-case">
+                    Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- RODAPÉ -->
+    <div class="mt-8 text-center">
+        <p class="text-[10px] text-slate-300 font-bold uppercase tracking-[3px]">MayaCorp Pricing Engine v2.0</p>
     </div>
 </div>
+
+<style>
+    /* Estilização para o Crispy/Django Form se adaptar ao Soft UI do MayaCorp */
+    .input, .textinput, .textarea, .select, .numberinput { 
+        @apply w-full bg-white border-slate-100 rounded-2xl px-5 h-14 focus:ring-2 focus:ring-purple-200 focus:border-purple-300 focus:outline-none transition-all text-slate-600 font-bold !important; 
+    }
+    
+    /* Input de Valor (ajuste para o R$) */
+    .numberinput { @apply pl-10 !important; }
+
+    /* Textarea com respiro */
+    .textarea { @apply h-32 py-4 !important; }
+</style>
 {% endblock %}

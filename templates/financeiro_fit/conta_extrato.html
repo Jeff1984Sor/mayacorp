@@ -1,104 +1,157 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Extrato - {{ conta.nome }}{% endblock %}
+{% block title %}Extrato - {{ conta.nome }} | MayaCorp{% endblock %}
 
 {% block content %}
-<div class="container py-4">
+<div class="max-w-7xl mx-auto pb-10">
     
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h3 class="fw-bold text-dark"><i class="fas fa-file-invoice me-2"></i>Extrato: {{ conta.nome }}</h3>
-            <span class="badge bg-primary fs-6">Saldo Atual: R$ {{ conta.saldo_atual }}</span>
-        </div>
-        <a href="{% url 'conta_list' %}" class="btn btn-outline-secondary">Voltar</a>
-    </div>
-
-    <!-- FILTRO DE DATA -->
-    <div class="card bg-light border-0 mb-4">
-        <div class="card-body py-2">
-            <form method="get" class="row g-2 align-items-center">
-                <div class="col-auto"><span class="fw-bold">Período:</span></div>
-                <div class="col-auto">
-                    <input type="date" name="inicio" class="form-control form-control-sm" value="{{ request.GET.inicio }}" required>
-                </div>
-                <div class="col-auto">até</div>
-                <div class="col-auto">
-                    <input type="date" name="fim" class="form-control form-control-sm" value="{{ request.GET.fim }}" required>
-                </div>
-                <div class="col-auto">
-                    <button type="submit" class="btn btn-primary btn-sm">Filtrar</button>
-                    <button type="button" class="btn btn-outline-dark btn-sm" onclick="window.print()"><i class="fas fa-print"></i> Imprimir</button>
-                    <div class="btn-group ms-2">
-                        <a href="{% url 'exportar_extrato_pdf' conta.pk %}?inicio={{ request.GET.inicio }}&fim={{ request.GET.fim }}" class="btn btn-sm btn-danger" target="_blank">
-                            <i class="fas fa-file-pdf"></i> PDF
-                        </a>
-                        <a href="{% url 'exportar_extrato_excel' conta.pk %}?inicio={{ request.GET.inicio }}&fim={{ request.GET.fim }}" class="btn btn-sm btn-success" target="_blank">
-                            <i class="fas fa-file-excel"></i> Excel
-                        </a>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- RESUMO DO PERÍODO -->
-    <div class="row mb-4 text-center">
-        <div class="col-md-4">
-            <div class="p-3 bg-success bg-opacity-10 rounded border border-success">
-                <small class="text-success fw-bold text-uppercase">Entradas</small>
-                <h4 class="text-success mb-0">+ R$ {{ total_entradas }}</h4>
+    <!-- HEADER: Saldo e Identificação -->
+    <header class="flex flex-col md:flex-row justify-between items-center mb-10 gap-6 px-2">
+        <div class="flex items-center gap-5">
+            <div class="w-16 h-16 bg-soft-lavender/30 rounded-[22px] flex items-center justify-center text-purple-600 shadow-sm border border-white">
+                <i class="fas fa-file-invoice-dollar text-2xl"></i>
+            </div>
+            <div>
+                <h1 class="text-3xl font-black text-slate-800 tracking-tight">{{ conta.nome }}</h1>
+                <p class="text-[10px] text-slate-400 font-black uppercase tracking-[2px] mt-1">Detalhamento de Movimentações</p>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="p-3 bg-danger bg-opacity-10 rounded border border-danger">
-                <small class="text-danger fw-bold text-uppercase">Saídas</small>
-                <h4 class="text-danger mb-0">- R$ {{ total_saidas }}</h4>
+        
+        <!-- Badge de Saldo Estilo Neumórfico -->
+        <div class="bg-white px-8 py-4 rounded-[28px] shadow-xl shadow-slate-200/50 border border-white text-right group transition-all hover:scale-105">
+            <p class="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1">Saldo Disponível</p>
+            <div class="text-purple-600 font-black text-3xl italic tracking-tighter">
+                <span class="text-sm not-italic mr-1 text-purple-300">R$</span>{{ conta.saldo_atual }}
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="p-3 bg-white rounded border">
-                <small class="text-muted fw-bold text-uppercase">Resultado do Período</small>
-                <h4 class="{% if resultado_periodo < 0 %}text-danger{% else %}text-primary{% endif %} mb-0">
-                    R$ {{ resultado_periodo }}
-                </h4>
+    </header>
+
+    <!-- BARRA DE FILTROS E EXPORTAÇÃO (Soft UI Style) -->
+    <section class="bg-white/60 backdrop-blur-md rounded-[28px] border border-white p-4 mb-8 shadow-sm">
+        <form method="get" class="flex flex-col lg:flex-row items-center justify-between gap-6">
+            <div class="flex items-center gap-3">
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2">Período:</span>
+                <div class="join bg-slate-50 p-1 rounded-2xl border border-slate-100">
+                    <input type="date" name="inicio" class="input input-sm join-item bg-transparent border-none focus:outline-none text-xs font-bold text-slate-600" value="{{ request.GET.inicio }}" required>
+                    <span class="join-item flex items-center px-2 text-slate-300 text-xs">até</span>
+                    <input type="date" name="fim" class="input input-sm join-item bg-transparent border-none focus:outline-none text-xs font-bold text-slate-600" value="{{ request.GET.fim }}" required>
+                </div>
+                <button type="submit" class="btn btn-sm bg-serene-blue border-none text-white rounded-xl px-6 font-black italic shadow-lg shadow-blue-200/50">
+                    Filtrar
+                </button>
             </div>
+
+            <div class="flex items-center gap-2">
+                <button type="button" onclick="window.print()" class="btn btn-sm btn-ghost text-slate-400 font-bold normal-case">
+                    <i class="fas fa-print mr-2"></i> Imprimir
+                </button>
+                <div class="h-4 w-[1px] bg-slate-200 mx-2"></div>
+                <a href="{% url 'exportar_extrato_pdf' conta.pk %}?inicio={{ request.GET.inicio }}&fim={{ request.GET.fim }}" target="_blank" class="btn btn-sm bg-rose-50 border-none text-rose-500 hover:bg-rose-500 hover:text-white rounded-xl shadow-sm transition-all">
+                    <i class="fas fa-file-pdf mr-1"></i> PDF
+                </a>
+                <a href="{% url 'exportar_extrato_excel' conta.pk %}?inicio={{ request.GET.inicio }}&fim={{ request.GET.fim }}" target="_blank" class="btn btn-sm bg-emerald-50 border-none text-emerald-600 hover:bg-emerald-500 hover:text-white rounded-xl shadow-sm transition-all">
+                    <i class="fas fa-file-excel mr-1"></i> Excel
+                </a>
+            </div>
+        </form>
+    </section>
+
+    <!-- WIDGETS DE RESUMO (Cards Coloridos) -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
+        <!-- Entradas -->
+        <div class="bg-white p-8 rounded-[32px] shadow-xl shadow-slate-200/40 border border-white group transition-all hover:-translate-y-1">
+            <div class="flex items-center gap-4 mb-4">
+                <div class="w-10 h-10 bg-mint-green/20 rounded-xl flex items-center justify-center text-emerald-600">
+                    <i class="fas fa-arrow-trend-up"></i>
+                </div>
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Entradas</span>
+            </div>
+            <h4 class="text-2xl font-black text-emerald-600 italic tracking-tight">+ R$ {{ total_entradas }}</h4>
+        </div>
+
+        <!-- Saídas -->
+        <div class="bg-white p-8 rounded-[32px] shadow-xl shadow-slate-200/40 border border-white group transition-all hover:-translate-y-1">
+            <div class="flex items-center gap-4 mb-4">
+                <div class="w-10 h-10 bg-rose-50 rounded-xl flex items-center justify-center text-rose-500">
+                    <i class="fas fa-arrow-trend-down"></i>
+                </div>
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Saídas</span>
+            </div>
+            <h4 class="text-2xl font-black text-rose-500 italic tracking-tight">- R$ {{ total_saidas }}</h4>
+        </div>
+
+        <!-- Resultado -->
+        <div class="bg-white p-8 rounded-[32px] shadow-xl shadow-slate-200/40 border border-white group transition-all hover:-translate-y-1">
+            <div class="flex items-center gap-4 mb-4">
+                <div class="w-10 h-10 bg-soft-lavender/30 rounded-xl flex items-center justify-center text-purple-600">
+                    <i class="fas fa-scale-balanced"></i>
+                </div>
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Resultado Período</span>
+            </div>
+            <h4 class="text-2xl font-black {% if resultado_periodo < 0 %}text-rose-600{% else %}text-serene-blue{% endif %} italic tracking-tight">R$ {{ resultado_periodo }}</h4>
         </div>
     </div>
 
-    <!-- TABELA DE MOVIMENTAÇÕES -->
-    <div class="card shadow-sm border-0">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th>Data</th>
-                        <th>Descrição</th>
-                        <th>Categoria</th>
-                        <th class="text-end">Valor</th>
+    <!-- LISTA DE MOVIMENTAÇÕES (Tabela Soft UI) -->
+    <div class="bg-white rounded-[40px] shadow-2xl shadow-slate-200/50 overflow-hidden border border-white">
+        <div class="overflow-x-auto">
+            <table class="table w-full border-collapse">
+                <thead>
+                    <tr class="border-b border-slate-50">
+                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[2px] font-black py-8 pl-10">Data</th>
+                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[2px] font-black py-8">Descrição / Origem</th>
+                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[2px] font-black py-8">Categoria</th>
+                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[2px] font-black py-8 pr-10 text-right">Valor Movimentado</th>
                     </tr>
                 </thead>
-                <tbody>
+                
+                <tbody class="divide-y divide-slate-50">
                     {% for item in lancamentos %}
-                    <tr>
-                        <td>{{ item.data_pagamento|date:"d/m/Y" }}</td>
-                        <td>
-                            {{ item.descricao }}
-                            {% if item.aluno %} <small class="text-muted d-block">{{ item.aluno.nome }}</small> {% endif %}
-                            {% if item.fornecedor %} <small class="text-muted d-block">{{ item.fornecedor.nome }}</small> {% endif %}
+                    <tr class="hover:bg-slate-50/50 transition-colors group">
+                        <td class="py-6 pl-10">
+                            <span class="text-xs font-black text-slate-400 uppercase">{{ item.data_pagamento|date:"d/m/Y" }}</span>
                         </td>
-                        <td>
-                            <span class="badge {% if item.categoria.tipo == 'RECEITA' %}bg-success{% else %}bg-danger{% endif %} bg-opacity-75">
-                                {{ item.categoria.nome }}
-                            </span>
+                        
+                        <td class="py-6">
+                            <div class="flex flex-col">
+                                <span class="text-sm font-bold text-slate-700">{{ item.descricao }}</span>
+                                {% if item.aluno or item.fornecedor %}
+                                    <span class="text-[10px] text-slate-300 font-bold uppercase tracking-widest mt-1">
+                                        <i class="far fa-user mr-1"></i> {{ item.aluno.nome|default:item.fornecedor.nome }}
+                                    </span>
+                                {% endif %}
+                            </div>
                         </td>
-                        <td class="text-end fw-bold {% if item.categoria.tipo == 'RECEITA' %}text-success{% else %}text-danger{% endif %}">
-                            {% if item.categoria.tipo == 'DESPESA' %}-{% endif %} R$ {{ item.valor }}
+
+                        <td class="py-6">
+                            {% if item.categoria.tipo == 'RECEITA' %}
+                                <div class="badge bg-mint-green/10 border-none text-emerald-700 text-[9px] font-black px-3 py-3 rounded-lg uppercase tracking-tighter">
+                                    {{ item.categoria.nome }}
+                                </div>
+                            {% else %}
+                                <div class="badge bg-rose-50 border-none text-rose-500 text-[9px] font-black px-3 py-3 rounded-lg uppercase tracking-tighter">
+                                    {{ item.categoria.nome }}
+                                </div>
+                            {% endif %}
+                        </td>
+
+                        <td class="py-6 pr-10 text-right">
+                            <div class="text-sm font-black italic {% if item.categoria.tipo == 'RECEITA' %}text-emerald-500{% else %}text-rose-400{% endif %}">
+                                {% if item.categoria.tipo == 'DESPESA' %}-{% endif %} R$ {{ item.valor }}
+                            </div>
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="4" class="text-center py-5 text-muted">
-                            Nenhuma movimentação neste período.
+                        <td colspan="4" class="py-32 text-center">
+                            <div class="flex flex-col items-center">
+                                <div class="w-24 h-24 bg-slate-50 rounded-[3rem] flex items-center justify-center text-slate-200 mb-6 border border-dashed border-slate-200 shadow-inner">
+                                    <i class="fas fa-magnifying-glass-dollar text-4xl"></i>
+                                </div>
+                                <h3 class="text-slate-400 font-black uppercase text-sm tracking-widest">Sem movimentações</h3>
+                                <p class="text-slate-300 text-xs mt-2 italic">Não encontramos registros para o período selecionado.</p>
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}
@@ -106,6 +159,5 @@
             </table>
         </div>
     </div>
-
 </div>
 {% endblock %}

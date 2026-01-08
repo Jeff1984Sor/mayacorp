@@ -1,149 +1,115 @@
 {% load static %}
 {% load core_extras %}
 
-<div class="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark h-100" style="width: 260px; min-height: 100vh;">
+<!-- SIDEBAR CONTAINER: Focada apenas em Navegação e Identidade Visual -->
+<div class="flex flex-col w-64 h-full bg-white border-r border-slate-100 p-4 transition-all duration-300">
     
-    <!-- LOGO -->
-    <a href="/" class="d-flex align-items-center mb-4 mb-md-0 text-white text-decoration-none px-2">
-        <div class="bg-primary rounded p-2 me-2 d-flex align-items-center justify-content-center">
-            <i class="fas fa-dumbbell fa-lg"></i>
+    <!-- LOGO: Identidade do Estúdio -->
+    <a href="/" class="flex items-center gap-3 px-2 mb-10 no-underline group">
+        <div class="w-10 h-10 bg-mint-green flex items-center justify-center rounded-2xl shadow-lg shadow-mint-green/30 group-hover:scale-110 transition-transform">
+            <i class="fas fa-dumbbell text-emerald-700 fa-lg"></i>
         </div>
-        <span class="fs-4 fw-bold">MayaCorp Fit</span>
+        <div class="flex flex-col">
+            <span class="text-lg font-black text-slate-800 leading-tight tracking-tight">MayaCorp</span>
+            <span class="text-[9px] font-black text-mint-green uppercase tracking-[3px]">Estúdio Fit</span>
+        </div>
     </a>
-    
-    <hr class="border-secondary mb-4">
 
-    <!-- MENUS -->
-    <ul class="nav nav-pills flex-column mb-auto custom-scroll" style="overflow-y: auto;">
+    <!-- NAVEGAÇÃO PRINCIPAL -->
+    <nav class="flex-1 space-y-1 overflow-y-auto custom-scroll pr-1">
         
         {% if user.is_authenticated %}
             
-            <li class="nav-item mb-1">
-                <a href="{% url 'home' %}" class="nav-link text-white {% if request.path == '/' %}active bg-primary{% endif %}">
-                    <i class="fas fa-tachometer-alt fa-fw me-3"></i> Início
-                </a>
-            </li>
+            <!-- ITEM DASHBOARD -->
+            <a href="{% url 'home' %}" 
+               class="flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 group
+               {% if request.path == '/' %} bg-serene-blue/15 text-serene-blue font-black {% else %} text-slate-500 hover:bg-slate-50 hover:text-slate-800 {% endif %}">
+                <i class="fas fa-tachometer-alt w-5 text-center text-xs"></i>
+                <span class="text-xs uppercase tracking-widest font-bold">Início</span>
+            </a>
 
-            <!-- GESTÃO FIT -->
+            <!-- CATEGORIA: GESTÃO FIT -->
             {% if 'suite_pilates' in perms_produtos or user.is_superuser %}
-                <div class="text-uppercase text-secondary small fw-bold mt-4 mb-2 ps-3">Gestão Fit</div>
+                <div class="pt-8 pb-3 px-4">
+                    <span class="text-[9px] font-black text-slate-300 uppercase tracking-[3px]">Gestão Operacional</span>
+                </div>
                 
                 <!-- AGENDA -->
-                <li class="mb-1">
-                    <a class="nav-link text-white d-flex justify-content-between align-items-center {% if 'agenda' not in request.path %}collapsed{% endif %}" 
-                       data-bs-toggle="collapse" href="#menuAgenda" role="button" 
-                       aria-expanded="{% if 'agenda' in request.path %}true{% else %}false{% endif %}">
-                        <span><i class="fas fa-calendar-alt fa-fw me-3 text-warning"></i> Agenda</span>
-                        <i class="fas fa-chevron-down small transition-icon"></i>
-                    </a>
-                    <div class="collapse {% if 'agenda' in request.path %}show{% endif %}" id="menuAgenda">
-                        <ul class="nav flex-column ms-3 ps-2 mt-1 border-start border-secondary">
-                            <li><a href="{% url 'calendario_semanal' %}" class="nav-link text-white-50 py-1 hover-light">Calendário</a></li>
-                            <li><a href="{% url 'relatorio_frequencia' %}" class="nav-link text-white-50 py-1 hover-light">Frequência</a></li>
-                        </ul>
+                <details class="group [&_summary::-webkit-details-marker]:hidden" {% if 'agenda' in request.path %}open{% endif %}>
+                    <summary class="flex items-center justify-between px-4 py-3 text-slate-500 rounded-2xl cursor-pointer hover:bg-slate-50 hover:text-slate-800 transition-all">
+                        <div class="flex items-center gap-3">
+                            <div class="w-7 h-7 rounded-xl bg-orange-100 flex items-center justify-center">
+                                <i class="fas fa-calendar-alt text-orange-500 text-[10px]"></i>
+                            </div>
+                            <span class="text-xs font-bold uppercase tracking-wider">Agenda</span>
+                        </div>
+                        <i class="fas fa-chevron-right text-[8px] transition-transform group-open:rotate-90"></i>
+                    </summary>
+                    <div class="mt-1 ml-9 space-y-1 border-l border-slate-100">
+                        <a href="{% url 'calendario_semanal' %}" class="block px-4 py-2 text-[11px] font-bold text-slate-400 hover:text-serene-blue transition-colors">Calendário Semanal</a>
+                        <a href="{% url 'relatorio_frequencia' %}" class="block px-4 py-2 text-[11px] font-bold text-slate-400 hover:text-serene-blue transition-colors">Frequência Alunos</a>
                     </div>
-                </li>
+                </details>
 
                 <!-- FINANCEIRO -->
-                <li class="mb-1">
-                    <a class="nav-link text-white d-flex justify-content-between align-items-center collapsed" 
-                    data-bs-toggle="collapse" href="#menuFinanceiro" role="button" aria-expanded="false">
-                        <span><i class="fas fa-dollar-sign fa-fw me-3 text-success"></i> Financeiro</span>
-                        <i class="fas fa-chevron-down small transition-icon"></i>
-                    </a>
-                    <div class="collapse" id="menuFinanceiro">
-                        <ul class="nav flex-column ms-3 ps-2 mt-1 border-start border-secondary">
-                            <li><a href="{% url 'contas_receber' %}" class="nav-link text-white-50 py-1 hover-light">Contas a Receber</a></li>
-                            <li><a href="{% url 'contas_pagar' %}" class="nav-link text-white-50 py-1 hover-light">Contas a Pagar</a></li>
-                            <li><a href="{% url 'fornecedor_list' %}" class="nav-link text-white-50 py-1 hover-light">Fornecedores</a></li>
-                            <li><a href="{% url 'conta_list' %}" class="nav-link text-white-50 py-1 hover-light">Contas Bancárias</a></li>
-                            <li><a href="{% url 'categoria_list' %}" class="nav-link text-white-50 py-1 hover-light">Categorias</a></li>
-                        </ul>
+                <details class="group [&_summary::-webkit-details-marker]:hidden" {% if 'financeiro' in request.path %}open{% endif %}>
+                    <summary class="flex items-center justify-between px-4 py-3 text-slate-500 rounded-2xl cursor-pointer hover:bg-slate-50 hover:text-slate-800 transition-all">
+                        <div class="flex items-center gap-3">
+                            <div class="w-7 h-7 rounded-xl bg-soft-lavender/40 flex items-center justify-center">
+                                <i class="fas fa-dollar-sign text-purple-600 text-[10px]"></i>
+                            </div>
+                            <span class="text-xs font-bold uppercase tracking-wider">Financeiro</span>
+                        </div>
+                        <i class="fas fa-chevron-right text-[8px] transition-transform group-open:rotate-90"></i>
+                    </summary>
+                    <div class="mt-1 ml-9 space-y-1 border-l border-slate-100">
+                        <a href="{% url 'contas_receber' %}" class="block px-4 py-2 text-[11px] font-bold text-slate-400 hover:text-purple-600 transition-colors">Contas a Receber</a>
+                        <a href="{% url 'contas_pagar' %}" class="block px-4 py-2 text-[11px] font-bold text-slate-400 hover:text-purple-600 transition-colors">Contas a Pagar</a>
+                        <a href="{% url 'conta_list' %}" class="block px-4 py-2 text-[11px] font-bold text-slate-400 hover:text-purple-600 transition-colors">Bancos e Caixas</a>
                     </div>
-                </li>
+                </details>
                 
                 <!-- CADASTROS -->
-                <li class="mb-1">
-                    <a class="nav-link text-white d-flex justify-content-between align-items-center {% if 'cadastros' not in request.path and 'contratos' not in request.path %}collapsed{% endif %}" 
-                       data-bs-toggle="collapse" href="#menuCadastros" role="button" 
-                       aria-expanded="{% if 'cadastros' in request.path or 'contratos' in request.path %}true{% else %}false{% endif %}">
-                        <span><i class="fas fa-folder fa-fw me-3 text-info"></i> Cadastros</span>
-                        <i class="fas fa-chevron-down small transition-icon"></i>
-                    </a>
-                    <div class="collapse {% if 'cadastros' in request.path or 'contratos' in request.path %}show{% endif %}" id="menuCadastros">
-                        <ul class="nav flex-column ms-3 ps-2 mt-1 border-start border-secondary">
-                            <li><a href="{% url 'aluno_list' %}" class="nav-link text-white-50 py-1 hover-light">Alunos</a></li>
-                            <li><a href="{% url 'profissional_list' %}" class="nav-link text-white-50 py-1 hover-light">Profissionais</a></li>
-                            <li><a href="{% url 'plano_list' %}" class="nav-link text-white-50 py-1 hover-light">Planos e Preços</a></li>
-                            <li><a href="{% url 'unidade_list' %}" class="nav-link text-white-50 py-1 hover-light">Unidades</a></li>
-                            <li><a href="{% url 'template_list' %}" class="nav-link text-white-50 py-1 hover-light">Modelos de Contrato</a></li>
-                        </ul>
+                <details class="group [&_summary::-webkit-details-marker]:hidden" {% if 'cadastros' in request.path or 'contratos' in request.path %}open{% endif %}>
+                    <summary class="flex items-center justify-between px-4 py-3 text-slate-500 rounded-2xl cursor-pointer hover:bg-slate-50 hover:text-slate-800 transition-all">
+                        <div class="flex items-center gap-3">
+                            <div class="w-7 h-7 rounded-xl bg-blue-100 flex items-center justify-center">
+                                <i class="fas fa-folder text-blue-600 text-[10px]"></i>
+                            </div>
+                            <span class="text-xs font-bold uppercase tracking-wider">Cadastros</span>
+                        </div>
+                        <i class="fas fa-chevron-right text-[8px] transition-transform group-open:rotate-90"></i>
+                    </summary>
+                    <div class="mt-1 ml-9 space-y-1 border-l border-slate-100">
+                        <a href="{% url 'aluno_list' %}" class="block px-4 py-2 text-[11px] font-bold text-slate-400 hover:text-blue-600 transition-colors">Lista de Alunos</a>
+                        <a href="{% url 'profissional_list' %}" class="block px-4 py-2 text-[11px] font-bold text-slate-400 hover:text-blue-600 transition-colors">Profissionais</a>
+                        <a href="{% url 'plano_list' %}" class="block px-4 py-2 text-[11px] font-bold text-slate-400 hover:text-blue-600 transition-colors">Planos e Preços</a>
                     </div>
-                </li>
-
-                <!-- DASHBOARDS -->
-                <li class="mb-1">
-                    <a class="nav-link text-white d-flex justify-content-between align-items-center collapsed" 
-                       data-bs-toggle="collapse" href="#menuDash" role="button" aria-expanded="false">
-                        <span><i class="fas fa-chart-pie fa-fw me-3 text-primary"></i> Dashboards</span>
-                        <i class="fas fa-chevron-down small transition-icon"></i>
-                    </a>
-                    <div class="collapse" id="menuDash">
-                        <ul class="nav flex-column ms-3 ps-2 mt-1 border-start border-secondary">
-                            <li><a href="{% url 'dashboard_aulas' %}" class="nav-link text-white-50 py-1 hover-light">Operacional (Aulas)</a></li>
-                            <li><a href="{% url 'dashboard_financeiro' %}" class="nav-link text-white-50 py-1 hover-light">Financeiro</a></li>
-                        </ul>
-                    </div>
-                </li>
+                </details>
             {% endif %}
 
-            <!-- FERRAMENTAS -->
+            <!-- CATEGORIA: FERRAMENTAS -->
             {% if user|tem_acesso:"gerador-pdf" %}
-                <div class="text-uppercase text-secondary small fw-bold mt-4 mb-2 ps-3">Ferramentas</div>
-                <li><a href="{% url 'pdf_home' %}" class="nav-link text-white"><i class="fas fa-file-pdf fa-fw me-3 text-danger"></i> Conciliador PDF</a></li>
+                <div class="pt-8 pb-3 px-4">
+                    <span class="text-[9px] font-black text-slate-300 uppercase tracking-[3px]">Inteligência</span>
+                </div>
+                <a href="{% url 'pdf_home' %}" class="flex items-center gap-3 px-4 py-3 text-slate-500 rounded-2xl hover:bg-red-50 hover:text-red-600 transition-all group/pdf">
+                    <div class="w-7 h-7 rounded-xl bg-red-100 flex items-center justify-center group-hover/pdf:bg-red-500 group-hover/pdf:text-white transition-all">
+                        <i class="fas fa-robot text-[10px]"></i>
+                    </div>
+                    <span class="text-xs font-bold uppercase tracking-wider">Conciliação IA</span>
+                </a>
             {% endif %}
 
-        {% else %}
-            <div class="alert alert-dark mt-3 small border-secondary text-center">
-                <i class="fas fa-lock mb-2"></i><br>Faça login
-            </div>
         {% endif %}
-    </ul>
+    </nav>
     
-    <!-- USUÁRIO (Rodapé) -->
-    <div class="mt-auto pt-3 border-top border-secondary">
-        {% if user.is_authenticated %}
-            <div class="dropdown">
-                <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle p-2 rounded hover-dark" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
-                    <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center fw-bold me-2" style="width: 32px; height: 32px;">
-                        {{ user.username|slice:":1"|upper }}
-                    </div>
-                    <span class="small fw-bold">{{ user.username }}</span>
-                </a>
-                <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
-                    <li><a class="dropdown-item" href="#">Configurações</a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                        <form action="{% url 'logout' %}" method="post" class="d-inline">
-                            {% csrf_token %}
-                            <button type="submit" class="dropdown-item text-danger">Sair</button>
-                        </form>
-                    </li>
-                </ul>
-            </div>
-        {% endif %}
-        <div class="text-center text-secondary small mt-2" style="font-size: 0.7rem;">v1.2.0</div>
+    <!-- RODAPÉ DA SIDEBAR: Somente versão e suporte -->
+    <div class="mt-auto pt-6 border-t border-slate-50 text-center">
+        <div class="flex items-center justify-center gap-2 mb-2 opacity-50">
+            <div class="w-1.5 h-1.5 rounded-full bg-slate-400"></div>
+            <span class="text-[8px] font-black text-slate-400 uppercase tracking-[3px]">Cloud Active</span>
+        </div>
+        <div class="text-slate-300 text-[9px] font-black tracking-[5px]">MAYA V2.0</div>
     </div>
 </div>
-
-<style>
-    /* Estilos Extras para Sidebar */
-    .nav-link { border-radius: 8px; }
-    .nav-link:hover { background-color: rgba(255,255,255,0.1); }
-    .hover-light:hover { color: #fff !important; padding-left: 5px; transition: 0.2s; }
-    .hover-dark:hover { background-color: rgba(255,255,255,0.05); }
-    
-    /* Animação da setinha do dropdown */
-    .transition-icon { transition: transform 0.3s; }
-    a[aria-expanded="true"] .transition-icon { transform: rotate(180deg); }
-</style>

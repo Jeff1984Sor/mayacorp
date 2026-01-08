@@ -1,24 +1,97 @@
 {% extends 'base.html' %}
+{% load static %}
 {% load crispy_forms_tags %}
 
-{% block title %}Cadastro{% endblock %}
+{% block title %}Cadastro - MayaCorp{% endblock %}
 
 {% block content %}
-<div class="container py-4" style="max-width: 600px;">
-    <div class="card shadow-sm border-0">
-        <div class="card-header bg-white py-3">
-            <h4 class="mb-0 fw-bold">Cadastro</h4>
+<div class="max-w-2xl mx-auto pb-20">
+    
+    <!-- HEADER -->
+    <header class="flex justify-between items-center mb-10 px-2 animate-in fade-in duration-700">
+        <div class="flex items-center gap-4">
+            <!-- Ícone de Identidade Visual -->
+            <div class="w-14 h-14 bg-serene-blue/20 rounded-[22px] flex items-center justify-center text-serene-blue shadow-sm border border-white">
+                <i class="fas fa-edit text-2xl"></i>
+            </div>
+            <div>
+                <h1 class="text-3xl font-black text-slate-800 tracking-tight">Cadastro</h1>
+                <p class="text-[10px] text-slate-400 font-black uppercase tracking-[2px] mt-1">
+                    Preencha os campos abaixo com atenção
+                </p>
+            </div>
         </div>
-        <div class="card-body p-4">
-            <form method="post">
+    </header>
+
+    <!-- CARD PRINCIPAL (Soft UI Style) -->
+    <div class="bg-white rounded-[40px] shadow-2xl shadow-slate-200/50 border border-white overflow-hidden animate-in slide-in-from-bottom-4 duration-500">
+        
+        <div class="p-8 md:p-12">
+            <!-- Informativo de Segurança -->
+            <div class="bg-slate-50 p-6 rounded-[28px] border border-slate-100 flex items-center gap-4 mb-10">
+                <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-serene-blue shadow-sm">
+                    <i class="fas fa-shield-alt text-xs"></i>
+                </div>
+                <p class="text-[11px] text-slate-500 font-medium leading-relaxed italic">
+                    Suas informações são processadas em ambiente seguro e criptografado MayaCorp Cloud.
+                </p>
+            </div>
+
+            <form method="post" class="space-y-6">
                 {% csrf_token %}
-                {{ form|crispy }}
-                <div class="d-grid gap-2 mt-4">
-                    <button type="submit" class="btn btn-success fw-bold">Salvar</button>
-                    <button type="button" class="btn btn-light" onclick="history.back()">Cancelar</button>
+                
+                <!-- RENDERIZAÇÃO DO FORMULÁRIO (Configurada via CSS no bloco style abaixo) -->
+                <div class="space-y-2">
+                    {{ form|crispy }}
+                </div>
+
+                <!-- BOTÕES DE AÇÃO -->
+                <div class="flex flex-col gap-4 pt-10 border-t border-slate-50 mt-10">
+                    <button type="submit" class="btn bg-mint-green border-none text-emerald-900 rounded-2xl h-16 shadow-xl shadow-mint-green/30 normal-case font-black text-lg italic hover:bg-emerald-400 hover:scale-[1.01] transition-all">
+                        Salvar Informações
+                    </button>
+                    <button type="button" onclick="history.back()" class="btn btn-ghost rounded-2xl text-slate-400 font-bold normal-case">
+                        Cancelar e Voltar
+                    </button>
                 </div>
             </form>
         </div>
+        
+        <!-- FOOTER DO CARD -->
+        <div class="bg-slate-50/50 py-5 text-center border-t border-slate-50">
+            <p class="text-[9px] text-slate-300 font-black uppercase tracking-[4px]">MayaCorp Intelligent Systems v2.1</p>
+        </div>
     </div>
 </div>
+
+<style>
+    /* Injeção de Estilo Soft UI nos campos do Crispy Forms */
+    
+    /* Labels Minimalistas */
+    .form-control label, .mb-3 label { 
+        @apply text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block ml-2 !important; 
+    }
+    
+    /* Inputs "Macios" */
+    .input, .textinput, .emailinput, .numberinput, .select, .textarea { 
+        @apply w-full bg-slate-50 border-slate-100 rounded-2xl px-6 h-14 focus:ring-4 focus:ring-serene-blue/10 focus:border-serene-blue/30 focus:outline-none transition-all text-slate-600 font-bold !important; 
+    }
+
+    /* Textarea com respiro interno */
+    .textarea { @apply h-32 py-4 !important; }
+
+    /* Checkboxes/Radios Modernos */
+    .checkbox { @apply checkbox-primary rounded-lg border-slate-300 !important; }
+    
+    /* Mensagens de Erro */
+    .invalid-feedback { @apply text-[10px] font-bold text-rose-500 ml-2 mt-1 !important; }
+</style>
+
+<script>
+    // Foco automático e UX
+    document.addEventListener('DOMContentLoaded', function() {
+        const firstInput = document.querySelector('input:not([type=hidden])');
+        if (firstInput) firstInput.focus();
+    });
+</script>
 {% endblock %}

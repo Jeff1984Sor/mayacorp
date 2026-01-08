@@ -1,50 +1,116 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Planos de Venda{% endblock %}
+{% block title %}Planos & Preços - MayaCorp{% endblock %}
 
 {% block content %}
-<div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3 class="fw-bold text-dark"><i class="fas fa-tags me-2"></i>Planos & Preços</h3>
-        <a href="{% url 'plano_create' %}" class="btn btn-primary fw-bold">
-            <i class="fas fa-plus"></i> Novo Plano
+<div class="max-w-7xl mx-auto pb-10">
+    
+    <!-- HEADER -->
+    <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4 px-2">
+        <div class="flex items-center gap-4">
+            <div class="w-14 h-14 bg-soft-lavender/30 rounded-[22px] flex items-center justify-center text-purple-600 shadow-sm border border-white">
+                <i class="fas fa-tags text-2xl"></i>
+            </div>
+            <div>
+                <h1 class="text-3xl font-black text-slate-800 tracking-tight">Planos & Preços</h1>
+                <p class="text-[10px] text-slate-400 font-black uppercase tracking-[2px] mt-1">
+                    {{ planos|length }} pacotes configurados para venda
+                </p>
+            </div>
+        </div>
+        
+        <a href="{% url 'plano_create' %}" 
+           class="btn bg-serene-blue border-none text-white rounded-2xl px-8 h-14 shadow-xl shadow-blue-200 hover:bg-blue-400 hover:scale-[1.02] transition-all normal-case font-black italic">
+            <i class="fas fa-plus mr-2 text-xs"></i> Novo Plano
         </a>
-    </div>
+    </header>
 
-    <div class="card shadow-sm border-0">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th>Nome do Plano</th>
-                        <th>Duração</th>
-                        <th>Frequência</th>
-                        <th>Valor Mensal</th>
-                        <th class="text-end">Ações</th>
+    <!-- TABELA DE PLANOS (Card Soft UI) -->
+    <div class="bg-white rounded-[40px] shadow-2xl shadow-slate-200/50 overflow-hidden border border-white">
+        <div class="overflow-x-auto">
+            <table class="table w-full border-collapse">
+                <!-- CABEÇALHO -->
+                <thead>
+                    <tr class="border-b border-slate-50">
+                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[2px] font-black py-8 pl-10">Nome do Plano</th>
+                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[2px] font-black py-8">Duração</th>
+                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[2px] font-black py-8 text-center">Frequência</th>
+                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[2px] font-black py-8 text-center">Valor Mensal</th>
+                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[2px] font-black py-8 pr-10 text-right">Ações</th>
                     </tr>
                 </thead>
-                <tbody>
+                
+                <tbody class="divide-y divide-slate-50">
                     {% for plano in planos %}
-                    <tr>
-                        <td class="fw-bold text-primary">{{ plano.nome }}</td>
-                        <td>{{ plano.duracao_meses }} Meses</td>
-                        <td>{{ plano.frequencia_semanal }}x por Semana</td>
-                        <td class="fw-bold text-success">R$ {{ plano.valor_mensal }}</td>
-                        <td class="text-end">
-                            <a href="{% url 'plano_update' plano.pk %}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-pen"></i></a>
-                            <a href="{% url 'plano_delete' plano.pk %}" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></a>
+                    <tr class="hover:bg-slate-50/50 transition-colors group">
+                        
+                        <!-- NOME DO PLANO -->
+                        <td class="py-6 pl-10">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-300 group-hover:bg-serene-blue/10 group-hover:text-serene-blue transition-all">
+                                    <i class="fas fa-box-open text-xs"></i>
+                                </div>
+                                <span class="text-slate-800 font-black text-sm tracking-tight">{{ plano.nome }}</span>
+                            </div>
+                        </td>
+
+                        <!-- DURAÇÃO -->
+                        <td class="py-6 text-sm font-bold text-slate-500">
+                            {{ plano.duracao_meses }} meses
+                        </td>
+
+                        <!-- FREQUÊNCIA (Badge Mint Green) -->
+                        <td class="py-6 text-center">
+                            <div class="badge bg-mint-green/20 border-none text-emerald-700 text-[10px] font-black py-4 px-5 rounded-xl uppercase tracking-tighter">
+                                {{ plano.frequencia_semanal }}x por semana
+                            </div>
+                        </td>
+
+                        <!-- VALOR (Estilo Lavender) -->
+                        <td class="py-6 text-center">
+                            <div class="text-purple-600 font-black text-lg italic tracking-tighter">
+                                <span class="text-[10px] not-italic mr-1 text-purple-300">R$</span> {{ plano.valor_mensal }}
+                            </div>
+                        </td>
+
+                        <!-- AÇÕES -->
+                        <td class="py-6 pr-10 text-right">
+                            <div class="flex justify-end gap-2">
+                                <a href="{% url 'plano_update' plano.pk %}" 
+                                   class="btn btn-square btn-sm rounded-xl bg-slate-50 border-none text-slate-300 hover:text-serene-blue transition-all" 
+                                   title="Editar">
+                                    <i class="fas fa-pen text-xs"></i>
+                                </a>
+                                <a href="{% url 'plano_delete' plano.pk %}" 
+                                   class="btn btn-square btn-sm rounded-xl bg-slate-50 border-none text-slate-300 hover:text-rose-500 transition-all" 
+                                   title="Excluir">
+                                    <i class="fas fa-trash text-xs"></i>
+                                </a>
+                            </div>
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="5" class="text-center py-5 text-muted">
-                            Nenhum plano cadastrado ainda.
+                        <td colspan="5" class="py-32 text-center">
+                            <div class="flex flex-col items-center">
+                                <div class="w-24 h-24 bg-slate-50 rounded-[3rem] flex items-center justify-center text-slate-200 mb-6 border border-dashed border-slate-200">
+                                    <i class="fas fa-tags text-4xl"></i>
+                                </div>
+                                <h3 class="text-slate-400 font-black uppercase text-sm tracking-widest">Nenhum plano cadastrado</h3>
+                                <p class="text-slate-300 text-xs mt-2 italic">Crie seu primeiro pacote de aulas para começar a vender.</p>
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
+    </div>
+
+    <!-- RODAPÉ -->
+    <div class="mt-12 text-center">
+        <p class="text-[10px] text-slate-300 font-bold uppercase tracking-[3px]">MayaCorp Pricing Strategy Module</p>
     </div>
 </div>
 {% endblock %}

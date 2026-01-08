@@ -1,124 +1,165 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Novo Contrato{% endblock %}
+{% block title %}Novo Contrato - MayaCorp{% endblock %}
 
 {% block content %}
-<div class="container py-4">
+<div class="max-w-5xl mx-auto pb-20">
     
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h3 class="fw-bold mb-0">Novo Contrato</h3>
-            <p class="text-muted">Aluno: <strong>{{ aluno.nome }}</strong></p>
+    <!-- HEADER: Título e Aluno -->
+    <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4 px-2">
+        <div class="flex items-center gap-4">
+            <div class="w-14 h-14 bg-serene-blue/20 rounded-[22px] flex items-center justify-center text-serene-blue shadow-sm">
+                <i class="fas fa-file-signature text-2xl"></i>
+            </div>
+            <div>
+                <h1 class="text-3xl font-black text-slate-800 tracking-tight">Novo Contrato</h1>
+                <p class="text-[10px] text-slate-400 font-black uppercase tracking-[2px] mt-1">
+                    Venda para: <span class="text-serene-blue">{{ aluno.nome }}</span>
+                </p>
+            </div>
         </div>
-        <a href="{% url 'aluno_detail' aluno.id %}" class="btn btn-outline-secondary">Voltar</a>
-    </div>
+        
+        <a href="{% url 'aluno_detail' aluno.id %}" 
+           class="btn btn-ghost bg-white shadow-sm border-slate-100 rounded-2xl hover:bg-slate-50 transition-all text-slate-400 normal-case font-bold px-6">
+            <i class="fas fa-arrow-left mr-2 text-xs"></i> Voltar
+        </a>
+    </header>
 
-    <form method="post" id="formContrato">
+    <form method="post" id="formContrato" class="space-y-8">
         {% csrf_token %}
 
-        <!-- CARD 1: DADOS DO PLANO -->
-        <div class="card shadow-sm border-0 mb-4">
-            <div class="card-header bg-white py-3">
-                <h5 class="mb-0 text-primary"><i class="fas fa-file-signature me-2"></i>Dados do Plano</h5>
+        <!-- CARD 1: CONFIGURAÇÃO DO PLANO (Soft UI Style) -->
+        <section class="bg-white rounded-[40px] shadow-xl shadow-slate-200/50 border border-white overflow-hidden">
+            <div class="p-8 md:p-10 border-b border-slate-50 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-2 h-6 bg-serene-blue rounded-full"></div>
+                    <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-[3px]">1. Escolha do Plano e Vigência</h3>
+                </div>
             </div>
-            <div class="card-body">
-                {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
 
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold">{{ form.plano.label }}</label>
+            <div class="p-8 md:p-10">
+                {% if form.non_field_errors %}
+                    <div class="alert alert-error bg-rose-50 border-rose-100 text-rose-600 rounded-2xl mb-8">{{ form.non_field_errors }}</div>
+                {% endif %}
+
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+                    <!-- Seleção de Plano -->
+                    <div class="md:col-span-6 flex flex-col gap-2">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">{{ form.plano.label }}</label>
                         {{ form.plano }}
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold">{{ form.unidade.label }}</label>
+
+                    <!-- Unidade -->
+                    <div class="md:col-span-6 flex flex-col gap-2">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">{{ form.unidade.label }}</label>
                         {{ form.unidade }}
                     </div>
 
-                    <!-- LINHA 2 -->
-                    <div class="col-md-3">
-                        <label class="form-label fw-bold">{{ form.data_inicio.label }}</label>
+                    <!-- Datas -->
+                    <div class="md:col-span-3 flex flex-col gap-2">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">{{ form.data_inicio.label }}</label>
                         {{ form.data_inicio }}
                     </div>
-                    <div class="col-md-3">
-                        <label class="form-label fw-bold">{{ form.data_encerramento.label }}</label>
+                    <div class="md:col-span-3 flex flex-col gap-2">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">{{ form.data_encerramento.label }}</label>
                         {{ form.data_encerramento }}
                     </div>
-                    <div class="col-md-2">
-                        <label class="form-label fw-bold">{{ form.dia_vencimento.label }}</label>
+
+                    <!-- Financeiro Rápido -->
+                    <div class="md:col-span-2 flex flex-col gap-2">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Venc.</label>
                         {{ form.dia_vencimento }}
                     </div>
-                    <div class="col-md-2">
-                        <label class="form-label fw-bold">{{ form.qtde_parcelas.label }}</label>
+                    <div class="md:col-span-2 flex flex-col gap-2">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Parcelas</label>
                         {{ form.qtde_parcelas }}
                     </div>
-                    <div class="col-md-2">
-                        <label class="form-label fw-bold">{{ form.valor_total.label }}</label>
+                    <div class="md:col-span-2 flex flex-col gap-2">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Valor</label>
                         {{ form.valor_total }}
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <!-- CARD 2: GRADE DE HORÁRIOS -->
-        <div class="card shadow-sm border-0 mb-4">
-            <div class="card-header bg-white py-3">
-                <h5 class="mb-0 text-success"><i class="fas fa-clock me-2"></i>Grade de Horários Fixos</h5>
-                <small class="text-muted" id="freq-info">Selecione um plano para liberar os horários.</small>
+        <!-- CARD 2: GRADE DE HORÁRIOS (Soft UI Style) -->
+        <section class="bg-white rounded-[40px] shadow-xl shadow-slate-200/50 border border-white overflow-hidden">
+            <div class="p-8 md:p-10 border-b border-slate-50 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-2 h-6 bg-mint-green rounded-full"></div>
+                    <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-[3px]">2. Grade de Horários Fixos</h3>
+                </div>
+                <div id="freq-info" class="badge bg-mint-green/20 border-none text-emerald-700 font-bold px-4 py-3 rounded-xl">
+                    Selecione um plano
+                </div>
             </div>
-            <div class="card-body p-0">
-                {{ formset.management_form }}
-                {% if formset.non_form_errors %}<div class="alert alert-danger m-3">{{ formset.non_form_errors }}</div>{% endif %}
 
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0" id="tabela-horarios">
-                        <thead class="table-light">
-                            <tr>
-                                <th style="width: 30%;">Dia da Semana</th>
-                                <th style="width: 25%;">Horário</th>
-                                <th style="width: 35%;">Profissional</th>
-                                <th style="width: 10%;" class="text-center">Remover</th>
+            <div class="p-8 md:p-10">
+                {{ formset.management_form }}
+                {% if formset.non_form_errors %}<div class="alert alert-error mb-6">{{ formset.non_form_errors }}</div>{% endif %}
+
+                <div class="overflow-x-auto">
+                    <table class="table w-full border-collapse" id="tabela-horarios">
+                        <thead>
+                            <tr class="border-b border-slate-50">
+                                <th class="bg-white text-[10px] font-black text-slate-400 uppercase tracking-widest py-4">Dia da Semana</th>
+                                <th class="bg-white text-[10px] font-black text-slate-400 uppercase tracking-widest py-4">Horário</th>
+                                <th class="bg-white text-[10px] font-black text-slate-400 uppercase tracking-widest py-4">Profissional</th>
+                                <th class="bg-white text-[10px] font-black text-slate-400 uppercase tracking-widest py-4 text-center">Ação</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="divide-y divide-slate-50">
                             {% for form_h in formset %}
-                                <!-- Adicionamos a classe 'horario-row' para manipular via JS -->
-                                <tr class="horario-row" style="display:none;"> 
+                                <tr class="horario-row group hover:bg-slate-50/50 transition-colors" style="display:none;"> 
                                     {% for hidden in form_h.hidden_fields %}{{ hidden }}{% endfor %}
-                                    <td class="p-2">{{ form_h.dia_semana }}</td>
-                                    <td class="p-2">{{ form_h.horario }}</td>
-                                    <td class="p-2">{{ form_h.profissional }}</td>
-                                    <td class="text-center p-2">{{ form_h.DELETE }}</td>
+                                    <td class="py-4">{{ form_h.dia_semana }}</td>
+                                    <td class="py-4">{{ form_h.horario }}</td>
+                                    <td class="py-4">{{ form_h.profissional }}</td>
+                                    <td class="py-4 text-center">
+                                        <div class="flex justify-center items-center h-full">
+                                            <input type="checkbox" name="{{ form_h.DELETE.html_name }}" id="{{ form_h.DELETE.id_for_label }}" class="checkbox checkbox-error checkbox-sm rounded-lg" />
+                                        </div>
+                                    </td>
                                 </tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <div class="d-flex justify-content-end gap-2 pb-5">
-            <button type="submit" class="btn btn-success px-4 fw-bold">Salvar Contrato</button>
+        <!-- BOTÕES FINAIS -->
+        <div class="flex flex-col md:flex-row justify-end items-center gap-6 pt-10">
+            <p class="text-[10px] text-slate-300 font-black uppercase tracking-widest">MayaCorp Sales Protocol v2.0</p>
+            <button type="submit" class="btn bg-serene-blue border-none text-white rounded-2xl px-16 h-16 shadow-xl shadow-blue-200 normal-case font-black text-xl italic hover:bg-blue-400 hover:scale-[1.02] transition-all">
+                Salvar Contrato e Gerar Venda
+            </button>
         </div>
     </form>
 </div>
 
-<!-- SCRIPT DE AUTOMAÇÃO -->
+<style>
+    /* Estilização para o Crispy/Django Form assumir o Soft UI */
+    .input, .select, .textarea { 
+        @apply w-full bg-slate-50 border-slate-100 rounded-2xl px-5 h-14 focus:ring-2 focus:ring-serene-blue/20 focus:border-serene-blue/30 focus:outline-none transition-all text-slate-600 font-bold !important; 
+    }
+    .table select { @apply h-11 text-xs rounded-xl px-2 !important; }
+</style>
+
 <script>
-    // 1. Recebe os dados do Backend
+    // Mantemos sua lógica de automação inteligente, apenas ajustando as referências
     const planosData = JSON.parse('{{ planos_json|safe }}');
 
-    // Elementos do DOM
-    const selectPlano = document.getElementById('select_plano');
-    const inputInicio = document.getElementById('id_data_inicio');
-    const inputFim = document.getElementById('id_data_encerramento');
-    const inputValor = document.getElementById('id_valor_total');
-    const inputParcelas = document.getElementById('id_qtde_parcelas');
-    const inputDiaVenc = document.getElementById('id_dia_vencimento');
+    const selectPlano = document.querySelector('select[name="plano"]');
+    const inputInicio = document.querySelector('input[name="data_inicio"]');
+    const inputFim = document.querySelector('input[name="data_encerramento"]');
+    const inputValor = document.querySelector('input[name="valor_total"]');
+    const inputParcelas = document.querySelector('input[name="qtde_parcelas"]');
+    const inputDiaVenc = document.querySelector('input[name="dia_vencimento"]');
     const linhasHorario = document.querySelectorAll('.horario-row');
     const txtFreq = document.getElementById('freq-info');
 
-    // Função Principal
     function atualizarFormulario() {
         const planoId = selectPlano.value;
         const dataInicioVal = inputInicio.value;
@@ -126,52 +167,39 @@
         if (planoId && planosData[planoId]) {
             const dados = planosData[planoId];
 
-            // A. Preenche Valor e Parcelas
-            // Só preenche se o campo estiver vazio ou o usuário acabou de trocar o plano
-            // (Aqui forçamos a atualização para garantir consistência)
             inputValor.value = dados.valor.toFixed(2);
-            inputParcelas.value = dados.meses; // Geralmente 1 parcela por mês
+            inputParcelas.value = dados.meses;
 
-            // B. Atualiza Grade de Horários (Esconde/Mostra linhas)
             const freq = dados.freq;
-            txtFreq.innerText = `Plano de ${freq}x na semana. Preencha ${freq} horários abaixo.`;
+            txtFreq.innerText = `${freq}x na semana`;
+            txtFreq.classList.remove('text-slate-400');
+            txtFreq.classList.add('text-emerald-700', 'bg-mint-green/20');
             
             linhasHorario.forEach((row, index) => {
                 if (index < freq) {
-                    row.style.display = 'table-row'; // Mostra
+                    row.style.display = 'table-row';
                 } else {
-                    row.style.display = 'none'; // Esconde
-                    // Opcional: Limpar valores das linhas escondidas para não dar erro
+                    row.style.display = 'none';
                     row.querySelectorAll('input, select').forEach(i => i.value = '');
                 }
             });
 
-            // C. Calcula Data de Encerramento e Dia Vencimento
             if (dataInicioVal) {
                 const data = new Date(dataInicioVal);
-                
-                // Dia do Vencimento = Dia do Início (Limitado a 31)
-                // O Date do JS pode bugar com fuso, vamos usar a string direto
                 const diaInicio = parseInt(dataInicioVal.split('-')[2]);
                 inputDiaVenc.value = diaInicio;
 
-                // Data Fim = Inicio + Meses do Plano
-                // Adiciona os meses
                 data.setMonth(data.getMonth() + dados.meses);
-                // Ajusta formato YYYY-MM-DD
                 const isoDate = data.toISOString().split('T')[0];
                 inputFim.value = isoDate;
             }
         }
     }
 
-    // Event Listeners
     selectPlano.addEventListener('change', atualizarFormulario);
     inputInicio.addEventListener('change', atualizarFormulario);
 
-    // Roda uma vez ao carregar (caso seja edição ou reload)
     document.addEventListener("DOMContentLoaded", () => {
-        // Se já tiver plano selecionado, roda a lógica
         if (selectPlano.value) {
             atualizarFormulario();
         }

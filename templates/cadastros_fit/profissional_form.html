@@ -1,81 +1,149 @@
 {% extends 'base.html' %}
+{% load static %}
 {% load crispy_forms_tags %}
 
-{% block title %}Cadastro de Profissional{% endblock %}
+{% block title %}{% if form.instance.pk %}Editar Profissional{% else %}Novo Profissional{% endif %} - MayaCorp{% endblock %}
 
 {% block content %}
-<div class="container py-4" style="max-width: 800px;">
-    <div class="card shadow-sm border-0">
-        <div class="card-header bg-white py-3">
-            <h4 class="mb-0 fw-bold text-primary">
-                {% if form.instance.pk %}✏️ Editar Profissional{% else %}✨ Novo Profissional{% endif %}
-            </h4>
+<div class="max-w-4xl mx-auto pb-20">
+    
+    <!-- HEADER -->
+    <header class="flex justify-between items-center mb-10 px-2">
+        <div class="flex items-center gap-4">
+            <div class="w-14 h-14 bg-serene-blue/20 rounded-[22px] flex items-center justify-center text-serene-blue shadow-sm">
+                <i class="fas {% if form.instance.pk %}fa-user-edit{% else %}fa-user-tie{% endif %} text-2xl"></i>
+            </div>
+            <div>
+                <h1 class="text-3xl font-black text-slate-800 tracking-tight">
+                    {% if form.instance.pk %}Editar Profissional{% else %}Novo Profissional{% endif %}
+                </h1>
+                <p class="text-[10px] text-slate-400 font-black uppercase tracking-[2px] mt-1">
+                    Gestão de Instrutores e Fisioterapeutas
+                </p>
+            </div>
         </div>
-        <div class="card-body p-4">
-            <form method="post">
-                {% csrf_token %}
+        
+        <div class="flex flex-col items-end gap-1">
+            <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-widest mr-2">Status:</span>
+                <input type="checkbox" name="{{ form.ativo.name }}" class="toggle toggle-success" {% if form.ativo.value %}checked{% endif %} />
+            </div>
+        </div>
+    </header>
 
-                <h6 class="text-muted fw-bold mb-3 border-bottom pb-2">Dados Pessoais</h6>
-                <div class="row g-3">
-                    <div class="col-md-6">{{ form.nome|as_crispy_field }}</div>
-                    <div class="col-md-3">{{ form.cpf|as_crispy_field }}</div>
-                    <div class="col-md-3">{{ form.data_nascimento|as_crispy_field }}</div>
-                </div>
-                <div class="row g-3">
-                    <div class="col-md-6">{{ form.email|as_crispy_field }}</div>
-                    <div class="col-md-6">{{ form.telefone|as_crispy_field }}</div>
-                </div>
+    <!-- CARD PRINCIPAL (Soft UI Style) -->
+    <div class="bg-white rounded-[40px] shadow-2xl shadow-slate-200/50 border border-white overflow-hidden">
+        
+        <form method="post" class="p-8 md:p-12 space-y-12">
+            {% csrf_token %}
 
-                <h6 class="text-muted fw-bold mt-4 mb-3 border-bottom pb-2">Endereço</h6>
-                <div class="row g-3">
-                    <div class="col-md-3">{{ form.cep|as_crispy_field }}</div>
-                    <div class="col-md-7">{{ form.logradouro|as_crispy_field }}</div>
-                    <div class="col-md-2">{{ form.numero|as_crispy_field }}</div>
-                </div>
-                <div class="row g-3 mt-1">
-                    <div class="col-md-5">{{ form.bairro|as_crispy_field }}</div>
-                    <div class="col-md-5">{{ form.cidade|as_crispy_field }}</div>
-                    <div class="col-md-2">{{ form.estado|as_crispy_field }}</div>
-                </div>
-
-                <h6 class="text-muted fw-bold mt-4 mb-3 border-bottom pb-2">Dados Profissionais</h6>
-                <div class="row g-3">
-                    <div class="col-md-4">{{ form.crefito|as_crispy_field }}</div>
-                    <div class="col-md-4">{{ form.valor_hora_aula|as_crispy_field }}</div>
-                    <div class="col-md-4">{{ form.cor_agenda|as_crispy_field }}</div>
+            <!-- SEÇÃO: DADOS PESSOAIS -->
+            <section>
+                <div class="flex items-center gap-3 mb-8">
+                    <div class="w-2 h-6 bg-serene-blue rounded-full"></div>
+                    <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-[3px]">Dados Pessoais</h3>
                 </div>
                 
-                <div class="form-check mt-3">
-                    {{ form.ativo }}
-                    <label class="form-check-label" for="id_ativo">Profissional Ativo</label>
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                    <div class="md:col-span-6">{{ form.nome|as_crispy_field }}</div>
+                    <div class="md:col-span-3">{{ form.cpf|as_crispy_field }}</div>
+                    <div class="md:col-span-3">{{ form.data_nascimento|as_crispy_field }}</div>
+                    <div class="md:col-span-6">{{ form.email|as_crispy_field }}</div>
+                    <div class="md:col-span-6">{{ form.telefone|as_crispy_field }}</div>
                 </div>
+            </section>
 
-                <div class="d-flex justify-content-end gap-2 mt-4 border-top pt-3">
-                    <a href="{% url 'profissional_list' %}" class="btn btn-light border">Cancelar</a>
-                    <button type="submit" class="btn btn-primary px-4 fw-bold">Salvar</button>
+            <!-- SEÇÃO: ENDEREÇO -->
+            <section class="bg-slate-50/50 p-8 rounded-[32px] border border-slate-100/50">
+                <div class="flex items-center gap-3 mb-8">
+                    <div class="w-2 h-6 bg-mint-green rounded-full"></div>
+                    <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-[3px]">Endereço</h3>
                 </div>
-            </form>
-        </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                    <div class="md:col-span-3">
+                        {{ form.cep|as_crispy_field }}
+                    </div>
+                    <div class="md:col-span-7">{{ form.logradouro|as_crispy_field }}</div>
+                    <div class="md:col-span-2">{{ form.numero|as_crispy_field }}</div>
+                    <div class="md:col-span-5">{{ form.bairro|as_crispy_field }}</div>
+                    <div class="md:col-span-4">{{ form.cidade|as_crispy_field }}</div>
+                    <div class="md:col-span-3">{{ form.estado|as_crispy_field }}</div>
+                </div>
+            </section>
+
+            <!-- SEÇÃO: DADOS PROFISSIONAIS -->
+            <section>
+                <div class="flex items-center gap-3 mb-8">
+                    <div class="w-2 h-6 bg-soft-lavender rounded-full"></div>
+                    <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-[3px]">Atuação Profissional</h3>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="form-control">
+                        {{ form.crefito|as_crispy_field }}
+                    </div>
+                    <div class="form-control">
+                        {{ form.valor_hora_aula|as_crispy_field }}
+                    </div>
+                    <div class="form-control">
+                        <label class="label mb-1">
+                            <span class="label-text text-xs font-black text-slate-400 uppercase tracking-widest">Cor na Agenda</span>
+                        </label>
+                        <div class="flex items-center gap-3">
+                            <input type="color" name="{{ form.cor_agenda.name }}" 
+                                   value="{{ form.cor_agenda.value|default:'#A5D8FF' }}"
+                                   class="w-12 h-12 rounded-xl border-none cursor-pointer bg-transparent" />
+                            <span class="text-xs text-slate-400 font-medium italic">Selecione uma cor para as aulas deste profissional</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- BOTÕES DE AÇÃO -->
+            <div class="flex flex-col md:flex-row justify-end items-center gap-4 pt-8 border-t border-slate-50">
+                <a href="{% url 'profissional_list' %}" class="btn btn-ghost rounded-2xl text-slate-400 font-bold normal-case order-2 md:order-1">
+                    Cancelar
+                </a>
+                <button type="submit" class="btn bg-serene-blue border-none text-white rounded-2xl px-12 h-16 shadow-xl shadow-blue-200 normal-case font-black italic order-1 md:order-2 hover:scale-[1.02] transition-all">
+                    <i class="fas fa-save mr-2 text-xs"></i> Salvar Profissional
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
-<!-- Script para buscar CEP (Se tiver a função global 'buscarCep' no base.html, ótimo. Se não, adicione aqui) -->
 <script>
-    function buscarCep(cep) {
-        cep = cep.replace(/\D/g, '');
-        if (cep.length === 8) {
-            fetch(`https://viacep.com.br/ws/${cep}/json/`)
-                .then(res => res.json())
-                .then(data => {
-                    if (!data.erro) {
-                        document.getElementById('id_logradouro').value = data.logradouro;
-                        document.getElementById('id_bairro').value = data.bairro;
-                        document.getElementById('id_cidade').value = data.localidade;
-                        document.getElementById('id_estado').value = data.uf;
-                        document.getElementById('id_numero').focus();
-                    }
-                });
-        }
+    // Integração automática de busca de CEP com estilo MayaCorp
+    const cepInput = document.getElementById('id_cep');
+    if (cepInput) {
+        cepInput.addEventListener('blur', function() {
+            const cep = this.value.replace(/\D/g, '');
+            if (cep.length === 8) {
+                this.classList.add('loading-input'); // Você pode criar um efeito visual aqui
+                fetch(`https://viacep.com.br/ws/${cep}/json/`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (!data.erro) {
+                            document.getElementById('id_logradouro').value = data.logradouro;
+                            document.getElementById('id_bairro').value = data.bairro;
+                            document.getElementById('id_cidade').value = data.localidade;
+                            document.getElementById('id_estado').value = data.uf;
+                            document.getElementById('id_numero').focus();
+                        }
+                    });
+            }
+        });
     }
 </script>
+
+<style>
+    /* Ajuste para o formulário se integrar ao estilo Soft UI */
+    .form-control label { @apply text-xs font-black text-slate-400 uppercase tracking-widest mb-2 !important; }
+    .input, .select, .textarea { @apply bg-slate-50 border-slate-100 rounded-2xl focus:ring-serene-blue/20 focus:border-serene-blue/30 !important; }
+    
+    /* Input de cor customizado */
+    input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+    input[type="color"]::-webkit-color-swatch { border: none; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+</style>
 {% endblock %}

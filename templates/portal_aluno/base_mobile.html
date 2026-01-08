@@ -1,42 +1,102 @@
+{% load static %}
+{% load tailwind_tags %}
 <!doctype html>
-<html lang="pt-br">
+<html lang="pt-br" data-theme="light">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
-    <title>Portal do Aluno</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover">
+    <title>Portal do Aluno | MayaCorp</title>
+    
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Tailwind CSS -->
+    {% tailwind_css %}
+
     <style>
-        body { padding-bottom: 70px; background-color: #f8f9fa; }
-        .bottom-nav {
-            position: fixed; bottom: 0; width: 100%; height: 60px;
-            background: white; border-top: 1px solid #ddd;
-            display: flex; justify-content: space-around; align-items: center;
-            z-index: 1000;
-        }
-        .nav-icon { text-align: center; color: #666; text-decoration: none; font-size: 12px; }
-        .nav-icon.active { color: #0d6efd; font-weight: bold; }
-        .nav-icon i { display: block; font-size: 20px; margin-bottom: 2px; }
+        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .glass-nav { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+        .active-icon { color: #A5D8FF; position: relative; }
+        .active-icon::after { content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); width: 4px; height: 4px; background: #A5D8FF; border-radius: 50%; }
+        
+        /* Suavização de bordas extra para Mobile */
+        .card-soft { border-radius: 28px; border: 1px solid white; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); }
     </style>
 </head>
-<body>
+<body class="bg-off-white min-h-screen text-slate-700">
 
-    <div class="container mt-3">
+    <!-- HEADER SUPERIOR (Identificação) -->
+    <div class="px-6 pt-8 pb-4 flex justify-between items-center">
+        <div>
+            <p class="text-[10px] font-black text-slate-400 uppercase tracking-[2px]">Bem-vindo(a)</p>
+            <h1 class="text-2xl font-black text-slate-800 tracking-tight">{{ request.user.first_name|default:request.user.username }}</h1>
+        </div>
+        <div class="w-12 h-12 bg-white rounded-2xl shadow-sm border border-slate-50 flex items-center justify-center overflow-hidden">
+            {% if request.user.aluno.foto_rosto %}
+                <img src="{{ request.user.aluno.foto_rosto.url }}" class="w-full h-full object-cover">
+            {% else %}
+                <i class="fas fa-user text-slate-200"></i>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- ÁREA DE MENSAGENS -->
+    <div class="px-6">
         {% if messages %}
             {% for message in messages %}
-                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                <div class="p-4 rounded-2xl mb-4 text-sm font-bold shadow-sm animate-in fade-in slide-in-from-top-4 
+                    {% if message.tags == 'success' %} bg-mint-green/20 text-emerald-800 border border-mint-green/20 {% else %} bg-rose-50 text-rose-600 border border-rose-100 {% endif %}">
+                    {{ message }}
+                </div>
             {% endfor %}
         {% endif %}
-        
+    </div>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="px-6 pb-32">
         {% block content %}{% endblock %}
-    </div>
+    </main>
 
-    <!-- MENU RODAPÉ -->
-    <div class="bottom-nav">
-        <a href="{% url 'aluno_dashboard' %}" class="nav-icon">🏠<br>Início</a>
-        <a href="{% url 'aluno_agenda' %}" class="nav-icon">📅<br>Agenda</a>
-        <a href="{% url 'aluno_financeiro' %}" class="nav-icon">💰<br>Finan</a>
-        <a href="#" class="nav-icon">👤<br>Perfil</a>
-    </div>
+    <!-- MENU RODAPÉ (Navegação Estilo App Mobile) -->
+    <nav class="fixed bottom-0 left-0 right-0 glass-nav border-t border-slate-100/50 z-50 px-6 pb-6 pt-3">
+        <div class="max-w-md mx-auto flex justify-between items-center">
+            
+            <a href="{% url 'aluno_dashboard' %}" class="flex flex-col items-center gap-1 no-underline group">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center transition-all {% if request.resolver_match.url_name == 'aluno_dashboard' %} active-icon {% else %} text-slate-400 group-hover:text-slate-600 {% endif %}">
+                    <i class="fas fa-house-chimney text-lg"></i>
+                </div>
+                <span class="text-[9px] font-black uppercase tracking-widest {% if request.resolver_match.url_name == 'aluno_dashboard' %} text-serene-blue {% else %} text-slate-400 {% endif %}">Home</span>
+            </a>
 
+            <a href="{% url 'aluno_agenda' %}" class="flex flex-col items-center gap-1 no-underline group">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center transition-all {% if request.resolver_match.url_name == 'aluno_agenda' %} active-icon {% else %} text-slate-400 group-hover:text-slate-600 {% endif %}">
+                    <i class="fas fa-calendar-days text-lg"></i>
+                </div>
+                <span class="text-[9px] font-black uppercase tracking-widest {% if request.resolver_match.url_name == 'aluno_agenda' %} text-serene-blue {% else %} text-slate-400 {% endif %}">Agenda</span>
+            </a>
+
+            <a href="{% url 'aluno_financeiro' %}" class="flex flex-col items-center gap-1 no-underline group">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center transition-all {% if request.resolver_match.url_name == 'aluno_financeiro' %} active-icon {% else %} text-slate-400 group-hover:text-slate-600 {% endif %}">
+                    <i class="fas fa-wallet text-lg"></i>
+                </div>
+                <span class="text-[9px] font-black uppercase tracking-widest {% if request.resolver_match.url_name == 'aluno_financeiro' %} text-serene-blue {% else %} text-slate-400 {% endif %}">Finan</span>
+            </a>
+
+            <a href="#" class="flex flex-col items-center gap-1 no-underline group">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center transition-all text-slate-400 group-hover:text-slate-600">
+                    <i class="fas fa-user-gear text-lg"></i>
+                </div>
+                <span class="text-[9px] font-black uppercase tracking-widest text-slate-400">Perfil</span>
+            </a>
+
+        </div>
+    </nav>
+
+    <!-- Script do Django Browser Reload -->
+    {% if debug %}
+        {% django_browser_reload_script %}
+    {% endif %}
 </body>
 </html>

@@ -1,76 +1,124 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Gestão de Alunos - MayaCorp{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>🏃‍♂️ Gestão de Alunos</h2>
-        <a href="{% url 'aluno_create' %}" class="btn btn-primary shadow-sm">
-            <i class="fas fa-plus"></i> Novo Aluno
+<div class="max-w-7xl mx-auto pb-10">
+    
+    <!-- HEADER: Título e Ação -->
+    <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4 px-2">
+        <div class="flex items-center gap-4">
+            <div class="w-14 h-14 bg-serene-blue/20 rounded-[22px] flex items-center justify-center text-serene-blue shadow-sm">
+                <i class="fas fa-users text-2xl"></i>
+            </div>
+            <div>
+                <h1 class="text-3xl font-black text-slate-800 tracking-tight">Gestão de Alunos</h1>
+                <p class="text-[10px] text-slate-400 font-black uppercase tracking-[2px] mt-1">
+                    {{ alunos|length }} alunos cadastrados no sistema
+                </p>
+            </div>
+        </div>
+        
+        <a href="{% url 'aluno_create' %}" 
+           class="btn bg-serene-blue border-none text-white rounded-2xl px-8 h-14 shadow-xl shadow-blue-200 hover:bg-blue-400 hover:scale-[1.02] transition-all normal-case font-black italic">
+            <i class="fas fa-plus mr-2 text-xs"></i> Novo Aluno
         </a>
-    </div>
+    </header>
 
-    <div class="card shadow-sm border-0">
-        <div class="card-body p-0">
-            <table class="table table-hover mb-0 align-middle">
-                <thead class="table-light">
-                    <tr>
-                        <th class="ps-4">Aluno</th>
-                        <th>CPF</th>
-                        <th>Telefone</th>
-                        <th>Status</th>
-                        <th class="text-end pe-4">Ações</th>
+    <!-- LISTA DE ALUNOS (Card Soft UI) -->
+    <div class="bg-white rounded-[40px] shadow-2xl shadow-slate-200/50 overflow-hidden border border-white">
+        <div class="overflow-x-auto">
+            <table class="table w-full border-collapse">
+                <!-- CABEÇALHO -->
+                <thead>
+                    <tr class="border-b border-slate-50">
+                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[2px] font-black py-8 pl-10">Aluno</th>
+                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[2px] font-black py-8">Identificação</th>
+                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[2px] font-black py-8">Contato</th>
+                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[2px] font-black py-8 text-center">Situação</th>
+                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[2px] font-black py-8 pr-10 text-right">Ações</th>
                     </tr>
                 </thead>
-                <tbody>
+                
+                <tbody class="divide-y divide-slate-50">
                     {% for aluno in alunos %}
-                    <!-- Torna a linha toda clicável (opcional) ou foca no nome -->
-                    <tr style="cursor: pointer;" onclick="window.location='{% url 'aluno_detail' aluno.pk %}'">
+                    <tr class="hover:bg-slate-50/50 transition-colors group cursor-pointer" 
+                        onclick="window.location='{% url 'aluno_detail' aluno.pk %}'">
                         
-                        <td class="ps-4">
-                            <div class="d-flex align-items-center">
-                                {% if aluno.foto_rosto %}
-                                    <img src="{{ aluno.foto_rosto.url }}" class="rounded-circle me-3 border" width="45" height="45" style="object-fit: cover;">
-                                {% else %}
-                                    <div class="rounded-circle bg-secondary text-white d-flex justify-content-center align-items-center me-3 shadow-sm" style="width: 45px; height: 45px; font-size: 1.2rem;">
-                                        {{ aluno.nome|first|upper }}
+                        <!-- ALUNO (Avatar + Nome) -->
+                        <td class="py-6 pl-10">
+                            <div class="flex items-center gap-4">
+                                <div class="avatar">
+                                    <div class="w-14 h-14 rounded-[20px] shadow-lg shadow-slate-200 border-2 border-white group-hover:scale-105 transition-transform">
+                                        {% if aluno.foto_rosto %}
+                                            <img src="{{ aluno.foto_rosto.url }}" class="object-cover" />
+                                        {% else %}
+                                            <div class="bg-slate-100 flex items-center justify-center text-slate-300 font-black text-xl">
+                                                {{ aluno.nome|first|upper }}
+                                            </div>
+                                        {% endif %}
                                     </div>
-                                {% endif %}
-                                
-                                <div>
-                                    <div class="fw-bold text-dark">{{ aluno.nome }}</div>
-                                    <small class="text-muted">{{ aluno.email|default:"" }}</small>
+                                </div>
+                                <div class="flex flex-col">
+                                    <span class="text-slate-800 font-bold text-base group-hover:text-serene-blue transition-colors">{{ aluno.nome }}</span>
+                                    <span class="text-[11px] text-slate-400 font-medium lowercase italic">{{ aluno.email|default:"sem e-mail" }}</span>
                                 </div>
                             </div>
                         </td>
 
-                        <td>{{ aluno.cpf|default:"-" }}</td>
-                        <td>{{ aluno.telefone }}</td>
-                        
-                        <td>
+                        <!-- CPF / ID -->
+                        <td class="py-6">
+                            <span class="text-sm font-bold text-slate-500 bg-slate-50 px-3 py-1 rounded-lg border border-slate-100">
+                                {{ aluno.cpf|default:"---" }}
+                            </span>
+                        </td>
+
+                        <!-- TELEFONE -->
+                        <td class="py-6">
+                            <div class="flex items-center gap-2 text-slate-500 text-sm font-medium">
+                                <i class="fab fa-whatsapp text-emerald-400"></i>
+                                {{ aluno.telefone }}
+                            </div>
+                        </td>
+
+                        <!-- STATUS (Badges Soft) -->
+                        <td class="py-6 text-center">
                             {% if aluno.bloqueado_catraca %}
-                                <span class="badge bg-danger">Bloqueado</span>
+                                <div class="badge bg-rose-50 border-none text-rose-500 text-[10px] font-black py-3 px-4 rounded-xl">BLOQUEADO</div>
                             {% elif aluno.ativo %}
-                                <span class="badge bg-success">Ativo</span>
+                                <div class="badge bg-mint-green/20 border-none text-emerald-700 text-[10px] font-black py-3 px-4 rounded-xl">ATIVO</div>
                             {% else %}
-                                <span class="badge bg-secondary">Inativo</span>
+                                <div class="badge bg-slate-100 border-none text-slate-400 text-[10px] font-black py-3 px-4 rounded-xl">INATIVO</div>
                             {% endif %}
                         </td>
 
-                        <td class="text-end pe-4">
-                            <!-- O stopPropagation evita que clicar no botão abra a ficha, indo direto pro editar -->
-                            <a href="{% url 'aluno_update' aluno.pk %}" class="btn btn-sm btn-light border" onclick="event.stopPropagation();" title="Editar Cadastro">
-                                <i class="fas fa-edit text-primary"></i>
-                            </a>
-                            <a href="{% url 'aluno_delete' aluno.pk %}" class="btn btn-sm btn-light border ms-1" onclick="event.stopPropagation();" title="Excluir">
-                                <i class="fas fa-trash text-danger"></i>
-                            </a>
+                        <!-- AÇÕES -->
+                        <td class="py-6 pr-10 text-right">
+                            <div class="flex justify-end gap-2" onclick="event.stopPropagation();">
+                                <a href="{% url 'aluno_update' aluno.pk %}" 
+                                   class="btn btn-square btn-sm rounded-xl bg-slate-50 border-none text-slate-300 hover:text-serene-blue hover:bg-serene-blue/10 transition-all" 
+                                   title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'aluno_delete' aluno.pk %}" 
+                                   class="btn btn-square btn-sm rounded-xl bg-slate-50 border-none text-slate-300 hover:text-rose-500 hover:bg-rose-50 transition-all" 
+                                   title="Excluir">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </div>
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="5" class="text-center py-5 text-muted bg-light">
-                            <i class="fas fa-user-slash fa-3x mb-3 text-secondary"></i><br>
-                            Nenhum aluno cadastrado ainda.
+                        <td colspan="5" class="py-32 text-center">
+                            <div class="flex flex-col items-center">
+                                <div class="w-24 h-24 bg-slate-50 rounded-[3rem] flex items-center justify-center text-slate-200 mb-6 border border-dashed border-slate-200">
+                                    <i class="fas fa-user-plus text-4xl"></i>
+                                </div>
+                                <h3 class="text-slate-400 font-black uppercase text-sm tracking-widest">Nenhum aluno cadastrado</h3>
+                                <p class="text-slate-300 text-xs mt-2">Clique no botão "Novo Aluno" para começar.</p>
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}

@@ -1,26 +1,83 @@
 {% extends 'base.html' %}
-{% block title %}Categorias Financeiras{% endblock %}
+{% load static %}
+
+{% block title %}Categorias Financeiras - MayaCorp{% endblock %}
+
 {% block content %}
-<div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3><i class="fas fa-tags me-2"></i>Categorias Financeiras</h3>
-        <a href="{% url 'categoria_create' %}" class="btn btn-success"><i class="fas fa-plus"></i> Nova Categoria</a>
-    </div>
-    <div class="card shadow-sm">
-        <ul class="list-group list-group-flush">
+<div class="max-w-4xl mx-auto pb-10">
+    
+    <!-- HEADER -->
+    <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4 px-2">
+        <div class="flex items-center gap-4">
+            <div class="w-14 h-14 bg-soft-lavender/30 rounded-[22px] flex items-center justify-center text-purple-600 shadow-sm border border-white">
+                <i class="fas fa-tags text-2xl"></i>
+            </div>
+            <div>
+                <h1 class="text-3xl font-black text-slate-800 tracking-tight">Categorias</h1>
+                <p class="text-[10px] text-slate-400 font-black uppercase tracking-[2px] mt-1">
+                    Organize suas entradas e saídas financeiras
+                </p>
+            </div>
+        </div>
+        
+        <a href="{% url 'categoria_create' %}" 
+           class="btn bg-serene-blue border-none text-white rounded-2xl px-8 h-14 shadow-xl shadow-blue-200 hover:bg-blue-400 hover:scale-[1.02] transition-all normal-case font-black italic">
+            <i class="fas fa-plus mr-2 text-xs"></i> Nova Categoria
+        </a>
+    </header>
+
+    <!-- LISTA DE CATEGORIAS (Card Soft UI) -->
+    <div class="bg-white rounded-[40px] shadow-2xl shadow-slate-200/50 border border-white overflow-hidden animate-in fade-in duration-500">
+        <div class="divide-y divide-slate-50">
             {% for cat in categorias %}
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    {{ cat.nome }}
-                    {% if cat.tipo == 'RECEITA' %}
-                        <span class="badge bg-success">Receita</span>
-                    {% else %}
-                        <span class="badge bg-danger">Despesa</span>
-                    {% endif %}
-                </li>
+            <div class="group flex items-center justify-between p-6 md:p-8 hover:bg-slate-50/50 transition-all">
+                
+                <!-- Nome da Categoria -->
+                <div class="flex items-center gap-5">
+                    <div class="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-300 group-hover:bg-serene-blue/10 group-hover:text-serene-blue transition-colors duration-300">
+                        <i class="fas fa-folder-open text-sm"></i>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-slate-800 font-black text-base tracking-tight group-hover:translate-x-1 transition-transform duration-300">{{ cat.nome }}</span>
+                        <span class="text-[9px] text-slate-300 font-bold uppercase tracking-widest mt-1">Identificador #{{ forloop.counter }}</span>
+                    </div>
+                </div>
+
+                <!-- Tipo de Categoria (Badges Soft) -->
+                {% if cat.tipo == 'RECEITA' %}
+                    <div class="badge bg-mint-green/20 border-none text-emerald-700 text-[10px] font-black py-5 px-6 rounded-2xl uppercase tracking-[1px] shadow-sm shadow-mint-green/10">
+                        <i class="fas fa-arrow-trend-up mr-2 text-[8px]"></i> RECEITA
+                    </div>
+                {% else %}
+                    <div class="badge bg-rose-50 border-none text-rose-500 text-[10px] font-black py-5 px-6 rounded-2xl uppercase tracking-[1px] shadow-sm shadow-rose-100">
+                        <i class="fas fa-arrow-trend-down mr-2 text-[8px]"></i> DESPESA
+                    </div>
+                {% endif %}
+            </div>
             {% empty %}
-                <li class="list-group-item text-center text-muted">Nenhuma categoria cadastrada.</li>
+            <div class="py-24 text-center">
+                <div class="flex flex-col items-center">
+                    <div class="w-20 h-20 bg-slate-50 rounded-[2.5rem] flex items-center justify-center text-slate-200 mb-6 border border-dashed border-slate-200">
+                        <i class="fas fa-tag text-4xl"></i>
+                    </div>
+                    <h3 class="text-slate-400 font-black uppercase text-sm tracking-widest">Nenhuma categoria cadastrada</h3>
+                    <p class="text-slate-300 text-xs mt-2 italic">Defina suas categorias para organizar o financeiro.</p>
+                </div>
+            </div>
             {% endfor %}
-        </ul>
+        </div>
+    </div>
+
+    <!-- RODAPÉ INFORMATIVO -->
+    <div class="mt-12 flex flex-wrap justify-center gap-8">
+        <div class="flex items-center gap-3">
+            <div class="w-2 h-2 rounded-full bg-mint-green shadow-[0_0_8px_rgba(178,242,187,1)]"></div>
+            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Entradas de Caixa</span>
+        </div>
+        <div class="flex items-center gap-3">
+            <div class="w-2 h-2 rounded-full bg-rose-400 shadow-[0_0_8px_rgba(251,213,213,1)]"></div>
+            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Saídas de Caixa</span>
+        </div>
     </div>
 </div>
 {% endblock %}

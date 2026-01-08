@@ -1,69 +1,113 @@
-<div class="card shadow-sm border-0">
-    <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-            <thead class="table-light">
-                <tr>
-                    <th>Vencimento</th>
-                    <th>Descrição</th>
-                    <th>Categoria / Aluno</th>
-                    <th>Valor</th>
-                    <th>Situação</th>
-                    <th class="text-end">Ações</th>
+<!-- TABELA DE LANÇAMENTOS (Card Soft UI) -->
+<div class="bg-white rounded-[40px] shadow-2xl shadow-slate-200/50 overflow-hidden border border-white animate-in fade-in duration-700">
+    <div class="overflow-x-auto">
+        <table class="table w-full border-collapse">
+            <!-- CABEÇALHO -->
+            <thead>
+                <tr class="border-b border-slate-50">
+                    <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[3px] font-black py-8 pl-12">Vencimento</th>
+                    <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[3px] font-black py-8">Descrição Detalhada</th>
+                    <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[3px] font-black py-8">Classificação / Origem</th>
+                    <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[3px] font-black py-8 text-center">Valor Bruto</th>
+                    <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[3px] font-black py-8 text-center">Situação</th>
+                    <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[3px] font-black py-8 pr-12 text-right">Gestão</th>
                 </tr>
             </thead>
-            <tbody>
+            
+            <tbody class="divide-y divide-slate-50">
                 {% for lanc in lancamentos %}
-                <tr>
-                    <td>
-                        <div class="fw-bold">{{ lanc.data_vencimento|date:"d/m/Y" }}</div>
+                <tr class="hover:bg-slate-50/50 transition-all group">
+                    
+                    <!-- VENCIMENTO -->
+                    <td class="py-8 pl-12">
+                        <div class="flex flex-col">
+                            <span class="text-slate-800 font-bold text-sm">{{ lanc.data_vencimento|date:"d/m/Y" }}</span>
+                            {% if lanc.status == 'PAGO' %}
+                                <span class="text-[9px] text-emerald-500 font-black uppercase mt-1">
+                                    <i class="fas fa-check-circle mr-1"></i> Pago {{ lanc.data_pagamento|date:"d/m" }}
+                                </span>
+                            {% elif lanc.data_vencimento < hoje and lanc.status == 'PENDENTE' %}
+                                <span class="text-[9px] text-rose-500 font-black uppercase mt-1 animate-pulse">
+                                    <i class="fas fa-exclamation-triangle mr-1"></i> Vencido
+                                </span>
+                            {% else %}
+                                <span class="text-[9px] text-slate-300 font-black uppercase mt-1">Aguardando</span>
+                            {% endif %}
+                        </div>
+                    </td>
+
+                    <!-- DESCRIÇÃO -->
+                    <td class="py-8">
+                        <div class="flex flex-col">
+                            <span class="text-sm font-bold text-slate-700 group-hover:text-serene-blue transition-colors">{{ lanc.descricao }}</span>
+                            <span class="text-[10px] text-slate-400 font-medium italic mt-1">{{ lanc.conta.nome }}</span>
+                        </div>
+                    </td>
+                    
+                    <!-- CATEGORIA / ALUNO -->
+                    <td class="py-8">
+                        <div class="flex flex-col gap-2">
+                            <span class="badge {% if lanc.categoria.tipo == 'RECEITA' %}bg-mint-green/15 text-emerald-700{% else %}bg-rose-50 text-rose-500{% endif %} border-none text-[9px] font-black px-3 py-3 rounded-lg uppercase w-fit">
+                                {{ lanc.categoria.nome }}
+                            </span>
+                            {% if lanc.aluno %}
+                                <a href="{% url 'aluno_detail' lanc.aluno.id %}" class="text-[10px] font-bold text-slate-400 hover:text-serene-blue transition-colors italic">
+                                    <i class="far fa-user mr-1"></i> {{ lanc.aluno.nome }}
+                                </a>
+                            {% endif %}
+                        </div>
+                    </td>
+
+                    <!-- VALOR -->
+                    <td class="py-8 text-center">
+                        <div class="text-sm font-black italic tracking-tight {% if lanc.categoria.tipo == 'RECEITA' %}text-emerald-500{% else %}text-rose-400{% endif %}">
+                            <span class="text-[10px] not-italic mr-1 opacity-40">R$</span> {{ lanc.valor }}
+                        </div>
+                    </td>
+                    
+                    <!-- SITUAÇÃO (Badges Soft) -->
+                    <td class="py-8 text-center">
                         {% if lanc.status == 'PAGO' %}
-                            <small class="text-success"><i class="fas fa-check-circle"></i> Pago em {{ lanc.data_pagamento|date:"d/m" }}</small>
-                        {% elif lanc.data_vencimento < hoje and lanc.status == 'PENDENTE' %}
-                            <small class="text-danger fw-bold">Vencido!</small>
-                        {% endif %}
-                    </td>
-                    <td>
-                        {{ lanc.descricao }}
-                        <br><small class="text-muted">{{ lanc.conta.nome }}</small>
-                    </td>
-                    <td>
-                        <span class="badge bg-light text-dark border">{{ lanc.categoria.nome }}</span>
-                        {% if lanc.aluno %}
-                            <br><a href="{% url 'aluno_detail' lanc.aluno.id %}" class="text-decoration-none small fw-bold text-dark">{{ lanc.aluno.nome }}</a>
-                        {% endif %}
-                    </td>
-                    <td class="fw-bold {% if lanc.categoria.tipo == 'RECEITA' %}text-success{% else %}text-danger{% endif %}">
-                        R$ {{ lanc.valor }}
-                    </td>
-                    <td>
-                        {% if lanc.status == 'PAGO' %}
-                            <span class="badge bg-success w-100">PAGO</span>
+                            <div class="badge bg-mint-green/20 border-none text-emerald-700 text-[9px] font-black py-3 px-4 rounded-xl w-24">LIQUIDADO</div>
                         {% elif lanc.status == 'PENDENTE' %}
-                            <span class="badge bg-primary w-100">EM ABERTO</span>
+                            {% if lanc.data_vencimento < hoje %}
+                                <div class="badge bg-rose-100 border-none text-rose-600 text-[9px] font-black py-3 px-4 rounded-xl w-24 shadow-sm shadow-rose-100 italic">ATRASADO</div>
+                            {% else %}
+                                <div class="badge bg-serene-blue/15 border-none text-blue-600 text-[9px] font-black py-3 px-4 rounded-xl w-24">EM ABERTO</div>
+                            {% endif %}
                         {% else %}
-                            <span class="badge bg-secondary w-100">CANCELADO</span>
+                            <div class="badge bg-slate-100 border-none text-slate-400 text-[9px] font-black py-3 px-4 rounded-xl w-24">CANCELADO</div>
                         {% endif %}
                     </td>
-                    <td class="text-end">
+
+                    <!-- AÇÕES -->
+                    <td class="py-8 pr-12 text-right">
                         {% if lanc.status == 'PENDENTE' %}
-                            <form action="{% url 'baixar_lancamento' lanc.id %}" method="post" class="d-inline">
+                            <form action="{% url 'baixar_lancamento' lanc.id %}" method="post" class="inline">
                                 {% csrf_token %}
                                 <input type="hidden" name="forma_pagamento" value="PIX"> 
-                                <!-- No futuro podemos abrir um modal para escolher a forma -->
-                                <button class="btn btn-sm btn-outline-success fw-bold" onclick="return confirm('Confirmar recebimento?')">
-                                    $ Receber
+                                <button class="btn bg-mint-green/10 border-none text-emerald-700 hover:bg-mint-green hover:text-white transition-all rounded-xl px-5 h-10 min-h-0 text-[10px] font-black uppercase italic shadow-sm hover:scale-105" 
+                                        onclick="return confirm('Confirmar baixa deste lançamento?')">
+                                    <i class="fas fa-hand-holding-dollar mr-2"></i> Baixar
                                 </button>
                             </form>
                         {% else %}
-                            <i class="fas fa-check text-muted"></i>
+                            <div class="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center text-slate-200 ml-auto">
+                                <i class="fas fa-check text-xs"></i>
+                            </div>
                         {% endif %}
                     </td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="6" class="text-center py-5 text-muted">
-                        <i class="fas fa-search-dollar fa-2x mb-3"></i><br>
-                        Nenhum lançamento encontrado.
+                    <td colspan="6" class="py-32 text-center">
+                        <div class="flex flex-col items-center">
+                            <div class="w-24 h-24 bg-slate-50 rounded-[3rem] flex items-center justify-center text-slate-200 mb-6 border border-dashed border-slate-200 shadow-inner">
+                                <i class="fas fa-magnifying-glass-dollar text-4xl"></i>
+                            </div>
+                            <h3 class="text-slate-400 font-black uppercase text-sm tracking-widest">Nenhum registro encontrado</h3>
+                            <p class="text-slate-300 text-xs mt-2 italic">Refine seus filtros ou realize um novo lançamento.</p>
+                        </div>
                     </td>
                 </tr>
                 {% endfor %}
@@ -71,18 +115,31 @@
         </table>
     </div>
     
-    <!-- Paginação (Se tiver muitos registros) -->
+    <!-- PAGINAÇÃO (Soft UI Style) -->
     {% if is_paginated %}
-    <div class="card-footer bg-white d-flex justify-content-center">
-        <ul class="pagination pagination-sm mb-0">
+    <div class="p-10 flex justify-center bg-slate-50/30">
+        <div class="join bg-white p-1 rounded-2xl shadow-sm border border-slate-100">
             {% if page_obj.has_previous %}
-                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a></li>
+                <a href="?page={{ page_obj.previous_page_number }}" class="join-item btn btn-ghost btn-sm rounded-xl text-slate-400 hover:text-serene-blue transition-all">« Anterior</a>
             {% endif %}
-            <li class="page-item active"><span class="page-link">{{ page_obj.number }}</span></li>
+            
+            <button class="join-item btn btn-ghost btn-sm no-animation text-slate-800 font-black px-6 border-none cursor-default">
+                Página {{ page_obj.number }}
+            </button>
+
             {% if page_obj.has_next %}
-                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Próximo</a></li>
+                <a href="?page={{ page_obj.next_page_number }}" class="join-item btn btn-ghost btn-sm rounded-xl text-slate-400 hover:text-serene-blue transition-all">Próxima »</a>
             {% endif %}
-        </ul>
+        </div>
     </div>
     {% endif %}
 </div>
+
+<style>
+    /* Estilos para suavização de números financeiros */
+    table { font-variant-numeric: tabular-nums; }
+    
+    /* Scroll customizado para tabelas em telas menores */
+    .overflow-x-auto::-webkit-scrollbar { height: 4px; }
+    .overflow-x-auto::-webkit-scrollbar-thumb { background: #f1f5f9; border-radius: 10px; }
+</style>

@@ -1,102 +1,146 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Relatório de Frequência{% endblock %}
+{% block title %}Relatório de Frequência - MayaCorp{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4">
+<div class="max-w-7xl mx-auto pb-10">
     
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3 class="fw-bold text-primary"><i class="fas fa-clipboard-check me-2"></i>Relatório de Frequência</h3>
-        <button class="btn btn-outline-dark" onclick="window.print()"><i class="fas fa-print"></i> Imprimir</button>
-    </div>
-
-    <!-- ÁREA DE FILTROS -->
-    <div class="card shadow-sm mb-4 bg-light border-0">
-        <div class="card-body">
-            <form method="get" class="row g-3 align-items-end">
-                
-                <!-- Filtro de Aluno -->
-                <div class="col-md-4">
-                    <label class="form-label fw-bold">Aluno</label>
-                    <select name="aluno" class="form-select">
-                        <option value="">Todos os Alunos</option>
-                        {% for a in alunos_list %}
-                            <option value="{{ a.id }}" {% if request.GET.aluno == a.id|stringformat:"s" %}selected{% endif %}>
-                                {{ a.nome }}
-                            </option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <!-- Filtro de Data -->
-                <div class="col-md-2">
-                    <label class="form-label fw-bold">De:</label>
-                    <input type="date" name="data_inicio" class="form-control" value="{{ request.GET.data_inicio }}">
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label fw-bold">Até:</label>
-                    <input type="date" name="data_fim" class="form-control" value="{{ request.GET.data_fim }}">
-                </div>
-
-                <!-- Filtro de Status -->
-                <div class="col-md-2">
-                    <label class="form-label fw-bold">Status</label>
-                    <select name="status" class="form-select">
-                        <option value="">Todos</option>
-                        <option value="PRESENTE" {% if request.GET.status == 'PRESENTE' %}selected{% endif %}>Presente</option>
-                        <option value="FALTA" {% if request.GET.status == 'FALTA' %}selected{% endif %}>Falta</option>
-                    </select>
-                </div>
-
-                <div class="col-md-2">
-                    <button type="submit" class="btn btn-primary w-100"><i class="fas fa-filter"></i> Filtrar</button>
-                </div>
-            </form>
+    <!-- HEADER: Título e Ação de Impressão -->
+    <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 bg-mint-green/20 rounded-2xl flex items-center justify-center text-emerald-600 shadow-sm">
+                <i class="fas fa-clipboard-check text-xl"></i>
+            </div>
+            <div>
+                <h1 class="text-2xl font-black text-slate-800 tracking-tight">Relatório de Frequência</h1>
+                <p class="text-[10px] text-slate-400 font-black uppercase tracking-[2px] mt-1">Análise de assiduidade e faltas</p>
+            </div>
         </div>
-    </div>
+        
+        <button onclick="window.print()" 
+                class="btn btn-ghost bg-white shadow-sm border-slate-100 rounded-2xl hover:bg-slate-50 transition-all text-slate-500 normal-case font-bold px-6">
+            <i class="fas fa-print mr-2 text-xs"></i> Imprimir Relatório
+        </button>
+    </header>
 
-    <!-- TABELA DE RESULTADOS -->
-    <div class="card shadow-sm">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th>Data / Hora</th>
-                        <th>Aluno</th>
-                        <th>Profissional</th>
-                        <th>Status</th>
+    <!-- ÁREA DE FILTROS (Card Soft UI) -->
+    <section class="bg-white rounded-[28px] shadow-sm border border-slate-50 p-6 md:p-8 mb-8">
+        <form method="get" class="grid grid-cols-1 md:grid-cols-12 gap-6 items-end">
+            
+            <!-- Filtro de Aluno -->
+            <div class="md:col-span-4 flex flex-col gap-2">
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Aluno</label>
+                <select name="aluno" class="select select-bordered w-full bg-slate-50 border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-serene-blue/20 text-slate-600 font-medium">
+                    <option value="">Todos os Alunos</option>
+                    {% for a in alunos_list %}
+                        <option value="{{ a.id }}" {% if request.GET.aluno == a.id|stringformat:"s" %}selected{% endif %}>
+                            {{ a.nome }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Filtros de Data -->
+            <div class="md:col-span-2 flex flex-col gap-2">
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">De:</label>
+                <input type="date" name="data_inicio" class="input input-bordered w-full bg-slate-50 border-slate-100 rounded-2xl focus:outline-none text-slate-600 text-sm" value="{{ request.GET.data_inicio }}">
+            </div>
+            <div class="md:col-span-2 flex flex-col gap-2">
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Até:</label>
+                <input type="date" name="data_fim" class="input input-bordered w-full bg-slate-50 border-slate-100 rounded-2xl focus:outline-none text-slate-600 text-sm" value="{{ request.GET.data_fim }}">
+            </div>
+
+            <!-- Filtro de Status -->
+            <div class="md:col-span-2 flex flex-col gap-2">
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Status</label>
+                <select name="status" class="select select-bordered w-full bg-slate-50 border-slate-100 rounded-2xl focus:outline-none text-slate-600 font-medium">
+                    <option value="">Todos</option>
+                    <option value="PRESENTE" {% if request.GET.status == 'PRESENTE' %}selected{% endif %}>Presente</option>
+                    <option value="FALTA" {% if request.GET.status == 'FALTA' %}selected{% endif %}>Falta</option>
+                </select>
+            </div>
+
+            <!-- Botão Filtrar -->
+            <div class="md:col-span-2">
+                <button type="submit" class="btn btn-primary w-full bg-serene-blue hover:bg-blue-400 border-none text-white rounded-2xl shadow-lg shadow-blue-200/50 normal-case font-black italic">
+                    <i class="fas fa-filter mr-2 text-xs"></i> Filtrar
+                </button>
+            </div>
+        </form>
+    </section>
+
+    <!-- TABELA DE RESULTADOS (Card Soft UI) -->
+    <div class="bg-white rounded-[32px] shadow-xl shadow-slate-200/50 overflow-hidden border border-white">
+        <div class="overflow-x-auto">
+            <table class="table w-full border-collapse">
+                <!-- CABEÇALHO -->
+                <thead>
+                    <tr class="border-b border-slate-50">
+                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[2px] font-black py-6 pl-8">Data / Hora</th>
+                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[2px] font-black py-6">Aluno</th>
+                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[2px] font-black py-6">Profissional</th>
+                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[2px] font-black py-6 pr-8 text-center">Status</th>
                     </tr>
                 </thead>
-                <tbody>
+                
+                <tbody class="divide-y divide-slate-50">
                     {% for p in presencas %}
-                    <tr>
-                        <td>
-                            <div class="fw-bold">{{ p.aula.data_hora_inicio|date:"d/m/Y" }}</div>
-                            <small class="text-muted">{{ p.aula.data_hora_inicio|date:"H:i" }}</small>
+                    <tr class="hover:bg-slate-50/50 transition-colors group">
+                        <!-- DATA / HORA -->
+                        <td class="py-6 pl-8">
+                            <div class="flex flex-col">
+                                <span class="text-slate-800 font-bold text-sm">{{ p.aula.data_hora_inicio|date:"d/m/Y" }}</span>
+                                <span class="text-[10px] text-slate-400 font-bold tracking-widest uppercase">{{ p.aula.data_hora_inicio|date:"H:i" }}</span>
+                            </div>
                         </td>
-                        <td>
-                            <a href="{% url 'aluno_detail' p.aluno.id %}" class="text-decoration-none fw-bold text-dark">
-                                {{ p.aluno.nome }}
+
+                        <!-- ALUNO -->
+                        <td class="py-6">
+                            <a href="{% url 'aluno_detail' p.aluno.id %}" class="flex items-center gap-3 group/link no-underline">
+                                <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-400 group-hover/link:bg-serene-blue/20 group-hover/link:text-serene-blue transition-colors">
+                                    {{ p.aluno.nome|slice:":1" }}
+                                </div>
+                                <span class="text-sm font-bold text-slate-600 group-hover/link:text-serene-blue transition-colors">{{ p.aluno.nome }}</span>
                             </a>
                         </td>
-                        <td>{{ p.aula.profissional.nome }}</td>
-                        <td>
+
+                        <!-- PROFISSIONAL -->
+                        <td class="py-6">
+                            <span class="text-sm font-medium text-slate-500">{{ p.aula.professional.nome }}</span>
+                        </td>
+
+                        <!-- STATUS (Badges Pastel) -->
+                        <td class="py-6 pr-8 text-center">
                             {% if p.status == 'PRESENTE' %}
-                                <span class="badge bg-success"><i class="fas fa-check"></i> Presente</span>
+                                <div class="badge bg-mint-green/20 border-none text-emerald-700 text-[10px] font-black py-4 px-5 rounded-xl">
+                                    <i class="fas fa-check mr-2 text-[8px]"></i> PRESENTE
+                                </div>
                             {% elif p.status == 'FALTA' %}
-                                <span class="badge bg-danger"><i class="fas fa-times"></i> Falta</span>
+                                <div class="badge bg-rose-50 border-none text-rose-600 text-[10px] font-black py-4 px-5 rounded-xl">
+                                    <i class="fas fa-times mr-2 text-[8px]"></i> FALTA
+                                </div>
                             {% elif p.status == 'FALTA_JUSTIFICADA' %}
-                                <span class="badge bg-warning text-dark">Justificada</span>
+                                <div class="badge bg-orange-50 border-none text-orange-600 text-[10px] font-black py-4 px-5 rounded-xl">
+                                    <i class="fas fa-exclamation mr-2 text-[8px]"></i> JUSTIFICADA
+                                </div>
                             {% else %}
-                                <span class="badge bg-secondary">Agendado</span>
+                                <div class="badge bg-slate-50 border-none text-slate-400 text-[10px] font-black py-4 px-5 rounded-xl">
+                                    AGENDADO
+                                </div>
                             {% endif %}
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="4" class="text-center py-5 text-muted">
-                            <i class="fas fa-search fa-2x mb-3"></i><br>
-                            Nenhum registro encontrado com esses filtros.
+                        <td colspan="4" class="py-24 text-center">
+                            <div class="flex flex-col items-center">
+                                <div class="w-20 h-20 bg-slate-50 rounded-[2.5rem] flex items-center justify-center text-slate-200 mb-6 border border-dashed border-slate-200">
+                                    <i class="fas fa-search text-4xl"></i>
+                                </div>
+                                <h3 class="text-slate-400 font-black uppercase text-sm tracking-widest">Nenhum registro encontrado</h3>
+                                <p class="text-slate-300 text-xs mt-2 italic">Tente ajustar os filtros acima para refinar sua busca.</p>
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}
@@ -105,4 +149,16 @@
         </div>
     </div>
 </div>
+
+<style>
+    /* Ocultar elementos desnecessários na impressão */
+    @media print {
+        .btn, form, header .btn { display: none !important; }
+        aside, nav { display: none !important; }
+        body { background: white !important; }
+        .max-w-7xl { max-width: 100% !important; padding: 0 !important; }
+        .shadow-xl, .shadow-sm { shadow: none !important; box-shadow: none !important; }
+        .bg-white { background: white !important; }
+    }
+</style>
 {% endblock %}

@@ -1,113 +1,183 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Dashboard Financeiro{% endblock %}
+{% block title %}Dashboard Financeiro - MayaCorp{% endblock %}
 
 {% block content %}
+<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<div class="container-fluid py-4">
+<div class="max-w-7xl mx-auto pb-16">
 
-    <!-- FILTRO ANO/MES -->
-    <form class="d-flex align-items-center gap-2 mb-4 bg-white p-3 rounded shadow-sm">
-        <h4 class="fw-bold text-success mb-0 me-auto"><i class="fas fa-chart-pie me-2"></i>Financeiro</h4>
-        <select name="mes" class="form-select" style="width: 150px;" onchange="this.form.submit()">
-            <option value="1" {% if mes_atual == 1 %}selected{% endif %}>Janeiro</option>
-            <!-- ... (repita os meses igual acima) ... -->
-            <option value="12" {% if mes_atual == 12 %}selected{% endif %}>Dezembro</option>
-        </select>
-        <select name="ano" class="form-select" style="width: 100px;" onchange="this.form.submit()">
-            <option value="2024" selected>2024</option> <!-- Simplifiquei, use o loop do view -->
-            <option value="2025">2025</option>
-        </select>
-    </form>
-
-    <!-- CARDS TOTAIS -->
-    <div class="row g-4 mb-4">
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm border-start border-4 border-success">
-                <div class="card-body">
-                    <h6 class="text-success fw-bold">Receitas (Pago)</h6>
-                    <h3 class="fw-bold">R$ {{ receita_mes|floatformat:2 }}</h3>
-                </div>
+    <!-- 1. HEADER E FILTROS (Glassmorphism Style) -->
+    <header class="bg-white/60 backdrop-blur-md rounded-[32px] border border-white p-6 mb-10 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6 animate-in fade-in duration-500">
+        <div class="flex items-center gap-4">
+            <div class="w-14 h-14 bg-soft-lavender/30 rounded-[22px] flex items-center justify-center text-purple-600 shadow-sm border border-white">
+                <i class="fas fa-chart-pie text-2xl"></i>
+            </div>
+            <div>
+                <h1 class="text-2xl font-black text-slate-800 tracking-tight">Saúde Financeira</h1>
+                <p class="text-[10px] text-slate-400 font-black uppercase tracking-[2px] mt-1">Análise de Fluxo e Contratos</p>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm border-start border-4 border-danger">
-                <div class="card-body">
-                    <h6 class="text-danger fw-bold">Despesas (Pago)</h6>
-                    <h3 class="fw-bold">R$ {{ despesa_mes|floatformat:2 }}</h3>
+        
+        <form class="flex items-center gap-3 bg-slate-50 p-2 rounded-[20px] border border-slate-100">
+            <span class="text-[9px] font-black text-slate-400 uppercase px-2 tracking-widest">Referência:</span>
+            <select name="mes" class="select select-sm bg-transparent border-none focus:outline-none font-bold text-slate-600" onchange="this.form.submit()">
+                <option value="1" {% if mes_atual == 1 %}selected{% endif %}>Janeiro</option>
+                <option value="2" {% if mes_atual == 2 %}selected{% endif %}>Fevereiro</option>
+                <option value="3" {% if mes_atual == 3 %}selected{% endif %}>Março</option>
+                <option value="4" {% if mes_atual == 4 %}selected{% endif %}>Abril</option>
+                <option value="5" {% if mes_atual == 5 %}selected{% endif %}>Maio</option>
+                <option value="6" {% if mes_atual == 6 %}selected{% endif %}>Junho</option>
+                <option value="7" {% if mes_atual == 7 %}selected{% endif %}>Julho</option>
+                <option value="8" {% if mes_atual == 8 %}selected{% endif %}>Agosto</option>
+                <option value="9" {% if mes_atual == 9 %}selected{% endif %}>Setembro</option>
+                <option value="10" {% if mes_atual == 10 %}selected{% endif %}>Outubro</option>
+                <option value="11" {% if mes_atual == 11 %}selected{% endif %}>Novembro</option>
+                <option value="12" {% if mes_atual == 12 %}selected{% endif %}>Dezembro</option>
+            </select>
+            <div class="h-4 w-[1px] bg-slate-200"></div>
+            <select name="ano" class="select select-sm bg-transparent border-none focus:outline-none font-bold text-slate-600" onchange="this.form.submit()">
+                <option value="2024" {% if ano_atual == 2024 %}selected{% endif %}>2024</option>
+                <option value="2025" {% if ano_atual == 2025 %}selected{% endif %}>2025</option>
+            </select>
+        </form>
+    </header>
+
+    <!-- 2. CARDS TOTAIS (Soft UI Impact) -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
+        
+        <!-- Receitas -->
+        <div class="bg-white p-8 rounded-[40px] shadow-xl shadow-slate-200/40 border border-white group transition-all hover:-translate-y-1">
+            <div class="flex items-center gap-5 mb-6">
+                <div class="w-12 h-12 bg-mint-green/20 rounded-2xl flex items-center justify-center text-emerald-600">
+                    <i class="fas fa-arrow-trend-up"></i>
                 </div>
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Receitas (Efetivado)</span>
+            </div>
+            <div class="text-3xl font-black text-emerald-600 italic tracking-tighter">
+                <span class="text-sm not-italic mr-1 opacity-40">R$</span> {{ receita_mes|floatformat:2 }}
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm border-start border-4 {% if resultado_mes < 0 %}border-danger{% else %}border-primary{% endif %}">
-                <div class="card-body">
-                    <h6 class="text-muted fw-bold">Resultado</h6>
-                    <h3 class="fw-bold {% if resultado_mes < 0 %}text-danger{% else %}text-primary{% endif %}">
-                        R$ {{ resultado_mes|floatformat:2 }}
-                    </h3>
+
+        <!-- Despesas -->
+        <div class="bg-white p-8 rounded-[40px] shadow-xl shadow-slate-200/40 border border-white group transition-all hover:-translate-y-1">
+            <div class="flex items-center gap-5 mb-6">
+                <div class="w-12 h-12 bg-rose-50 rounded-2xl flex items-center justify-center text-rose-500">
+                    <i class="fas fa-arrow-trend-down"></i>
                 </div>
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Despesas (Pago)</span>
+            </div>
+            <div class="text-3xl font-black text-rose-500 italic tracking-tighter">
+                <span class="text-sm not-italic mr-1 opacity-40">R$</span> {{ despesa_mes|floatformat:2 }}
+            </div>
+        </div>
+
+        <!-- Resultado (Lavender) -->
+        <div class="bg-white p-8 rounded-[40px] shadow-xl shadow-slate-200/40 border border-white group transition-all hover:-translate-y-1">
+            <div class="flex items-center gap-5 mb-6">
+                <div class="w-12 h-12 bg-soft-lavender/30 rounded-2xl flex items-center justify-center text-purple-600 shadow-sm border border-purple-50">
+                    <i class="fas fa-scale-balanced"></i>
+                </div>
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Resultado Líquido</span>
+            </div>
+            <div class="text-3xl font-black italic tracking-tighter transition-colors 
+                        {% if resultado_mes < 0 %}text-rose-600{% else %}text-purple-600{% endif %}">
+                <span class="text-sm not-italic mr-1 opacity-40">R$</span> {{ resultado_mes|floatformat:2 }}
             </div>
         </div>
     </div>
 
-    <!-- GRÁFICO ANUAL -->
-    <div class="card border-0 shadow-sm mb-4">
-        <div class="card-body">
-            <h5 class="card-title fw-bold mb-4">Evolução Anual (Receitas x Despesas)</h5>
-            <div style="height: 300px;">
-                <canvas id="financeChart"></canvas>
+    <!-- 3. GRÁFICO ANUAL (Card Master) -->
+    <div class="bg-white p-10 rounded-[45px] shadow-2xl shadow-slate-200/50 border border-white mb-10 transition-all">
+        <div class="flex items-center justify-between mb-10 px-2">
+            <div class="flex items-center gap-3">
+                <div class="w-2 h-6 bg-serene-blue rounded-full"></div>
+                <h3 class="font-black text-slate-700 uppercase text-xs tracking-[3px]">Evolução Anual: Fluxo de Caixa</h3>
             </div>
+            <div class="flex gap-4">
+                <div class="flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-mint-green"></div>
+                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Receitas</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-rose-300"></div>
+                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Despesas</span>
+                </div>
+            </div>
+        </div>
+        <div class="h-[350px]">
+            <canvas id="financeChart"></canvas>
         </div>
     </div>
 
-    <div class="row g-4">
-        <!-- CONTRATOS NOVOS -->
-        <div class="col-md-6">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-info text-white fw-bold">Contratos Novos (Este Mês)</div>
-                <div class="list-group list-group-flush">
-                    {% for c in contratos_novos %}
-                        <div class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <strong>{{ c.aluno.nome }}</strong><br>
-                                <small>{{ c.plano.nome }}</small>
-                            </div>
-                            <span class="badge bg-light text-dark">R$ {{ c.valor_total }}</span>
+    <!-- 4. BOTTOM GRID (Rankings e Alertas) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+        
+        <!-- Contratos Novos -->
+        <div class="bg-white rounded-[40px] shadow-xl shadow-slate-200/50 border border-white overflow-hidden">
+            <div class="p-8 bg-mint-green/10 border-b border-mint-green/10 flex justify-between items-center">
+                <h3 class="font-black text-emerald-800 uppercase text-[10px] tracking-[3px]">Novas Vendas (Mês)</h3>
+                <i class="fas fa-plus-circle text-emerald-500"></i>
+            </div>
+            <div class="divide-y divide-slate-50">
+                {% for c in contratos_novos %}
+                    <div class="p-6 flex justify-between items-center hover:bg-slate-50 transition-colors">
+                        <div class="flex flex-col">
+                            <span class="text-sm font-black text-slate-700 tracking-tight">{{ c.aluno.nome }}</span>
+                            <span class="text-[10px] text-slate-400 font-bold uppercase mt-1">{{ c.plano.nome }}</span>
                         </div>
-                    {% empty %}
-                        <div class="p-3 text-center text-muted">Nenhum contrato novo.</div>
-                    {% endfor %}
-                </div>
+                        <div class="text-sm font-black italic text-emerald-500">
+                            <span class="text-[10px] not-italic mr-1">R$</span>{{ c.valor_total }}
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="p-16 text-center text-slate-300 italic text-sm">Sem novas vendas registradas.</div>
+                {% endfor %}
             </div>
         </div>
 
-        <!-- CONTRATOS VENCENDO -->
-        <div class="col-md-6">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-warning text-dark fw-bold">Contratos Vencendo (Este Mês)</div>
-                <div class="list-group list-group-flush">
-                    {% for c in contratos_vencendo %}
-                        <div class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <strong>{{ c.aluno.nome }}</strong><br>
-                                <small class="text-danger">Vence: {{ c.data_fim|date:"d/m" }}</small>
-                            </div>
-                            <a href="{% url 'novo_contrato' c.aluno.id %}" class="btn btn-sm btn-outline-primary">Renovar</a>
+        <!-- Contratos Vencendo -->
+        <div class="bg-white rounded-[40px] shadow-xl shadow-slate-200/50 border border-white overflow-hidden">
+            <div class="p-8 bg-orange-50 border-b border-orange-100 flex justify-between items-center">
+                <h3 class="font-black text-orange-800 uppercase text-[10px] tracking-[3px]">Vencimentos Próximos</h3>
+                <i class="fas fa-hourglass-half text-orange-400"></i>
+            </div>
+            <div class="divide-y divide-slate-50">
+                {% for c in contratos_vencendo %}
+                    <div class="p-6 flex justify-between items-center hover:bg-slate-50 transition-colors group">
+                        <div class="flex flex-col">
+                            <span class="text-sm font-black text-slate-700 tracking-tight group-hover:text-orange-600 transition-colors">{{ c.aluno.nome }}</span>
+                            <span class="text-[10px] text-rose-400 font-black uppercase mt-1">
+                                <i class="far fa-calendar-times mr-1"></i> Vence em: {{ c.data_fim|date:"d/m" }}
+                            </span>
                         </div>
-                    {% empty %}
-                        <div class="p-3 text-center text-muted">Nenhum vencimento.</div>
-                    {% endfor %}
-                </div>
+                        <a href="{% url 'novo_contrato' c.aluno.id %}" class="btn btn-sm rounded-xl bg-orange-100 border-none text-orange-700 font-black uppercase text-[9px] hover:bg-orange-500 hover:text-white transition-all">
+                            Renovar
+                        </a>
+                    </div>
+                {% empty %}
+                    <div class="p-16 text-center text-slate-300 italic text-sm">Tudo em dia! Sem vencimentos.</div>
+                {% endfor %}
             </div>
         </div>
     </div>
-
 </div>
 
+<!-- CONFIGURAÇÃO DO GRÁFICO (Estilo MayaCorp Finance) -->
 <script>
     const ctxF = document.getElementById('financeChart').getContext('2d');
+    
+    // Gradientes Suaves
+    const gradientRevenue = ctxF.createLinearGradient(0, 0, 0, 400);
+    gradientRevenue.addColorStop(0, 'rgba(178, 242, 187, 0.4)');
+    gradientRevenue.addColorStop(1, 'rgba(178, 242, 187, 0)');
+
+    const gradientExpenses = ctxF.createLinearGradient(0, 0, 0, 400);
+    gradientExpenses.addColorStop(0, 'rgba(251, 213, 213, 0.4)');
+    gradientExpenses.addColorStop(1, 'rgba(251, 213, 213, 0)');
+
     new Chart(ctxF, {
         type: 'line',
         data: {
@@ -116,22 +186,51 @@
                 {
                     label: 'Receitas',
                     data: {{ chart_receita|safe }},
-                    borderColor: '#198754',
-                    backgroundColor: 'rgba(25, 135, 84, 0.1)',
+                    borderColor: '#B2F2BB', // Mint Green
+                    backgroundColor: gradientRevenue,
                     fill: true,
-                    tension: 0.4
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointHoverRadius: 8,
+                    borderWidth: 4
                 },
                 {
                     label: 'Despesas',
                     data: {{ chart_despesa|safe }},
-                    borderColor: '#dc3545',
-                    backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                    borderColor: '#FBD5D5', // Soft Rose
+                    backgroundColor: gradientExpenses,
                     fill: true,
-                    tension: 0.4
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointHoverRadius: 8,
+                    borderWidth: 4
                 }
             ]
         },
-        options: { responsive: true, maintainAspectRatio: false }
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false } // Usamos nossa própria legenda no HTML
+            },
+            scales: {
+                y: { 
+                    beginAtZero: true,
+                    grid: { color: '#F8FAFC', drawBorder: false },
+                    ticks: { color: '#94A3B8', font: { size: 10, weight: '700' } }
+                },
+                x: { 
+                    grid: { display: false },
+                    ticks: { color: '#94A3B8', font: { size: 10, weight: '700' } }
+                }
+            }
+        }
     });
 </script>
+
+<style>
+    /* Suavização de scroll para listas internas */
+    .custom-scroll::-webkit-scrollbar { width: 4px; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #F1F5F9; border-radius: 10px; }
+</style>
 {% endblock %}

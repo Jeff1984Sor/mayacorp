@@ -1,51 +1,105 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Modelos de Contrato{% endblock %}
+{% block title %}Modelos de Contrato - MayaCorp{% endblock %}
 
 {% block content %}
-<div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3 class="fw-bold text-dark"><i class="fas fa-file-signature me-2"></i>Modelos de Contrato</h3>
-        <a href="{% url 'template_create' %}" class="btn btn-primary fw-bold">
-            <i class="fas fa-plus"></i> Novo Modelo
+<div class="max-w-6xl mx-auto pb-10">
+    
+    <!-- HEADER -->
+    <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4 px-2">
+        <div class="flex items-center gap-4">
+            <div class="w-14 h-14 bg-soft-lavender/30 rounded-[22px] flex items-center justify-center text-purple-600 shadow-sm border border-white">
+                <i class="fas fa-file-signature text-2xl"></i>
+            </div>
+            <div>
+                <h1 class="text-3xl font-black text-slate-800 tracking-tight">Modelos de Contrato</h1>
+                <p class="text-[10px] text-slate-400 font-black uppercase tracking-[2px] mt-1">
+                    Gerencie os textos e cláusulas padrão do estúdio
+                </p>
+            </div>
+        </div>
+        
+        <a href="{% url 'template_create' %}" 
+           class="btn bg-serene-blue border-none text-white rounded-2xl px-8 h-14 shadow-xl shadow-blue-200 hover:bg-blue-400 hover:scale-[1.02] transition-all normal-case font-black italic">
+            <i class="fas fa-plus mr-2 text-xs"></i> Novo Modelo
         </a>
-    </div>
+    </header>
 
-    <div class="card shadow-sm border-0">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th>Nome do Modelo</th>
-                        <th>Status</th>
-                        <th class="text-end">Ações</th>
+    <!-- LISTA DE MODELOS (Card Soft UI) -->
+    <div class="bg-white rounded-[40px] shadow-2xl shadow-slate-200/50 overflow-hidden border border-white">
+        <div class="overflow-x-auto">
+            <table class="table w-full border-collapse">
+                <!-- CABEÇALHO -->
+                <thead>
+                    <tr class="border-b border-slate-50">
+                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[2px] font-black py-8 pl-10">Identificação do Modelo</th>
+                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[2px] font-black py-8 text-center">Status de Uso</th>
+                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[2px] font-black py-8 pr-10 text-right">Ações</th>
                     </tr>
                 </thead>
-                <tbody>
+                
+                <tbody class="divide-y divide-slate-50">
                     {% for t in templates %}
-                    <tr>
-                        <td class="fw-bold">{{ t.nome }}</td>
-                        <td>
+                    <tr class="hover:bg-slate-50/50 transition-colors group">
+                        
+                        <!-- NOME DO MODELO -->
+                        <td class="py-6 pl-10">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-300 group-hover:bg-soft-lavender/20 group-hover:text-purple-600 transition-all">
+                                    <i class="fas fa-file-lines text-xs"></i>
+                                </div>
+                                <div class="flex flex-col">
+                                    <span class="text-slate-800 font-black text-sm tracking-tight group-hover:text-purple-600 transition-colors">{{ t.nome }}</span>
+                                    <span class="text-[9px] text-slate-300 font-bold uppercase tracking-widest mt-1 italic">Versão Digital</span>
+                                </div>
+                            </div>
+                        </td>
+
+                        <!-- STATUS (Badge Soft UI) -->
+                        <td class="py-6 text-center">
                             {% if t.ativo %}
-                                <span class="badge bg-success">Ativo</span>
+                                <div class="badge bg-mint-green/20 border-none text-emerald-700 text-[10px] font-black py-3 px-5 rounded-xl uppercase tracking-tighter shadow-sm shadow-mint-green/10">
+                                    <i class="fas fa-check-circle mr-2 text-[8px]"></i> Ativo
+                                </div>
                             {% else %}
-                                <span class="badge bg-secondary">Inativo</span>
+                                <div class="badge bg-slate-100 border-none text-slate-400 text-[10px] font-black py-3 px-5 rounded-xl uppercase tracking-tighter">
+                                    Inativo
+                                </div>
                             {% endif %}
                         </td>
-                        <td class="text-end">
-                            <a href="{% url 'template_update' t.pk %}" class="btn btn-sm btn-outline-primary"><i class="fas fa-pen"></i> Editar</a>
+
+                        <!-- AÇÕES -->
+                        <td class="py-6 pr-10 text-right">
+                            <div class="flex justify-end gap-2">
+                                <a href="{% url 'template_update' t.pk %}" 
+                                   class="btn btn-ghost bg-slate-50 hover:bg-serene-blue/10 rounded-xl text-slate-500 hover:text-serene-blue normal-case font-bold px-6 py-2 h-auto min-h-0 text-xs transition-all border-none">
+                                    <i class="fas fa-pen mr-2 text-[10px]"></i> Editar Modelo
+                                </a>
+                            </div>
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="3" class="text-center py-5 text-muted">
-                            Nenhum modelo cadastrado. Crie o primeiro!
+                        <td colspan="3" class="py-32 text-center">
+                            <div class="flex flex-col items-center">
+                                <div class="w-24 h-24 bg-slate-50 rounded-[3rem] flex items-center justify-center text-slate-200 mb-6 border border-dashed border-slate-200">
+                                    <i class="fas fa-file-signature text-4xl"></i>
+                                </div>
+                                <h3 class="text-slate-400 font-black uppercase text-sm tracking-widest">Nenhum modelo cadastrado</h3>
+                                <p class="text-slate-300 text-xs mt-2 italic">Crie seu primeiro contrato padrão para começar a vender planos.</p>
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
+    </div>
+
+    <!-- RODAPÉ -->
+    <div class="mt-12 text-center">
+        <p class="text-[10px] text-slate-300 font-bold uppercase tracking-[3px]">MayaCorp Document Template Engine v2.0</p>
     </div>
 </div>
 {% endblock %}

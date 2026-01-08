@@ -1,22 +1,100 @@
 {% extends 'base.html' %}
-{% block title %}Contas Bancárias{% endblock %}
+{% load static %}
+
+{% block title %}Contas e Caixas - MayaCorp{% endblock %}
+
 {% block content %}
-<div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3><i class="fas fa-wallet me-2"></i>Contas / Caixas</h3>
-        <a href="{% url 'conta_create' %}" class="btn btn-primary"><i class="fas fa-plus"></i> Nova Conta</a>
-    </div>
-    <div class="card shadow-sm">
-        <ul class="list-group list-group-flush">
+<div class="max-w-4xl mx-auto pb-10">
+    
+    <!-- HEADER -->
+    <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4 px-2">
+        <div class="flex items-center gap-4">
+            <div class="w-14 h-14 bg-soft-lavender/30 rounded-[22px] flex items-center justify-center text-purple-600 shadow-sm border border-white">
+                <i class="fas fa-wallet text-2xl"></i>
+            </div>
+            <div>
+                <h1 class="text-3xl font-black text-slate-800 tracking-tight">Contas e Caixas</h1>
+                <p class="text-[10px] text-slate-400 font-black uppercase tracking-[2px] mt-1">
+                    Gestão de saldos e disponibilidades
+                </p>
+            </div>
+        </div>
+        
+        <a href="{% url 'conta_create' %}" 
+           class="btn bg-serene-blue border-none text-white rounded-2xl px-8 h-14 shadow-xl shadow-blue-200 hover:bg-blue-400 hover:scale-[1.02] transition-all normal-case font-black italic">
+            <i class="fas fa-plus mr-2 text-xs"></i> Nova Conta
+        </a>
+    </header>
+
+    <!-- LISTA DE CONTAS (Card Soft UI) -->
+    <div class="bg-white rounded-[40px] shadow-2xl shadow-slate-200/50 border border-white overflow-hidden animate-in fade-in duration-500">
+        <div class="divide-y divide-slate-50">
             {% for conta in contas %}
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <span class="fw-bold">{{ conta.nome }}</span>
-                    <span class="text-muted">Saldo Atual: R$ {{ conta.saldo_atual }}</span>
-                </li>
+            <div class="group flex items-center justify-between p-6 md:p-10 hover:bg-slate-50/50 transition-all">
+                
+                <!-- Nome da Conta -->
+                <div class="flex items-center gap-6">
+                    <div class="w-14 h-14 bg-slate-50 rounded-[20px] flex items-center justify-center text-slate-300 group-hover:bg-soft-lavender/20 group-hover:text-purple-600 transition-colors duration-500 shadow-inner">
+                        <i class="fas fa-bank text-sm"></i>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-slate-800 font-black text-lg tracking-tight">{{ conta.nome }}</span>
+                        <span class="text-[9px] text-slate-300 font-bold uppercase tracking-widest mt-1 italic">Conta Corrente / Caixa</span>
+                    </div>
+                </div>
+
+                <!-- Saldo (Estilo Lavender) -->
+                <div class="text-right">
+                    <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1">Saldo Atual</p>
+                    <div class="text-purple-600 font-black text-2xl italic tracking-tighter group-hover:scale-105 transition-transform">
+                        <span class="text-sm not-italic mr-1 text-purple-300">R$</span>{{ conta.saldo_atual }}
+                    </div>
+                </div>
+
+            </div>
             {% empty %}
-                <li class="list-group-item text-center text-muted">Nenhuma conta cadastrada.</li>
+            <div class="py-24 text-center">
+                <div class="flex flex-col items-center">
+                    <div class="w-20 h-20 bg-slate-50 rounded-[2.5rem] flex items-center justify-center text-slate-200 mb-6 border border-dashed border-slate-200">
+                        <i class="fas fa-piggy-bank text-4xl"></i>
+                    </div>
+                    <h3 class="text-slate-400 font-black uppercase text-sm tracking-widest">Nenhuma conta encontrada</h3>
+                    <p class="text-slate-300 text-xs mt-2 italic">Cadastre bancos ou caixas internos para gerir seus saldos.</p>
+                </div>
+            </div>
             {% endfor %}
-        </ul>
+        </div>
+        
+        <!-- RESUMO TOTAL NO RODAPÉ DO CARD -->
+        {% if contas %}
+        <div class="bg-slate-50/50 p-8 border-t border-slate-50 flex justify-between items-center">
+            <span class="text-[10px] font-black text-slate-400 uppercase tracking-[3px]">Consolidado Total</span>
+            <div class="flex items-baseline gap-2">
+                <span class="text-xs font-bold text-slate-400">R$</span>
+                <span class="text-3xl font-black text-slate-700 tracking-tighter" id="total-geral">---</span>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- BOTÕES DE AJUDA -->
+    <div class="mt-12 flex justify-center gap-4">
+        <button class="btn btn-ghost btn-sm text-slate-300 font-bold hover:text-serene-blue normal-case">
+            <i class="fas fa-print mr-2"></i> Imprimir Extrato Geral
+        </button>
+        <button class="btn btn-ghost btn-sm text-slate-300 font-bold hover:text-serene-blue normal-case">
+            <i class="fas fa-exchange-alt mr-2"></i> Transferência entre Contas
+        </button>
     </div>
 </div>
+
+<script>
+    // Lógica simples para somar os saldos na tela (opcional)
+    document.addEventListener('DOMContentLoaded', function() {
+        let total = 0;
+        // Seus saldos vêm formatados, aqui é só um exemplo de como você poderia injetar o valor real
+        // total = ... soma dos saldos ...
+        // document.getElementById('total-geral').innerText = total.toLocaleString('pt-BR');
+    });
+</script>
 {% endblock %}

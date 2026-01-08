@@ -1,32 +1,62 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Confirmar Exclusão - MayaCorp{% endblock %}
 
 {% block content %}
-<div class="container py-5" style="max-width: 600px;">
-    <div class="card shadow-sm border-danger">
-        <div class="card-header bg-danger text-white fw-bold">
-            ⚠️ Confirmar Exclusão
+<div class="max-w-xl mx-auto py-12">
+    
+    <!-- CARD PRINCIPAL (Soft UI Danger Style) -->
+    <div class="bg-white rounded-[40px] shadow-2xl shadow-rose-100/50 border border-rose-50 overflow-hidden animate-in fade-in zoom-in duration-300">
+        
+        <!-- ÍCONE DE ALERTA -->
+        <div class="bg-rose-50 py-12 flex justify-center">
+            <div class="w-24 h-24 bg-white rounded-[2rem] shadow-lg shadow-rose-200/50 flex items-center justify-center text-rose-500 animate-bounce">
+                <i class="fas fa-trash-alt text-3xl"></i>
+            </div>
         </div>
-        <div class="card-body text-center">
-            <h4 class="mb-4 text-danger">Tem certeza que deseja excluir?</h4>
+
+        <div class="p-8 md:p-12 text-center">
+            <h1 class="text-3xl font-black text-slate-800 tracking-tight mb-4">Confirmar Exclusão?</h1>
             
-            <p class="lead">
-                Você está prestes a excluir o aluno: <br>
-                <strong>{{ object.nome }}</strong>
+            <p class="text-slate-500 font-medium leading-relaxed">
+                Você está prestes a remover permanentemente o registro de:
             </p>
             
-            <div class="alert alert-warning mt-3">
-                <i class="fas fa-exclamation-triangle"></i>
-                Esta ação não pode ser desfeita. Todo o histórico do aluno será apagado.
+            <!-- NOME DO OBJETO EM DESTAQUE -->
+            <div class="my-6 p-6 bg-slate-50 rounded-3xl border border-slate-100">
+                <span class="text-2xl font-black text-slate-700 italic">"{{ object.nome }}"</span>
+            </div>
+            
+            <!-- AVISO DE SEGURANÇA (Pílula Soft) -->
+            <div class="inline-flex items-center gap-3 bg-rose-50/50 px-6 py-3 rounded-2xl border border-rose-100 mb-10">
+                <i class="fas fa-exclamation-triangle text-rose-400 text-sm"></i>
+                <span class="text-[11px] font-black text-rose-600 uppercase tracking-widest">Esta ação é irreversível</span>
             </div>
 
-            <form method="post" class="mt-4">
+            <!-- FORMULÁRIO DE AÇÕES -->
+            <form method="post">
                 {% csrf_token %}
                 
-                <div class="d-grid gap-2 d-md-flex justify-content-center">
-                    <a href="{% url 'aluno_list' %}" class="btn btn-secondary px-4">Cancelar</a>
-                    <button type="submit" class="btn btn-danger px-4">Sim, Excluir Definitivamente</button>
+                <div class="flex flex-col md:flex-row gap-4 justify-center">
+                    <!-- CANCELAR (Botão Fantasma) -->
+                    <a href="{% url 'aluno_list' %}" 
+                       class="btn btn-ghost flex-1 h-14 rounded-2xl text-slate-400 font-bold hover:bg-slate-100 normal-case">
+                        Não, manter registro
+                    </a>
+
+                    <!-- EXCLUIR (Botão de Ação Forte) -->
+                    <button type="submit" 
+                            class="btn flex-1 h-14 bg-rose-500 hover:bg-rose-600 border-none text-white font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-rose-200 transition-all hover:scale-[1.02]">
+                        Sim, Excluir
+                    </button>
                 </div>
             </form>
+        </div>
+        
+        <!-- RODAPÉ DO CARD -->
+        <div class="bg-slate-50/50 py-4 text-center border-t border-slate-50">
+            <p class="text-[10px] text-slate-300 font-bold uppercase tracking-[2px]">MayaCorp Security Protocol</p>
         </div>
     </div>
 </div>

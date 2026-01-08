@@ -1,185 +1,233 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Financeiro{% endblock %}
+{% block title %}Financeiro - MayaCorp{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4">
+<div class="max-w-7xl mx-auto pb-20">
 
-    <!-- CABEÇALHO INTELIGENTE -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div class="d-flex align-items-center gap-3">
-            <div>
-                {% if aluno_filtro %}
-                    <h3 class="fw-bold text-dark mb-0"><i class="fas fa-user-tag me-2"></i>Extrato: {{ aluno_filtro.nome }}</h3>
-                    <a href="{% url 'aluno_detail' aluno_filtro.id %}" class="small text-decoration-none">Voltar para ficha do aluno</a>
-                {% else %}
-                    <h3 class="fw-bold text-dark mb-0"><i class="fas fa-chart-pie me-2"></i>Fluxo de Caixa Geral</h3>
-                {% endif %}
-            </div>
-            
-            <!-- BOTÃO NOVA DESPESA (Só aparece no geral) -->
-            {% if not aluno_filtro %}
-                <a href="{% url 'despesa_create' %}" class="btn btn-danger btn-sm fw-bold shadow-sm">
-                    <i class="fas fa-minus-circle me-1"></i> Pagar Conta
+    <!-- 1. CABEÇALHO INTELIGENTE E WIDGETS DE RESUMO -->
+    <header class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-10 gap-8 px-2 animate-in fade-in duration-700">
+        <div>
+            {% if aluno_filtro %}
+                <div class="flex items-center gap-4 mb-2">
+                    <div class="w-12 h-12 bg-serene-blue/20 rounded-2xl flex items-center justify-center text-serene-blue shadow-sm">
+                        <i class="fas fa-user-tag text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-black text-slate-800 tracking-tight">Extrato: {{ aluno_filtro.nome }}</h1>
+                        <a href="{% url 'aluno_detail' aluno_filtro.id %}" class="text-[10px] font-black text-serene-blue uppercase tracking-widest hover:underline">
+                            <i class="fas fa-arrow-left mr-1"></i> Voltar para ficha do aluno
+                        </a>
+                    </div>
+                </div>
+            {% else %}
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="w-14 h-14 bg-soft-lavender/30 rounded-[22px] flex items-center justify-center text-purple-600 shadow-sm border border-white">
+                        <i class="fas fa-chart-pie text-2xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-3xl font-black text-slate-800 tracking-tight">Fluxo de Caixa</h1>
+                        <p class="text-[10px] text-slate-400 font-black uppercase tracking-[2px] mt-1">Gestão financeira consolidada</p>
+                    </div>
+                </div>
+                
+                <a href="{% url 'despesa_create' %}" class="btn bg-rose-400 border-none text-white rounded-2xl px-6 h-12 shadow-lg shadow-rose-200 hover:bg-rose-500 transition-all normal-case font-black italic">
+                    <i class="fas fa-minus-circle mr-2"></i> Pagar Conta (Despesa)
                 </a>
             {% endif %}
         </div>
         
-        <div class="text-end">
-            <span class="badge bg-success fs-6 p-2 me-2 shadow-sm">
-                Receitas: R$ {{ total_receitas|floatformat:2 }}
-            </span>
-            <span class="badge bg-danger fs-6 p-2 shadow-sm">
-                Despesas: R$ {{ total_despesas|floatformat:2 }}
-            </span>
+        <!-- Widgets de Totais (Soft UI Cards) -->
+        <div class="flex flex-wrap gap-4 justify-end">
+            <div class="bg-white p-5 rounded-[28px] shadow-xl shadow-slate-200/50 border border-white min-w-[180px] text-right group hover:scale-105 transition-all">
+                <p class="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1">Receitas</p>
+                <div class="text-emerald-500 font-black text-xl italic tracking-tighter">
+                    <span class="text-xs not-italic mr-1 opacity-40">R$</span>{{ total_receitas|floatformat:2 }}
+                </div>
+            </div>
+            <div class="bg-white p-5 rounded-[28px] shadow-xl shadow-slate-200/50 border border-white min-w-[180px] text-right group hover:scale-105 transition-all">
+                <p class="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1">Despesas</p>
+                <div class="text-rose-400 font-black text-xl italic tracking-tighter">
+                    <span class="text-xs not-italic mr-1 opacity-40">R$</span>{{ total_despesas|floatformat:2 }}
+                </div>
+            </div>
         </div>
-    </div>
+    </header>
 
-    <!-- FILTROS (Esconde se estiver vendo só um aluno para limpar a tela) -->
+    <!-- 2. BARRA DE FILTROS (Fundo Glassmorphism) -->
     {% if not aluno_filtro %}
-    <div class="card shadow-sm mb-4">
-        <div class="card-body py-2">
-            <form method="get" class="row g-2 align-items-center">
-                <div class="col-auto">
-                    <select name="status" class="form-select form-select-sm">
-                        <option value="">Todos Status</option>
-                        <option value="PENDENTE">Pendente</option>
-                        <option value="PAGO">Pago</option>
-                    </select>
+    <section class="bg-white/60 backdrop-blur-md rounded-[28px] border border-white p-4 mb-8 shadow-sm">
+        <form method="get" class="flex flex-wrap items-center justify-between gap-4">
+            <div class="flex flex-wrap items-center gap-3">
+                <select name="status" class="select select-sm bg-slate-50 border-slate-100 rounded-xl focus:outline-none text-slate-600 font-bold">
+                    <option value="">Todos Status</option>
+                    <option value="PENDENTE">Pendente</option>
+                    <option value="PAGO">Pago</option>
+                </select>
+                
+                <div class="join bg-slate-50 p-1 rounded-xl border border-slate-100">
+                    <input type="date" name="inicio" class="input input-sm join-item bg-transparent border-none focus:outline-none text-xs font-bold text-slate-500">
+                    <span class="join-item flex items-center px-2 text-slate-300 text-xs">até</span>
+                    <input type="date" name="fim" class="input input-sm join-item bg-transparent border-none focus:outline-none text-xs font-bold text-slate-500">
                 </div>
-                <div class="col-auto">
-                    <input type="date" name="inicio" class="form-control form-control-sm">
-                </div>
-                <div class="col-auto">
-                    <input type="date" name="fim" class="form-control form-control-sm">
-                </div>
-                <div class="col-auto">
-                    <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-filter"></i> Filtrar</button>
-                    <a href="{% url 'financeiro_lista' %}" class="btn btn-outline-secondary btn-sm">Limpar</a>
-                </div>
-            </form>
-        </div>
-    </div>
+                
+                <button type="submit" class="btn btn-sm bg-serene-blue border-none text-white rounded-xl px-6 font-black italic shadow-lg shadow-blue-100">
+                    Filtrar
+                </button>
+            </div>
+            
+            <a href="{% url 'financeiro_lista' %}" class="btn btn-sm btn-ghost text-slate-300 hover:text-slate-500 font-bold normal-case">
+                Limpar Filtros
+            </a>
+        </form>
+    </section>
     {% endif %}
 
-    <!-- TABELA DE LANÇAMENTOS -->
-    <div class="card shadow-sm border-0">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th>Vencimento</th>
-                        <th>Descrição</th>
-                        {% if not aluno_filtro %}<th>Categoria / Aluno</th>{% endif %}
-                        <th>Valor</th>
-                        <th class="text-center">Situação</th>
-                        <th class="text-end">Ações</th>
+    <!-- 3. TABELA DE LANÇAMENTOS (Card Soft UI) -->
+    <div class="bg-white rounded-[45px] shadow-2xl shadow-slate-200/50 overflow-hidden border border-white">
+        <div class="overflow-x-auto">
+            <table class="table w-full border-collapse">
+                <thead>
+                    <tr class="border-b border-slate-50">
+                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[3px] font-black py-8 pl-12">Vencimento</th>
+                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[3px] font-black py-8">Descrição Detalhada</th>
+                        {% if not aluno_filtro %}
+                            <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[3px] font-black py-8 text-center">Classificação</th>
+                        {% endif %}
+                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[3px] font-black py-8 text-center">Valor Bruto</th>
+                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[3px] font-black py-8 text-center">Situação</th>
+                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[3px] font-black py-8 pr-12 text-right">Gestão</th>
                     </tr>
                 </thead>
-                <tbody>
+                
+                <tbody class="divide-y divide-slate-50">
                     {% for lanc in lancamentos %}
-                    <tr>
-                        <td>
-                            <div class="fw-bold">{{ lanc.data_vencimento|date:"d/m/Y" }}</div>
-                            {% if lanc.status == 'PAGO' %}
-                                <small class="text-success"><i class="fas fa-check-circle"></i> Pago em {{ lanc.data_pagamento|date:"d/m" }}</small>
-                            {% endif %}
+                    <tr class="hover:bg-slate-50/50 transition-all group">
+                        
+                        <!-- VENCIMENTO -->
+                        <td class="py-8 pl-12">
+                            <div class="flex flex-col">
+                                <span class="text-slate-800 font-bold text-sm">{{ lanc.data_vencimento|date:"d/m/Y" }}</span>
+                                {% if lanc.status == 'PAGO' %}
+                                    <span class="text-[9px] text-emerald-500 font-black uppercase mt-1">
+                                        <i class="fas fa-check-circle mr-1"></i> Pago {{ lanc.data_pagamento|date:"d/m" }}
+                                    </span>
+                                {% endif %}
+                            </div>
                         </td>
-                        <td>
-                            {{ lanc.descricao }}
+
+                        <!-- DESCRIÇÃO -->
+                        <td class="py-8">
+                            <span class="text-sm font-bold text-slate-700 group-hover:text-serene-blue transition-colors">{{ lanc.descricao }}</span>
                         </td>
                         
                         {% if not aluno_filtro %}
-                        <td>
-                            <div class="d-flex flex-column">
-                                <!-- Categoria -->
-                                <span class="badge w-auto align-self-start mb-1 {% if lanc.categoria.tipo == 'RECEITA' %}bg-success bg-opacity-10 text-success{% else %}bg-danger bg-opacity-10 text-danger{% endif %}">
+                        <!-- CATEGORIA / ALUNO -->
+                        <td class="py-8 text-center">
+                            <div class="flex flex-col items-center gap-2">
+                                <span class="badge {% if lanc.categoria.tipo == 'RECEITA' %}bg-mint-green/10 text-emerald-700{% else %}bg-rose-50 text-rose-500{% endif %} border-none text-[9px] font-black px-3 py-3 rounded-lg uppercase">
                                     {{ lanc.categoria.nome }}
                                 </span>
-                                <!-- Aluno -->
                                 {% if lanc.aluno %}
-                                    <a href="{% url 'aluno_detail' lanc.aluno.id %}" class="text-decoration-none small fw-bold text-dark">{{ lanc.aluno.nome }}</a>
+                                    <a href="{% url 'aluno_detail' lanc.aluno.id %}" class="text-[10px] font-bold text-slate-400 hover:text-serene-blue transition-colors italic">
+                                        {{ lanc.aluno.nome }}
+                                    </a>
                                 {% endif %}
                             </div>
                         </td>
                         {% endif %}
 
-                        <td class="fw-bold {% if lanc.categoria.tipo == 'RECEITA' %}text-success{% else %}text-danger{% endif %}">
-                            R$ {{ lanc.valor|floatformat:2 }}
+                        <!-- VALOR -->
+                        <td class="py-8 text-center">
+                            <div class="text-sm font-black italic tracking-tight {% if lanc.categoria.tipo == 'RECEITA' %}text-emerald-500{% else %}text-rose-400{% endif %}">
+                                <span class="text-[10px] not-italic mr-1 opacity-40">R$</span> {{ lanc.valor|floatformat:2 }}
+                            </div>
                         </td>
                         
-                        <!-- LÓGICA DE STATUS E CORES -->
-                        <td class="text-center">
+                        <!-- SITUAÇÃO (Logica de Cores Soft) -->
+                        <td class="py-8 text-center px-4">
                             {% if lanc.status == 'PAGO' %}
-                                <span class="badge bg-success w-100">PAGO</span>
-                            
+                                <div class="badge bg-mint-green/20 border-none text-emerald-700 text-[9px] font-black py-3 px-4 rounded-xl w-full">LIQUIDADO</div>
                             {% elif lanc.status == 'CANCELADO' %}
-                                <span class="badge bg-secondary w-100">CANCELADO</span>
-                            
+                                <div class="badge bg-slate-100 border-none text-slate-400 text-[9px] font-black py-3 px-4 rounded-xl w-full">CANCELADO</div>
                             {% elif lanc.data_vencimento < hoje %}
-                                <!-- Venceu antes de hoje e não pagou -->
-                                <span class="badge bg-danger w-100 shadow-sm">
-                                    <i class="fas fa-exclamation-triangle me-1"></i> ATRASADO
-                                </span>
-                            
+                                <div class="badge bg-rose-100 border-none text-rose-600 text-[9px] font-black py-3 px-4 rounded-xl w-full shadow-sm shadow-rose-100 italic">
+                                    <i class="fas fa-exclamation-triangle mr-1"></i> ATRASADO
+                                </div>
                             {% else %}
-                                <!-- Vai vencer hoje ou no futuro -->
-                                <span class="badge bg-primary w-100">EM ABERTO</span>
+                                <div class="badge bg-serene-blue/10 border-none text-blue-600 text-[9px] font-black py-3 px-4 rounded-xl w-full">EM ABERTO</div>
                             {% endif %}
                         </td>
 
-                        <td class="text-end">
+                        <!-- AÇÃO DE BAIXA -->
+                        <td class="py-8 pr-12 text-right">
                             {% if lanc.status == 'PENDENTE' %}
-                                <button class="btn btn-sm btn-outline-success fw-bold" data-bs-toggle="modal" data-bs-target="#modalBaixa{{ lanc.id }}">
-                                    <i class="fas fa-dollar-sign"></i> 
+                                <button onclick="modal_baixa_{{ lanc.id }}.showModal()" 
+                                        class="btn bg-mint-green/10 border-none text-emerald-700 hover:bg-mint-green hover:text-white transition-all rounded-xl px-5 h-10 min-h-0 text-[10px] font-black uppercase italic shadow-sm group-hover:scale-105">
+                                    <i class="fas fa-hand-holding-dollar mr-2"></i> 
                                     {% if lanc.categoria.tipo == 'RECEITA' %}Receber{% else %}Pagar{% endif %}
                                 </button>
                             {% else %}
-                                <button class="btn btn-sm btn-light text-muted" disabled><i class="fas fa-check"></i></button>
+                                <div class="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center text-slate-200 ml-auto">
+                                    <i class="fas fa-check text-xs"></i>
+                                </div>
                             {% endif %}
                         </td>
                     </tr>
 
-                    <!-- MODAL DE BAIXA -->
-                    <div class="modal fade" id="modalBaixa{{ lanc.id }}" tabindex="-1">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <form action="{% url 'baixar_lancamento' lanc.id %}" method="post">
-                                    {% csrf_token %}
-                                    <div class="modal-header {% if lanc.categoria.tipo == 'RECEITA' %}bg-success{% else %}bg-danger{% endif %} text-white">
-                                        <h5 class="modal-title">
-                                            <i class="fas fa-hand-holding-usd me-2"></i>
-                                            {% if lanc.categoria.tipo == 'RECEITA' %}Confirmar Recebimento{% else %}Confirmar Pagamento{% endif %}
-                                        </h5>
-                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    <!-- MODAL DE BAIXA (DaisyUI Dialog) -->
+                    <dialog id="modal_baixa_{{ lanc.id }}" class="modal">
+                        <div class="modal-box bg-white rounded-[35px] p-10 max-w-md border border-white">
+                            <form action="{% url 'baixar_lancamento' lanc.id %}" method="post">
+                                {% csrf_token %}
+                                
+                                <div class="text-center mb-8">
+                                    <div class="w-20 h-20 {% if lanc.categoria.tipo == 'RECEITA' %}bg-mint-green/20 text-emerald-600{% else %}bg-rose-50 text-rose-500{% endif %} rounded-[2rem] flex items-center justify-center mx-auto mb-6 shadow-sm">
+                                        <i class="fas fa-hand-holding-dollar text-3xl"></i>
                                     </div>
-                                    <div class="modal-body">
-                                        <p class="fs-5 text-center">Valor: <strong>R$ {{ lanc.valor }}</strong></p>
-                                        <p class="text-center text-muted">{{ lanc.descricao }}</p>
-                                        <hr>
-                                        <label class="form-label fw-bold">Forma de Pagamento:</label>
-                                        <select name="forma_pagamento" class="form-select form-select-lg mb-3" required>
-                                            <option value="PIX" selected>Pix</option>
-                                            <option value="DINHEIRO">Dinheiro</option>
-                                            <option value="CARTAO">Cartão</option>
-                                            <option value="BOLETO">Boleto</option>
-                                        </select>
+                                    <h3 class="text-2xl font-black text-slate-800 tracking-tight">Confirmar Baixa</h3>
+                                    <p class="text-sm font-bold text-slate-400 mt-2 italic">"{{ lanc.descricao }}"</p>
+                                </div>
+
+                                <div class="bg-slate-50 rounded-[28px] p-6 mb-8 text-center border border-slate-100">
+                                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Valor a ser conciliado</p>
+                                    <div class="text-3xl font-black text-slate-700 italic">
+                                        <span class="text-sm not-italic mr-1 opacity-50">R$</span>{{ lanc.valor }}
                                     </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                        <button type="submit" class="btn {% if lanc.categoria.tipo == 'RECEITA' %}btn-success{% else %}btn-danger{% endif %} fw-bold px-4">Confirmar</button>
-                                    </div>
-                                </form>
-                            </div>
+                                </div>
+
+                                <div class="form-control w-full mb-10">
+                                    <label class="label"><span class="label-text text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Forma de Pagamento</span></label>
+                                    <select name="forma_pagamento" class="select select-bordered w-full bg-slate-50 border-slate-100 rounded-2xl h-14 font-bold text-slate-600 focus:ring-2 focus:ring-serene-blue/20" required>
+                                        <option value="PIX" selected>Pix (Instantâneo)</option>
+                                        <option value="DINHEIRO">Dinheiro / Espécie</option>
+                                        <option value="CARTAO">Cartão de Crédito/Débito</option>
+                                        <option value="BOLETO">Boleto Bancário</option>
+                                    </select>
+                                </div>
+
+                                <div class="flex gap-4">
+                                    <button type="button" class="btn btn-ghost flex-1 rounded-2xl text-slate-400 font-bold normal-case" onclick="modal_baixa_{{ lanc.id }}.close()">Cancelar</button>
+                                    <button type="submit" class="btn {% if lanc.categoria.tipo == 'RECEITA' %}bg-mint-green text-emerald-900 shadow-mint-green/30{% else %}bg-rose-400 text-white shadow-rose-200{% endif %} border-none flex-1 h-14 rounded-2xl shadow-xl font-black uppercase italic transition-all hover:scale-105">
+                                        Confirmar
+                                    </button>
+                                </div>
+                            </form>
                         </div>
-                    </div>
+                        <form method="dialog" class="modal-backdrop bg-slate-900/20 backdrop-blur-sm"><button>close</button></form>
+                    </dialog>
 
                     {% empty %}
                     <tr>
-                        <td colspan="6" class="text-center py-5 text-muted">
-                            <i class="fas fa-file-invoice-dollar fs-1 mb-3 opacity-25"></i><br>
-                            Nenhum lançamento encontrado.
+                        <td colspan="6" class="py-32 text-center">
+                            <div class="flex flex-col items-center">
+                                <div class="w-24 h-24 bg-slate-50 rounded-[3rem] flex items-center justify-center text-slate-200 mb-6 border border-dashed border-slate-200 shadow-inner">
+                                    <i class="fas fa-file-invoice-dollar text-4xl"></i>
+                                </div>
+                                <h3 class="text-slate-400 font-black uppercase text-sm tracking-widest">Tudo em ordem</h3>
+                                <p class="text-slate-300 text-xs mt-2 italic">Nenhum lançamento financeiro para os filtros selecionados.</p>
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}
@@ -187,28 +235,40 @@
             </table>
         </div>
         
-        <!-- Paginação -->
+        <!-- PAGINAÇÃO (Soft UI Style) -->
         {% if is_paginated %}
-        <div class="card-footer bg-white">
-            <div class="d-flex justify-content-center">
-                <span class="step-links">
-                    {% if page_obj.has_previous %}
-                        <a href="?page=1" class="btn btn-sm btn-outline-secondary">&laquo; Início</a>
-                        <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-sm btn-outline-secondary">Anterior</a>
-                    {% endif %}
+        <div class="p-10 flex justify-center bg-slate-50/30">
+            <div class="join bg-white p-1 rounded-2xl shadow-sm border border-slate-100">
+                {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}" class="join-item btn btn-ghost btn-sm rounded-xl text-slate-400 hover:text-serene-blue">« Anterior</a>
+                {% endif %}
+                
+                <button class="join-item btn btn-ghost btn-sm no-animation text-slate-800 font-black px-6 border-none">
+                    Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                </button>
 
-                    <span class="current mx-3 small text-muted">
-                        Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
-                    </span>
-
-                    {% if page_obj.has_next %}
-                        <a href="?page={{ page_obj.next_page_number }}" class="btn btn-sm btn-outline-secondary">Próximo</a>
-                        <a href="?page={{ page_obj.paginator.num_pages }}" class="btn btn-sm btn-outline-secondary">Fim &raquo;</a>
-                    {% endif %}
-                </span>
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" class="join-item btn btn-ghost btn-sm rounded-xl text-slate-400 hover:text-serene-blue">Próxima »</a>
+                {% endif %}
             </div>
         </div>
         {% endif %}
     </div>
+
+    <!-- RODAPÉ TÉCNICO -->
+    <div class="mt-12 text-center px-4">
+        <p class="text-[9px] text-slate-300 font-black uppercase tracking-[5px] leading-relaxed">
+            MayaCorp Financial Engine • Lógica de conciliação bancária integrada
+        </p>
+    </div>
 </div>
+
+<style>
+    /* Suavização de números financeiros */
+    table { font-variant-numeric: tabular-nums; }
+    
+    /* Scroll interno para tabelas mobile */
+    .custom-scroll::-webkit-scrollbar { width: 4px; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+</style>
 {% endblock %}

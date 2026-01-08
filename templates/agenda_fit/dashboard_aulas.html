@@ -1,20 +1,29 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Dashboard Operacional{% endblock %}
+{% block title %}Performance de Aulas - MayaCorp{% endblock %}
 
 {% block content %}
+<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<div class="container-fluid py-4">
+<div class="max-w-7xl mx-auto">
     
-    <!-- FILTRO -->
-    <form class="d-flex align-items-center gap-2 mb-4 bg-white p-3 rounded shadow-sm">
-        <h4 class="fw-bold text-primary mb-0 me-auto"><i class="fas fa-chart-line me-2"></i>Performance Aulas</h4>
+    <!-- FILTRO E TÍTULO (Glassmorphism Style) -->
+    <header class="bg-white/60 backdrop-blur-md rounded-[28px] border border-white p-6 mb-8 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 bg-serene-blue/20 rounded-2xl flex items-center justify-center text-serene-blue">
+                <i class="fas fa-chart-line text-xl"></i>
+            </div>
+            <div>
+                <h1 class="text-2xl font-black text-slate-800 tracking-tight">Performance</h1>
+                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-[2px]">Análise Operacional</p>
+            </div>
+        </div>
         
-        <div class="d-flex align-items-center gap-2">
-            <span class="text-muted small">Referência:</span>
-            <select name="mes" class="form-select" style="width: 140px;" onchange="this.form.submit()">
+        <form class="flex items-center gap-2 bg-slate-50 p-2 rounded-2xl border border-slate-100">
+            <span class="text-[10px] font-black text-slate-400 uppercase px-2">Período:</span>
+            <select name="mes" class="select select-sm bg-transparent border-none focus:outline-none font-bold text-slate-600" onchange="this.form.submit()">
                 <option value="1" {% if mes_atual == 1 %}selected{% endif %}>Janeiro</option>
                 <option value="2" {% if mes_atual == 2 %}selected{% endif %}>Fevereiro</option>
                 <option value="3" {% if mes_atual == 3 %}selected{% endif %}>Março</option>
@@ -28,93 +37,114 @@
                 <option value="11" {% if mes_atual == 11 %}selected{% endif %}>Novembro</option>
                 <option value="12" {% if mes_atual == 12 %}selected{% endif %}>Dezembro</option>
             </select>
-            <select name="ano" class="form-select" style="width: 100px;" onchange="this.form.submit()">
+            <select name="ano" class="select select-sm bg-transparent border-none focus:outline-none font-bold text-slate-600" onchange="this.form.submit()">
                 {% for y in anos_select %}
                 <option value="{{ y }}" {% if ano_atual == y %}selected{% endif %}>{{ y }}</option>
                 {% endfor %}
             </select>
-        </div>
-    </form>
+        </form>
+    </header>
 
-    <!-- GRÁFICO 1: EVOLUÇÃO POR PROFISSIONAL -->
-    <div class="card border-0 shadow-sm mb-4">
-        <div class="card-header bg-white fw-bold py-3 border-bottom">
-            <i class="fas fa-user-tie me-2 text-primary"></i>Evolução de Aulas por Profissional ({{ ano_atual }})
-        </div>
-        <div class="card-body">
-            <div style="height: 300px; width: 100%;">
+    <!-- GRÁFICOS (Cards Arredondados) -->
+    <div class="grid grid-cols-1 gap-8 mb-8">
+        
+        <!-- Evolução por Profissional -->
+        <div class="bg-white p-8 rounded-[32px] shadow-xl shadow-slate-200/50 border border-white transition-all">
+            <div class="flex items-center gap-3 mb-8">
+                <div class="w-2 h-6 bg-serene-blue rounded-full"></div>
+                <h3 class="font-black text-slate-700 uppercase text-xs tracking-widest">Aulas por Profissional ({{ ano_atual }})</h3>
+            </div>
+            <div class="h-[350px]">
                 <canvas id="chartProf"></canvas>
             </div>
         </div>
-    </div>
 
-    <!-- GRÁFICO 2: EVOLUÇÃO DA FREQUÊNCIA (NOVO!) -->
-    <div class="card border-0 shadow-sm mb-4">
-        <div class="card-header bg-white fw-bold py-3 border-bottom">
-            <i class="fas fa-users me-2 text-success"></i>Evolução da Frequência (Presenças vs Faltas - {{ ano_atual }})
-        </div>
-        <div class="card-body">
-            <div style="height: 300px; width: 100%;">
+        <!-- Evolução de Frequência -->
+        <div class="bg-white p-8 rounded-[32px] shadow-xl shadow-slate-200/50 border border-white transition-all">
+            <div class="flex items-center gap-3 mb-8">
+                <div class="w-2 h-6 bg-mint-green rounded-full"></div>
+                <h3 class="font-black text-slate-700 uppercase text-xs tracking-widest">Frequência: Presenças vs Faltas</h3>
+            </div>
+            <div class="h-[350px]">
                 <canvas id="chartFreq"></canvas>
             </div>
         </div>
     </div>
 
     <!-- LISTAS TOP 5 -->
-    <div class="row g-4">
-        <div class="col-md-6">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-success text-white fw-bold">
-                    <i class="fas fa-trophy me-2"></i>Top 5 Assíduos ({{ mes_atual }}/{{ ano_atual }})
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pb-12">
+        
+        <!-- Top 5 Assíduos -->
+        <div class="bg-white rounded-[32px] shadow-xl shadow-slate-200/50 border border-white overflow-hidden">
+            <div class="p-6 bg-mint-green/10 flex justify-between items-center">
+                <h3 class="font-black text-emerald-800 uppercase text-[10px] tracking-[2px]">Top 5 Assíduos</h3>
+                <i class="fas fa-trophy text-emerald-500"></i>
+            </div>
+            <div class="p-4">
+                {% for item in top_assiduos %}
+                <div class="flex items-center justify-between p-4 rounded-2xl hover:bg-slate-50 transition-colors">
+                    <div class="flex items-center gap-4">
+                        <span class="text-xs font-black text-emerald-300">#0{{ forloop.counter }}</span>
+                        <span class="text-sm font-bold text-slate-600">{{ item.aluno__nome }}</span>
+                    </div>
+                    <span class="badge bg-mint-green border-none text-emerald-900 font-bold px-4 py-3">{{ item.total }} aulas</span>
                 </div>
-                <ul class="list-group list-group-flush">
-                    {% for item in top_assiduos %}
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <span>
-                            <span class="fw-bold text-secondary me-2">{{ forloop.counter }}º</span> 
-                            {{ item.aluno__nome }}
-                        </span>
-                        <span class="badge bg-success rounded-pill">{{ item.total }} presenças</span>
-                    </li>
-                    {% empty %}
-                    <li class="list-group-item text-muted text-center py-4">Sem dados neste mês.</li>
-                    {% endfor %}
-                </ul>
+                {% empty %}
+                <p class="text-center py-10 text-slate-400 text-sm">Sem dados este mês.</p>
+                {% endfor %}
             </div>
         </div>
 
-        <div class="col-md-6">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-danger text-white fw-bold">
-                    <i class="fas fa-thumbs-down me-2"></i>Top 5 Faltosos ({{ mes_atual }}/{{ ano_atual }})
+        <!-- Top 5 Faltosos -->
+        <div class="bg-white rounded-[32px] shadow-xl shadow-slate-200/50 border border-white overflow-hidden">
+            <div class="p-6 bg-rose-50 flex justify-between items-center">
+                <h3 class="font-black text-rose-800 uppercase text-[10px] tracking-[2px]">Atenção: Faltas</h3>
+                <i class="fas fa-exclamation-triangle text-rose-400"></i>
+            </div>
+            <div class="p-4">
+                {% for item in top_faltosos %}
+                <div class="flex items-center justify-between p-4 rounded-2xl hover:bg-slate-50 transition-colors">
+                    <div class="flex items-center gap-4">
+                        <span class="text-xs font-black text-rose-200">#0{{ forloop.counter }}</span>
+                        <span class="text-sm font-bold text-slate-600">{{ item.aluno__nome }}</span>
+                    </div>
+                    <span class="badge bg-rose-100 border-none text-rose-700 font-bold px-4 py-3">{{ item.total }} faltas</span>
                 </div>
-                <ul class="list-group list-group-flush">
-                    {% for item in top_faltosos %}
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <span>
-                            <span class="fw-bold text-secondary me-2">{{ forloop.counter }}º</span> 
-                            {{ item.aluno__nome }}
-                        </span>
-                        <span class="badge bg-danger rounded-pill">{{ item.total }} faltas</span>
-                    </li>
-                    {% empty %}
-                    <li class="list-group-item text-muted text-center py-4">Sem faltas registradas.</li>
-                    {% endfor %}
-                </ul>
+                {% empty %}
+                <p class="text-center py-10 text-slate-400 text-sm">Sem faltas registradas.</p>
+                {% endfor %}
             </div>
         </div>
     </div>
 </div>
 
-<!-- CONFIGURAÇÃO DOS GRÁFICOS -->
+<!-- CONFIGURAÇÃO DOS GRÁFICOS (Atualizado com Paleta Pastel) -->
 <script>
     const labelsMeses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+    
+    // Estilo comum para os eixos
+    const chartScales = {
+        y: { 
+            beginAtZero: true, 
+            grid: { color: '#F1F5F9', drawBorder: false },
+            ticks: { color: '#94A3B8', font: { size: 10, weight: '600' } }
+        },
+        x: { 
+            grid: { display: false },
+            ticks: { color: '#94A3B8', font: { size: 10, weight: '600' } }
+        }
+    };
+
     const commonOptions = {
         responsive: true,
         maintainAspectRatio: false,
-        interaction: { mode: 'index', intersect: false },
-        plugins: { legend: { position: 'bottom' } },
-        scales: { y: { beginAtZero: true } }
+        plugins: { 
+            legend: { 
+                position: 'bottom',
+                labels: { usePointStyle: true, padding: 20, font: { size: 11, weight: '600' }, color: '#64748B' }
+            }
+        },
+        scales: chartScales
     };
 
     // GRÁFICO 1: PROFISSIONAIS
@@ -127,7 +157,7 @@
         options: commonOptions
     });
 
-    // GRÁFICO 2: FREQUÊNCIA
+    // GRÁFICO 2: FREQUÊNCIA (Pastel Palette)
     new Chart(document.getElementById('chartFreq'), {
         type: 'line',
         data: {
@@ -136,18 +166,22 @@
                 {
                     label: 'Presenças',
                     data: {{ chart_presente|safe }},
-                    borderColor: '#198754', // Verde
-                    backgroundColor: 'rgba(25, 135, 84, 0.1)', // Fundo transparente verde
+                    borderColor: '#B2F2BB', // Mint Green
+                    backgroundColor: 'rgba(178, 242, 187, 0.2)',
                     fill: true,
-                    tension: 0.4
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#B2F2BB'
                 },
                 {
                     label: 'Faltas',
                     data: {{ chart_falta|safe }},
-                    borderColor: '#dc3545', // Vermelho
-                    backgroundColor: 'rgba(220, 53, 69, 0.1)', // Fundo transparente vermelho
+                    borderColor: '#FFD6D6', // Soft Red
+                    backgroundColor: 'rgba(255, 214, 214, 0.2)',
                     fill: true,
-                    tension: 0.4
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#FFD6D6'
                 }
             ]
         },

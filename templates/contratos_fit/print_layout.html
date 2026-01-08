@@ -2,107 +2,137 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>{{ titulo }}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ titulo }} | MayaCorp Print</title>
+    <!-- Tailwind CSS para o estilo MayaCorp -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     
     <style>
-        body {
-            background-color: #525659; /* Cor de fundo estilo visualizador de PDF */
-            font-family: 'Times New Roman', Times, serif; /* Fonte formal */
-        }
+        /* Fonte Inter para a interface e Playfair para o contrato (mais elegante que Times) */
+        body { font-family: 'Inter', sans-serif; background-color: #F1F5F9; }
+        .contrato-serif { font-family: 'Playfair Display', serif; }
         
+        /* Simulação de Folha A4 com Soft UI */
         .page {
             background: white;
             width: 21cm;
             min-height: 29.7cm;
-            display: block;
-            margin: 0.5cm auto;
-            padding: 2cm; /* Margens A4 */
-            box-shadow: 0 0 0.5cm rgba(0,0,0,0.5);
+            padding: 2.5cm; /* Margens generosas */
+            margin: 2rem auto;
+            border-radius: 40px; /* Bordas Soft UI */
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
             position: relative;
+            border: 1px solid white;
         }
 
-        /* Área de Assinaturas no final da página */
+        /* Área de Assinaturas */
         .assinaturas {
-            margin-top: 80px; /* Aumentei margem para caber a assinatura */
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end; /* Alinha na base */
+            margin-top: 4rem;
+            display: grid;
+            grid-template-cols: 1fr 1fr;
+            gap: 4rem;
             page-break-inside: avoid;
         }
         .linha-assinatura {
-            width: 45%;
-            border-top: 1px solid black;
+            border-top: 1px solid #E2E8F0;
             text-align: center;
-            padding-top: 5px;
-            font-size: 14px;
+            padding-top: 1rem;
             position: relative;
         }
 
-        /* Configurações de Impressão (Oculta botões e fundo) */
+        /* Estilo de Impressão */
         @media print {
-            body { background: none; margin: 0; }
-            .page {
-                margin: 0;
-                box-shadow: none;
-                width: 100%;
-                border: none;
+            body { background: white !important; padding: 0 !important; margin: 0 !important; }
+            .page { 
+                margin: 0 !important; 
+                box-shadow: none !important; 
+                width: 100% !important; 
+                border-radius: 0 !important; 
+                border: none !important;
+                padding: 1.5cm !important;
             }
             .no-print { display: none !important; }
+            .page-break { page-break-before: always; }
         }
     </style>
 </head>
-<body>
+<body class="p-4 md:p-8">
 
-    <!-- BARRA DE FERRAMENTAS (Só aparece na tela) -->
-    <nav class="navbar navbar-dark bg-dark mb-4 no-print fixed-top">
-        <div class="container-fluid justify-content-center gap-3">
-            <button onclick="window.print()" class="btn btn-success fw-bold">
-                <i class="fas fa-print"></i> Imprimir / Salvar PDF
-            </button>
-            <button onclick="window.close()" class="btn btn-secondary">
-                Fechar
-            </button>
+    <!-- BARRA DE FERRAMENTAS FLUTUANTE (Glassmorphism) -->
+    <nav class="no-print fixed top-6 left-1/2 -translate-x-1/2 z-50">
+        <div class="bg-white/80 backdrop-blur-xl border border-white px-6 py-4 rounded-[2rem] shadow-2xl flex items-center gap-6">
+            <div class="flex items-center gap-3 pr-6 border-r border-slate-100">
+                <div class="w-8 h-8 bg-serene-blue/20 rounded-xl flex items-center justify-center text-serene-blue">
+                    <i class="fas fa-file-pdf"></i>
+                </div>
+                <span class="text-xs font-black text-slate-700 uppercase tracking-widest">Contrato Digital</span>
+            </div>
+            
+            <div class="flex gap-2">
+                <button onclick="window.print()" class="btn bg-mint-green hover:bg-emerald-400 border-none text-emerald-900 rounded-xl px-6 h-11 text-xs font-black uppercase tracking-tighter flex items-center gap-2 shadow-lg shadow-mint-green/20 transition-all">
+                    <i class="fas fa-print"></i> Imprimir / Salvar
+                </button>
+                <button onclick="window.close()" class="btn bg-slate-100 hover:bg-slate-200 border-none text-slate-500 rounded-xl px-6 h-11 text-xs font-black uppercase tracking-tighter transition-all">
+                    Fechar
+                </button>
+            </div>
         </div>
     </nav>
-    <div style="height: 60px;" class="no-print"></div> <!-- Espaço para a barra fixa -->
+
+    <!-- Espaço para a barra flutuante não cobrir o conteúdo inicial na tela -->
+    <div class="h-20 no-print"></div>
 
     <!-- FOLHA A4 -->
     <div class="page">
         
-        <!-- Conteúdo vindo do Banco de Dados -->
-        <div class="conteudo-contrato">
+        <!-- Marca d'água sutil (Opcional) -->
+        <div class="absolute top-10 right-10 opacity-5 no-print">
+            <i class="fas fa-dumbbell text-8xl"></i>
+        </div>
+
+        <!-- Conteúdo do Contrato -->
+        <div class="contrato-serif text-[12pt] leading-relaxed text-justify text-slate-800">
             {{ conteudo|safe }}
         </div>
 
-        <!-- Rodapé Padrão -->
+        <!-- Bloco de Assinaturas -->
         <div class="assinaturas">
             
             <!-- Assinatura Empresa -->
             <div class="linha-assinatura">
-                <strong>MayaCorp Fit</strong><br>
-                CNPJ: 00.000.000/0001-00
+                <p class="text-[10px] font-black text-slate-800 uppercase tracking-widest">MayaCorp Fit</p>
+                <p class="text-[9px] text-slate-400 font-bold uppercase mt-1">CNPJ: 00.000.000/0001-00</p>
             </div>
 
-            <!-- Assinatura Aluno (Com Imagem Digital) -->
+            <!-- Assinatura Aluno -->
             <div class="linha-assinatura">
                 
-                <!-- SE TIVER ASSINATURA DIGITAL, MOSTRA A IMAGEM -->
                 {% if contrato.assinatura_imagem %}
-                    <img src="{{ contrato.assinatura_imagem }}" style="max-width: 150px; position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); z-index: 1;">
+                    <!-- Assinatura Digital Flutuante -->
+                    <div class="absolute bottom-16 left-1/2 -translate-x-1/2 w-40 opacity-90">
+                        <img src="{{ contrato.assinatura_imagem }}" class="max-w-full grayscale contrast-125">
+                    </div>
                 {% endif %}
 
-                <strong>{{ contrato.aluno.nome }}</strong><br>
-                Contratante
+                <p class="text-[10px] font-black text-slate-800 uppercase tracking-widest">{{ contrato.aluno.nome }}</p>
+                <p class="text-[9px] text-slate-400 font-bold uppercase mt-1">Contratante</p>
                 
                 {% if contrato.data_assinatura %}
-                    <br><small style="font-size: 9px; color: #555;">Assinado digitalmente em {{ contrato.data_assinatura|date:"d/m/Y H:i" }}</small>
-                    <br><small style="font-size: 9px; color: #555;">IP: {{ contrato.ip_assinatura }}</small>
+                    <div class="mt-4 pt-4 border-t border-dashed border-slate-100">
+                        <p class="text-[8px] text-slate-400 font-medium">Assinado digitalmente em: {{ contrato.data_assinatura|date:"d/m/Y H:i" }}</p>
+                        <p class="text-[8px] text-slate-300 font-mono">Autenticação IP: {{ contrato.ip_assinatura }}</p>
+                    </div>
                 {% endif %}
             </div>
         </div>
 
+    </div>
+
+    <!-- Footer sutil apenas na tela -->
+    <div class="no-print text-center py-10">
+        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-[4px]">MayaCorp Document Security Protocol</p>
     </div>
 
 </body>

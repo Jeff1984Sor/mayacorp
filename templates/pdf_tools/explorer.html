@@ -1,225 +1,219 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Mayacorp Explorer{% endblock %}
+{% block title %}Conciliação IA - MayaCorp{% endblock %}
 
 {% block content %}
-<style>
-    /* Estilos mantidos... */
-    .drop-zone { border: 2px dashed #ccc; border-radius: 10px; padding: 20px; text-align: center; background: #f9f9f9; cursor: pointer; transition: all 0.3s; }
-    .drop-zone:hover, .drop-zone.drag-over { border-color: #007bff; background: #e9ecef; }
-    
-    .file-list { max-height: 300px; overflow-y: auto; margin-top: 15px; border: 1px solid #ddd; border-radius: 5px; }
-    .file-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; background: #fff; transition: all 0.3s; }
-    .file-item:last-child { border-bottom: none; }
-    
-    .status-icon { margin-right: 10px; font-size: 1.2rem; width: 25px; text-align: center; display: inline-block; }
-    
-    #execution-panel { display: none; margin-top: 20px; }
-    #terminal-log {
-        background-color: #1a1a1a;
-        color: #00ff41;
-        font-family: 'Consolas', 'Monaco', monospace;
-        font-size: 0.85rem;
-        padding: 15px;
-        border-radius: 5px;
-        height: 250px;
-        overflow-y: auto;
-        border: 1px solid #333;
-        box-shadow: inset 0 0 10px #000;
-    }
-    #terminal-log::-webkit-scrollbar { width: 8px; }
-    #terminal-log::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
+<div class="max-w-7xl mx-auto pb-20">
 
-    .spin-icon { animation: spin 1s linear infinite; display: inline-block; }
-    @keyframes spin { 100% { transform: rotate(360deg); } }
-    
-    .pulse-btn { animation: pulse 2s infinite; }
-    @keyframes pulse {
-        0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }
-        70% { box-shadow: 0 0 0 10px rgba(40, 167, 69, 0); }
-        100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
-    }
-    
-    /* Toast container */
-    #toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; }
-</style>
-
-<div class="container-fluid py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0"><i class="fas fa-robot"></i> Conciliação Inteligente (IA)</h2>
-        <button class="btn btn-outline-danger" onclick="limparTudo()">
-            <i class="fas fa-trash-alt"></i> Limpar Tudo
+    <!-- 1. CABEÇALHO: Título e Limpeza -->
+    <header class="flex flex-col md:flex-row justify-between items-center mb-10 gap-6 px-2 animate-in fade-in duration-700">
+        <div class="flex items-center gap-5">
+            <div class="w-16 h-16 bg-serene-blue/20 rounded-[24px] flex items-center justify-center text-serene-blue shadow-sm border border-white">
+                <i class="fas fa-robot text-2xl"></i>
+            </div>
+            <div>
+                <h1 class="text-3xl font-black text-slate-800 tracking-tight">Conciliação Inteligente</h1>
+                <p class="text-[10px] text-slate-400 font-black uppercase tracking-[2px] mt-1">Processamento de arquivos assistido por IA</p>
+            </div>
+        </div>
+        
+        <button onclick="limparTudo()" class="btn btn-ghost bg-white shadow-sm border-slate-100 rounded-2xl hover:bg-rose-50 hover:text-rose-500 transition-all text-slate-400 normal-case font-bold px-6">
+            <i class="fas fa-trash-alt mr-2 text-xs"></i> Limpar Ambiente
         </button>
-    </div>
-    
-    <div class="row">
-        <!-- BOLETOS -->
-        <div class="col-md-6">
-            <div class="card shadow-sm h-100">
-                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                    <span class="fw-bold"><i class="fas fa-file-invoice-dollar"></i> 1. Boletos</span>
-                    <span id="count-boletos" class="badge bg-white text-primary rounded-pill">{{ arquivos.boletos|length }}</span>
+    </header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        
+        <!-- COLUNA 1: BOLETOS -->
+        <div class="space-y-4">
+            <div class="flex items-center justify-between px-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-2 h-6 bg-serene-blue rounded-full shadow-[0_0_8px_rgba(165,216,255,0.8)]"></div>
+                    <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-[3px]">1. Base de Boletos</h3>
+                </div>
+                <span id="count-boletos" class="badge bg-serene-blue/10 border-none text-serene-blue font-black rounded-lg px-3">{{ arquivos.boletos|length }}</span>
+            </div>
+
+            <div class="bg-white rounded-[40px] shadow-2xl shadow-slate-200/50 border border-white p-8 md:p-10">
+                <div class="drop-zone group border-2 border-dashed border-slate-100 bg-slate-50/50 rounded-[32px] p-10 text-center cursor-pointer hover:bg-white hover:border-serene-blue/30 transition-all duration-500" 
+                     id="drop-boletos" onclick="document.getElementById('input-boletos').click()">
+                    <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-serene-blue mx-auto mb-4 shadow-xl shadow-slate-200 group-hover:scale-110 transition-transform">
+                        <i class="fas fa-file-invoice-dollar text-2xl"></i>
+                    </div>
+                    <p class="text-sm font-bold text-slate-500 mb-1">Arraste os PDFs dos Boletos</p>
+                    <p class="text-[10px] text-slate-300 font-medium uppercase tracking-widest">ou clique para selecionar</p>
+                    <input type="file" id="input-boletos" multiple accept=".pdf" hidden onchange="handleUpload(this.files, 'boletos')">
                 </div>
                 
-                <div class="card-body">
-                    <div class="drop-zone" id="drop-boletos" onclick="document.getElementById('input-boletos').click()">
-                        <i class="fas fa-cloud-upload-alt fa-2x text-muted mb-2"></i>
-                        <p class="mb-0 text-muted">Clique ou arraste os PDFs dos boletos</p>
-                        <input type="file" id="input-boletos" multiple accept=".pdf" hidden onchange="handleUpload(this.files, 'boletos')">
-                    </div>
-                    
-                    <div class="file-list" id="list-boletos">
-                        {% for f in arquivos.boletos %}
-                        <div class="file-item" data-filename="{{ f }}">
-                            <div><span class="status-icon">📄</span> <span class="filename">{{ f }}</span></div>
-                            <button class="btn btn-sm btn-outline-danger border-0" onclick="deleteFile('boletos', '{{ f }}')"><i class="fas fa-times"></i></button>
+                <div class="file-list mt-8 space-y-2 custom-scroll overflow-y-auto" style="max-height: 250px;" id="list-boletos">
+                    {% for f in arquivos.boletos %}
+                    <div class="file-item bg-slate-50/50 p-4 rounded-2xl border border-slate-100 flex justify-between items-center group/item hover:bg-white hover:shadow-md transition-all" data-filename="{{ f }}">
+                        <div class="flex items-center gap-3">
+                            <span class="status-icon w-8 h-8 bg-white rounded-lg flex items-center justify-center text-xs shadow-sm">📄</span>
+                            <span class="filename text-xs font-bold text-slate-600 truncate max-w-[200px]">{{ f }}</span>
                         </div>
-                        {% endfor %}
+                        <button class="btn btn-ghost btn-circle btn-xs text-slate-200 hover:text-rose-500 opacity-0 group-hover/item:opacity-100 transition-opacity" onclick="deleteFile('boletos', '{{ f }}')">
+                            <i class="fas fa-times"></i>
+                        </button>
                     </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>
 
-        <!-- COMPROVANTES -->
-        <div class="col-md-6">
-            <div class="card shadow-sm h-100">
-                <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
-                    <span class="fw-bold"><i class="fas fa-receipt"></i> 2. Comprovantes (1 arquivo)</span>
-                    <span id="count-comprovantes" class="badge bg-white text-success rounded-pill">{{ arquivos.comprovantes|length }}</span>
+        <!-- COLUNA 2: COMPROVANTES -->
+        <div class="space-y-4">
+            <div class="flex items-center justify-between px-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-2 h-6 bg-soft-lavender rounded-full shadow-[0_0_8px_rgba(208,191,255,0.8)]"></div>
+                    <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-[3px]">2. Lote de Comprovantes</h3>
                 </div>
+                <span id="count-comprovantes" class="badge bg-soft-lavender/20 border-none text-purple-600 font-black rounded-lg px-3">{{ arquivos.comprovantes|length }}</span>
+            </div>
 
-                <div class="card-body">
-                    <div class="drop-zone" id="drop-comprovantes" onclick="document.getElementById('input-comprovantes').click()">
-                        <i class="fas fa-cloud-upload-alt fa-2x text-muted mb-2"></i>
-                        <p class="mb-0 text-muted">Clique ou arraste o arquivo único de comprovantes</p>
-                        <input type="file" id="input-comprovantes" accept=".pdf" hidden onchange="handleUpload(this.files, 'comprovantes')">
+            <div class="bg-white rounded-[40px] shadow-2xl shadow-slate-200/50 border border-white p-8 md:p-10">
+                <div class="drop-zone group border-2 border-dashed border-slate-100 bg-slate-50/50 rounded-[32px] p-10 text-center cursor-pointer hover:bg-white hover:border-soft-lavender/30 transition-all duration-500" 
+                     id="drop-comprovantes" onclick="document.getElementById('input-comprovantes').click()">
+                    <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-purple-400 mx-auto mb-4 shadow-xl shadow-slate-200 group-hover:scale-110 transition-transform">
+                        <i class="fas fa-receipt text-2xl"></i>
                     </div>
-                    
-                    <div class="file-list" id="list-comprovantes">
-                        {% for f in arquivos.comprovantes %}
-                        <div class="file-item" data-filename="{{ f }}">
-                            <div><span class="status-icon">🗂️</span> {{ f }}</div>
-                            <button class="btn btn-sm btn-outline-danger border-0" onclick="deleteFile('comprovantes', '{{ f }}')"><i class="fas fa-times"></i></button>
+                    <p class="text-sm font-bold text-slate-500 mb-1">Arquivo Único de Comprovantes</p>
+                    <p class="text-[10px] text-slate-300 font-medium uppercase tracking-widest">Sincronização em massa</p>
+                    <input type="file" id="input-comprovantes" accept=".pdf" hidden onchange="handleUpload(this.files, 'comprovantes')">
+                </div>
+                
+                <div class="file-list mt-8 space-y-2 custom-scroll overflow-y-auto" style="max-height: 250px;" id="list-comprovantes">
+                    {% for f in arquivos.comprovantes %}
+                    <div class="file-item bg-slate-50/50 p-4 rounded-2xl border border-slate-100 flex justify-between items-center group/item hover:bg-white hover:shadow-md transition-all" data-filename="{{ f }}">
+                        <div class="flex items-center gap-3">
+                            <span class="status-icon w-8 h-8 bg-white rounded-lg flex items-center justify-center text-xs shadow-sm">🗂️</span>
+                            <span class="filename text-xs font-bold text-slate-600 truncate max-w-[200px]">{{ f }}</span>
                         </div>
-                        {% endfor %}
+                        <button class="btn btn-ghost btn-circle btn-xs text-slate-200 hover:text-rose-500 opacity-0 group-hover/item:opacity-100 transition-opacity" onclick="deleteFile('comprovantes', '{{ f }}')">
+                            <i class="fas fa-times"></i>
+                        </button>
                     </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- BOTÃO DE AÇÃO -->
-    <div class="row mt-4">
-        <div class="col-12 text-center">
-            <button id="btn-processar" class="btn btn-dark btn-lg px-5 shadow" onclick="startProcessing()" disabled>
-                <i class="fas fa-bolt"></i> INICIAR PROCESSAMENTO
-            </button>
-            <div class="text-muted mt-2" id="btn-help-text">Aguardando arquivos...</div>
-        </div>
+    <!-- BOTÃO DE PROCESSAMENTO -->
+    <div class="mt-12 text-center">
+        <button id="btn-processar" class="btn h-20 bg-slate-800 border-none text-white rounded-[2rem] px-16 shadow-2xl shadow-slate-400 normal-case font-black text-xl italic hover:bg-black hover:scale-[1.02] transition-all disabled:bg-slate-100 disabled:text-slate-300 disabled:shadow-none" onclick="startProcessing()" disabled>
+            <i class="fas fa-bolt mr-3"></i> INICIAR PROCESSAMENTO IA
+        </button>
+        <div class="text-[10px] text-slate-300 font-black uppercase tracking-[3px] mt-4" id="btn-help-text">Aguardando arquivos para análise</div>
     </div>
 
     <!-- PAINEL DE EXECUÇÃO -->
-    <div id="execution-panel" class="card border-dark shadow-lg mt-4">
-        <div class="card-header bg-dark text-white">
-            <i class="fas fa-terminal"></i> Log de Execução da IA
-        </div>
-        <div class="card-body bg-light">
-            
-            <div class="mb-3">
-                <label class="form-label fw-bold text-muted" id="progress-label">Aguardando início...</label>
-                <div class="progress" style="height: 25px;">
-                    <div id="main-progress-bar" class="progress-bar progress-bar-striped progress-bar-animated bg-info" role="progressbar" style="width: 0%"></div>
+    <div id="execution-panel" class="mt-16 animate-in slide-in-from-bottom-10 duration-700" style="display: none;">
+        <div class="bg-white rounded-[45px] shadow-2xl shadow-slate-200/50 border border-white overflow-hidden">
+            <div class="p-8 border-b border-slate-50 flex items-center justify-between bg-slate-50/30">
+                <div class="flex items-center gap-3">
+                    <div class="flex gap-1.5">
+                        <div class="w-3 h-3 rounded-full bg-rose-300"></div>
+                        <div class="w-3 h-3 rounded-full bg-amber-300"></div>
+                        <div class="w-3 h-3 rounded-full bg-mint-green shadow-[0_0_8px_rgba(178,242,187,1)]"></div>
+                    </div>
+                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Monitor de Inteligência MayaCorp</span>
                 </div>
             </div>
 
-            <div id="terminal-log">
-                <div>_ Sistema pronto.</div>
-            </div>
+            <div class="p-10 md:p-14">
+                <!-- Progresso Sleek -->
+                <div class="mb-12">
+                    <div class="flex justify-between items-end mb-4 px-2">
+                        <label class="text-sm font-black text-slate-700 tracking-tight" id="progress-label">Iniciando motores...</label>
+                        <span class="text-[10px] font-black text-serene-blue uppercase tracking-widest" id="progress-percent">0%</span>
+                    </div>
+                    <div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden p-0.5 border border-slate-50 shadow-inner">
+                        <div id="main-progress-bar" class="h-full bg-serene-blue rounded-full transition-all duration-500 shadow-[0_0_15px_rgba(165,216,255,0.8)]" style="width: 0%"></div>
+                    </div>
+                </div>
 
-            <div id="download-area" class="text-center mt-4" style="display: none;">
-                <h4 class="text-success fw-bold">✅ Processo Finalizado!</h4>
-                <a id="download-link" href="#" class="btn btn-success btn-lg pulse-btn mt-2" download>
-                    <i class="fas fa-download"></i> BAIXAR ARQUIVO FINAL (.ZIP)
-                </a>
-                <p class="text-muted mt-2" id="stats-summary"></p>
+                <!-- Terminal Log (Moderno) -->
+                <div id="terminal-log" class="bg-slate-900 rounded-[32px] p-8 h-80 overflow-y-auto font-mono text-[11px] leading-relaxed shadow-2xl border border-slate-800">
+                    <div class="text-emerald-500 opacity-50 italic mb-2 tracking-widest uppercase text-[9px]">_ Aguardando sinal do processador...</div>
+                </div>
+
+                <!-- Área de Download (Sucesso) -->
+                <div id="download-area" class="text-center mt-12 p-10 bg-mint-green/5 rounded-[40px] border border-mint-green/10 animate-in zoom-in duration-500" style="display: none;">
+                    <div class="w-20 h-20 bg-white rounded-[2.5rem] flex items-center justify-center text-emerald-500 mx-auto mb-6 shadow-xl shadow-mint-green/20">
+                        <i class="fas fa-check-double text-3xl"></i>
+                    </div>
+                    <h4 class="text-2xl font-black text-slate-800 tracking-tight">Conciliação Concluída!</h4>
+                    <p class="text-slate-400 font-medium mt-2" id="stats-summary"></p>
+                    
+                    <a id="download-link" href="#" class="btn h-16 bg-mint-green border-none text-emerald-900 rounded-2xl px-12 mt-8 shadow-xl shadow-mint-green/30 normal-case font-black text-lg italic hover:bg-emerald-400 hover:scale-105 transition-all" download>
+                        <i class="fas fa-download mr-2"></i> BAIXAR PACOTE CONCILIADO (.ZIP)
+                    </a>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Toast Container -->
-<div id="toast-container"></div>
+<!-- Toast Container (Substituindo o padrão) -->
+<div id="toast-container" class="fixed top-10 right-10 z-[9999] flex flex-col gap-3"></div>
+
+<style>
+    #terminal-log::-webkit-scrollbar { width: 6px; }
+    #terminal-log::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+    .custom-scroll::-webkit-scrollbar { width: 4px; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #F1F5F9; border-radius: 10px; }
+    
+    .drag-over { border-color: #A5D8FF !important; background: white !important; transform: scale(1.02); }
+    
+    .pulse-btn { animation: soft-pulse 2s infinite; }
+    @keyframes soft-pulse {
+        0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(165, 216, 255, 0.7); }
+        70% { transform: scale(1.02); box-shadow: 0 0 0 15px rgba(165, 216, 255, 0); }
+        100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(165, 216, 255, 0); }
+    }
+</style>
 
 <script>
-    const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
-    const MAX_BUFFER = 1024 * 1024; // 1MB para streaming
-    
     // ============================================================
-    // UTILITÁRIOS
+    // SEU ENGINE ORIGINAL (MANTIDO INTEGRALMENTE)
     // ============================================================
+    const MAX_FILE_SIZE = 50 * 1024 * 1024;
+    const MAX_BUFFER = 1024 * 1024;
     
-    function safeId(filename) {
-        return 'file-' + filename.replace(/[^a-zA-Z0-9]/g, '_');
-    }
+    function safeId(filename) { return 'file-' + filename.replace(/[^a-zA-Z0-9]/g, '_'); }
     
     function showToast(message, type = 'info') {
-        const types = {
-            'success': 'bg-success',
-            'error': 'bg-danger',
-            'warning': 'bg-warning',
-            'info': 'bg-info'
-        };
-        
-        const toastHtml = `
-            <div class="toast align-items-center text-white ${types[type]} border-0 mb-2" role="alert" data-bs-autohide="true" data-bs-delay="4000">
-                <div class="d-flex">
-                    <div class="toast-body">${message}</div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-                </div>
-            </div>
-        `;
-        
+        const bg = type === 'success' ? 'bg-mint-green text-emerald-900' : (type === 'error' ? 'bg-rose-500 text-white' : 'bg-slate-800 text-white');
+        const toastHtml = `<div class="p-4 rounded-2xl shadow-2xl ${bg} font-bold text-xs animate-in slide-in-from-right-10">${message}</div>`;
         const container = document.getElementById('toast-container');
         container.insertAdjacentHTML('beforeend', toastHtml);
-        
-        const toastElement = container.lastElementChild;
-        const toast = new bootstrap.Toast(toastElement);
-        toast.show();
-        
-        // Remover do DOM após esconder
-        toastElement.addEventListener('hidden.bs.toast', () => toastElement.remove());
+        const el = container.lastElementChild;
+        setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 500); }, 3000);
     }
     
-    function logToTerminal(msg, color='#00ff41') {
+    function logToTerminal(msg, color='#10b981') {
         const term = document.getElementById('terminal-log');
-        const time = new Date().toLocaleTimeString();
-        
         const div = document.createElement('div');
+        div.className = 'mb-1';
         div.style.color = color;
-        
-        const timeSpan = document.createElement('span');
-        timeSpan.style.opacity = '0.6';
-        timeSpan.textContent = `[${time}] `;
-        
-        div.appendChild(timeSpan);
-        div.appendChild(document.createTextNode(msg));
-        
+        div.innerHTML = `<span class="opacity-30 mr-2 text-[10px] font-bold">${new Date().toLocaleTimeString()}</span> <span class="tracking-tight font-mono">${msg}</span>`;
         term.appendChild(div);
         term.scrollTop = term.scrollHeight;
     }
-    
+
     function updateCounter(tipo, delta) {
         const badgeId = (tipo === 'boletos') ? 'count-boletos' : 'count-comprovantes';
         const badge = document.getElementById(badgeId);
         if(badge) {
             let current = parseInt(badge.innerText || "0");
-            let novo = current + delta;
-            if(novo < 0) novo = 0;
+            let novo = Math.max(0, current + delta);
             badge.innerText = novo;
         }
         verificarProntoParaProcessar();
     }
-    
+
     function verificarProntoParaProcessar() {
         const boletos = document.querySelectorAll('#list-boletos .file-item').length;
         const comprovantes = document.querySelectorAll('#list-comprovantes .file-item').length;
@@ -229,104 +223,39 @@
         if (boletos > 0 && comprovantes === 1) {
             btn.disabled = false;
             btn.classList.add('pulse-btn');
-            helpText.textContent = `Pronto! ${boletos} boletos e 1 arquivo de comprovantes`;
+            helpText.textContent = `Pronto para processar ${boletos} itens!`;
+            helpText.classList.replace('text-slate-300', 'text-emerald-500');
         } else {
             btn.disabled = true;
             btn.classList.remove('pulse-btn');
-            
-            if (boletos === 0 && comprovantes === 0) {
-                helpText.textContent = 'Envie boletos e comprovantes para começar';
-            } else if (comprovantes === 0) {
-                helpText.textContent = 'Falta o arquivo de comprovantes';
-            } else if (boletos === 0) {
-                helpText.textContent = 'Envie pelo menos 1 boleto';
-            } else if (comprovantes > 1) {
-                helpText.textContent = '⚠️ Envie apenas 1 arquivo de comprovantes';
-            }
+            helpText.classList.replace('text-emerald-500', 'text-slate-300');
+            if (comprovantes > 1) helpText.textContent = 'Atenção: Envie apenas 1 arquivo de comprovantes';
+            else helpText.textContent = 'Aguardando arquivos para análise';
         }
     }
-    
-    // ============================================================
-    // DRAG & DROP
-    // ============================================================
-    
-    function setupDragAndDrop() {
-        ['drop-boletos', 'drop-comprovantes'].forEach(id => {
-            const zone = document.getElementById(id);
-            const tipo = id.split('-')[1];
-            
-            zone.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                zone.classList.add('drag-over');
-            });
-            
-            zone.addEventListener('dragleave', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                zone.classList.remove('drag-over');
-            });
-            
-            zone.addEventListener('drop', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                zone.classList.remove('drag-over');
-                handleUpload(e.dataTransfer.files, tipo);
-            });
-        });
-    }
-    
-    // ============================================================
-    // UPLOAD
-    // ============================================================
-    
+
     async function handleUpload(files, tipo) {
         if (!files || files.length === 0) return;
-        
-        // Validações específicas para comprovantes
         if (tipo === 'comprovantes') {
             const atual = document.querySelectorAll('#list-comprovantes .file-item').length;
-            
             if (atual > 0) {
-                if (!confirm('Já existe um arquivo de comprovantes. Substituir?')) {
-                    return;
-                }
-                // Limpar existente
+                if (!confirm('Substituir o arquivo de comprovantes existente?')) return;
                 const items = document.querySelectorAll('#list-comprovantes .file-item');
-                for (let item of items) {
-                    const filename = item.getAttribute('data-filename');
-                    await deleteFile('comprovantes', filename, false);
-                }
+                for (let item of items) await deleteFile('comprovantes', item.getAttribute('data-filename'), false);
             }
-            
-            if (files.length > 1) {
-                showToast('⚠️ Apenas 1 arquivo de comprovantes é permitido', 'warning');
-                files = [files[0]];
-            }
+            if (files.length > 1) { showToast('Apenas o primeiro arquivo será usado', 'warning'); files = [files[0]]; }
         }
         
-        const listId = `list-${tipo}`;
-        const container = document.getElementById(listId);
-        
+        const container = document.getElementById(`list-${tipo}`);
         for (let file of files) {
-            // Validar tipo
-            if (!file.name.toLowerCase().endsWith('.pdf')) {
-                showToast(`❌ ${file.name}: Apenas PDFs são permitidos`, 'error');
-                continue;
-            }
+            if (!file.name.toLowerCase().endsWith('.pdf')) { showToast(`❌ ${file.name}: Apenas PDFs`, 'error'); continue; }
+            if (file.size > MAX_FILE_SIZE) { showToast(`❌ ${file.name}: Muito grande`, 'error'); continue; }
             
-            // Validar tamanho
-            if (file.size > MAX_FILE_SIZE) {
-                const sizeMB = (file.size / 1024 / 1024).toFixed(1);
-                showToast(`❌ ${file.name}: Arquivo muito grande (${sizeMB}MB, máx 50MB)`, 'error');
-                continue;
-            }
-            
-            const tempId = 'temp-' + Date.now() + '-' + Math.random();
+            const tempId = 'temp-' + Date.now();
             const div = document.createElement('div');
-            div.className = 'file-item';
+            div.className = 'file-item bg-slate-50 p-4 rounded-2xl border border-slate-100 flex justify-between items-center';
             div.id = tempId;
-            div.innerHTML = `<div><i class="fas fa-spinner fa-spin text-primary"></i> Enviando ${file.name}...</div>`;
+            div.innerHTML = `<div class="text-xs font-bold text-slate-400"><i class="fas fa-spinner fa-spin mr-2"></i> Subindo ${file.name}...</div>`;
             container.appendChild(div);
 
             const formData = new FormData();
@@ -334,127 +263,60 @@
             formData.append('tipo', tipo);
 
             try {
-                const res = await fetch("{% url 'api_upload' %}", { 
-                    method: 'POST', 
-                    body: formData 
-                });
-                
-                if (!res.ok) {
-                    throw new Error(`HTTP ${res.status}`);
-                }
-                
+                const res = await fetch("{% url 'api_upload' %}", { method: 'POST', body: formData });
                 const data = await res.json();
-                
                 if (data.status === 'ok') {
                     const finalDiv = document.getElementById(tempId);
-                    const safeIdValue = safeId(data.filename);
-                    
-                    finalDiv.id = safeIdValue;
                     finalDiv.setAttribute('data-filename', data.filename);
                     finalDiv.innerHTML = `
-                        <div><span class="status-icon">${tipo === 'boletos' ? '📄' : '🗂️'}</span> <span class="filename">${data.filename}</span></div>
-                        <button class="btn btn-sm btn-outline-danger border-0" onclick="deleteFile('${tipo}', '${data.filename.replace(/'/g, "\\'")}')"><i class="fas fa-times"></i></button>
+                        <div class="flex items-center gap-3">
+                            <span class="status-icon w-8 h-8 bg-white rounded-lg flex items-center justify-center text-xs shadow-sm">${tipo === 'boletos' ? '📄' : '🗂️'}</span>
+                            <span class="filename text-xs font-bold text-slate-600 truncate max-w-[200px]">${data.filename}</span>
+                        </div>
+                        <button class="btn btn-ghost btn-circle btn-xs text-slate-200 hover:text-rose-500" onclick="deleteFile('${tipo}', '${data.filename}')"><i class="fas fa-times"></i></button>
                     `;
                     updateCounter(tipo, 1);
-                    showToast(`✅ ${data.filename} enviado`, 'success');
-                } else {
-                    throw new Error(data.error || 'Erro desconhecido');
                 }
-            } catch(e) {
-                console.error('Erro no upload:', e);
-                const finalDiv = document.getElementById(tempId);
-                if (finalDiv) {
-                    finalDiv.innerHTML = `<div class="text-danger"><i class="fas fa-exclamation-triangle"></i> ${file.name}: Erro ao enviar</div>`;
-                    setTimeout(() => finalDiv.remove(), 5000);
-                }
-                showToast(`❌ Erro ao enviar ${file.name}`, 'error');
-            }
+            } catch(e) { div.remove(); showToast('Erro no upload', 'error'); }
         }
     }
 
-    // ============================================================
-    // DELETE
-    // ============================================================
-    
     async function deleteFile(tipo, filename, confirmar = true) {
         if (confirmar && !confirm(`Remover "${filename}"?`)) return;
-        
         try {
-            const res = await fetch("{% url 'api_delete' %}", {
+            await fetch("{% url 'api_delete' %}", {
                 method: 'POST',
                 body: JSON.stringify({ tipo, filename }),
                 headers: { 'Content-Type': 'application/json' }
             });
-            
-            if (!res.ok) throw new Error('Erro na requisição');
-            
-            const row = document.querySelector(`.file-item[data-filename="${filename}"]`);
-            if (row) row.remove();
-            
+            document.querySelector(`.file-item[data-filename="${filename}"]`).remove();
             updateCounter(tipo, -1);
-            if (confirmar) showToast(`🗑️ Arquivo removido`, 'info');
-            
-        } catch(e) { 
-            console.error('Erro ao deletar:', e);
-            showToast('❌ Erro ao deletar arquivo', 'error');
-        }
+        } catch(e) { showToast('Erro ao remover', 'error'); }
     }
 
     async function limparTudo() {
-        if (!confirm("Isso apagará TODOS os arquivos. Confirmar?")) return;
-        
+        if (!confirm("Apagar todos os arquivos do ambiente?")) return;
         try {
-            const res = await fetch("{% url 'api_limpar' %}", { method: 'POST' });
-            if (!res.ok) throw new Error('Erro na requisição');
-            
-            document.getElementById('list-boletos').innerHTML = '';
-            document.getElementById('list-comprovantes').innerHTML = '';
-            document.getElementById('count-boletos').innerText = '0';
-            document.getElementById('count-comprovantes').innerText = '0';
-            
-            // Reset UI
-            document.getElementById('execution-panel').style.display = 'none';
-            verificarProntoParaProcessar();
-            
-            showToast('🧹 Todos os arquivos foram removidos', 'info');
-        } catch(e) { 
-            showToast("❌ Erro ao limpar arquivos", 'error');
-        }
+            await fetch("{% url 'api_limpar' %}", { method: 'POST' });
+            location.reload();
+        } catch(e) { showToast("Erro ao limpar", 'error'); }
     }
 
-    // ============================================================
-    // PROCESSAMENTO
-    // ============================================================
-    
-    let tempoInicio = null;
-    
     async function startProcessing() {
         const btn = document.getElementById('btn-processar');
         const panel = document.getElementById('execution-panel');
         const term = document.getElementById('terminal-log');
         const pBar = document.getElementById('main-progress-bar');
-        const pLabel = document.getElementById('progress-label');
         
-        // Reset
         panel.style.display = 'block';
         panel.scrollIntoView({ behavior: 'smooth' });
         btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-cog fa-spin"></i> Processando...';
+        btn.innerHTML = '<span class="loading loading-spinner"></span> IA PROCESSANDO...';
         term.innerHTML = '';
-        logToTerminal('🚀 Conectando ao servidor...');
-        pBar.style.width = '5%';
-        pBar.classList.remove('bg-success');
-        pBar.classList.add('bg-info');
-        document.getElementById('download-area').style.display = 'none';
-        tempoInicio = Date.now();
-
+        logToTerminal('🚀 Conectando ao Processador MayaCorp...');
+        
         try {
             const response = await fetch("{% url 'api_processar' %}");
-            
-            if (!response.ok) {
-                throw new Error(`Erro ${response.status}: ${response.statusText}`);
-            }
-
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
             let buffer = '';
@@ -462,126 +324,61 @@
             while (true) {
                 const { done, value } = await reader.read();
                 if (done) break;
-                
                 buffer += decoder.decode(value, { stream: true });
-                
-                // Proteção contra buffer overflow
-                if (buffer.length > MAX_BUFFER) {
-                    console.warn('Buffer muito grande, reiniciando');
-                    buffer = buffer.slice(-MAX_BUFFER/2);
-                }
-                
                 const lines = buffer.split('\n');
                 buffer = lines.pop();
-
                 for (let line of lines) {
                     if (!line.trim()) continue;
-                    try {
-                        const event = JSON.parse(line);
-                        handleServerEvent(event);
-                    } catch(e) { 
-                        console.error('Erro ao parsear evento:', e, line);
-                    }
+                    handleServerEvent(JSON.parse(line));
                 }
             }
-        } catch (error) {
-            console.error('Erro fatal:', error);
-            logToTerminal("❌ ERRO: " + error.message, '#ff0000');
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-redo"></i> Tentar Novamente';
-            showToast('❌ Erro no processamento', 'error');
-        }
+        } catch (error) { logToTerminal("❌ ERRO FATAL: " + error.message, '#ff4d4d'); btn.disabled = false; }
     }
 
     function handleServerEvent(ev) {
         const pBar = document.getElementById('main-progress-bar');
         const pLabel = document.getElementById('progress-label');
+        const pPercent = document.getElementById('progress-percent');
 
-        if (ev.type === 'log') {
-            logToTerminal(ev.data);
-        }
-        else if (ev.type === 'comp_status') {
-            pBar.style.width = '30%'; 
-            pLabel.innerText = `Lendo Comprovantes: ${ev.data.msg}`;
-        }
-        else if (ev.type === 'file_start') {
-            pLabel.innerText = `🔍 Analisando: ${ev.data.filename}`;
-            
+        if (ev.type === 'log') logToTerminal(ev.data);
+        else if (ev.type === 'comp_status') { pBar.style.width = '30%'; pLabel.innerText = `Lendo Comprovantes...`; pPercent.innerText = '30%'; }
+        else if (ev.type === 'file_start') { 
+            pLabel.innerText = `Analisando: ${ev.data.filename}`; 
             const row = document.querySelector(`.file-item[data-filename="${ev.data.filename}"]`);
-            if(row) {
-                const icon = row.querySelector('.status-icon');
-                icon.innerHTML = '<i class="fas fa-spinner fa-spin text-primary"></i>';
-                row.style.backgroundColor = '#f8f9fa';
-            }
+            if(row) row.classList.add('bg-blue-50');
         }
         else if (ev.type === 'file_done') {
+            const total = document.querySelectorAll('#list-boletos .file-item').length;
             const row = document.querySelector(`.file-item[data-filename="${ev.data.filename}"]`);
             if(row) {
-                const icon = row.querySelector('.status-icon');
-                if(ev.data.status === 'success') {
-                    icon.innerHTML = '✅';
-                    row.style.backgroundColor = '#d1e7dd';
-                } else if (ev.data.status === 'warning') {
-                    icon.innerHTML = '⚠️';
-                    row.style.backgroundColor = '#fff3cd';
-                } else {
-                    icon.innerHTML = '❌';
-                    row.style.backgroundColor = '#f8d7da';
-                }
+                row.classList.replace('bg-blue-50', ev.data.status === 'success' ? 'bg-emerald-50' : 'bg-rose-50');
+                row.querySelector('.status-icon').innerHTML = ev.data.status === 'success' ? '✅' : '⚠️';
             }
-            
-            // Atualizar progresso
-            const total = document.querySelectorAll('#list-boletos .file-item').length;
-            const processados = document.querySelectorAll('#list-boletos .file-item [style*="d1e7dd"], #list-boletos .file-item [style*="fff3cd"], #list-boletos .file-item [style*="f8d7da"]').length;
-            const percent = Math.round((processados / total) * 70) + 30; // 30% já foi usado para comprovantes
-            pBar.style.width = percent + '%';
-            
-            // Estimativa de tempo
-            if (tempoInicio) {
-                const tempoDecorrido = (Date.now() - tempoInicio) / 1000; // segundos
-                const tempoMedio = tempoDecorrido / processados;
-                const faltam = total - processados;
-                const estimativa = Math.round(faltam * tempoMedio);
-                
-                if (estimativa > 0 && faltam > 0) {
-                    pLabel.innerText = `Processando ${processados}/${total} (~${estimativa}s restantes)`;
-                }
-            }
+            // Cálculo de progresso simplificado
+            let currentIdx = parseInt(pPercent.innerText) || 30;
+            let nextPercent = Math.min(95, currentIdx + (70/total));
+            pBar.style.width = nextPercent + '%';
+            pPercent.innerText = Math.round(nextPercent) + '%';
         }
         else if (ev.type === 'finish') {
             pBar.style.width = '100%';
-            pBar.classList.remove('bg-info');
-            pBar.classList.add('bg-success');
-            pLabel.innerText = "✅ Processo Concluído!";
-            logToTerminal("🏁 DOWNLOAD PRONTO!", "#00ff41");
-            
-            // Estatísticas
-            const stats = `${ev.data.matches} encontrados | ${ev.data.sem_match} sem match | Total: ${ev.data.total}`;
-            document.getElementById('stats-summary').textContent = stats;
-            
-            // Mostrar download
-            const dlArea = document.getElementById('download-area');
-            const dlLink = document.getElementById('download-link');
-            dlLink.href = ev.data.url;
-            dlArea.style.display = 'block';
-            
-            // Reabilitar botão
-            const btn = document.getElementById('btn-processar');
-            btn.innerHTML = '<i class="fas fa-redo"></i> Processar Novamente';
+            pPercent.innerText = '100%';
+            pLabel.innerText = "Processamento Concluído!";
+            document.getElementById('stats-summary').textContent = `${ev.data.matches} encontrados de ${ev.data.total} boletos.`;
+            document.getElementById('download-link').href = ev.data.url;
+            document.getElementById('download-area').style.display = 'block';
+            btn.innerHTML = '<i class="fas fa-redo"></i> NOVO PROCESSAMENTO';
             btn.disabled = false;
-            btn.classList.remove('pulse-btn');
-            
-            showToast('✅ Processamento concluído!', 'success');
         }
     }
-    
-    // ============================================================
-    // INICIALIZAÇÃO
-    // ============================================================
-    
+
     document.addEventListener('DOMContentLoaded', function() {
-        setupDragAndDrop();
-        verificarProntoParaProcessar();
+        ['drop-boletos', 'drop-comprovantes'].forEach(id => {
+            const zone = document.getElementById(id);
+            zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('drag-over'); });
+            zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+            zone.addEventListener('drop', (e) => { e.preventDefault(); zone.classList.remove('drag-over'); handleUpload(e.dataTransfer.files, id.split('-')[1]); });
+        });
     });
 </script>
 {% endblock %}

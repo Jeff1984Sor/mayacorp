@@ -1,66 +1,133 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Fornecedores{% endblock %}
+{% block title %}Gestão de Fornecedores - MayaCorp{% endblock %}
 
 {% block content %}
-<div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3 class="fw-bold text-dark"><i class="fas fa-truck me-2"></i>Fornecedores</h3>
-        <a href="{% url 'fornecedor_create' %}" class="btn btn-primary fw-bold">
-            <i class="fas fa-plus"></i> Novo Fornecedor
+<div class="max-w-7xl mx-auto pb-10">
+    
+    <!-- HEADER -->
+    <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4 px-2">
+        <div class="flex items-center gap-4">
+            <!-- Ícone Soft UI -->
+            <div class="w-14 h-14 bg-serene-blue/20 rounded-[22px] flex items-center justify-center text-serene-blue shadow-sm border border-white">
+                <i class="fas fa-truck text-2xl"></i>
+            </div>
+            <div>
+                <h1 class="text-3xl font-black text-slate-800 tracking-tight">Fornecedores</h1>
+                <p class="text-[10px] text-slate-400 font-black uppercase tracking-[2px] mt-1">
+                    {{ fornecedores|length }} parceiros cadastrados no sistema
+                </p>
+            </div>
+        </div>
+        
+        <a href="{% url 'fornecedor_create' %}" 
+           class="btn bg-serene-blue border-none text-white rounded-2xl px-8 h-14 shadow-xl shadow-blue-200 hover:bg-blue-400 hover:scale-[1.02] transition-all normal-case font-black italic">
+            <i class="fas fa-plus mr-2 text-xs"></i> Novo Fornecedor
         </a>
-    </div>
+    </header>
 
-    <div class="card shadow-sm border-0">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th>Nome / Razão Social</th>
-                        <th>CNPJ / CPF</th>
-                        <th>Telefone / E-mail</th>
-                        <th>Status</th>
-                        <th class="text-end">Ações</th>
+    <!-- LISTA DE FORNECEDORES (Card Soft UI) -->
+    <div class="bg-white rounded-[40px] shadow-2xl shadow-slate-200/50 overflow-hidden border border-white animate-in fade-in duration-500">
+        <div class="overflow-x-auto">
+            <table class="table w-full border-collapse">
+                <!-- CABEÇALHO -->
+                <thead>
+                    <tr class="border-b border-slate-50">
+                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[3px] font-black py-8 pl-10">Parceiro / Razão Social</th>
+                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[3px] font-black py-8">Identificação</th>
+                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[3px] font-black py-8">Contato Direto</th>
+                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[3px] font-black py-8 text-center">Status</th>
+                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[3px] font-black py-8 pr-10 text-right">Gestão</th>
                     </tr>
                 </thead>
-                <tbody>
+                
+                <tbody class="divide-y divide-slate-50">
                     {% for f in fornecedores %}
-                    <tr>
-                        <td class="fw-bold text-dark">
-                            {{ f.nome }}
-                            {% if f.nome_fantasia %}
-                                <br><small class="text-muted">{{ f.nome_fantasia }}</small>
-                            {% endif %}
+                    <tr class="hover:bg-slate-50/50 transition-colors group">
+                        
+                        <!-- NOME / RAZÃO SOCIAL -->
+                        <td class="py-6 pl-10">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-300 group-hover:bg-serene-blue/10 group-hover:text-serene-blue transition-all duration-300">
+                                    <i class="fas fa-building text-sm"></i>
+                                </div>
+                                <div class="flex flex-col">
+                                    <span class="text-slate-800 font-black text-sm tracking-tight">{{ f.nome }}</span>
+                                    {% if f.nome_fantasia %}
+                                        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">{{ f.nome_fantasia }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
                         </td>
-                        <td>{{ f.cnpj_cpf|default:"-" }}</td>
-                        <td>
-                            <div><i class="fas fa-phone me-1 text-muted"></i> {{ f.telefone|default:"-" }}</div>
-                            {% if f.email %}
-                                <div class="small text-muted"><i class="fas fa-envelope me-1"></i> {{ f.email }}</div>
-                            {% endif %}
+
+                        <!-- CNPJ / CPF -->
+                        <td class="py-6">
+                            <span class="text-[10px] font-mono font-bold text-slate-500 bg-slate-100/50 px-3 py-1.5 rounded-lg border border-slate-100">
+                                {{ f.cnpj_cpf|default:"---" }}
+                            </span>
                         </td>
-                        <td>
+
+                        <!-- CONTATO (Telefone / Email) -->
+                        <td class="py-6">
+                            <div class="flex flex-col gap-1.5">
+                                <div class="flex items-center gap-2 text-slate-600 text-xs font-bold">
+                                    <i class="fas fa-phone text-emerald-400 text-[10px]"></i>
+                                    {{ f.telefone|default:"---" }}
+                                </div>
+                                {% if f.email %}
+                                    <div class="flex items-center gap-2 text-slate-400 text-[10px] font-medium italic">
+                                        <i class="fas fa-envelope text-slate-200 text-[10px]"></i>
+                                        {{ f.email }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </td>
+
+                        <!-- STATUS (Badges Soft) -->
+                        <td class="py-6 text-center">
                             {% if f.ativo %}
-                                <span class="badge bg-success">Ativo</span>
+                                <div class="badge bg-mint-green/20 border-none text-emerald-700 text-[9px] font-black py-3 px-5 rounded-xl uppercase tracking-tighter shadow-sm shadow-mint-green/10">
+                                    <i class="fas fa-check-circle mr-2 text-[8px]"></i> ATIVO
+                                </div>
                             {% else %}
-                                <span class="badge bg-secondary">Inativo</span>
+                                <div class="badge bg-slate-100 border-none text-slate-400 text-[9px] font-black py-3 px-5 rounded-xl uppercase tracking-tighter">
+                                    INATIVO
+                                </div>
                             {% endif %}
                         </td>
-                        <td class="text-end">
-                            <button class="btn btn-sm btn-outline-secondary"><i class="fas fa-pen"></i></button>
+
+                        <!-- AÇÕES -->
+                        <td class="py-6 pr-10 text-right">
+                            <div class="flex justify-end gap-2">
+                                <a href="{% url 'fornecedor_update' f.pk %}" 
+                                   class="btn btn-ghost btn-sm bg-slate-50 hover:bg-serene-blue/10 rounded-xl text-slate-400 hover:text-serene-blue normal-case font-bold px-4 py-2 h-auto min-h-0 text-[10px] transition-all border-none">
+                                    <i class="fas fa-pen mr-2"></i> Editar
+                                </a>
+                            </div>
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="5" class="text-center py-5 text-muted">
-                            <i class="fas fa-truck-loading fa-2x mb-3"></i><br>
-                            Nenhum fornecedor cadastrado.
+                        <td colspan="5" class="py-32 text-center">
+                            <div class="flex flex-col items-center">
+                                <div class="w-24 h-24 bg-slate-50 rounded-[3rem] flex items-center justify-center text-slate-200 mb-6 border border-dashed border-slate-200 shadow-inner">
+                                    <i class="fas fa-truck-ramp-box text-4xl"></i>
+                                </div>
+                                <h3 class="text-slate-400 font-black uppercase text-sm tracking-widest">Nenhum parceiro cadastrado</h3>
+                                <p class="text-slate-300 text-xs mt-2 italic">Adicione fornecedores para organizar suas despesas e notas fiscais.</p>
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
+    </div>
+
+    <!-- RODAPÉ INFORMATIVO -->
+    <div class="mt-12 text-center">
+        <p class="text-[10px] text-slate-300 font-bold uppercase tracking-[4px]">MayaCorp Supply Chain Management v2.1</p>
     </div>
 </div>
 {% endblock %}

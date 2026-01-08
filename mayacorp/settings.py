@@ -4,22 +4,16 @@ Django settings for mayacorp project.
 
 from pathlib import Path
 import os
-import dj_database_url # <--- BIBLIOTECA NOVA (pip install dj-database-url)
+import dj_database_url 
 from dotenv import load_dotenv
 import google.generativeai as genai
 
 # Carrega variáveis de ambiente (.env)
 load_dotenv()
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-chave-padrao-dev')
-
-# SECURITY WARNING: don't run with debug turned on in production!
-# Se não tiver a variável DEBUG, assume False (Produção)
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = [
@@ -29,18 +23,16 @@ ALLOWED_HOSTS = [
     'localhost', 
     '127.0.0.1',
     '.localhost', 
-    '.railway.app', # Permite subdominios no Railway
-    '.onrender.com', # Permite subdominios no Render
-    '*' # Cuidado em produção real, mas útil para testes iniciais
+    '.railway.app', 
+    '.onrender.com', 
+    '*' 
 ]
 
-# Configuração CSRF para funcionar em HTTPS (Railway/Render)
 CSRF_TRUSTED_ORIGINS = [
     'https://*.railway.app', 
     'https://*.onrender.com',
     'https://*.mayacorp.com.br'
 ]
-
 
 # ==============================================================================
 # CONFIGURAÇÃO MULTI-TENANT (DJANGO-TENANTS)
@@ -49,7 +41,9 @@ CSRF_TRUSTED_ORIGINS = [
 SHARED_APPS = (
     'django_tenants',
     'core',
-    
+    'tailwind',  # App do motor do Tailwind
+    'theme',     # Seu app de design customizado
+    'django_browser_reload', # Atualiza o navegador sozinho no dev
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -76,24 +70,21 @@ INSTALLED_APPS = list(SHARED_APPS) + [app for app in TENANT_APPS if app not in S
 TENANT_MODEL = "core.Organizacao" 
 TENANT_DOMAIN_MODEL = "core.Domain"
 
-
 # ==============================================================================
 # MIDDLEWARE
 # ==============================================================================
 
 MIDDLEWARE = [
-    'django_tenants.middleware.main.TenantMainMiddleware', # OBRIGATÓRIO PRIMEIRO
-    
+    'django_tenants.middleware.main.TenantMainMiddleware', 
     'django.middleware.security.SecurityMiddleware',
-    
-    'whitenoise.middleware.WhiteNoiseMiddleware', # <--- OBRIGATÓRIO PARA ESTÁTICOS NA NUVEM
-    
+    'whitenoise.middleware.WhiteNoiseMiddleware', 
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django_browser_reload.middleware.BrowserReloadMiddleware', # Reload automático
 ]
 
 ROOT_URLCONF = 'mayacorp.urls'
@@ -116,23 +107,17 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'mayacorp.wsgi.application'
 
-
 # ==============================================================================
-# DATABASE ROUTER
+# DATABASE & ROUTER
 # ==============================================================================
 
 DATABASE_ROUTERS = (
     'django_tenants.routers.TenantSyncRouter',
 )
 
-# ==============================================================================
-# BANCO DE DADOS (HÍBRIDO: LOCAL E NUVEM)
-# ==============================================================================
-
-# Configuração padrão (Local) lendo variáveis separadas
 DATABASES = {
     'default': {
-        'ENGINE': 'django_tenants.postgresql_backend', # Engine Especial
+        'ENGINE': 'django_tenants.postgresql_backend', 
         'NAME': os.getenv('DB_NAME', 'mayacorp_db'),
         'USER': os.getenv('DB_USER', 'postgres'),
         'PASSWORD': os.getenv('DB_PASSWORD', 'postgres'),
@@ -141,46 +126,10 @@ DATABASES = {
     }
 }
 
-# Se existir DATABASE_URL (Railway/Render fornece isso automaticamente)
 if os.getenv('DATABASE_URL'):
-    # Parseia a URL do banco
     db_config = dj_database_url.config(default=os.getenv('DATABASE_URL'))
-    
-    # IMPORTANTE: Força a engine do Tenant, pois o dj_database_url usa a padrão
     db_config['ENGINE'] = 'django_tenants.postgresql_backend'
-    
     DATABASES = {'default': db_config}
-
-
-# ============================================================
-# CACHE CONFIGURATION
-# ============================================================
-
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'unique-snowflake',
-        'TIMEOUT': 3600 * 24, 
-    }
-}
-
-# ==============================================================================
-# Password validation
-# ==============================================================================
-AUTH_PASSWORD_VALIDATORS = [
-    { 'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator', },
-    { 'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator', },
-    { 'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator', },
-    { 'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator', },
-]
-
-
-# Internationalization
-LANGUAGE_CODE = 'pt-br'
-TIME_ZONE = 'America/Sao_Paulo'
-USE_I18N = True
-USE_TZ = True
-
 
 # ==============================================================================
 # ARQUIVOS ESTÁTICOS E MÍDIA
@@ -188,16 +137,8 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [ BASE_DIR / "static", ]
-STATIC_ROOT = BASE_DIR / 'staticfiles' # Pasta onde o collectstatic junta tudo
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# Armazenamento de Estáticos com Compressão (Whitenoise)
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
-# Mídia (Uploads)
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
-
-# Configuração de Storage do Tenant
 STORAGES = {
     "default": {
         "BACKEND": "django_tenants.files.storages.TenantFileSystemStorage", 
@@ -207,19 +148,27 @@ STORAGES = {
     },
 }
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 MULTITENANT_RELATIVE_MEDIA_ROOT = "%s"
 
+# ==============================================================================
+# TAILWIND CONFIGURATION
+# ==============================================================================
 
-# Default primary key field type
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+TAILWIND_APP_NAME = 'theme'
+INTERNAL_IPS = ["127.0.0.1"]
 
-# --- MINHAS CONFIGURAÇÕES ---
+# ==============================================================================
+# OUTRAS CONFIGURAÇÕES (AUTH, CRISPY, GOOGLE)
+# ==============================================================================
 
 AUTH_USER_MODEL = 'core.CustomUser'
-
-LOGIN_REDIRECT_URL = 'home'
-LOGOUT_REDIRECT_URL = 'home'
-LOGIN_URL = 'login'
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+LANGUAGE_CODE = 'pt-br'
+TIME_ZONE = 'America/Sao_Paulo'
+USE_I18N = True
+USE_TZ = True
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
@@ -228,33 +177,10 @@ GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
 if GOOGLE_API_KEY:
     genai.configure(api_key=GOOGLE_API_KEY)
 
-
-SESSION_COOKIE_NAME = 'mayacorp_session'
-AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',
-]
-
-# Segurança de Cookies (Ativa apenas se não for DEBUG, ou seja, em Produção)
+# Segurança de Cookies
 if not DEBUG:
     SESSION_COOKIE_SECURE = True
-    SESSION_COOKIE_HTTPONLY = True
     CSRF_COOKIE_SECURE = True
-    SECURE_SSL_REDIRECT = True # Força HTTPS na nuvem
-else:
-    SESSION_COOKIE_SECURE = False
-    SESSION_COOKIE_HTTPONLY = True
+    SECURE_SSL_REDIRECT = True
 
-
-
-
-GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
-
-
-# Configuração de E-mail
-EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend') # Default para console se não tiver config
-EMAIL_HOST = os.getenv('EMAIL_HOST')
-EMAIL_PORT = os.getenv('EMAIL_PORT')
-EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS') == 'True'
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
-DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'noreply@mayacorp.com.br')
+NPM_BIN_PATH = r"C:\Program Files\nodejs\npm.cmd"

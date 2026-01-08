@@ -1,53 +1,106 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Contas e Caixas{% endblock %}
+{% block title %}Contas e Caixas - MayaCorp{% endblock %}
 
 {% block content %}
-<div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3 class="fw-bold text-dark"><i class="fas fa-wallet me-2"></i>Contas Bancárias e Caixas</h3>
-        <a href="{% url 'conta_create' %}" class="btn btn-primary fw-bold">
-            <i class="fas fa-plus"></i> Nova Conta
+<div class="max-w-7xl mx-auto pb-10">
+    
+    <!-- HEADER -->
+    <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-4 px-2">
+        <div class="flex items-center gap-4">
+            <div class="w-14 h-14 bg-soft-lavender/30 rounded-[22px] flex items-center justify-center text-purple-600 shadow-sm border border-white">
+                <i class="fas fa-wallet text-2xl"></i>
+            </div>
+            <div>
+                <h1 class="text-3xl font-black text-slate-800 tracking-tight">Contas e Caixas</h1>
+                <p class="text-[10px] text-slate-400 font-black uppercase tracking-[2px] mt-1">
+                    Gestão de saldos e disponibilidades do estúdio
+                </p>
+            </div>
+        </div>
+        
+        <a href="{% url 'conta_create' %}" 
+           class="btn bg-serene-blue border-none text-white rounded-2xl px-8 h-14 shadow-xl shadow-blue-200 hover:bg-blue-400 hover:scale-[1.02] transition-all normal-case font-black italic">
+            <i class="fas fa-plus mr-2 text-xs"></i> Nova Conta
         </a>
+    </header>
+
+    <!-- GRID DE CONTAS (Estilo Digital Wallets) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-2">
+        {% for conta in contas %}
+        <div class="group bg-white rounded-[40px] shadow-xl shadow-slate-200/50 border border-white p-8 transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 relative overflow-hidden">
+            
+            <!-- Detalhe Decorativo Lavanda (Soft UI) -->
+            <div class="absolute top-0 right-0 w-32 h-32 bg-soft-lavender/5 rounded-full -mr-16 -mt-16 group-hover:scale-110 transition-transform duration-500"></div>
+
+            <div class="relative">
+                <!-- Ícone e Nome -->
+                <div class="flex items-center justify-between mb-8">
+                    <div class="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-300 group-hover:bg-soft-lavender/20 group-hover:text-purple-600 transition-colors">
+                        <i class="fas fa-university text-sm"></i>
+                    </div>
+                    <a href="{% url 'conta_extrato' conta.pk %}" class="btn btn-ghost btn-circle btn-sm text-slate-300 hover:text-serene-blue" title="Ver Extrato Completo">
+                        <i class="fas fa-arrow-up-right-from-square text-xs"></i>
+                    </a>
+                </div>
+
+                <h3 class="text-xl font-black text-slate-800 mb-1 group-hover:text-purple-600 transition-colors">
+                    {{ conta.nome }}
+                </h3>
+                <p class="text-[9px] text-slate-300 font-black uppercase tracking-widest mb-8">Disponibilidade Imediata</p>
+
+                <!-- Saldo (Destaque Financeiro) -->
+                <div class="bg-slate-50/50 rounded-3xl p-6 border border-slate-100/50">
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Saldo em Conta</p>
+                    <div class="text-2xl font-black italic tracking-tighter transition-all {% if conta.saldo_atual < 0 %}text-rose-400{% else %}text-emerald-500{% endif %}">
+                        <span class="text-sm not-italic mr-1 opacity-50">R$</span>{{ conta.saldo_atual }}
+                    </div>
+                </div>
+
+                <!-- Ações do Card -->
+                <div class="mt-8 pt-6 border-t border-slate-50 flex items-center justify-between">
+                    <a href="{% url 'conta_extrato' conta.pk %}" class="text-[10px] font-black text-serene-blue uppercase tracking-widest hover:underline italic">
+                        Ver Extrato →
+                    </a>
+                    
+                    <button class="btn btn-ghost btn-xs bg-slate-50 hover:bg-slate-100 rounded-lg text-slate-400 normal-case px-3 font-bold border-none">
+                        Editar
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full py-32 text-center bg-white rounded-[40px] border border-dashed border-slate-200">
+            <div class="w-24 h-24 bg-slate-50 rounded-[3rem] flex items-center justify-center text-slate-200 mx-auto mb-6 shadow-inner">
+                <i class="fas fa-piggy-bank text-4xl"></i>
+            </div>
+            <h3 class="text-slate-400 font-black uppercase text-sm tracking-widest">Nenhuma conta cadastrada</h3>
+            <p class="text-slate-300 text-xs mt-2 italic">Adicione bancos ou caixas para começar a controlar o dinheiro.</p>
+        </div>
+        {% endfor %}
     </div>
 
-    <div class="card shadow-sm border-0">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th>Nome da Conta</th>
-                        <th>Saldo Atual</th>
-                        <th class="text-end">Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for conta in contas %}
-                    <tr>
-                        <td class="fw-bold">
-                            <!-- LINK PARA O EXTRATO -->
-                            <a href="{% url 'conta_extrato' conta.pk %}" class="text-decoration-none text-primary fs-5" title="Ver Extrato">
-                                <i class="fas fa-search-plus me-2 text-muted"></i> {{ conta.nome }}
-                            </a>
-                        </td>
-                        <td class="fs-5 {% if conta.saldo_atual < 0 %}text-danger{% else %}text-success{% endif %} fw-bold">
-                            R$ {{ conta.saldo_atual }}
-                        </td>
-                        <td class="text-end">
-                            <a href="#" class="btn btn-sm btn-outline-secondary"><i class="fas fa-pen"></i> Editar</a>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="3" class="text-center py-5 text-muted">
-                            <i class="fas fa-university fa-2x mb-3"></i><br>
-                            Nenhuma conta cadastrada.
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+    <!-- RODAPÉ INFORMATIVO -->
+    <footer class="mt-16 flex flex-col md:flex-row items-center justify-between gap-6 px-6 py-8 bg-slate-50 rounded-[32px] border border-slate-100">
+        <div class="flex items-center gap-4">
+            <div class="w-10 h-10 bg-white rounded-2xl flex items-center justify-center shadow-sm text-serene-blue">
+                <i class="fas fa-info-circle"></i>
+            </div>
+            <p class="text-xs text-slate-400 font-medium max-w-sm">
+                Os saldos exibidos são atualizados em tempo real com base nas <strong>baixas de pagamentos</strong> e <strong>recebimentos</strong>.
+            </p>
         </div>
-    </div>
+        <div class="flex gap-4">
+            <div class="flex items-center gap-2">
+                <div class="w-2 h-2 rounded-full bg-mint-green shadow-[0_0_8px_rgba(178,242,187,1)]"></div>
+                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Saldos Positivos</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="w-2 h-2 rounded-full bg-rose-400 shadow-[0_0_8px_rgba(251,213,213,1)]"></div>
+                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Saldos Negativos</span>
+            </div>
+        </div>
+    </footer>
 </div>
 {% endblock %}

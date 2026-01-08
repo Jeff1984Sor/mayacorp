@@ -1,51 +1,95 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Assinar Contrato</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        .contrato-box { height: 400px; overflow-y: auto; border: 1px solid #ccc; padding: 20px; background: #fff; margin-bottom: 20px; }
-        canvas { border: 2px dashed #0d6efd; background: #f8f9fa; cursor: crosshair; width: 100%; height: 200px; touch-action: none; }
-    </style>
-</head>
-<body class="bg-light">
+{% extends 'base.html' %}
+{% load static %}
 
-<div class="container py-5">
-    <div class="card shadow">
-        <div class="card-header bg-primary text-white text-center">
-            <h4>Assinatura de Contrato</h4>
-            <small>{{ contrato.plano.nome }} - Aluno: {{ contrato.aluno.nome }}</small>
+{% block title %}Assinatura Digital - MayaCorp{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto pb-20">
+    
+    <!-- HEADER: Identificação do Contrato -->
+    <header class="text-center mb-10">
+        <div class="w-20 h-20 bg-serene-blue/20 rounded-[2.5rem] flex items-center justify-center text-serene-blue mx-auto mb-6 shadow-sm border border-white">
+            <i class="fas fa-file-signature text-3xl"></i>
         </div>
-        <div class="card-body">
+        <h1 class="text-3xl font-black text-slate-800 tracking-tight">Assinatura de Contrato</h1>
+        <p class="text-slate-400 font-medium mt-2">
+            Plano: <span class="text-serene-blue font-bold">{{ contrato.plano.nome }}</span> • 
+            Aluno: <span class="text-slate-600 font-bold">{{ contrato.aluno.nome }}</span>
+        </p>
+    </header>
+
+    <!-- CARD PRINCIPAL (Soft UI Style) -->
+    <div class="bg-white rounded-[40px] shadow-2xl shadow-slate-200/50 border border-white overflow-hidden animate-in fade-in zoom-in duration-500">
+        
+        <div class="p-8 md:p-12">
             
-            <!-- 1. Texto do Contrato -->
-            <h6 class="fw-bold">1. Leia os termos:</h6>
-            <div class="contrato-box">
-                {{ texto_contrato|safe }}
+            <!-- 1. TERMOS DO CONTRATO -->
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-8 h-8 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400">
+                    <span class="text-xs font-black">01</span>
+                </div>
+                <h6 class="text-[10px] font-black text-slate-400 uppercase tracking-[2px]">Leia os termos atentamente</h6>
             </div>
 
-            <!-- 2. Área de Assinatura -->
-            <h6 class="fw-bold mt-4">2. Assine abaixo (Use o dedo ou mouse):</h6>
-            <div class="position-relative">
-                <canvas id="signature-pad"></canvas>
-                <button type="button" class="btn btn-sm btn-outline-danger position-absolute top-0 end-0 m-2" onclick="limpar()">Limpar</button>
+            <!-- Box do Contrato com Scroll Suave -->
+            <div class="bg-slate-50 rounded-[32px] p-8 h-80 overflow-y-auto custom-scroll border border-slate-100 text-slate-600 leading-relaxed text-sm shadow-inner mb-10">
+                <div class="prose prose-slate">
+                    {{ texto_contrato|safe }}
+                </div>
             </div>
 
-            <!-- 3. Botões -->
-            <div class="d-grid gap-2 mt-4">
-                <button id="btn-assinar" class="btn btn-success btn-lg fw-bold">
-                    ✅ Confirmar Assinatura
+            <!-- 2. ÁREA DE ASSINATURA -->
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400">
+                        <span class="text-xs font-black">02</span>
+                    </div>
+                    <h6 class="text-[10px] font-black text-slate-400 uppercase tracking-[2px]">Assine no campo abaixo</h6>
+                </div>
+                <button type="button" class="btn btn-ghost btn-xs text-rose-400 font-bold hover:bg-rose-50 rounded-lg" onclick="limpar()">
+                    <i class="fas fa-eraser mr-1"></i> Limpar campo
                 </button>
             </div>
+
+            <!-- Canvas de Assinatura Style -->
+            <div class="relative group">
+                <canvas id="signature-pad" class="w-full h-48 bg-slate-50 rounded-[32px] border-2 border-dashed border-slate-200 cursor-crosshair transition-all group-hover:border-serene-blue/30 touch-none shadow-inner"></canvas>
+                
+                <!-- Overlay de ajuda (some ao tocar) -->
+                <div id="sig-help" class="absolute inset-0 flex items-center justify-center pointer-events-none text-slate-300 gap-2">
+                    <i class="fas fa-hand-pointer animate-pulse"></i>
+                    <span class="text-xs font-medium uppercase tracking-widest">Assine aqui</span>
+                </div>
+            </div>
+
+            <!-- 3. BOTÃO DE CONFIRMAÇÃO -->
+            <div class="mt-12 flex flex-col gap-4">
+                <button id="btn-assinar" class="btn btn-primary h-16 bg-mint-green border-none text-emerald-900 rounded-2xl shadow-xl shadow-mint-green/30 normal-case font-black text-lg italic hover:bg-emerald-400 hover:scale-[1.01] transition-all">
+                    ✅ Confirmar Assinatura Digital
+                </button>
+                <p class="text-center text-[9px] text-slate-300 font-bold uppercase tracking-[3px]">
+                    <i class="fas fa-shield-alt mr-1"></i> Autenticação via Protocolo MayaCorp Secure
+                </p>
+            </div>
+
         </div>
     </div>
 </div>
 
+<!-- Estilos para o Scroll e Canvas -->
+<style>
+    .custom-scroll::-webkit-scrollbar { width: 4px; }
+    .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+    
+    /* Impedir que o scroll da página atrapalhe a assinatura no mobile */
+    body { touch-action: pan-x pan-y; }
+</style>
+
 <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
 <script>
     var canvas = document.getElementById('signature-pad');
+    var sigHelp = document.getElementById('sig-help');
     
     // Ajusta tamanho do canvas para tela
     function resizeCanvas() {
@@ -57,9 +101,20 @@
     window.onresize = resizeCanvas;
     resizeCanvas();
 
-    var signaturePad = new SignaturePad(canvas, { backgroundColor: 'rgb(248, 249, 250)' });
+    var signaturePad = new SignaturePad(canvas, { 
+        backgroundColor: 'rgba(248, 249, 250, 0)', // Transparente para pegar o fundo do card
+        penColor: 'rgb(30, 41, 59)' // Slate 800
+    });
 
-    function limpar() { signaturePad.clear(); }
+    // Esconde o texto de ajuda ao começar a assinar
+    signaturePad.addEventListener("beginStroke", () => {
+        sigHelp.style.opacity = '0';
+    });
+
+    function limpar() { 
+        signaturePad.clear(); 
+        sigHelp.style.opacity = '1';
+    }
 
     document.getElementById('btn-assinar').addEventListener('click', function() {
         if (signaturePad.isEmpty()) {
@@ -67,25 +122,34 @@
         } else {
             var data = signaturePad.toDataURL(); // Pega a imagem em Base64
             
-            // Envia pro servidor
+            this.innerHTML = '<span class="loading loading-spinner"></span> Processando...';
+            this.disabled = true;
+
             fetch(window.location.href, {
                 method: 'POST',
                 headers: {
                     'X-CSRFToken': '{{ csrf_token }}',
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                body: 'assinatura_data=' + encodeURIComponent(data) + '&origem=STUDIO' // Se for link de email, mudamos para EMAIL depois
+                body: 'assinatura_data=' + encodeURIComponent(data) + '&origem=STUDIO'
             })
             .then(response => response.json())
             .then(data => {
                 if(data.status === 'ok') {
-                    alert("Contrato assinado com sucesso!");
-                    window.location.reload(); // Recarrega para mostrar tela de sucesso
+                    // Efeito de Sucesso Soft
+                    document.querySelector('.card-body').innerHTML = `
+                        <div class="py-20 text-center animate-in zoom-in duration-500">
+                            <div class="w-24 h-24 bg-mint-green/20 rounded-[2.5rem] flex items-center justify-center text-emerald-600 mx-auto mb-6">
+                                <i class="fas fa-check text-4xl"></i>
+                            </div>
+                            <h2 class="text-3xl font-black text-slate-800">Contrato Assinado!</h2>
+                            <p class="text-slate-400 mt-2 font-medium">O documento foi processado e arquivado com sucesso.</p>
+                            <button onclick="window.location.reload()" class="btn btn-ghost mt-8 text-serene-blue font-bold">Voltar</button>
+                        </div>
+                    `;
                 }
             });
         }
     });
 </script>
-
-</body>
-</html>
+{% endblock %}

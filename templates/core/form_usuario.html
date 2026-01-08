@@ -1,27 +1,93 @@
 {% extends 'base.html' %}
+{% load static %}
 {% load crispy_forms_tags %}
 
-{% block title %}Novo Usuário{% endblock %}
+{% block title %}Novo Membro da Equipe - MayaCorp{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card shadow">
-            <div class="card-header bg-white">
-                <h4 class="mb-0">Cadastrar Membro da Equipe</h4>
+<div class="max-w-2xl mx-auto pb-20">
+    
+    <!-- HEADER -->
+    <header class="flex justify-between items-center mb-10 px-2">
+        <div class="flex items-center gap-4">
+            <div class="w-14 h-14 bg-serene-blue/20 rounded-[22px] flex items-center justify-center text-serene-blue shadow-sm border border-white">
+                <i class="fas fa-user-shield text-2xl"></i>
             </div>
-            <div class="card-body">
-                <form method="post">
-                    {% csrf_token %}
+            <div>
+                <h1 class="text-3xl font-black text-slate-800 tracking-tight">Novo Usuário</h1>
+                <p class="text-[10px] text-slate-400 font-black uppercase tracking-[2px] mt-1">
+                    Adicionar novo membro à equipe administrativa
+                </p>
+            </div>
+        </div>
+    </header>
+
+    <!-- CARD PRINCIPAL (Soft UI Style) -->
+    <div class="bg-white rounded-[40px] shadow-2xl shadow-slate-200/50 border border-white overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+        
+        <div class="p-8 md:p-12">
+            <!-- Box de Informativo -->
+            <div class="bg-slate-50 p-6 rounded-[28px] border border-slate-100 flex items-center gap-4 mb-10">
+                <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-serene-blue shadow-sm">
+                    <i class="fas fa-info-circle"></i>
+                </div>
+                <p class="text-xs text-slate-500 font-medium leading-relaxed">
+                    O novo usuário receberá as permissões de acesso conforme o perfil selecionado. Certifique-se de que o e-mail está correto.
+                </p>
+            </div>
+
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+                
+                <!-- RENDERIZAÇÃO DO FORMULÁRIO (Customizada via CSS abaixo) -->
+                <div class="space-y-4">
                     {{ form|crispy }}
-                    
-                    <div class="d-grid gap-2 mt-4">
-                        <button type="submit" class="btn btn-success">Salvar Usuário</button>
-                        <a href="{% url 'lista_usuarios' %}" class="btn btn-link text-muted">Cancelar</a>
-                    </div>
-                </form>
-            </div>
+                </div>
+
+                <!-- BOTÕES DE AÇÃO -->
+                <div class="flex flex-col gap-4 pt-10">
+                    <button type="submit" class="btn bg-mint-green border-none text-emerald-900 rounded-2xl h-16 shadow-xl shadow-mint-green/30 normal-case font-black text-lg italic hover:bg-emerald-400 hover:scale-[1.01] transition-all">
+                        Salvar Novo Membro
+                    </button>
+                    <a href="{% url 'lista_usuarios' %}" class="btn btn-ghost rounded-2xl text-slate-400 font-bold normal-case">
+                        Cancelar e Voltar
+                    </a>
+                </div>
+            </form>
+        </div>
+        
+        <!-- FOOTER DO CARD -->
+        <div class="bg-slate-50/50 py-4 text-center border-t border-slate-50">
+            <p class="text-[9px] text-slate-300 font-black uppercase tracking-[3px]">MayaCorp Access Control System</p>
         </div>
     </div>
 </div>
+
+<style>
+    /* Estilização para o Crispy Forms se integrar ao Soft UI do MayaCorp */
+    
+    /* Labels Estilo Dashboard */
+    .form-control label, .mb-3 label { 
+        @apply text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block ml-1 !important; 
+    }
+    
+    /* Inputs Soft e Arredondados */
+    .input, .textinput, .emailinput, .passwordinput, .select { 
+        @apply w-full bg-slate-50 border-slate-100 rounded-2xl px-6 h-14 focus:ring-4 focus:ring-serene-blue/10 focus:border-serene-blue/30 focus:outline-none transition-all text-slate-600 font-bold !important; 
+    }
+
+    /* Checkboxes/Radios (DaisyUI) */
+    .checkbox { @apply checkbox-primary rounded-lg !important; }
+    
+    /* Ajuste para mensagens de erro */
+    .invalid-feedback { @apply text-[10px] font-bold text-rose-500 ml-1 mt-1 !important; }
+</style>
+
+<script>
+    // Foco automático no primeiro campo (username)
+    document.addEventListener('DOMContentLoaded', function() {
+        const firstInput = document.querySelector('input:not([type=hidden])');
+        if (firstInput) firstInput.focus();
+    });
+</script>
 {% endblock %}

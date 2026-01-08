@@ -1,91 +1,131 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Contratos de {{ aluno.nome }}{% endblock %}
+{% block title %}Contratos de {{ aluno.nome }} - MayaCorp{% endblock %}
 
 {% block content %}
-<div class="container py-4">
+<div class="max-w-6xl mx-auto pb-12">
     
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h4 class="fw-bold mb-0 text-primary"><i class="fas fa-file-contract me-2"></i>Contratos do Aluno</h4>
-            <p class="text-muted mb-0">Histórico de planos contratados por <strong>{{ aluno.nome }}</strong></p>
+    <!-- HEADER -->
+    <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
+        <div class="flex items-center gap-4">
+            <div class="w-14 h-14 bg-soft-lavender/30 rounded-[22px] flex items-center justify-center text-purple-600 shadow-sm border border-white">
+                <i class="fas fa-file-contract text-2xl"></i>
+            </div>
+            <div>
+                <h1 class="text-2xl font-black text-slate-800 tracking-tight">Contratos do Aluno</h1>
+                <p class="text-[10px] text-slate-400 font-black uppercase tracking-[2px] mt-1">
+                    Histórico comercial: <span class="text-purple-600 lowercase font-bold">{{ aluno.nome }}</span>
+                </p>
+            </div>
         </div>
-        <div>
-            <a href="{% url 'novo_contrato' aluno.id %}" class="btn btn-success fw-bold me-2">
-                <i class="fas fa-plus"></i> Novo Contrato
+        
+        <div class="flex gap-3">
+            <a href="{% url 'novo_contrato' aluno.id %}" 
+               class="btn bg-serene-blue border-none text-white rounded-2xl px-6 h-12 shadow-lg shadow-blue-200 hover:bg-blue-400 normal-case font-black italic">
+                <i class="fas fa-plus mr-2 text-xs"></i> Novo Contrato
             </a>
-            <a href="{% url 'aluno_detail' aluno.id %}" class="btn btn-outline-secondary">
+            <a href="{% url 'aluno_detail' aluno.id %}" 
+               class="btn btn-ghost bg-white shadow-sm border-slate-100 rounded-2xl hover:bg-slate-50 transition-all text-slate-400 normal-case font-bold px-6">
                 Voltar
             </a>
         </div>
-    </div>
+    </header>
 
-    <div class="card shadow-sm border-0">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th>Plano</th>
-                        <th>Vigência</th>
-                        <th>Valor Total</th>
-                        <th>Status</th>
-                        <th class="text-end">Ações</th>
+    <!-- LISTA DE CONTRATOS (Card Soft UI) -->
+    <div class="bg-white rounded-[32px] shadow-xl shadow-slate-200/50 overflow-hidden border border-white">
+        <div class="overflow-x-auto">
+            <table class="table w-full border-collapse">
+                <!-- CABEÇALHO -->
+                <thead>
+                    <tr class="border-b border-slate-50">
+                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[2px] font-black py-6 pl-8">Plano Contratado</th>
+                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[2px] font-black py-6">Período de Vigência</th>
+                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[2px] font-black py-6">Investimento</th>
+                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[2px] font-black py-6 text-center">Status</th>
+                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[2px] font-black py-6 pr-8 text-right">Ações</th>
                     </tr>
                 </thead>
                 
-                <tbody>
+                <tbody class="divide-y divide-slate-50">
                     {% for c in contratos %}
-                    <tr>
-                        <td>
-                            <span class="fw-bold text-dark">{{ c.plano.nome }}</span>
-                            <br>
-                            <span class="small text-muted">{{ c.qtde_parcelas }}x parcelas</span>
+                    <tr class="hover:bg-slate-50/50 transition-colors group">
+                        <!-- PLANO -->
+                        <td class="py-6 pl-8">
+                            <div class="flex flex-col">
+                                <span class="text-slate-800 font-bold text-sm">{{ c.plano.nome }}</span>
+                                <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">
+                                    Pagamento em {{ c.qtde_parcelas }}x
+                                </span>
+                            </div>
                         </td>
-                        <td>
-                            {{ c.data_inicio|date:"d/m/Y" }} até 
-                            {% if c.data_fim %}
-                                {{ c.data_fim|date:"d/m/Y" }}
-                            {% else %}
-                                -
-                            {% endif %}
+
+                        <!-- VIGÊNCIA -->
+                        <td class="py-6">
+                            <div class="flex items-center gap-2 text-slate-500 text-xs font-medium">
+                                <i class="far fa-calendar-alt text-serene-blue"></i>
+                                <span>{{ c.data_inicio|date:"d/m/y" }}</span>
+                                <span class="text-slate-300">→</span>
+                                <span>{% if c.data_fim %}{{ c.data_fim|date:"d/m/y" }}{% else %}Indeterminado{% endif %}</span>
+                            </div>
                         </td>
-                        <td class="fw-bold text-success">
-                            R$ {{ c.valor_total }}
+
+                        <!-- VALOR TOTAL -->
+                        <td class="py-6">
+                            <div class="inline-flex items-center gap-1 text-purple-600 font-black text-sm italic">
+                                <span class="text-[10px] not-italic mr-1">R$</span> {{ c.valor_total }}
+                            </div>
                         </td>
-                        <td>
+
+                        <!-- STATUS (Badges Pastel) -->
+                        <td class="py-6 text-center">
                             {% if c.status == 'ATIVO' %}
-                                <span class="badge bg-success">Ativo</span>
+                                <div class="badge bg-mint-green/20 border-none text-emerald-700 text-[9px] font-black py-3 px-4 rounded-xl uppercase">ATIVO</div>
                             {% elif c.status == 'CANCELADO' %}
-                                <span class="badge bg-danger">Cancelado</span>
+                                <div class="badge bg-rose-50 border-none text-rose-500 text-[9px] font-black py-3 px-4 rounded-xl uppercase">CANCELADO</div>
                             {% elif c.status == 'ENCERRADO' %}
-                                <span class="badge bg-secondary">Encerrado</span>
+                                <div class="badge bg-slate-100 border-none text-slate-400 text-[9px] font-black py-3 px-4 rounded-xl uppercase">ENCERRADO</div>
                             {% else %}
-                                <span class="badge bg-warning text-dark">Pendente</span>
+                                <div class="badge bg-orange-50 border-none text-orange-600 text-[9px] font-black py-3 px-4 rounded-xl uppercase">PENDENTE</div>
                             {% endif %}
                         </td>
-                        <td class="text-end">
-                            <div class="btn-group">
+
+                        <!-- AÇÕES -->
+                        <td class="py-6 pr-8 text-right">
+                            <div class="flex justify-end gap-2">
                                 <!-- Imprimir -->
-                                <a href="{% url 'imprimir_contrato' c.id %}" target="_blank" class="btn btn-sm btn-outline-dark" title="Imprimir PDF">
-                                    <i class="fas fa-print"></i>
+                                <a href="{% url 'imprimir_contrato' c.id %}" target="_blank" 
+                                   class="btn btn-square btn-sm rounded-xl bg-slate-50 border-none text-slate-400 hover:bg-slate-200 transition-all" 
+                                   title="Imprimir PDF">
+                                    <i class="fas fa-print text-xs"></i>
                                 </a>
                                 
                                 <!-- Editar -->
-                                <a href="{% url 'contrato_update' c.id %}" class="btn btn-sm btn-outline-primary" title="Editar Contrato">
-                                    <i class="fas fa-pen"></i>
+                                <a href="{% url 'contrato_update' c.id %}" 
+                                   class="btn btn-square btn-sm rounded-xl bg-serene-blue/10 border-none text-serene-blue hover:bg-serene-blue hover:text-white transition-all" 
+                                   title="Editar">
+                                    <i class="fas fa-pen text-xs"></i>
                                 </a>
                                 
                                 <!-- Excluir -->
-                                <a href="{% url 'contrato_delete' c.id %}" class="btn btn-sm btn-outline-danger" title="Excluir Contrato">
-                                    <i class="fas fa-trash"></i>
+                                <a href="{% url 'contrato_delete' c.id %}" 
+                                   class="btn btn-square btn-sm rounded-xl bg-rose-50 border-none text-rose-300 hover:bg-rose-500 hover:text-white transition-all" 
+                                   title="Excluir">
+                                    <i class="fas fa-trash text-xs"></i>
                                 </a>
                             </div>
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="5" class="text-center py-5 text-muted">
-                            Nenhum contrato encontrado.
+                        <td colspan="5" class="py-24 text-center">
+                            <div class="flex flex-col items-center">
+                                <div class="w-20 h-20 bg-slate-50 rounded-[2.5rem] flex items-center justify-center text-slate-200 mb-6 border border-dashed border-slate-200">
+                                    <i class="fas fa-file-invoice text-4xl"></i>
+                                </div>
+                                <h3 class="text-slate-400 font-black uppercase text-sm tracking-widest">Nenhum contrato encontrado</h3>
+                                <p class="text-slate-300 text-xs mt-2 italic">Este aluno ainda não possui histórico de vendas.</p>
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}
@@ -93,5 +133,20 @@
             </table>
         </div>
     </div>
+
+    <!-- RODAPÉ TÉCNICO -->
+    <footer class="mt-12 flex justify-between items-center px-4">
+        <p class="text-[9px] text-slate-300 font-bold uppercase tracking-widest">Digital Contract Protocol v2.1</p>
+        <div class="flex gap-4">
+            <div class="flex items-center gap-2">
+                <div class="w-2 h-2 rounded-full bg-mint-green"></div>
+                <span class="text-[9px] text-slate-400 font-bold uppercase">Assinado</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="w-2 h-2 rounded-full bg-orange-400"></div>
+                <span class="text-[9px] text-slate-400 font-bold uppercase">Aguardando</span>
+            </div>
+        </div>
+    </footer>
 </div>
 {% endblock %}
