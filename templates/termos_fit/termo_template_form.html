@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <!-- Lado Esquerdo: Editor -->
+        <div class="col-md-9">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h5>Montar Modelo de Termo</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="row mb-3">
+                            <div class="col-md-8">{{ form.nome.label_tag }} {{ form.nome }}</div>
+                            <div class="col-md-4">{{ form.tipo.label_tag }} {{ form.tipo }}</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label>Conteúdo do Documento:</label>
+                            {{ form.texto_html }}
+                        </div>
+                        
+                        <button type="submit" class="btn btn-success btn-lg">Salvar Modelo</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lado Direito: Variáveis do Sistema -->
+        <div class="col-md-3">
+            <div class="card sticky-top" style="top: 80px;">
+                <div class="card-header bg-primary text-white">
+                    <i class="fas fa-tags"></i> Variáveis do Aluno
+                </div>
+                <div class="card-body">
+                    <p class="small text-muted">Clique na variável para inserir no documento no local desejado:</p>
+                    
+                    <div class="list-group">
+                        <button type="button" class="list-group-item list-group-item-action btn-tag" data-tag="[[ALUNO_NOME]]"><b>Nome Completo</b></button>
+                        <button type="button" class="list-group-item list-group-item-action btn-tag" data-tag="[[ALUNO_CPF]]"><b>CPF</b></button>
+                        <button type="button" class="list-group-item list-group-item-action btn-tag" data-tag="[[ALUNO_DATA_NASC]]"><b>Data Nascimento</b></button>
+                        <button type="button" class="list-group-item list-group-item-action btn-tag" data-tag="[[ALUNO_ENDERECO]]"><b>Endereço Completo</b></button>
+                        <button type="button" class="list-group-item list-group-item-action btn-tag" data-tag="[[ALUNO_TELEFONE]]"><b>Telefone</b></button>
+                        <hr>
+                        <button type="button" class="list-group-item list-group-item-action btn-tag bg-light" data-tag="[[DATA_HOJE]]">Data Atual</button>
+                        <button type="button" class="list-group-item list-group-item-action btn-tag bg-light" data-tag="[[NOME_UNIDADE]]">Nome da Unidade</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Importação do CKEditor -->
+<script src="https://cdn.ckeditor.com/ckeditor5/36.0.1/classic/ckeditor.js"></script>
+
+<script>
+    let editor;
+
+    // Inicializa o CKEditor no campo texto_html
+    ClassicEditor
+        .create(document.querySelector('#id_texto_html'))
+        .then(newEditor => {
+            editor = newEditor;
+        })
+        .catch(error => console.error(error));
+
+    // Função para inserir a tag no editor ao clicar no botão
+    document.querySelectorAll('.btn-tag').forEach(button => {
+        button.addEventListener('click', function() {
+            const tag = this.getAttribute('data-tag');
+            
+            editor.model.change(writer => {
+                const insertPosition = editor.model.document.selection.getFirstPosition();
+                writer.insertText(tag, insertPosition);
+            });
+        });
+    });
+</script>
+
+<style>
+    /* Ajuste para o editor ficar alto */
+    .ck-editor__editable {
+        min-height: 400px;
+    }
+    .btn-tag {
+        font-size: 0.85rem;
+        cursor: pointer;
+    }
+    .btn-tag:hover {
+        background-color: #f0f0f0;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Modelos de Termos</h2>
+    <a href="{% url 'termo_template_create' %}" class="btn btn-primary mb-3">Novo Modelo</a>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Tipo</th>
+                <th>Status</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for t in templates %}
+            <tr>
+                <td>{{ t.nome }}</td>
+                <td>{{ t.get_tipo_display }}</td>
+                <td>{{ t.ativo|yesno:"Ativo,Inativo" }}</td>
+                <td><a href="#" class="btn btn-sm btn-warning">Editar</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
