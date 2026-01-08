@@ -1,10 +1,9 @@
 {% load static %}
 {% load core_extras %}
 
-<!-- SIDEBAR CONTAINER: Focada apenas em Navegação e Identidade Visual -->
 <div class="flex flex-col w-64 h-full bg-white border-r border-slate-100 p-4 transition-all duration-300">
     
-    <!-- LOGO: Identidade do Estúdio -->
+    <!-- LOGO -->
     <a href="/" class="flex items-center gap-3 px-2 mb-10 no-underline group">
         <div class="w-10 h-10 bg-mint-green flex items-center justify-center rounded-2xl shadow-lg shadow-mint-green/30 group-hover:scale-110 transition-transform">
             <i class="fas fa-dumbbell text-emerald-700 fa-lg"></i>
@@ -20,7 +19,7 @@
         
         {% if user.is_authenticated %}
             
-            <!-- ITEM DASHBOARD -->
+            <!-- ITEM DASHBOARD (INÍCIO) -->
             <a href="{% url 'home' %}" 
                class="flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 group
                {% if request.path == '/' %} bg-serene-blue/15 text-serene-blue font-black {% else %} text-slate-500 hover:bg-slate-50 hover:text-slate-800 {% endif %}">
@@ -28,13 +27,23 @@
                 <span class="text-xs uppercase tracking-widest font-bold">Início</span>
             </a>
 
-            <!-- CATEGORIA: GESTÃO FIT -->
+            <!-- GESTÃO OPERACIONAL -->
             {% if 'suite_pilates' in perms_produtos or user.is_superuser %}
                 <div class="pt-8 pb-3 px-4">
                     <span class="text-[9px] font-black text-slate-300 uppercase tracking-[3px]">Gestão Operacional</span>
                 </div>
                 
-                <!-- AGENDA -->
+                <!-- 1. LISTA DE ALUNOS (DESTAQUE ACIMA DA AGENDA) -->
+                <a href="{% url 'aluno_list' %}" 
+                   class="flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 group mb-1
+                   {% if 'cadastros/aluno' in request.path %} bg-mint-green/15 text-emerald-700 font-black {% else %} text-slate-500 hover:bg-slate-50 hover:text-slate-800 {% endif %}">
+                    <div class="w-7 h-7 rounded-xl bg-emerald-100 flex items-center justify-center transition-all group-hover:scale-110">
+                        <i class="fas fa-users text-emerald-600 text-[10px]"></i>
+                    </div>
+                    <span class="text-xs font-bold uppercase tracking-wider">Alunos</span>
+                </a>
+
+                <!-- 2. AGENDA -->
                 <details class="group [&_summary::-webkit-details-marker]:hidden" {% if 'agenda' in request.path %}open{% endif %}>
                     <summary class="flex items-center justify-between px-4 py-3 text-slate-500 rounded-2xl cursor-pointer hover:bg-slate-50 hover:text-slate-800 transition-all">
                         <div class="flex items-center gap-3">
@@ -51,7 +60,7 @@
                     </div>
                 </details>
 
-                <!-- FINANCEIRO -->
+                <!-- 3. FINANCEIRO -->
                 <details class="group [&_summary::-webkit-details-marker]:hidden" {% if 'financeiro' in request.path %}open{% endif %}>
                     <summary class="flex items-center justify-between px-4 py-3 text-slate-500 rounded-2xl cursor-pointer hover:bg-slate-50 hover:text-slate-800 transition-all">
                         <div class="flex items-center gap-3">
@@ -69,26 +78,26 @@
                     </div>
                 </details>
                 
-                <!-- CADASTROS -->
+                <!-- 4. CADASTROS (Removido Alunos daqui) -->
                 <details class="group [&_summary::-webkit-details-marker]:hidden" {% if 'cadastros' in request.path or 'contratos' in request.path %}open{% endif %}>
                     <summary class="flex items-center justify-between px-4 py-3 text-slate-500 rounded-2xl cursor-pointer hover:bg-slate-50 hover:text-slate-800 transition-all">
                         <div class="flex items-center gap-3">
                             <div class="w-7 h-7 rounded-xl bg-blue-100 flex items-center justify-center">
                                 <i class="fas fa-folder text-blue-600 text-[10px]"></i>
                             </div>
-                            <span class="text-xs font-bold uppercase tracking-wider">Cadastros</span>
+                            <span class="text-xs font-bold uppercase tracking-wider">Configurações</span>
                         </div>
                         <i class="fas fa-chevron-right text-[8px] transition-transform group-open:rotate-90"></i>
                     </summary>
                     <div class="mt-1 ml-9 space-y-1 border-l border-slate-100">
-                        <a href="{% url 'aluno_list' %}" class="block px-4 py-2 text-[11px] font-bold text-slate-400 hover:text-blue-600 transition-colors">Lista de Alunos</a>
                         <a href="{% url 'profissional_list' %}" class="block px-4 py-2 text-[11px] font-bold text-slate-400 hover:text-blue-600 transition-colors">Profissionais</a>
                         <a href="{% url 'plano_list' %}" class="block px-4 py-2 text-[11px] font-bold text-slate-400 hover:text-blue-600 transition-colors">Planos e Preços</a>
+                        <a href="{% url 'unidade_list' %}" class="block px-4 py-2 text-[11px] font-bold text-slate-400 hover:text-blue-600 transition-colors">Unidades</a>
                     </div>
                 </details>
             {% endif %}
 
-            <!-- CATEGORIA: FERRAMENTAS -->
+            <!-- FERRAMENTAS -->
             {% if user|tem_acesso:"gerador-pdf" %}
                 <div class="pt-8 pb-3 px-4">
                     <span class="text-[9px] font-black text-slate-300 uppercase tracking-[3px]">Inteligência</span>
@@ -104,7 +113,7 @@
         {% endif %}
     </nav>
     
-    <!-- RODAPÉ DA SIDEBAR: Somente versão e suporte -->
+    <!-- RODAPÉ -->
     <div class="mt-auto pt-6 border-t border-slate-50 text-center">
         <div class="flex items-center justify-center gap-2 mb-2 opacity-50">
             <div class="w-1.5 h-1.5 rounded-full bg-slate-400"></div>
