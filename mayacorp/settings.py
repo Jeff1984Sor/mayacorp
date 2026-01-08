@@ -50,7 +50,7 @@ SHARED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
+    'termos_fit',
     'crispy_forms',
     'crispy_bootstrap5',
 )
@@ -63,6 +63,7 @@ TENANT_APPS = (
     'financeiro_fit',
     'comunicacao_fit',
     'portal_aluno',
+    'termos_fit',
 )
 
 INSTALLED_APPS = list(SHARED_APPS) + [app for app in TENANT_APPS if app not in SHARED_APPS]
@@ -85,6 +86,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_browser_reload.middleware.BrowserReloadMiddleware', # Reload automático
+    
 ]
 
 ROOT_URLCONF = 'mayacorp.urls'
@@ -132,16 +134,21 @@ if os.getenv('DATABASE_URL'):
     DATABASES = {'default': db_config}
 
 # ==============================================================================
-# ARQUIVOS ESTÁTICOS E MÍDIA
+# CONFIGURAÇÃO DE ESTÁTICOS E MÍDIA
 # ==============================================================================
 
-STATIC_URL = 'static/'
-STATICFILES_DIRS = [ BASE_DIR / "static", ]
+STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+    BASE_DIR / "theme" / "static", # <--- ESSA LINHA É VITAL PARA O TAILWIND
+]
+
+# Configuração de Storage (Django 4.2+)
 STORAGES = {
     "default": {
-        "BACKEND": "django_tenants.files.storages.TenantFileSystemStorage", 
+        "BACKEND": "django_tenants.files.storages.TenantFileSystemStorage",
     },
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
@@ -158,6 +165,16 @@ MULTITENANT_RELATIVE_MEDIA_ROOT = "%s"
 
 TAILWIND_APP_NAME = 'theme'
 INTERNAL_IPS = ["127.0.0.1"]
+
+import platform
+
+if platform.system() == "Windows":
+    # Caminho do seu PC
+    NPM_BIN_PATH = r"C:\Program Files\nodejs\npm.cmd"
+else:
+    # No Linux (GCP), o Django encontra sozinho no /usr/bin/npm
+    # Se der erro de "NPM not found", mude para: NPM_BIN_PATH = "/usr/bin/npm"
+    pass
 
 # ==============================================================================
 # OUTRAS CONFIGURAÇÕES (AUTH, CRISPY, GOOGLE)
@@ -183,4 +200,3 @@ if not DEBUG:
     CSRF_COOKIE_SECURE = True
     SECURE_SSL_REDIRECT = True
 
-NPM_BIN_PATH = r"C:\Program Files\nodejs\npm.cmd"

@@ -7,13 +7,12 @@
 {% block content %}
 <div class="max-w-7xl mx-auto pb-20">
 
-    <!-- 1. CABEÇALHO DO PERFIL (Estilo Profile Card) -->
+    <!-- 1. CABEÇALHO DO PERFIL -->
     <header class="bg-white rounded-[40px] shadow-xl shadow-slate-200/50 border border-white p-8 mb-8 relative overflow-hidden">
-        <!-- Detalhe decorativo de fundo -->
         <div class="absolute top-0 right-0 w-64 h-64 bg-serene-blue/5 rounded-full -mr-32 -mt-32"></div>
         
         <div class="relative flex flex-col md:flex-row items-center md:items-start gap-8">
-            <!-- Avatar com Soft Shadow -->
+            <!-- Avatar -->
             <div class="relative">
                 <div class="w-32 h-32 rounded-[2.5rem] overflow-hidden border-4 border-white shadow-2xl shadow-slate-300">
                     {% if aluno.foto_rosto %}
@@ -51,9 +50,6 @@
                     <a href="{% url 'aluno_update' aluno.pk %}" class="btn btn-ghost bg-slate-50 text-slate-500 rounded-2xl hover:bg-slate-100 px-6 normal-case font-bold">
                         <i class="fas fa-pen mr-2 text-xs"></i> Editar
                     </a>
-                    <button onclick="modal_totalpass.showModal()" class="btn btn-ghost bg-rose-50 text-rose-400 rounded-2xl hover:bg-rose-100 px-6 normal-case font-bold">
-                        <i class="fas fa-ticket-alt mr-2 text-xs"></i> TotalPass
-                    </button>
                 </div>
             </div>
         </div>
@@ -65,6 +61,8 @@
         <button class="tab tab-lg !rounded-2xl font-black uppercase text-[10px] tracking-[2px] bg-transparent text-slate-400 hover:bg-white transition-all" onclick="openTab(event, 'agenda')">Agenda</button>
         <button class="tab tab-lg !rounded-2xl font-black uppercase text-[10px] tracking-[2px] bg-transparent text-slate-400 hover:bg-white transition-all" onclick="openTab(event, 'financeiro')">Financeiro</button>
         <button class="tab tab-lg !rounded-2xl font-black uppercase text-[10px] tracking-[2px] bg-transparent text-slate-400 hover:bg-white transition-all" onclick="openTab(event, 'contratos')">Contratos</button>
+        <!-- NOVA ABA DE TERMOS -->
+        <button class="tab tab-lg !rounded-2xl font-black uppercase text-[10px] tracking-[2px] bg-transparent text-slate-400 hover:bg-white transition-all" onclick="openTab(event, 'termos')">Termos & Uso Imagem</button>
     </div>
 
     <!-- 3. CONTEÚDO DAS ABAS -->
@@ -73,9 +71,7 @@
         <!-- ABA: VISÃO GERAL -->
         <div id="visao" class="tab-pane block animate-in fade-in duration-500">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                
                 <div class="lg:col-span-8 space-y-8">
-                    <!-- Cards de Resumo Rápido -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="bg-white p-8 rounded-[32px] shadow-xl shadow-slate-200/40 border border-white">
                             <h6 class="text-[10px] font-black text-serene-blue uppercase tracking-widest mb-4">Próxima Aula</h6>
@@ -97,57 +93,23 @@
                         </div>
                     </div>
 
-                    <!-- Contratos Ativos -->
-                    <div class="bg-white rounded-[32px] shadow-xl shadow-slate-200/50 border border-white overflow-hidden">
-                        <div class="p-6 border-b border-slate-50 flex items-center justify-between">
-                            <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Contratos em Vigor</h3>
-                            <i class="fas fa-file-signature text-slate-200"></i>
-                        </div>
-                        <div class="divide-y divide-slate-50">
-                            {% for c in aluno.contratos.all %}
-                                <div class="p-6 flex items-center justify-between hover:bg-slate-50/50 transition-colors">
-                                    <div>
-                                        <div class="text-sm font-bold text-slate-700">{{ c.plano.nome }}</div>
-                                        <div class="flex items-center gap-3 mt-1">
-                                            {% if c.status == 'PENDENTE' %}
-                                                <span class="text-[9px] font-black text-orange-400 uppercase"><i class="fas fa-clock mr-1"></i> Aguardando Assinatura</span>
-                                            {% else %}
-                                                <span class="text-[9px] font-black text-emerald-500 uppercase"><i class="fas fa-check mr-1"></i> Ativo</span>
-                                            {% endif %}
-                                            <span class="text-[9px] text-slate-300 font-bold uppercase">Vence: {{ c.data_fim|date:"d/m/Y" }}</span>
-                                        </div>
-                                    </div>
-                                    <div class="flex gap-2">
-                                        {% if c.status == 'PENDENTE' %}
-                                            <a href="{% url 'assinar_contrato' c.token_assinatura %}" class="btn btn-square btn-sm rounded-xl bg-serene-blue/10 border-none text-serene-blue hover:bg-serene-blue hover:text-white" title="Assinar"><i class="fas fa-pen-nib text-xs"></i></a>
-                                        {% endif %}
-                                        <a href="{% url 'imprimir_contrato' c.id %}" target="_blank" class="btn btn-square btn-sm rounded-xl bg-slate-50 border-none text-slate-400 hover:bg-slate-200" title="Imprimir"><i class="fas fa-print text-xs"></i></a>
-                                    </div>
-                                </div>
-                            {% empty %}
-                                <div class="p-12 text-center text-slate-300 italic text-sm">Nenhum contrato ativo.</div>
-                            {% endfor %}
-                        </div>
+                    <div class="bg-white rounded-[32px] shadow-xl shadow-slate-200/50 border border-white p-8">
+                         <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Status dos Contratos</h3>
+                         {% include 'contratos_fit/aluno_contratos_list.html' %}
                     </div>
                 </div>
 
-                <!-- AÇÕES RÁPIDAS (Coluna Lateral) -->
                 <div class="lg:col-span-4 space-y-6">
-                    <div class="bg-white p-8 rounded-[32px] shadow-xl shadow-slate-200/50 border border-white">
-                        <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Ações Rápidas</h3>
+                    <div class="bg-white p-8 rounded-[32px] shadow-xl shadow-slate-200/50 border border-white text-center">
+                        <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6 text-left">Ações Rápidas</h3>
                         <div class="flex flex-col gap-3">
-                            <button onclick="modal_documento.showModal()" class="btn btn-ghost bg-slate-50 hover:bg-serene-blue/10 justify-start h-14 rounded-2xl border-none group transition-all">
-                                <i class="fas fa-cloud-upload-alt w-8 text-serene-blue group-hover:scale-125 transition-transform"></i>
+                            <button onclick="modal_documento.showModal()" class="btn btn-ghost bg-slate-50 hover:bg-serene-blue/10 justify-start h-14 rounded-2xl border-none">
+                                <i class="fas fa-cloud-upload-alt w-8 text-serene-blue"></i>
                                 <span class="text-xs font-bold text-slate-600">Anexar Documento</span>
                             </button>
-                            <a href="{% url 'novo_contrato' aluno.pk %}" class="btn btn-ghost bg-slate-50 hover:bg-mint-green/20 justify-start h-14 rounded-2xl border-none group transition-all">
-                                <i class="fas fa-cart-plus w-8 text-emerald-500 group-hover:scale-125 transition-transform"></i>
-                                <span class="text-xs font-bold text-slate-600">Vender Pacote</span>
-                            </a>
-                            <button onclick="if(confirm('Deseja realmente excluir este aluno?')) location.href='{% url 'aluno_delete' aluno.pk %}'" 
-                                    class="btn btn-ghost bg-slate-50 hover:bg-rose-50 justify-start h-14 rounded-2xl border-none group transition-all mt-4">
-                                <i class="fas fa-user-times w-8 text-rose-300 group-hover:text-rose-500 transition-colors"></i>
-                                <span class="text-xs font-bold text-slate-400 group-hover:text-rose-500">Excluir Registro</span>
+                            <button onclick="modal_totalpass.showModal()" class="btn btn-ghost bg-slate-50 hover:bg-rose-50 justify-start h-14 rounded-2xl border-none">
+                                <i class="fas fa-ticket-alt w-8 text-rose-400"></i>
+                                <span class="text-xs font-bold text-slate-600">Validar TotalPass</span>
                             </button>
                         </div>
                     </div>
@@ -157,141 +119,117 @@
 
         <!-- ABA: AGENDA -->
         <div id="agenda" class="tab-pane hidden animate-in fade-in duration-500">
-            <div class="bg-white rounded-[32px] shadow-xl shadow-slate-200/50 border border-white overflow-hidden">
-                <table class="table w-full border-collapse">
-                    <thead>
-                        <tr class="border-b border-slate-50">
-                            <th class="bg-white text-[10px] font-black text-slate-400 uppercase tracking-widest py-6 pl-8">Data/Hora</th>
-                            <th class="bg-white text-[10px] font-black text-slate-400 uppercase tracking-widest py-6">Profissional</th>
-                            <th class="bg-white text-[10px] font-black text-slate-400 uppercase tracking-widest py-6 text-center">Status</th>
-                            <th class="bg-white text-[10px] font-black text-slate-400 uppercase tracking-widest py-6 pr-8 text-right">Ação</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-50 text-slate-600 font-medium">
-                        {% for p in agenda_completa %}
-                        <tr class="hover:bg-slate-50 transition-colors group">
-                            <td class="py-6 pl-8">
-                                <div class="flex flex-col">
-                                    <span class="font-bold text-slate-700 text-sm">{{ p.aula.data_hora_inicio|date:"d/m/Y" }}</span>
-                                    <span class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">{{ p.aula.data_hora_inicio|date:"H:i" }}</span>
-                                </div>
-                            </td>
-                            <td class="py-6 text-sm">{{ p.aula.profissional.nome }}</td>
-                            <td class="py-6 text-center">
-                                {% if p.status == 'PRESENTE' %}
-                                    <span class="badge bg-mint-green/20 border-none text-emerald-700 text-[10px] font-black px-4 py-3 rounded-xl uppercase">CONCLUÍDA</span>
-                                {% elif p.status == 'FALTA' %}
-                                    <span class="badge bg-rose-50 border-none text-rose-600 text-[10px] font-black px-4 py-3 rounded-xl uppercase">FALTA</span>
-                                {% else %}
-                                    <span class="badge bg-serene-blue/10 border-none text-blue-600 text-[10px] font-black px-4 py-3 rounded-xl uppercase tracking-tighter">AGENDADA</span>
-                                {% endif %}
-                            </td>
-                            <td class="py-6 pr-8 text-right">
-                                <a href="{% url 'gerenciar_aula' p.aula.id %}" class="btn btn-ghost btn-circle btn-sm text-slate-300 hover:text-serene-blue"><i class="fas fa-eye"></i></a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+            <div class="bg-white rounded-[40px] shadow-xl shadow-slate-200/50 border border-white overflow-hidden p-4">
+                {% include 'agenda_fit/lista_aulas_aluno.html' %}
             </div>
         </div>
 
-        <!-- ABA: FINANCEIRO (LAVENDER STYLE) -->
+        <!-- ABA: FINANCEIRO -->
         <div id="financeiro" class="tab-pane hidden animate-in fade-in duration-500">
-            <div class="bg-white rounded-[32px] shadow-xl shadow-slate-200/50 border border-white overflow-hidden">
-                <table class="table w-full">
-                    <thead>
-                        <tr class="border-b border-slate-50">
-                            <th class="bg-white text-[10px] font-black text-slate-400 uppercase tracking-widest py-6 pl-8">Vencimento</th>
-                            <th class="bg-white text-[10px] font-black text-slate-400 uppercase tracking-widest py-6">Descrição</th>
-                            <th class="bg-white text-[10px] font-black text-slate-400 uppercase tracking-widest py-6">Valor</th>
-                            <th class="bg-white text-[10px] font-black text-slate-400 uppercase tracking-widest py-6 text-center">Status</th>
-                            <th class="bg-white text-[10px] font-black text-slate-400 uppercase tracking-widest py-6 pr-8 text-right">Ação</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-50 font-medium">
-                        {% for lanc in financeiro_completo %}
-                        <tr class="hover:bg-slate-50 transition-colors">
-                            <td class="py-6 pl-8 font-bold text-slate-700">{{ lanc.data_vencimento|date:"d/m/Y" }}</td>
-                            <td class="py-6 text-xs text-slate-500">{{ lanc.descricao }}</td>
-                            <td class="py-6 font-black text-slate-800 text-sm italic">R$ {{ lanc.valor }}</td>
-                            <td class="py-6 text-center">
-                                {% if lanc.status == 'PAGO' %}
-                                    <span class="badge bg-emerald-50 text-emerald-600 border-none text-[9px] font-black px-4 py-3 rounded-xl uppercase">LIQUIDADO</span>
-                                {% else %}
-                                    <span class="badge bg-soft-lavender/30 text-purple-700 border-none text-[9px] font-black px-4 py-3 rounded-xl uppercase">EM ABERTO</span>
-                                {% endif %}
-                            </td>
-                            <td class="py-6 pr-8 text-right">
-                                {% if lanc.status == 'PENDENTE' %}
-                                    <form action="{% url 'baixar_lancamento' lanc.id %}" method="post">
-                                        {% csrf_token %}<input type="hidden" name="forma_pagamento" value="PIX">
-                                        <button class="btn btn-sm rounded-xl bg-purple-100 text-purple-700 border-none font-bold normal-case hover:bg-purple-600 hover:text-white" onclick="return confirm('Confirmar recebimento?')">Baixar</button>
-                                    </form>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+            <div class="bg-white rounded-[40px] shadow-xl shadow-slate-200/50 border border-white overflow-hidden">
+                {% include 'financeiro_fit/contas_receber.html' with lancamentos=financeiro_completo aluno_filtro=aluno %}
+            </div>
+        </div>
+
+        <!-- ABA: CONTRATOS -->
+        <div id="contratos" class="tab-pane hidden animate-in fade-in duration-500">
+            <div class="bg-white rounded-[40px] shadow-xl shadow-slate-200/50 border border-white overflow-hidden p-4">
+                {% include 'contratos_fit/contrato_list.html' with contratos=contratos_completo %}
+            </div>
+        </div>
+
+        <!-- NOVA ABA: TERMOS (USO DE IMAGEM / JURÍDICO) -->
+        <div id="termos" class="tab-pane hidden animate-in fade-in duration-500">
+            <div class="bg-white rounded-[40px] shadow-xl shadow-slate-200/50 border border-white overflow-hidden p-8">
+                <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
+                    <div>
+                        <h3 class="text-lg font-black text-slate-800 tracking-tight">Termos e Autorizações</h3>
+                        <p class="text-xs text-slate-400 font-medium">Gestão de conformidade e segurança jurídica</p>
+                    </div>
+                    <button class="btn bg-serene-blue border-none text-white rounded-2xl px-6 font-black italic shadow-lg shadow-blue-200" onclick="modal_gerar_termo.showModal()">
+                        <i class="fas fa-file-signature mr-2 text-xs"></i> Gerar Novo Termo
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {% for termo in aluno.termos.all %}
+                    <div class="bg-slate-50/50 border border-slate-100 p-6 rounded-[30px] flex justify-between items-center group hover:bg-white hover:shadow-xl transition-all">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-serene-blue shadow-sm border border-slate-50">
+                                <i class="fas fa-file-shield"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-slate-700">{{ termo.template.nome }}</p>
+                                <p class="text-[9px] font-black uppercase mt-1">
+                                    {% if termo.data_assinatura %}
+                                        <span class="text-emerald-500"><i class="fas fa-check-circle mr-1"></i> Assinado em {{ termo.data_assinatura|date:"d/m/Y" }}</span>
+                                    {% else %}
+                                        <span class="text-orange-400"><i class="fas fa-clock mr-1"></i> Pendente de Assinatura</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <a href="#" class="btn btn-square btn-sm rounded-xl bg-white border-slate-100 text-slate-300 hover:text-serene-blue shadow-sm"><i class="fas fa-eye text-xs"></i></a>
+                            {% if not termo.data_assinatura %}
+                                <a href="#" class="btn btn-square btn-sm rounded-xl bg-mint-green border-none text-emerald-900 shadow-sm" title="Assinar Agora"><i class="fas fa-pen-nib text-xs"></i></a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-span-full py-16 text-center">
+                        <div class="w-20 h-20 bg-slate-50 rounded-[2.5rem] flex items-center justify-center text-slate-200 mx-auto mb-4 border border-dashed border-slate-200">
+                            <i class="fas fa-shield-halved text-3xl"></i>
+                        </div>
+                        <p class="text-slate-400 font-bold text-sm">Nenhuma autorização gerada.</p>
+                        <p class="text-slate-300 text-xs mt-1">Clique em "Gerar Novo Termo" para criar o Uso de Imagem.</p>
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
         </div>
 
     </div>
 </div>
 
-<!-- MODAL: TOTALPASS -->
-<dialog id="modal_totalpass" class="modal">
-  <div class="modal-box bg-white rounded-[32px] p-10 text-center">
-    <div class="w-20 h-20 bg-rose-50 rounded-[2.5rem] flex items-center justify-center text-rose-500 mx-auto mb-6">
-        <i class="fas fa-ticket-alt text-3xl"></i>
+<!-- MODAL: GERAR NOVO TERMO -->
+<dialog id="modal_gerar_termo" class="modal">
+  <div class="modal-box bg-white rounded-[35px] p-10 max-w-md border border-white">
+    <div class="text-center mb-8">
+        <div class="w-20 h-20 bg-serene-blue/10 rounded-[2rem] flex items-center justify-center text-serene-blue mx-auto mb-6 shadow-sm">
+            <i class="fas fa-file-contract text-3xl"></i>
+        </div>
+        <h3 class="text-2xl font-black text-slate-800 tracking-tight">Gerar Documento</h3>
+        <p class="text-sm font-bold text-slate-400 mt-2">Selecione o modelo para {{ aluno.nome }}</p>
     </div>
-    <h3 class="text-2xl font-black text-slate-800 tracking-tight">Validar TotalPass</h3>
-    <p class="text-slate-400 font-medium mb-8">Digite o token apresentado pelo aluno</p>
-    
-    <div class="form-control w-full mb-8">
-        <input type="text" id="tp_token" placeholder="000 000" class="input input-bordered h-20 text-center text-4xl font-black border-slate-100 bg-slate-50 rounded-3xl focus:ring-rose-200 focus:border-rose-300" />
-    </div>
-    
-    <button onclick="validarTotalPass()" class="btn btn-primary bg-rose-500 border-none text-white w-full h-16 rounded-2xl shadow-xl shadow-rose-200 font-black uppercase tracking-widest">
-        Verificar Token
-    </button>
-    <div id="tp_msg" class="mt-4"></div>
 
-    <form method="dialog" class="mt-4">
-        <button class="btn btn-ghost btn-sm text-slate-300 font-bold">Fechar</button>
+    <form method="post" action="#"> <!-- Ajuste a URL aqui depois -->
+        {% csrf_token %}
+        <div class="form-control w-full mb-10">
+            <label class="label"><span class="label-text text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Modelo de Termo</span></label>
+            <select name="template_id" class="select select-bordered w-full bg-slate-50 border-slate-100 rounded-2xl h-14 font-bold text-slate-600 focus:ring-2 focus:ring-serene-blue/20" required>
+                <option value="" disabled selected>Escolha um modelo...</option>
+                <!-- O loop de templates virá aqui -->
+            </select>
+        </div>
+
+        <div class="flex gap-4">
+            <button type="button" class="btn btn-ghost flex-1 rounded-2xl text-slate-400 font-bold normal-case" onclick="modal_gerar_termo.close()">Cancelar</button>
+            <button type="submit" class="btn bg-serene-blue border-none text-white flex-1 h-14 rounded-2xl shadow-xl shadow-blue-200 font-black italic">Gerar Agora</button>
+        </div>
     </form>
   </div>
   <form method="dialog" class="modal-backdrop bg-slate-900/20 backdrop-blur-sm"><button>close</button></form>
 </dialog>
 
-<!-- MODAL: DOCUMENTO -->
-<dialog id="modal_documento" class="modal">
-    <div class="modal-box bg-white rounded-[32px] p-10">
-      <h3 class="text-xl font-black text-slate-800 mb-6">Anexar Documento</h3>
-      <form action="{% url 'upload_documento_extra' aluno.pk %}" method="post" enctype="multipart/form-data" class="space-y-6">
-          {% csrf_token %}
-          <div class="form-control">
-            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Arquivo (PDF ou Imagem)</label>
-            <input type="file" name="arquivo" class="file-input file-input-bordered bg-slate-50 border-slate-100 rounded-xl w-full" required />
-          </div>
-          <div class="form-control">
-            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Descrição Curta</label>
-            <input type="text" name="descricao" class="input input-bordered bg-slate-50 border-slate-100 rounded-xl" placeholder="Ex: Atestado de Saúde" />
-          </div>
-          <button type="submit" class="btn btn-primary w-full h-14 bg-serene-blue border-none text-white rounded-xl shadow-lg shadow-blue-200 font-black italic">Upload Documento</button>
-      </form>
-      <form method="dialog" class="mt-4 text-center"><button class="btn btn-ghost btn-xs text-slate-300">Cancelar</button></form>
-    </div>
-    <form method="dialog" class="modal-backdrop bg-slate-900/20 backdrop-blur-sm"><button>close</button></form>
-</dialog>
-
+<!-- Scripts de Navegação de Abas -->
 <script>
     function openTab(evt, tabName) {
         var i, tabcontent, tablinks;
         tabcontent = document.getElementsByClassName("tab-pane");
         for (i = 0; i < tabcontent.length; i++) {
             tabcontent[i].classList.add("hidden");
+            tabcontent[i].classList.remove("block");
         }
         tablinks = document.getElementsByClassName("tab");
         for (i = 0; i < tablinks.length; i++) {
@@ -302,14 +240,6 @@
         document.getElementById(tabName).classList.add("block");
         evt.currentTarget.classList.add("active", "bg-white", "shadow-sm", "border-slate-100");
         evt.currentTarget.classList.remove("bg-transparent", "text-slate-400");
-    }
-
-    function validarTotalPass() {
-        const token = document.getElementById('tp_token').value;
-        const msgDiv = document.getElementById('tp_msg');
-        if(!token) return;
-        msgDiv.innerHTML = '<span class="loading loading-dots loading-md text-rose-500"></span>';
-        setTimeout(() => { msgDiv.innerHTML = '<span class="text-emerald-500 font-black uppercase text-xs tracking-widest">✓ Token Validado</span>'; }, 1500);
     }
 </script>
 

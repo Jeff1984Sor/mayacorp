@@ -1,0 +1,77 @@
+{% extends 'portal_aluno/base_mobile.html' %} <!-- Usa a base mobile para ser fácil de assinar no cel -->
+
+{% block content %}
+<div class="max-w-2xl mx-auto py-8 animate-in fade-in zoom-in duration-500">
+    <div class="text-center mb-10">
+        <div class="w-20 h-20 bg-serene-blue/20 rounded-[2.5rem] flex items-center justify-center text-serene-blue mx-auto mb-4 shadow-sm">
+            <i class="fas fa-file-shield text-3xl"></i>
+        </div>
+        <h1 class="text-2xl font-black text-slate-800 tracking-tight">{{ termo.template.nome }}</h1>
+        <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Autorização Digital MayaCorp</p>
+    </div>
+
+    <!-- BOX DO TEXTO -->
+    <div class="bg-white rounded-[35px] shadow-2xl shadow-slate-200/50 border border-white overflow-hidden p-8 mb-8">
+        <div class="prose prose-slate text-sm leading-relaxed h-80 overflow-y-auto pr-4 custom-scroll mb-8 border-b border-slate-50 pb-8">
+            {{ texto_contrato|safe }}
+        </div>
+
+        <!-- ÁREA DE ASSINATURA -->
+        <div class="space-y-4">
+            <div class="flex justify-between items-center">
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Assine no campo abaixo</span>
+                <button type="button" class="btn btn-ghost btn-xs text-rose-400 font-bold" onclick="limpar()">Limpar</button>
+            </div>
+            
+            <div class="relative group">
+                <canvas id="signature-pad" class="w-full h-40 bg-slate-50 rounded-[28px] border-2 border-dashed border-slate-100 cursor-crosshair touch-none shadow-inner"></canvas>
+                <div id="sig-help" class="absolute inset-0 flex items-center justify-center pointer-events-none text-slate-300 gap-2">
+                    <i class="fas fa-signature animate-pulse"></i>
+                    <span class="text-[10px] font-black uppercase tracking-widest">Toque para assinar</span>
+                </div>
+            </div>
+
+            <button id="btn-assinar" class="btn w-full h-16 bg-mint-green border-none text-emerald-900 rounded-2xl shadow-xl shadow-mint-green/30 font-black text-lg italic mt-6 transition-all active:scale-95">
+                ✅ Confirmar Autorização
+            </button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+<script>
+    const canvas = document.getElementById('signature-pad');
+    const sigHelp = document.getElementById('sig-help');
+    
+    function resizeCanvas() {
+        const ratio = Math.max(window.devicePixelRatio || 1, 1);
+        canvas.width = canvas.offsetWidth * ratio;
+        canvas.height = canvas.offsetHeight * ratio;
+        canvas.getContext("2d").scale(ratio, ratio);
+    }
+    window.onresize = resizeCanvas;
+    resizeCanvas();
+
+    const signaturePad = new SignaturePad(canvas, { backgroundColor: 'rgba(255, 255, 255, 0)' });
+    signaturePad.addEventListener("beginStroke", () => sigHelp.style.opacity = '0');
+
+    function limpar() { signaturePad.clear(); sigHelp.style.opacity = '1'; }
+
+    document.getElementById('btn-assinar').addEventListener('click', function() {
+        if (signaturePad.isEmpty()) {
+            alert("Por favor, assine antes de confirmar.");
+            return;
+        }
+        const data = signaturePad.toDataURL();
+        this.innerHTML = '<span class="loading loading-spinner"></span> Salvando...';
+        
+        fetch(window.location.href, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'assinatura_data=' + encodeURIComponent(data)
+        }).then(res => res.json()).then(data => {
+            if(data.status === 'ok') location.reload();
+        });
+    });
+</script>
+{% endblock %}
