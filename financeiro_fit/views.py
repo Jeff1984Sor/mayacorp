@@ -396,3 +396,37 @@ class LancamentoUpdateView(LoginRequiredMixin, UpdateView):
     template_name = 'financeiro_fit/lancamento_form.html'
     fields = '__all__' # Ou especifique os campos
     success_url = reverse_lazy('financeiro_lista')
+
+from django.shortcuts import render
+from django.db.models import Sum
+from decimal import Decimal
+from datetime import datetime
+from .models import Receita, Despesa  # ajuste pros seus models
+
+def relatorio_dre(request):
+    mes = request.GET.get('mes', datetime.now().month)
+    ano = request.GET.get('ano', datetime.now().year)
+    
+    # Filtros por mês/ano
+    dre_receitas = Receita.objects.filter(
+        data__month=mes, data__year=ano
+    ).values('categoria__nome').annotate(total=Sum('valor'))
+    
+    dre_despesas = Despesa.objects.filter(
+        data__month=mes, data__year=ano
+    ).values('categoria__nome').annotate(total=Sum('valor'))
+    
+    total_receitas = sum(item['total'] for item in dre_receitas) or 0
+    total_despesas = sum(item['total'] for item in dre_despesas) or 0
+    lucro_liquido = total_receitas - total_despesas
+    margem_lucro = (lucro_liquido / total_receitas * 100) if total_receitas else 0
+    
+    context = {
+        'dre_receitas': dre_receitas,
+        'dre_despesas': dre_despesas,
+        'total_receitas': f"{total_receitas:,.2f}".replace('.', 'X').replace(',', '.').replace('X', ','),
+        'total_despesas': f"{total_despesas:,.2f}".replace('.', 'X').replace(',', '.').replace('X', ','),
+        'lucro_liquido': f"{lucro_liquido:,.2f}".replace('.', 'X').replace(',', '.').replace('X', ','),
+        'margem_lucro': f"{margem_lucro:.1f}",
+    }
+    return render(request, 'financeiro_fit/relatorio_dre.html', context)

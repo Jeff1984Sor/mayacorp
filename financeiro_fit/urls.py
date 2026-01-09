@@ -38,4 +38,5 @@ urlpatterns = [
 
     # 5. DASHBOARD GERAL
     path('dashboard/', views.DashboardFinanceiroView.as_view(), name='dashboard_financeiro'),
+    path('relatorio-dre/', views.relatorio_dre, name='relatorio_dre'),
 ]
