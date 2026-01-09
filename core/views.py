@@ -107,3 +107,13 @@ def debug_auth(request):
         html += f"<p style='color:red'>❌ Usuário não existe nem no Public.</p>"
 
     return HttpResponse(html)
+
+from django.shortcuts import render
+
+def performance_aulas(request):
+    """Página de performance de aulas - em desenvolvimento"""
+    context = {
+        'title': 'Performance de Aulas - Studio',
+        # adicione seus dados aqui depois
+    }
+    return render(request, 'core/performance_aulas.html', context)
