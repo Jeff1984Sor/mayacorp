@@ -1,89 +1,101 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Assinatura Digital - MayaCorp{% endblock %}
+{% block title %}Assinatura Digital | MayaCorp Fit{% endblock %}
 
 {% block content %}
-<div class="max-w-3xl mx-auto pb-20">
+<div class="max-w-3xl mx-auto pb-24 px-4">
     
-    <!-- HEADER: Identificação do Contrato -->
-    <header class="text-center mb-10">
-        <div class="w-20 h-20 bg-serene-blue/20 rounded-[2.5rem] flex items-center justify-center text-serene-blue mx-auto mb-6 shadow-sm border border-white">
+    <!-- HEADER: Identificação de Prestígio -->
+    <header class="text-center mb-12">
+        <div class="w-24 h-24 bg-primary rounded-[2.5rem] flex items-center justify-center text-white mx-auto mb-8 shadow-2xl shadow-primary/30 border-4 border-white transition-transform hover:scale-110 duration-500">
             <i class="fas fa-file-signature text-3xl"></i>
         </div>
-        <h1 class="text-3xl font-black text-slate-800 tracking-tight">Assinatura de Contrato</h1>
-        <p class="text-slate-400 font-medium mt-2">
-            Plano: <span class="text-serene-blue font-bold">{{ contrato.plano.nome }}</span> • 
-            Aluno: <span class="text-slate-600 font-bold">{{ contrato.aluno.nome }}</span>
-        </p>
+        <h1 class="text-4xl font-black text-slate-900 tracking-tighter uppercase">Assinatura Digital</h1>
+        <div class="mt-4 flex flex-wrap justify-center gap-3">
+            <span class="badge bg-secondary border-none text-white font-black px-4 py-3 rounded-xl shadow-md uppercase tracking-widest text-[10px]">PLANO: {{ contrato.plano.nome }}</span>
+            <span class="badge bg-slate-900 border-none text-white font-black px-4 py-3 rounded-xl shadow-md uppercase tracking-widest text-[10px]">ALUNO: {{ contrato.aluno.nome }}</span>
+        </div>
     </header>
 
-    <!-- CARD PRINCIPAL (Soft UI Style) -->
-    <div class="bg-white rounded-[40px] shadow-2xl shadow-slate-200/50 border border-white overflow-hidden animate-in fade-in zoom-in duration-500">
+    <!-- CARD PRINCIPAL (Visual Premium Studio) -->
+    <div class="bg-white rounded-[3rem] shadow-2xl shadow-slate-200/60 border border-slate-100 overflow-hidden animate-in fade-in zoom-in duration-700 relative">
         
-        <div class="p-8 md:p-12">
+        <!-- Detalhe decorativo lateral -->
+        <div class="absolute right-0 top-0 w-2 h-full bg-primary opacity-20"></div>
+
+        <div class="p-10 md:p-16">
             
-            <!-- 1. TERMOS DO CONTRATO -->
-            <div class="flex items-center gap-3 mb-6">
-                <div class="w-8 h-8 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400">
-                    <span class="text-xs font-black">01</span>
+            <!-- 1. TERMOS DO CONTRATO (MÁXIMA NITIDEZ) -->
+            <div class="flex items-center justify-between mb-8">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-2xl bg-secondary flex items-center justify-center text-white shadow-lg shadow-secondary/20">
+                        <span class="text-sm font-black">01</span>
+                    </div>
+                    <h6 class="text-[11px] font-black text-slate-900 uppercase tracking-[2px]">Leitura Obrigatória dos Termos</h6>
                 </div>
-                <h6 class="text-[10px] font-black text-slate-400 uppercase tracking-[2px]">Leia os termos atentamente</h6>
+                <i class="fas fa-shield-alt text-slate-200 text-xl"></i>
             </div>
 
-            <!-- Box do Contrato com Scroll Suave -->
-            <div class="bg-slate-50 rounded-[32px] p-8 h-80 overflow-y-auto custom-scroll border border-slate-100 text-slate-600 leading-relaxed text-sm shadow-inner mb-10">
-                <div class="prose prose-slate">
+            <!-- Box do Contrato (Foco em Leitura Sharp) -->
+            <div class="bg-slate-50 rounded-[2.5rem] p-10 h-96 overflow-y-auto custom-scroll border-2 border-slate-100 text-slate-800 leading-relaxed text-base shadow-inner mb-12">
+                <div class="prose prose-slate max-w-none font-medium">
                     {{ texto_contrato|safe }}
                 </div>
             </div>
 
-            <!-- 2. ÁREA DE ASSINATURA -->
-            <div class="flex items-center justify-between mb-6">
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400">
-                        <span class="text-xs font-black">02</span>
+            <!-- 2. ÁREA DE ASSINATURA (INTERATIVA) -->
+            <div class="flex flex-col md:flex-row items-center justify-between mb-8 gap-4">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/20">
+                        <span class="text-sm font-black">02</span>
                     </div>
-                    <h6 class="text-[10px] font-black text-slate-400 uppercase tracking-[2px]">Assine no campo abaixo</h6>
+                    <h6 class="text-[11px] font-black text-slate-900 uppercase tracking-[2px]">Assinatura do Aluno/Responsável</h6>
                 </div>
-                <button type="button" class="btn btn-ghost btn-xs text-rose-400 font-bold hover:bg-rose-50 rounded-lg" onclick="limpar()">
-                    <i class="fas fa-eraser mr-1"></i> Limpar campo
+                <button type="button" class="btn btn-ghost btn-xs text-primary font-black uppercase tracking-widest hover:bg-red-50 px-4 rounded-xl transition-all" onclick="limpar()">
+                    <i class="fas fa-eraser mr-2"></i> Limpar Campo
                 </button>
             </div>
 
-            <!-- Canvas de Assinatura Style -->
-            <div class="relative group">
-                <canvas id="signature-pad" class="w-full h-48 bg-slate-50 rounded-[32px] border-2 border-dashed border-slate-200 cursor-crosshair transition-all group-hover:border-serene-blue/30 touch-none shadow-inner"></canvas>
+            <!-- Canvas de Assinatura (Visual Moderno) -->
+            <div class="relative group mb-12">
+                <canvas id="signature-pad" class="w-full h-56 bg-slate-50 rounded-[2.5rem] border-2 border-dashed border-slate-200 cursor-crosshair transition-all group-hover:border-primary/40 touch-none shadow-inner"></canvas>
                 
-                <!-- Overlay de ajuda (some ao tocar) -->
-                <div id="sig-help" class="absolute inset-0 flex items-center justify-center pointer-events-none text-slate-300 gap-2">
-                    <i class="fas fa-hand-pointer animate-pulse"></i>
-                    <span class="text-xs font-medium uppercase tracking-widest">Assine aqui</span>
+                <!-- Overlay de ajuda -->
+                <div id="sig-help" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-slate-300 gap-3">
+                    <i class="fas fa-hand-pointer text-3xl animate-bounce"></i>
+                    <span class="text-[10px] font-black uppercase tracking-[3px]">Utilize o mouse ou o dedo para assinar</span>
                 </div>
             </div>
 
-            <!-- 3. BOTÃO DE CONFIRMAÇÃO -->
-            <div class="mt-12 flex flex-col gap-4">
-                <button id="btn-assinar" class="btn btn-primary h-16 bg-mint-green border-none text-emerald-900 rounded-2xl shadow-xl shadow-mint-green/30 normal-case font-black text-lg italic hover:bg-emerald-400 hover:scale-[1.01] transition-all">
-                    ✅ Confirmar Assinatura Digital
+            <!-- 3. BOTÃO DE CONFIRMAÇÃO (VIBRANTE) -->
+            <div class="flex flex-col gap-6">
+                <button id="btn-assinar" class="btn bg-emerald-500 hover:bg-emerald-600 border-none h-20 text-white rounded-[1.5rem] shadow-2xl shadow-emerald-200 font-black text-xl uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-95 group">
+                    <i class="fas fa-check-double mr-3 text-2xl group-hover:animate-pulse"></i> CONFIRMAR ASSINATURA
                 </button>
-                <p class="text-center text-[9px] text-slate-300 font-bold uppercase tracking-[3px]">
-                    <i class="fas fa-shield-alt mr-1"></i> Autenticação via Protocolo MayaCorp Secure
-                </p>
+                
+                <div class="flex items-center justify-center gap-3">
+                    <div class="w-2 h-2 bg-accent rounded-full animate-pulse"></div>
+                    <p class="text-[10px] text-slate-400 font-black uppercase tracking-[2px]">
+                        Autenticação Criptografada via MayaCorp Secure Protocol v4.0
+                    </p>
+                </div>
             </div>
 
         </div>
     </div>
 </div>
 
-<!-- Estilos para o Scroll e Canvas -->
+<!-- Estilos para a Assinatura Studio -->
 <style>
-    .custom-scroll::-webkit-scrollbar { width: 4px; }
+    .custom-scroll::-webkit-scrollbar { width: 6px; }
     .custom-scroll::-webkit-scrollbar-track { background: transparent; }
-    .custom-scroll::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+    .custom-scroll::-webkit-scrollbar-thumb { @apply bg-slate-200 rounded-full; }
     
-    /* Impedir que o scroll da página atrapalhe a assinatura no mobile */
-    body { touch-action: pan-x pan-y; }
+    /* Previne scroll indesejado em tablets durante a assinatura */
+    body { touch-action: none; overflow-x: hidden; }
+    main { touch-action: pan-y; } /* Permite scroll vertical fora do canvas */
+    #signature-pad { touch-action: none; }
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
@@ -91,7 +103,6 @@
     var canvas = document.getElementById('signature-pad');
     var sigHelp = document.getElementById('sig-help');
     
-    // Ajusta tamanho do canvas para tela
     function resizeCanvas() {
         var ratio =  Math.max(window.devicePixelRatio || 1, 1);
         canvas.width = canvas.offsetWidth * ratio;
@@ -102,11 +113,10 @@
     resizeCanvas();
 
     var signaturePad = new SignaturePad(canvas, { 
-        backgroundColor: 'rgba(248, 249, 250, 0)', // Transparente para pegar o fundo do card
-        penColor: 'rgb(30, 41, 59)' // Slate 800
+        backgroundColor: 'rgba(248, 249, 250, 0)',
+        penColor: '#0f172a' // Slate 900 para nitidez máxima na tinta
     });
 
-    // Esconde o texto de ajuda ao começar a assinar
     signaturePad.addEventListener("beginStroke", () => {
         sigHelp.style.opacity = '0';
     });
@@ -118,11 +128,11 @@
 
     document.getElementById('btn-assinar').addEventListener('click', function() {
         if (signaturePad.isEmpty()) {
-            alert("Por favor, faça sua assinatura antes de confirmar.");
+            alert("A assinatura é obrigatória para prosseguir.");
         } else {
-            var data = signaturePad.toDataURL(); // Pega a imagem em Base64
+            var data = signaturePad.toDataURL(); 
             
-            this.innerHTML = '<span class="loading loading-spinner"></span> Processando...';
+            this.innerHTML = '<span class="loading loading-spinner"></span> AUTENTICANDO...';
             this.disabled = true;
 
             fetch(window.location.href, {
@@ -136,15 +146,18 @@
             .then(response => response.json())
             .then(data => {
                 if(data.status === 'ok') {
-                    // Efeito de Sucesso Soft
-                    document.querySelector('.card-body').innerHTML = `
-                        <div class="py-20 text-center animate-in zoom-in duration-500">
-                            <div class="w-24 h-24 bg-mint-green/20 rounded-[2.5rem] flex items-center justify-center text-emerald-600 mx-auto mb-6">
-                                <i class="fas fa-check text-4xl"></i>
+                    // SUCESSO VIBRANTE
+                    document.querySelector('.bg-white').innerHTML = `
+                        <div class="py-32 px-10 text-center animate-in zoom-in duration-700">
+                            <div class="w-32 h-32 bg-emerald-100 rounded-[3rem] flex items-center justify-center text-emerald-600 mx-auto mb-10 shadow-xl">
+                                <i class="fas fa-check-circle text-6xl"></i>
                             </div>
-                            <h2 class="text-3xl font-black text-slate-800">Contrato Assinado!</h2>
-                            <p class="text-slate-400 mt-2 font-medium">O documento foi processado e arquivado com sucesso.</p>
-                            <button onclick="window.location.reload()" class="btn btn-ghost mt-8 text-serene-blue font-bold">Voltar</button>
+                            <h2 class="text-4xl font-black text-slate-900 tracking-tighter uppercase">Documento Assinado!</h2>
+                            <p class="text-slate-500 mt-4 font-bold text-lg">O contrato do aluno foi processado e arquivado com sucesso.</p>
+                            <div class="mt-12 flex justify-center gap-4">
+                                <a href="{% url 'aluno_detail' contrato.aluno.id %}" class="btn bg-secondary border-none text-white px-10 rounded-2xl h-14 font-black">VOLTAR AO PERFIL</a>
+                                <button onclick="window.print()" class="btn btn-ghost text-slate-400 font-black">IMPRIMIR VIA</button>
+                            </div>
                         </div>
                     `;
                 }

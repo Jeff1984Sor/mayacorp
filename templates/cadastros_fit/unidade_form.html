@@ -2,92 +2,114 @@
 {% load static %}
 {% load crispy_forms_tags %}
 
-{% block title %}{% if form.instance.pk %}Editar Unidade{% else %}Nova Unidade{% endif %} - MayaCorp{% endblock %}
+{% block title %}{% if form.instance.pk %}Editar Unidade{% else %}Nova Unidade{% endif %} - MayaCorp Fit{% endblock %}
 
 {% block content %}
-<div class="max-w-2xl mx-auto pb-20">
+<div class="max-w-3xl mx-auto pb-24 px-4">
     
-    <!-- HEADER -->
-    <header class="flex justify-between items-center mb-10 px-2">
-        <div class="flex items-center gap-4">
-            <div class="w-14 h-14 bg-serene-blue/20 rounded-[22px] flex items-center justify-center text-serene-blue shadow-sm">
-                <i class="fas fa-building text-2xl"></i>
+    <!-- HEADER: Identidade Studio MayaCorp -->
+    <header class="flex flex-col md:flex-row justify-between items-center mb-12 gap-6 text-center md:text-left">
+        <div class="flex items-center gap-6">
+            <!-- Ícone em MARSALA -->
+            <div class="w-16 h-16 bg-primary rounded-[22px] flex items-center justify-center text-white shadow-xl shadow-primary/30 border-2 border-white transition-transform hover:rotate-3">
+                <i class="fas fa-building-circle-check text-2xl"></i>
             </div>
             <div>
-                <h1 class="text-3xl font-black text-slate-800 tracking-tight">
+                <h1 class="text-4xl font-black text-slate-900 tracking-tighter uppercase">
                     {% if form.instance.pk %}Editar Unidade{% else %}Nova Unidade{% endif %}
                 </h1>
-                <p class="text-[10px] text-slate-400 font-black uppercase tracking-[2px] mt-1">
-                    Gestão de Filiais e Espaços Físicos
+                <p class="text-[11px] text-primary font-black uppercase tracking-[3px] mt-1">
+                    Gestão de Infraestrutura e Espaços
                 </p>
             </div>
         </div>
     </header>
 
-    <!-- CARD PRINCIPAL (Soft UI Style) -->
-    <div class="bg-white rounded-[40px] shadow-2xl shadow-slate-200/50 border border-white overflow-hidden">
+    <!-- CARD PRINCIPAL (Visual de Luxo) -->
+    <div class="bg-white rounded-[3rem] shadow-2xl shadow-slate-200/60 border border-slate-100 overflow-hidden relative">
         
-        <form method="post" class="p-8 md:p-12 space-y-8">
+        <!-- Detalhe decorativo no topo -->
+        <div class="h-2 w-full bg-gradient-to-r from-primary via-secondary to-accent"></div>
+
+        <form method="post" class="p-8 md:p-16 space-y-10">
             {% csrf_token %}
 
-            <!-- Destaque Visual (Opcional - Estilo Wellness) -->
-            <div class="bg-slate-50 p-6 rounded-[28px] border border-slate-100 flex items-center gap-4 mb-8">
-                <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-serene-blue shadow-sm">
-                    <i class="fas fa-map-marker-alt"></i>
+            <!-- Alerta de Endereço em AMARELO (Atenção Técnica) -->
+            <div class="bg-accent/10 p-8 rounded-[2.5rem] border-2 border-dashed border-accent/30 flex items-center gap-6 group transition-all hover:bg-accent/20">
+                <div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-accent shadow-lg group-hover:scale-110 transition-transform">
+                    <i class="fas fa-location-dot text-xl"></i>
                 </div>
-                <p class="text-xs text-slate-500 font-medium leading-relaxed">
-                    Certifique-se de que o endereço está correto para que os alunos encontrem a unidade facilmente.
-                </p>
+                <div>
+                    <span class="text-sm font-black text-amber-900 uppercase tracking-tight">Geolocalização da Unidade</span>
+                    <p class="text-[10px] text-amber-700 font-bold uppercase leading-relaxed mt-1">
+                        O endereço correto permite que os alunos <br>encontrem o studio via GPS e Google Maps.
+                    </p>
+                </div>
             </div>
 
-            <!-- FORMULÁRIO RENDERIZADO (Customizado via CSS abaixo) -->
-            <div class="space-y-4">
+            <!-- FORMULÁRIO RENDERIZADO (FOCADO EM NITIDEZ) -->
+            <div class="space-y-6">
                 {{ form|crispy }}
             </div>
 
-            <!-- BOTÕES DE AÇÃO -->
-            <div class="flex flex-col gap-3 pt-6">
-                <button type="submit" class="btn bg-serene-blue border-none text-white rounded-2xl h-16 shadow-xl shadow-blue-200 normal-case font-black text-lg italic hover:bg-blue-400 hover:scale-[1.01] transition-all">
-                    Salvar Unidade
+            <!-- BOTÕES DE AÇÃO (AZUL VIBRANTE) -->
+            <div class="flex flex-col gap-5 pt-10 border-t border-slate-100">
+                <button type="submit" class="btn bg-secondary border-none text-white rounded-[1.5rem] h-20 shadow-2xl shadow-secondary/30 font-black uppercase tracking-[2px] text-lg hover:bg-blue-800 hover:scale-[1.02] active:scale-95 transition-all group">
+                    <i class="fas fa-check-double mr-3 text-xl group-hover:animate-pulse"></i> SALVAR UNIDADE
                 </button>
-                <a href="{% url 'unidade_list' %}" class="btn btn-ghost rounded-2xl text-slate-400 font-bold normal-case">
-                    Cancelar e Voltar
+                
+                <a href="{% url 'unidade_list' %}" class="btn btn-ghost h-14 text-slate-400 font-black uppercase tracking-widest text-xs hover:bg-slate-50">
+                    Descartar e Voltar
                 </a>
             </div>
         </form>
     </div>
 
-    <!-- RODAPÉ DE AJUDA -->
-    <div class="mt-8 text-center">
-        <p class="text-[10px] text-slate-300 font-bold uppercase tracking-[3px]">MayaCorp Infrastructure Module</p>
+    <!-- RODAPÉ TÉCNICO -->
+    <div class="mt-12 text-center">
+        <div class="inline-flex items-center gap-3 px-6 py-2 bg-slate-100 rounded-full border border-slate-200">
+            <div class="w-2 h-2 bg-primary rounded-full"></div>
+            <span class="text-[9px] font-black text-slate-500 uppercase tracking-[2px]">MayaCorp Logic: Infrastructure Module v4.0</span>
+        </div>
     </div>
 </div>
 
 <style>
-    /* Estilização para o Crispy Forms se adaptar ao Soft UI do MayaCorp */
+    /* Customização Crítica para Nitidez do Crispy Forms */
     
-    /* Labels Minimalistas */
+    /* Labels no estilo Software de Luxo */
     .form-control label, .mb-3 label { 
-        @apply text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block ml-1 !important; 
+        @apply text-[11px] font-black text-slate-500 uppercase tracking-[2px] mb-3 block ml-2 !important; 
     }
     
-    /* Inputs Soft */
+    /* Inputs de Alto Contraste */
     .input, .textinput, .textarea, .select { 
-        @apply w-full bg-slate-50 border-slate-100 rounded-2xl px-5 h-14 focus:ring-2 focus:ring-serene-blue/20 focus:border-serene-blue/30 focus:outline-none transition-all text-slate-600 font-medium !important; 
+        @apply w-full bg-white border-2 border-slate-200 rounded-2xl px-6 h-14 focus:border-primary focus:ring-0 focus:outline-none transition-all text-slate-900 font-bold placeholder:text-slate-300 shadow-sm !important; 
     }
 
     /* Textarea com respiro */
-    .textarea { @apply h-32 py-4 !important; }
+    .textarea { @apply h-40 py-5 leading-relaxed !important; }
 
-    /* Checkboxes/Radios (DaisyUI) */
-    .checkbox { @apply checkbox-primary rounded-lg !important; }
+    /* Checkboxes/Radios Vibrantes */
+    .checkbox { @apply checkbox-secondary rounded-lg border-2 scale-110 !important; }
+    
+    /* Asteriscos em MARSALA */
+    .asteriskField { color: #802422 !important; font-weight: 900; }
 </style>
 
 <script>
-    // Foca no primeiro campo ao carregar
+    // UX Inteligente: Foco Automático e UpperCase
     document.addEventListener('DOMContentLoaded', function() {
         const firstInput = document.querySelector('input:not([type=hidden])');
         if (firstInput) firstInput.focus();
+
+        // Transforma o nome da unidade em Uppercase enquanto digita para manter o padrão
+        const nomeInput = document.querySelector('input[name="nome"]');
+        if (nomeInput) {
+            nomeInput.addEventListener('input', function() {
+                this.value = this.value.toUpperCase();
+            });
+        }
     });
 </script>
 {% endblock %}

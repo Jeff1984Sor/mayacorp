@@ -2,49 +2,64 @@
 {% load static %}
 {% load crispy_forms_tags %}
 
-{% block title %}{% if form.instance.pk %}Editar Profissional{% else %}Novo Profissional{% endif %} - MayaCorp{% endblock %}
+{% block title %}{% if form.instance.pk %}Editar Profissional{% else %}Novo Profissional{% endif %} - MayaCorp Fit{% endblock %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto pb-20">
+<style>
+    /* Nitidez total nos campos do Crispy Forms */
+    .asteriskField { color: #802422 !important; font-weight: 900; }
+    input, select, textarea { 
+        @apply rounded-2xl bg-white border-2 border-slate-200 focus:border-primary focus:ring-0 text-slate-900 font-bold transition-all !important; 
+        height: 3.5rem;
+    }
+    textarea { height: auto !important; }
+    label { @apply text-[11px] font-black text-slate-500 uppercase tracking-widest ml-1 mb-2 !important; }
     
-    <!-- HEADER -->
-    <header class="flex justify-between items-center mb-10 px-2">
-        <div class="flex items-center gap-4">
-            <div class="w-14 h-14 bg-serene-blue/20 rounded-[22px] flex items-center justify-center text-serene-blue shadow-sm">
-                <i class="fas {% if form.instance.pk %}fa-user-edit{% else %}fa-user-tie{% endif %} text-2xl"></i>
+    /* Customização do Input de Cor */
+    input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+    input[type="color"]::-webkit-color-swatch { border: none; border-radius: 12px; }
+</style>
+
+<div class="max-w-4xl mx-auto pb-24 px-4">
+    
+    <!-- HEADER (Identidade Studio) -->
+    <header class="flex flex-col md:flex-row justify-between items-center mb-12 gap-6">
+        <div class="flex items-center gap-5">
+            <!-- Ícone em MARSALA -->
+            <div class="w-16 h-16 bg-primary rounded-[22px] flex items-center justify-center text-white shadow-xl shadow-primary/30 border-2 border-white">
+                <i class="fas {% if form.instance.pk %}fa-user-gear{% else %}fa-user-tie{% endif %} text-2xl"></i>
             </div>
             <div>
-                <h1 class="text-3xl font-black text-slate-800 tracking-tight">
+                <h1 class="text-4xl font-black text-slate-900 tracking-tighter">
                     {% if form.instance.pk %}Editar Profissional{% else %}Novo Profissional{% endif %}
                 </h1>
-                <p class="text-[10px] text-slate-400 font-black uppercase tracking-[2px] mt-1">
-                    Gestão de Instrutores e Fisioterapeutas
+                <p class="text-[11px] text-primary font-black uppercase tracking-[3px] mt-1">
+                    Gestão de Instrutores e Especialistas
                 </p>
             </div>
         </div>
         
-        <div class="flex flex-col items-end gap-1">
-            <div class="flex items-center gap-2">
-                <span class="text-xs font-bold text-slate-500 uppercase tracking-widest mr-2">Status:</span>
-                <input type="checkbox" name="{{ form.ativo.name }}" class="toggle toggle-success" {% if form.ativo.value %}checked{% endif %} />
-            </div>
+        <!-- Status Switch em AZUL VIBRANTE -->
+        <div class="bg-white px-6 py-3 rounded-2xl shadow-sm border-2 border-slate-100 flex items-center gap-4">
+            <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Status Ativo</span>
+            <input type="checkbox" name="{{ form.ativo.name }}" class="toggle toggle-secondary scale-110" {% if form.ativo.value %}checked{% endif %} />
         </div>
     </header>
 
-    <!-- CARD PRINCIPAL (Soft UI Style) -->
-    <div class="bg-white rounded-[40px] shadow-2xl shadow-slate-200/50 border border-white overflow-hidden">
+    <!-- CARD PRINCIPAL (Visual Premium Studio) -->
+    <div class="bg-white rounded-[3rem] shadow-2xl shadow-slate-200/60 border border-slate-100 overflow-hidden">
         
-        <form method="post" class="p-8 md:p-12 space-y-12">
+        <form method="post" class="p-8 md:p-16 space-y-16">
             {% csrf_token %}
 
             <!-- SEÇÃO: DADOS PESSOAIS -->
             <section>
-                <div class="flex items-center gap-3 mb-8">
-                    <div class="w-2 h-6 bg-serene-blue rounded-full"></div>
-                    <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-[3px]">Dados Pessoais</h3>
+                <div class="flex items-center gap-4 mb-10">
+                    <div class="w-2 h-8 bg-primary rounded-full"></div>
+                    <h3 class="text-xs font-black text-slate-900 uppercase tracking-[4px]">Dados Pessoais</h3>
                 </div>
                 
-                <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
                     <div class="md:col-span-6">{{ form.nome|as_crispy_field }}</div>
                     <div class="md:col-span-3">{{ form.cpf|as_crispy_field }}</div>
                     <div class="md:col-span-3">{{ form.data_nascimento|as_crispy_field }}</div>
@@ -53,17 +68,17 @@
                 </div>
             </section>
 
-            <!-- SEÇÃO: ENDEREÇO -->
-            <section class="bg-slate-50/50 p-8 rounded-[32px] border border-slate-100/50">
-                <div class="flex items-center gap-3 mb-8">
-                    <div class="w-2 h-6 bg-mint-green rounded-full"></div>
-                    <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-[3px]">Endereço</h3>
+            <!-- SEÇÃO: ENDEREÇO (Fundo Sutil) -->
+            <section class="bg-slate-50 p-10 rounded-[2.5rem] border-2 border-slate-100 relative overflow-hidden">
+                <div class="absolute right-0 top-0 w-32 h-32 bg-secondary/5 rounded-full -mr-16 -mt-16"></div>
+                
+                <div class="flex items-center gap-4 mb-10 relative z-10">
+                    <div class="w-2 h-8 bg-secondary rounded-full"></div>
+                    <h3 class="text-xs font-black text-slate-900 uppercase tracking-[4px]">Localização</h3>
                 </div>
                 
-                <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
-                    <div class="md:col-span-3">
-                        {{ form.cep|as_crispy_field }}
-                    </div>
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-8 relative z-10">
+                    <div class="md:col-span-3">{{ form.cep|as_crispy_field }}</div>
                     <div class="md:col-span-7">{{ form.logradouro|as_crispy_field }}</div>
                     <div class="md:col-span-2">{{ form.numero|as_crispy_field }}</div>
                     <div class="md:col-span-5">{{ form.bairro|as_crispy_field }}</div>
@@ -72,41 +87,41 @@
                 </div>
             </section>
 
-            <!-- SEÇÃO: DADOS PROFISSIONAIS -->
+            <!-- SEÇÃO: DADOS PROFISSIONAIS (AMARELO DESTAQUE) -->
             <section>
-                <div class="flex items-center gap-3 mb-8">
-                    <div class="w-2 h-6 bg-soft-lavender rounded-full"></div>
-                    <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-[3px]">Atuação Profissional</h3>
+                <div class="flex items-center gap-4 mb-10">
+                    <div class="w-2 h-8 bg-accent rounded-full shadow-[0_0_10px_rgba(250,204,21,0.5)]"></div>
+                    <h3 class="text-xs font-black text-slate-900 uppercase tracking-[4px]">Atuação Profissional</h3>
                 </div>
                 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+                    <div class="form-control">{{ form.crefito|as_crispy_field }}</div>
+                    <div class="form-control">{{ form.valor_hora_aula|as_crispy_field }}</div>
+                    
                     <div class="form-control">
-                        {{ form.crefito|as_crispy_field }}
-                    </div>
-                    <div class="form-control">
-                        {{ form.valor_hora_aula|as_crispy_field }}
-                    </div>
-                    <div class="form-control">
-                        <label class="label mb-1">
-                            <span class="label-text text-xs font-black text-slate-400 uppercase tracking-widest">Cor na Agenda</span>
+                        <label class="label mb-2">
+                            <span class="label-text">Cor na Agenda</span>
                         </label>
-                        <div class="flex items-center gap-3">
+                        <div class="flex items-center gap-4 p-3 bg-slate-50 rounded-2xl border-2 border-slate-200">
                             <input type="color" name="{{ form.cor_agenda.name }}" 
-                                   value="{{ form.cor_agenda.value|default:'#A5D8FF' }}"
-                                   class="w-12 h-12 rounded-xl border-none cursor-pointer bg-transparent" />
-                            <span class="text-xs text-slate-400 font-medium italic">Selecione uma cor para as aulas deste profissional</span>
+                                   value="{{ form.cor_agenda.value|default:'#2563EB' }}"
+                                   class="w-14 h-14 rounded-xl border-none cursor-pointer shadow-lg" />
+                            <div class="flex flex-col">
+                                <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none">Cor Visual</span>
+                                <span class="text-[9px] text-slate-400 font-bold mt-1 uppercase leading-tight italic">Identificação rápida<br>no calendário</span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- BOTÕES DE AÇÃO -->
-            <div class="flex flex-col md:flex-row justify-end items-center gap-4 pt-8 border-t border-slate-50">
-                <a href="{% url 'profissional_list' %}" class="btn btn-ghost rounded-2xl text-slate-400 font-bold normal-case order-2 md:order-1">
-                    Cancelar
+            <!-- BOTÕES DE AÇÃO (MÁXIMA NITIDEZ) -->
+            <div class="flex flex-col md:flex-row justify-end items-center gap-6 pt-12 border-t border-slate-100">
+                <a href="{% url 'profissional_list' %}" class="text-sm font-black text-slate-400 hover:text-primary transition-colors uppercase tracking-widest order-2 md:order-1">
+                    Cancelar e Sair
                 </a>
-                <button type="submit" class="btn bg-serene-blue border-none text-white rounded-2xl px-12 h-16 shadow-xl shadow-blue-200 normal-case font-black italic order-1 md:order-2 hover:scale-[1.02] transition-all">
-                    <i class="fas fa-save mr-2 text-xs"></i> Salvar Profissional
+                <button type="submit" class="btn bg-secondary border-none text-white rounded-[1.5rem] px-12 h-20 shadow-2xl shadow-secondary/30 normal-case font-black uppercase tracking-widest text-lg order-1 md:order-2 hover:bg-blue-800 hover:scale-105 active:scale-95 transition-all">
+                    <i class="fas fa-check-double mr-3"></i> SALVAR PROFISSIONAL
                 </button>
             </div>
         </form>
@@ -114,20 +129,21 @@
 </div>
 
 <script>
-    // Integração automática de busca de CEP com estilo MayaCorp
+    // Script de CEP com feedback visual Studio
     const cepInput = document.getElementById('id_cep');
     if (cepInput) {
         cepInput.addEventListener('blur', function() {
             const cep = this.value.replace(/\D/g, '');
             if (cep.length === 8) {
-                this.classList.add('loading-input'); // Você pode criar um efeito visual aqui
+                this.classList.add('opacity-50');
                 fetch(`https://viacep.com.br/ws/${cep}/json/`)
                     .then(res => res.json())
                     .then(data => {
+                        this.classList.remove('opacity-50');
                         if (!data.erro) {
-                            document.getElementById('id_logradouro').value = data.logradouro;
-                            document.getElementById('id_bairro').value = data.bairro;
-                            document.getElementById('id_cidade').value = data.localidade;
+                            document.getElementById('id_logradouro').value = data.logradouro.toUpperCase();
+                            document.getElementById('id_bairro').value = data.bairro.toUpperCase();
+                            document.getElementById('id_cidade').value = data.localidade.toUpperCase();
                             document.getElementById('id_estado').value = data.uf;
                             document.getElementById('id_numero').focus();
                         }
@@ -136,14 +152,4 @@
         });
     }
 </script>
-
-<style>
-    /* Ajuste para o formulário se integrar ao estilo Soft UI */
-    .form-control label { @apply text-xs font-black text-slate-400 uppercase tracking-widest mb-2 !important; }
-    .input, .select, .textarea { @apply bg-slate-50 border-slate-100 rounded-2xl focus:ring-serene-blue/20 focus:border-serene-blue/30 !important; }
-    
-    /* Input de cor customizado */
-    input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
-    input[type="color"]::-webkit-color-swatch { border: none; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-</style>
 {% endblock %}

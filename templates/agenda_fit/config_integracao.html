@@ -1,76 +1,99 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Configurações de Integração - MayaCorp{% endblock %}
+{% block title %}Integrações - MayaCorp Fit{% endblock %}
 
 {% block content %}
-<div class="max-w-2xl mx-auto">
+<div class="max-w-2xl mx-auto px-4">
     
-    <!-- HEADER -->
-    <div class="mb-10 text-center">
-        <div class="w-16 h-16 bg-soft-lavender/30 rounded-[2rem] flex items-center justify-center text-purple-600 mx-auto mb-4 shadow-inner">
-            <i class="fas fa-cog text-2xl"></i>
+    <!-- HEADER (Foco em Nitidez e Identidade) -->
+    <div class="mb-12 text-center">
+        <!-- Ícone em MARSALA com Sombra Suave -->
+        <div class="w-20 h-20 bg-primary rounded-[2.5rem] flex items-center justify-center text-white mx-auto mb-6 shadow-xl shadow-primary/20 transition-transform hover:scale-110 duration-500">
+            <i class="fas fa-plug text-3xl"></i>
         </div>
-        <h1 class="text-3xl font-black text-slate-800 tracking-tight">Integrações</h1>
-        <p class="text-slate-400 font-medium mt-2">Conecte o MayaCorp com serviços externos</p>
+        <h1 class="text-4xl font-black text-slate-900 tracking-tighter">Integrações</h1>
+        <p class="text-slate-500 font-bold mt-2 uppercase tracking-[3px] text-xs">Conecte seu Studio com o Mundo</p>
     </div>
 
-    <!-- CARD PRINCIPAL (Soft UI Style) -->
-    <div class="bg-white rounded-[32px] shadow-xl shadow-slate-200/50 border border-white p-8 md:p-12">
-        <form method="post" class="space-y-8">
+    <!-- CARD PRINCIPAL (Visual Premium Studio) -->
+    <div class="bg-white rounded-[3rem] shadow-2xl shadow-slate-200/60 border border-slate-100 p-8 md:p-16 relative overflow-hidden">
+        
+        <!-- Detalhe decorativo em Amarelo -->
+        <div class="absolute top-0 right-0 w-32 h-32 bg-accent/5 rounded-full -mr-16 -mt-16"></div>
+
+        <form method="post" class="space-y-10 relative z-10">
             {% csrf_token %}
             
-            <!-- SEÇÃO TOTALPASS -->
-            <div class="p-6 rounded-3xl bg-rose-50/30 border border-rose-100/50">
-                <div class="flex items-center gap-4 mb-6">
-                    <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-sm">
-                        <i class="fas fa-dumbbell text-rose-500 text-xl"></i>
+            <!-- SEÇÃO TOTALPASS (Visual Imponente) -->
+            <div class="p-8 rounded-[2rem] bg-slate-50 border-2 border-slate-100 transition-all hover:border-primary/20">
+                <div class="flex items-center gap-5 mb-8">
+                    <!-- Placeholder de Logo -->
+                    <div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-md border border-slate-100 text-primary">
+                        <i class="fas fa-bolt text-2xl"></i>
                     </div>
                     <div>
-                        <h5 class="text-lg font-bold text-slate-700">TotalPass</h5>
-                        <p class="text-[10px] text-rose-400 font-black uppercase tracking-widest">Sincronização de alunos</p>
+                        <h5 class="text-xl font-black text-slate-900 tracking-tight">TotalPass</h5>
+                        <p class="text-[11px] text-primary font-black uppercase tracking-widest">Sincronização Ativa</p>
                     </div>
                 </div>
 
-                <div class="space-y-6">
-                    <!-- Switch Ativar (DaisyUI Toggle) -->
-                    <div class="flex items-center justify-between bg-white p-4 rounded-2xl shadow-sm border border-rose-100/20">
-                        <span class="text-sm font-bold text-slate-600">Status da Integração</span>
+                <div class="space-y-8">
+                    <!-- Status Toggle (MARSALA) -->
+                    <div class="flex items-center justify-between bg-white p-5 rounded-2xl shadow-sm border border-slate-200 group transition-all hover:border-primary">
+                        <div class="flex flex-col">
+                            <span class="text-sm font-black text-slate-800 uppercase tracking-tight">Status do Serviço</span>
+                            <span class="text-[10px] text-slate-400 font-bold uppercase">Habilitar comunicação via API</span>
+                        </div>
                         <input type="checkbox" name="{{ form.totalpass_ativo.name }}" 
-                               class="toggle toggle-error" 
+                               class="toggle toggle-primary scale-125" 
                                {% if form.totalpass_ativo.value %}checked{% endif %} />
                     </div>
 
-                    <!-- Input Token -->
+                    <!-- Input Token (MÁXIMA NITIDEZ) -->
                     <div class="form-control w-full">
-                        <label class="label mb-1">
-                            <span class="label-text text-xs font-black text-slate-400 uppercase tracking-widest">Token de Acesso (API Key)</span>
+                        <label class="label mb-2">
+                            <span class="label-text text-[11px] font-black text-slate-500 uppercase tracking-[2px]">Chave de Acesso (API Token)</span>
                         </label>
-                        <input type="text" name="{{ form.totalpass_token.name }}" 
-                               value="{{ form.totalpass_token.value|default:'' }}"
-                               placeholder="Digite seu token aqui..."
-                               class="input w-full bg-white border-slate-100 rounded-2xl focus:ring-rose-200 focus:border-rose-300 transition-all font-mono text-sm" />
+                        <div class="relative">
+                            <input type="text" name="{{ form.totalpass_token.name }}" 
+                                   value="{{ form.totalpass_token.value|default:'' }}"
+                                   placeholder="••••••••••••••••••••••••"
+                                   class="input w-full bg-white border-2 border-slate-200 rounded-2xl focus:border-primary focus:outline-none transition-all font-mono text-sm pl-12 h-14 text-slate-900 shadow-sm" />
+                            <i class="fas fa-key absolute left-4 top-1/2 -translate-y-1/2 text-slate-300"></i>
+                        </div>
                         {% if form.totalpass_token.errors %}
                             <label class="label">
-                                <span class="label-text-alt text-rose-500 font-bold">{{ form.totalpass_token.errors.0 }}</span>
+                                <span class="label-text-alt text-primary font-black mt-2"><i class="fas fa-exclamation-circle mr-1"></i> {{ form.totalpass_token.errors.0 }}</span>
                             </label>
                         {% endif %}
                     </div>
                 </div>
             </div>
 
-            <hr class="border-slate-50">
-
-            <!-- BOTÃO SALVAR (Estilo Serene Blue) -->
-            <div class="flex flex-col gap-3">
-                <button type="submit" class="btn btn-primary bg-serene-blue hover:bg-blue-400 border-none text-white rounded-2xl shadow-lg shadow-blue-200 h-14 normal-case text-lg font-bold">
-                    Salvar Configurações
+            <!-- BOTÃO SALVAR (AZUL VIBRANTE) -->
+            <div class="flex flex-col gap-4">
+                <button type="submit" class="btn bg-secondary hover:bg-blue-700 border-none text-white rounded-2xl shadow-xl shadow-secondary/30 h-16 normal-case text-lg font-black tracking-widest group transition-all">
+                    <span>SALVAR CONFIGURAÇÕES</span>
+                    <i class="fas fa-chevron-right ml-2 group-hover:translate-x-1 transition-transform"></i>
                 </button>
-                <p class="text-center text-[10px] text-slate-400 font-medium">
-                    <i class="fas fa-shield-alt mr-1"></i> Suas chaves de API são armazenadas com criptografia.
-                </p>
+                
+                <!-- Badge de Segurança em Amarelo -->
+                <div class="flex items-center justify-center gap-2 py-3 px-6 bg-accent/10 rounded-xl border border-accent/20">
+                    <i class="fas fa-shield-alt text-accent"></i>
+                    <p class="text-[10px] text-amber-800 font-black uppercase tracking-widest">
+                        Criptografia de ponta a ponta ativa
+                    </p>
+                </div>
             </div>
         </form>
+    </div>
+
+    <!-- Links de Apoio -->
+    <div class="mt-10 text-center">
+        <a href="#" class="text-xs font-black text-slate-400 hover:text-primary transition-colors uppercase tracking-widest">
+            Precisa de ajuda com a API? <span class="underline ml-1">Consulte a documentação</span>
+        </a>
     </div>
 </div>
 {% endblock %}

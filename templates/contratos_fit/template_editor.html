@@ -1,31 +1,32 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Editor de Modelo - MayaCorp{% endblock %}
+{% block title %}Editor de Modelo | MayaCorp Fit{% endblock %}
 
 {% block content %}
-<!-- Carrega o CKEditor da nuvem -->
+<!-- Carrega o CKEditor (Foco em Compatibilidade PDF) -->
 <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
 
-<div class="max-w-7xl mx-auto pb-20">
+<div class="max-w-7xl mx-auto pb-24 px-4">
     
-    <!-- HEADER -->
-    <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4 px-2">
-        <div class="flex items-center gap-4">
-            <div class="w-14 h-14 bg-soft-lavender/30 rounded-[22px] flex items-center justify-center text-purple-600 shadow-sm border border-white">
-                <i class="fas fa-edit text-2xl"></i>
+    <!-- HEADER: Identidade Studio Premium -->
+    <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-8 px-2">
+        <div class="flex items-center gap-6">
+            <!-- Ícone em MARSALA -->
+            <div class="w-16 h-16 bg-primary rounded-[22px] flex items-center justify-center text-white shadow-xl shadow-primary/30 border-2 border-white transition-transform hover:rotate-6">
+                <i class="fas fa-file-pen text-2xl"></i>
             </div>
             <div>
-                <h1 class="text-3xl font-black text-slate-800 tracking-tight">Editor de Modelos</h1>
-                <p class="text-[10px] text-slate-400 font-black uppercase tracking-[2px] mt-1">
-                    Crie contratos dinâmicos usando variáveis inteligentes
+                <h1 class="text-4xl font-black text-slate-900 tracking-tighter uppercase">Editor de Modelos</h1>
+                <p class="text-[11px] text-primary font-black uppercase tracking-[3px] mt-1">
+                    Criação de <span class="text-slate-900">Documentos Dinâmicos</span>
                 </p>
             </div>
         </div>
         
         <a href="{% url 'template_list' %}" 
-           class="btn btn-ghost bg-white shadow-sm border-slate-100 rounded-2xl hover:bg-slate-50 transition-all text-slate-400 normal-case font-bold px-6">
-            <i class="fas fa-arrow-left mr-2 text-xs"></i> Voltar à Lista
+           class="btn bg-white border-2 border-slate-200 shadow-sm rounded-2xl hover:bg-slate-50 transition-all text-slate-600 font-black px-8 h-14">
+            <i class="fas fa-arrow-left mr-2 text-xs"></i> VOLTAR À LISTA
         </a>
     </header>
 
@@ -34,79 +35,93 @@
         
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
             
-            <!-- COLUNA DA ESQUERDA: EDITOR (9/12) -->
-            <div class="lg:col-span-9 space-y-8">
+            <!-- COLUNA DA ESQUERDA: EDITOR (MÁXIMA NITIDEZ) -->
+            <div class="lg:col-span-9 space-y-10">
                 
-                <!-- Nome do Modelo Card -->
-                <div class="bg-white p-8 rounded-[32px] shadow-xl shadow-slate-200/40 border border-white">
+                <!-- Nome do Modelo (Destaque em MARSALA) -->
+                <div class="bg-white p-10 rounded-[2.5rem] shadow-2xl shadow-slate-200/60 border border-slate-100 relative overflow-hidden">
+                    <div class="absolute left-0 top-0 w-1.5 h-full bg-primary"></div>
                     <div class="form-control w-full">
-                        <label class="label mb-2">
-                            <span class="label-text text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nome Identificador do Modelo</span>
+                        <label class="label mb-3">
+                            <span class="label-text text-[11px] font-black text-slate-500 uppercase tracking-[2px] ml-2">Título Identificador do Contrato</span>
                         </label>
-                        <input type="text" name="nome" value="{{ form.instance.nome|default:'' }}" placeholder="Ex: Contrato de Pilates - Semestral" required
-                               class="input w-full bg-slate-50 border-slate-100 rounded-2xl focus:ring-2 focus:ring-serene-blue/20 focus:border-serene-blue/30 focus:outline-none transition-all text-slate-700 font-bold h-14 px-6">
+                        <input type="text" name="nome" value="{{ form.instance.nome|default:'' }}" placeholder="EX: CONTRATO DE PILATES - SEMESTRAL" required
+                               class="input w-full bg-slate-50 border-2 border-slate-200 rounded-2xl focus:border-primary focus:ring-0 transition-all text-slate-900 font-black h-16 px-8 text-lg placeholder:text-slate-300">
                     </div>
                 </div>
 
-                <!-- Editor Card -->
-                <div class="bg-white rounded-[32px] shadow-2xl shadow-slate-200/50 border border-white overflow-hidden">
-                    <div class="p-6 border-b border-slate-50 flex items-center justify-between bg-slate-50/30">
-                        <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Conteúdo do Documento</h3>
-                        <div class="flex items-center gap-2">
-                            <span class="text-[10px] font-bold text-slate-400 mr-2">Status:</span>
-                            <input type="checkbox" name="ativo" class="toggle toggle-success toggle-sm" id="id_ativo" {% if form.instance.ativo %}checked{% endif %}>
+                <!-- Editor Principal (Soft UI Luxury) -->
+                <div class="bg-white rounded-[3rem] shadow-2xl shadow-slate-200/60 border border-slate-100 overflow-hidden relative">
+                    <div class="p-8 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-align-left text-primary"></i>
+                            <h3 class="text-xs font-black text-slate-900 uppercase tracking-[3px]">Estrutura do Documento</h3>
+                        </div>
+                        <div class="flex items-center gap-4 bg-white px-5 py-2.5 rounded-2xl border border-slate-200 shadow-sm">
+                            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Status do Modelo</span>
+                            <input type="checkbox" name="ativo" class="toggle toggle-primary scale-110" id="id_ativo" {% if form.instance.ativo %}checked{% endif %}>
                         </div>
                     </div>
                     
-                    <!-- Container do CKEditor com bordas suavizadas -->
-                    <div class="p-2 bg-white">
+                    <!-- Container do Editor -->
+                    <div class="p-4 bg-white">
                         <textarea name="texto_html" id="editor1">{{ form.instance.texto_html }}</textarea>
                     </div>
                 </div>
 
-                <!-- Botão Salvar -->
-                <div class="flex justify-end gap-6 items-center">
-                    <p class="text-[9px] text-slate-300 font-bold uppercase tracking-widest italic">O conteúdo é salvo em formato HTML compatível com PDF</p>
-                    <button type="submit" class="btn bg-mint-green border-none text-emerald-900 rounded-2xl px-12 h-16 shadow-xl shadow-mint-green/30 normal-case font-black text-lg italic hover:bg-emerald-400 hover:scale-[1.02] transition-all">
-                        Salvar Modelo
+                <!-- Botão Salvar (AZUL VIBRANTE) -->
+                <div class="flex flex-col md:flex-row justify-between items-center gap-8 bg-slate-900 p-8 rounded-[2.5rem] shadow-2xl">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center text-accent">
+                            <i class="fas fa-shield-halved"></i>
+                        </div>
+                        <p class="text-[10px] text-slate-400 font-black uppercase tracking-[2px] leading-relaxed italic">
+                            O conteúdo será salvo em formato HTML <br><span class="text-white">compatível com renderização PDF MayaCorp</span>
+                        </p>
+                    </div>
+                    <button type="submit" class="btn bg-secondary hover:bg-blue-800 border-none text-white rounded-2xl px-16 h-20 shadow-xl shadow-secondary/30 font-black text-xl uppercase tracking-widest transition-all hover:scale-105 active:scale-95 group">
+                        <i class="fas fa-cloud-arrow-up mr-3 group-hover:animate-bounce"></i> SALVAR MODELO
                     </button>
                 </div>
             </div>
 
-            <!-- COLUNA DA DIREITA: VARIÁVEIS (3/12) -->
+            <!-- COLUNA DA DIREITA: VARIÁVEIS (AMARELO MÁGICO) -->
             <div class="lg:col-span-3">
-                <div class="bg-white rounded-[32px] shadow-xl shadow-slate-200/50 border border-white sticky top-10 overflow-hidden">
-                    <div class="p-6 bg-serene-blue/10 border-b border-serene-blue/10">
-                        <div class="flex items-center gap-3">
-                            <i class="fas fa-magic text-serene-blue"></i>
-                            <h3 class="text-[10px] font-black text-serene-blue uppercase tracking-widest">Variáveis Mágicas</h3>
+                <div class="bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200/60 border border-slate-100 sticky top-28 overflow-hidden">
+                    <div class="p-8 bg-secondary flex items-center gap-4 text-white">
+                        <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-magic text-accent animate-pulse"></i>
                         </div>
+                        <h3 class="text-[11px] font-black uppercase tracking-[3px]">Variáveis</h3>
                     </div>
                     
-                    <div class="p-4 overflow-y-auto custom-scroll" style="max-height: calc(100vh - 300px);">
-                        <p class="text-[10px] text-slate-400 font-medium mb-4 px-2 leading-relaxed">
-                            <i class="fas fa-info-circle mr-1"></i> <strong>Clique duplo</strong> para inserir no texto onde estiver o cursor.
-                        </p>
+                    <div class="p-6 overflow-y-auto custom-scroll" style="max-height: calc(100vh - 450px);">
+                        <div class="bg-accent/10 p-4 rounded-xl border border-accent/20 mb-6">
+                            <p class="text-[10px] text-amber-900 font-black uppercase leading-relaxed text-center">
+                                <i class="fas fa-mouse mr-1"></i> CLIQUE DUPLO PARA INSERIR
+                            </p>
+                        </div>
                         
-                        <div class="space-y-1">
+                        <div class="space-y-2">
                             {% for var in variaveis %}
                                 <button type="button" 
-                                        class="w-full text-left p-3 rounded-xl border border-transparent hover:border-serene-blue/20 hover:bg-serene-blue/5 group transition-all"
+                                        class="w-full text-left p-4 rounded-2xl border-2 border-slate-50 hover:border-secondary hover:bg-secondary/5 group transition-all"
                                         ondblclick="inserirVariavel('{{ var.codigo }}')">
                                     <div class="flex flex-col">
-                                        <span class="text-xs font-bold text-slate-600 group-hover:text-serene-blue transition-colors">{{ var.desc }}</span>
-                                        <code class="text-[9px] text-slate-300 font-mono mt-1 group-hover:text-slate-400">{{ var.codigo }}</code>
+                                        <span class="text-xs font-black text-slate-800 uppercase tracking-tight group-hover:text-secondary transition-colors">{{ var.desc }}</span>
+                                        <code class="text-[10px] text-primary font-mono mt-2 bg-red-50 px-2 py-1 rounded-lg w-fit group-hover:bg-primary group-hover:text-white transition-all">{{ var.codigo }}</code>
                                     </div>
                                 </button>
                             {% endfor %}
                         </div>
                     </div>
                     
-                    <div class="p-6 bg-slate-50 border-t border-slate-100">
-                        <div class="flex items-start gap-3">
-                            <i class="fas fa-image text-slate-300 mt-1"></i>
-                            <p class="text-[9px] text-slate-400 leading-relaxed font-medium">
-                                Para incluir sua <strong>Logomarca</strong>, use o ícone de imagem no editor e cole a URL da sua logo.
+                    <!-- Dica de Logo -->
+                    <div class="p-8 bg-slate-50 border-t border-slate-100">
+                        <div class="flex items-start gap-4">
+                            <i class="fas fa-image text-primary text-lg mt-1"></i>
+                            <p class="text-[10px] text-slate-500 font-bold leading-relaxed uppercase tracking-tight">
+                                Use o ícone de imagem no editor para inserir a sua <span class="text-primary font-black">LOGOMARCA</span> no contrato.
                             </p>
                         </div>
                     </div>
@@ -116,25 +131,35 @@
     </form>
 </div>
 
+<!-- ESTILIZAÇÃO DO CKEDITOR STUDIO LUXO -->
 <style>
-    /* Estilização para "amansar" o CKEditor */
-    .cke_chrome { border: none !important; box-shadow: none !important; }
-    .cke_top { background: #f8f9fa !important; border-bottom: 1px solid #f1f5f9 !important; padding: 10px !important; }
-    .cke_bottom { background: #fff !important; border-top: none !important; }
+    .cke_chrome { border: none !important; box-shadow: none !important; border-radius: 0 !important; }
+    .cke_top { 
+        background: #0f172a !important; /* Toolbar Escura para contraste */
+        border-bottom: 2px solid #1e293b !important; 
+        padding: 15px !important; 
+    }
+    .cke_bottom { background: #ffffff !important; border-top: 1px solid #f1f5f9 !important; padding: 10px !important; }
     
-    /* Scroll suave para a lista de variáveis */
-    .custom-scroll::-webkit-scrollbar { width: 4px; }
+    /* Botões da Toolbar do CKEditor nítidos */
+    .cke_button_icon { filter: brightness(0) invert(1); } /* Ícones brancos no fundo escuro */
+    .cke_combo_button { background: #1e293b !important; border: 1px solid #334155 !important; border-radius: 8px !important; }
+    .cke_combo_text { color: #fff !important; font-weight: bold !important; }
+    
+    .custom-scroll::-webkit-scrollbar { width: 6px; }
     .custom-scroll::-webkit-scrollbar-track { background: transparent; }
-    .custom-scroll::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+    .custom-scroll::-webkit-scrollbar-thumb { @apply bg-slate-200 rounded-full; }
 </style>
 
 <script>
-    // Inicialização do CKEditor focada em simplicidade
+    // Configuração do CKEditor focada em Nitidez e Documentação
     CKEDITOR.replace('editor1', {
-        height: 550,
+        height: 600,
         removePlugins: 'elementspath',
         resize_enabled: false,
-        uiColor: '#FFFFFF',
+        uiColor: '#0f172a', // Interface Dark para a toolbar
+        contentsCss: ['https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap'],
+        bodyClass: 'document-editor',
         toolbar: [
             { name: 'document', items: ['Source', '-', 'Preview', 'Print'] },
             { name: 'clipboard', items: ['Cut', 'Copy', 'Paste', 'Undo', 'Redo'] },
@@ -143,17 +168,22 @@
             { name: 'insert', items: ['Image', 'Table', 'HorizontalRule', 'SpecialChar'] },
             { name: 'styles', items: ['Format', 'FontSize'] },
             { name: 'colors', items: ['TextColor', 'BGColor'] }
-        ]
+        ],
+        fontSize_sizes: '8/8pt;9/9pt;10/10pt;11/11pt;12/12pt;14/14pt;16/16pt;18/18pt;24/24pt;36/36pt',
     });
 
     function inserirVariavel(texto) {
         CKEDITOR.instances.editor1.insertText(texto);
-        // Feedback visual sutil ao inserir
-        const notification = document.createElement('div');
-        notification.className = 'fixed bottom-10 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-6 py-3 rounded-2xl shadow-2xl text-xs font-bold animate-bounce z-[9999]';
-        notification.innerText = 'Variável inserida com sucesso! ✨';
-        document.body.appendChild(notification);
-        setTimeout(() => notification.remove(), 2000);
+        
+        // Notificação Premium (AZUL VIBRANTE)
+        const toast = document.createElement('div');
+        toast.className = 'fixed bottom-12 right-12 bg-secondary text-white px-10 py-5 rounded-[1.5rem] shadow-2xl text-xs font-black uppercase tracking-widest animate-in slide-in-from-bottom-10 z-[9999] border-4 border-white/20';
+        toast.innerHTML = `<i class="fas fa-magic text-accent mr-3"></i> Variável Adicionada!`;
+        document.body.appendChild(toast);
+        setTimeout(() => {
+            toast.classList.add('animate-out', 'fade-out', 'slide-out-to-bottom-10');
+            setTimeout(() => toast.remove(), 500);
+        }, 2000);
     }
 </script>
 {% endblock %}

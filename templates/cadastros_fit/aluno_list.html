@@ -1,110 +1,114 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Gestão de Alunos - MayaCorp{% endblock %}
+{% block title %}Gestão de Alunos | MayaCorp Fit{% endblock %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto pb-10">
+<div class="max-w-7xl mx-auto pb-20 px-4">
     
-    <!-- HEADER: Título e Ação -->
-    <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4 px-2">
-        <div class="flex items-center gap-4">
-            <div class="w-14 h-14 bg-serene-blue/20 rounded-[22px] flex items-center justify-center text-serene-blue shadow-sm">
+    <!-- HEADER: Imponente e Vibrante -->
+    <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
+        <div class="flex items-center gap-5">
+            <!-- Ícone em MARSALA -->
+            <div class="w-16 h-16 bg-primary rounded-[22px] flex items-center justify-center text-white shadow-xl shadow-primary/30 border-2 border-white transition-transform hover:scale-110">
                 <i class="fas fa-users text-2xl"></i>
             </div>
             <div>
-                <h1 class="text-3xl font-black text-slate-800 tracking-tight">Gestão de Alunos</h1>
-                <p class="text-[10px] text-slate-400 font-black uppercase tracking-[2px] mt-1">
-                    {{ alunos|length }} alunos cadastrados no sistema
+                <h1 class="text-4xl font-black text-slate-900 tracking-tighter">Gestão de Alunos</h1>
+                <p class="text-[11px] text-primary font-black uppercase tracking-[3px] mt-1">
+                    Total de <span class="text-slate-900">{{ alunos|length }}</span> membros ativos no studio
                 </p>
             </div>
         </div>
         
+        <!-- Botão Novo Aluno em AZUL VIBRANTE -->
         <a href="{% url 'aluno_create' %}" 
-           class="btn bg-serene-blue border-none text-white rounded-2xl px-8 h-14 shadow-xl shadow-blue-200 hover:bg-blue-400 hover:scale-[1.02] transition-all normal-case font-black italic">
-            <i class="fas fa-plus mr-2 text-xs"></i> Novo Aluno
+           class="btn bg-secondary border-none text-white rounded-2xl px-10 h-16 shadow-2xl shadow-secondary/30 hover:bg-blue-800 hover:scale-105 transition-all normal-case font-black uppercase tracking-widest text-xs">
+            <i class="fas fa-user-plus mr-2 text-lg"></i> NOVO ALUNO
         </a>
     </header>
 
-    <!-- LISTA DE ALUNOS (Card Soft UI) -->
-    <div class="bg-white rounded-[40px] shadow-2xl shadow-slate-200/50 overflow-hidden border border-white">
+    <!-- LISTA DE ALUNOS (Card Premium Studio) -->
+    <div class="bg-white rounded-[3rem] shadow-2xl shadow-slate-200/60 overflow-hidden border border-slate-100">
         <div class="overflow-x-auto">
             <table class="table w-full border-collapse">
-                <!-- CABEÇALHO -->
+                <!-- CABEÇALHO COM CONTRASTE MÁXIMO -->
                 <thead>
-                    <tr class="border-b border-slate-50">
-                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[2px] font-black py-8 pl-10">Aluno</th>
-                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[2px] font-black py-8">Identificação</th>
-                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[2px] font-black py-8">Contato</th>
-                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[2px] font-black py-8 text-center">Situação</th>
-                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[2px] font-black py-8 pr-10 text-right">Ações</th>
+                    <tr class="bg-slate-900 border-none">
+                        <th class="text-white uppercase text-[11px] tracking-[2px] font-black py-8 pl-12">Perfil do Aluno</th>
+                        <th class="text-white uppercase text-[11px] tracking-[2px] font-black py-8">Identificação</th>
+                        <th class="text-white uppercase text-[11px] tracking-[2px] font-black py-8">Contato Direto</th>
+                        <th class="text-white uppercase text-[11px] tracking-[2px] font-black py-8 text-center">Status</th>
+                        <th class="text-white uppercase text-[11px] tracking-[2px] font-black py-8 pr-12 text-right">Ações</th>
                     </tr>
                 </thead>
                 
-                <tbody class="divide-y divide-slate-50">
+                <tbody class="divide-y divide-slate-100">
                     {% for aluno in alunos %}
-                    <tr class="hover:bg-slate-50/50 transition-colors group cursor-pointer" 
+                    <tr class="hover:bg-primary/5 transition-colors group cursor-pointer" 
                         onclick="window.location='{% url 'aluno_detail' aluno.pk %}'">
                         
                         <!-- ALUNO (Avatar + Nome) -->
-                        <td class="py-6 pl-10">
-                            <div class="flex items-center gap-4">
+                        <td class="py-7 pl-12">
+                            <div class="flex items-center gap-5">
                                 <div class="avatar">
-                                    <div class="w-14 h-14 rounded-[20px] shadow-lg shadow-slate-200 border-2 border-white group-hover:scale-105 transition-transform">
+                                    <div class="w-16 h-16 rounded-3xl shadow-xl shadow-primary/10 border-4 border-white group-hover:scale-110 transition-transform ring-1 ring-slate-100">
                                         {% if aluno.foto_rosto %}
                                             <img src="{{ aluno.foto_rosto.url }}" class="object-cover" />
                                         {% else %}
-                                            <div class="bg-slate-100 flex items-center justify-center text-slate-300 font-black text-xl">
-                                                {{ aluno.nome|first|upper }}
+                                            <div class="bg-slate-100 flex items-center justify-center text-primary font-black text-2xl uppercase">
+                                                {{ aluno.nome|first }}
                                             </div>
                                         {% endif %}
                                     </div>
                                 </div>
                                 <div class="flex flex-col">
-                                    <span class="text-slate-800 font-bold text-base group-hover:text-serene-blue transition-colors">{{ aluno.nome }}</span>
-                                    <span class="text-[11px] text-slate-400 font-medium lowercase italic">{{ aluno.email|default:"sem e-mail" }}</span>
+                                    <span class="text-slate-900 font-black text-lg group-hover:text-primary transition-colors tracking-tighter">{{ aluno.nome|upper }}</span>
+                                    <span class="text-xs text-slate-400 font-bold lowercase italic tracking-wide">{{ aluno.email|default:"sem e-mail cadastrado" }}</span>
                                 </div>
                             </div>
                         </td>
 
                         <!-- CPF / ID -->
-                        <td class="py-6">
-                            <span class="text-sm font-bold text-slate-500 bg-slate-50 px-3 py-1 rounded-lg border border-slate-100">
-                                {{ aluno.cpf|default:"---" }}
+                        <td class="py-7">
+                            <span class="text-xs font-black text-slate-700 bg-slate-100 px-4 py-2 rounded-xl border border-slate-200 uppercase tracking-widest">
+                                {{ aluno.cpf|default:"Não informado" }}
                             </span>
                         </td>
 
-                        <!-- TELEFONE -->
-                        <td class="py-6">
-                            <div class="flex items-center gap-2 text-slate-500 text-sm font-medium">
-                                <i class="fab fa-whatsapp text-emerald-400"></i>
+                        <!-- TELEFONE (AZUL) -->
+                        <td class="py-7">
+                            <div class="flex items-center gap-3 text-slate-700 text-sm font-black uppercase tracking-tighter">
+                                <div class="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-600">
+                                    <i class="fab fa-whatsapp"></i>
+                                </div>
                                 {{ aluno.telefone }}
                             </div>
                         </td>
 
-                        <!-- STATUS (Badges Soft) -->
-                        <td class="py-6 text-center">
+                        <!-- STATUS (VIBRANTE) -->
+                        <td class="py-7 text-center">
                             {% if aluno.bloqueado_catraca %}
-                                <div class="badge bg-rose-50 border-none text-rose-500 text-[10px] font-black py-3 px-4 rounded-xl">BLOQUEADO</div>
+                                <div class="badge bg-primary border-none text-white text-[10px] font-black py-4 px-6 rounded-xl shadow-lg shadow-primary/20">BLOQUEADO</div>
                             {% elif aluno.ativo %}
-                                <div class="badge bg-mint-green/20 border-none text-emerald-700 text-[10px] font-black py-3 px-4 rounded-xl">ATIVO</div>
+                                <div class="badge bg-emerald-500 border-none text-white text-[10px] font-black py-4 px-6 rounded-xl shadow-lg shadow-emerald-200">ATIVO</div>
                             {% else %}
-                                <div class="badge bg-slate-100 border-none text-slate-400 text-[10px] font-black py-3 px-4 rounded-xl">INATIVO</div>
+                                <div class="badge bg-slate-400 border-none text-white text-[10px] font-black py-4 px-6 rounded-xl">INATIVO</div>
                             {% endif %}
                         </td>
 
-                        <!-- AÇÕES -->
-                        <td class="py-6 pr-10 text-right">
-                            <div class="flex justify-end gap-2" onclick="event.stopPropagation();">
+                        <!-- AÇÕES (AZUL E MARSALA) -->
+                        <td class="py-7 pr-12 text-right">
+                            <div class="flex justify-end gap-3" onclick="event.stopPropagation();">
                                 <a href="{% url 'aluno_update' aluno.pk %}" 
-                                   class="btn btn-square btn-sm rounded-xl bg-slate-50 border-none text-slate-300 hover:text-serene-blue hover:bg-serene-blue/10 transition-all" 
-                                   title="Editar">
-                                    <i class="fas fa-edit"></i>
+                                   class="btn btn-square btn-sm rounded-xl bg-slate-100 border-none text-slate-400 hover:bg-secondary hover:text-white transition-all shadow-sm" 
+                                   title="Editar Dados">
+                                    <i class="fas fa-edit text-base"></i>
                                 </a>
                                 <a href="{% url 'aluno_delete' aluno.pk %}" 
-                                   class="btn btn-square btn-sm rounded-xl bg-slate-50 border-none text-slate-300 hover:text-rose-500 hover:bg-rose-50 transition-all" 
-                                   title="Excluir">
-                                    <i class="fas fa-trash-alt"></i>
+                                   class="btn btn-square btn-sm rounded-xl bg-slate-100 border-none text-slate-400 hover:bg-primary hover:text-white transition-all shadow-sm" 
+                                   title="Excluir Aluno">
+                                    <i class="fas fa-trash-alt text-base"></i>
                                 </a>
                             </div>
                         </td>
@@ -113,11 +117,12 @@
                     <tr>
                         <td colspan="5" class="py-32 text-center">
                             <div class="flex flex-col items-center">
-                                <div class="w-24 h-24 bg-slate-50 rounded-[3rem] flex items-center justify-center text-slate-200 mb-6 border border-dashed border-slate-200">
-                                    <i class="fas fa-user-plus text-4xl"></i>
+                                <div class="w-28 h-28 bg-slate-50 rounded-[3rem] flex items-center justify-center text-slate-200 mb-8 border-2 border-dashed border-slate-200">
+                                    <i class="fas fa-user-slash text-4xl"></i>
                                 </div>
-                                <h3 class="text-slate-400 font-black uppercase text-sm tracking-widest">Nenhum aluno cadastrado</h3>
-                                <p class="text-slate-300 text-xs mt-2">Clique no botão "Novo Aluno" para começar.</p>
+                                <h3 class="text-slate-900 text-2xl font-black tracking-tight">O studio está vazio?</h3>
+                                <p class="text-slate-400 mt-2 font-bold uppercase tracking-[2px] text-xs">Comece cadastrando o primeiro aluno acima.</p>
+                                <a href="{% url 'aluno_create' %}" class="btn btn-primary mt-8 rounded-2xl">CADASTRAR AGORA</a>
                             </div>
                         </td>
                     </tr>

@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="max-w-5xl mx-auto pb-24 px-4">
+    
+    <!-- HEADER: Identidade Studio MayaCorp -->
+    <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-8">
+        <div class="flex items-center gap-6">
+            <!-- Ícone em MARSALA -->
+            <div class="w-16 h-16 bg-primary rounded-[22px] flex items-center justify-center text-white shadow-xl shadow-primary/30 border-2 border-white">
+                <i class="fas fa-shapes text-2xl"></i>
+            </div>
+            <div>
+                <h1 class="text-4xl font-black text-slate-900 tracking-tighter uppercase">Modalidades</h1>
+                <p class="text-[11px] text-primary font-black uppercase tracking-[3px] mt-1">Configuração de Tipos de Serviço</p>
+            </div>
+        </div>
+        
+        <!-- Botão Novo em AZUL VIBRANTE -->
+        <a href="{% url 'servico_create' %}" class="btn bg-secondary border-none text-white rounded-2xl px-10 h-16 shadow-2xl shadow-secondary/30 hover:bg-blue-800 hover:scale-105 transition-all font-black uppercase tracking-widest text-xs">
+            <i class="fas fa-plus-circle mr-2 text-lg"></i> ADICIONAR SERVIÇO
+        </a>
+    </header>
+
+    <!-- GRID DE CARDS (Estilo Modern Studio) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {% for s in servicos %}
+        <div class="bg-white p-8 rounded-[2.5rem] shadow-2xl shadow-slate-200/60 border border-slate-100 flex items-center justify-between group hover:border-primary/20 hover:-translate-y-2 transition-all duration-300 relative overflow-hidden">
+            
+            <!-- Detalhe decorativo de fundo -->
+            <div class="absolute right-0 bottom-0 w-24 h-24 bg-slate-50 rounded-full -mr-12 -mb-12 opacity-50"></div>
+
+            <div class="flex items-center gap-6 relative z-10">
+                <!-- Indicador de Cor (GRANDE E VIBRANTE) -->
+                <div class="w-16 h-16 rounded-[1.25rem] shadow-2xl flex items-center justify-center border-4 border-white transition-transform group-hover:scale-110" 
+                     style="background-color: {{ s.cor }}; shadow-color: {{ s.cor }}66;">
+                    <i class="fas fa-check text-white/40 text-xs"></i>
+                </div>
+                
+                <div>
+                    <h3 class="font-black text-slate-900 text-xl tracking-tighter uppercase group-hover:text-primary transition-colors">{{ s.nome }}</h3>
+                    <div class="mt-2">
+                        {% if s.ativo %}
+                            <span class="text-[10px] font-black text-emerald-600 bg-emerald-50 px-3 py-1 rounded-lg uppercase tracking-widest">● Ativo</span>
+                        {% else %}
+                            <span class="text-[10px] font-black text-primary bg-red-50 px-3 py-1 rounded-lg uppercase tracking-widest">● Inativo</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botão Editar (AZUL) -->
+            <a href="{% url 'servico_update' s.id %}" class="btn btn-square bg-slate-50 border-none text-slate-300 hover:bg-secondary hover:text-white rounded-2xl h-14 w-14 transition-all shadow-sm">
+                <i class="fas fa-pen-to-square text-lg"></i>
+            </a>
+        </div>
+        {% empty %}
+        <!-- EMPTY STATE (NÍTIDO) -->
+        <div class="col-span-full py-32 text-center bg-white rounded-[3rem] border-2 border-dashed border-slate-200 shadow-xl">
+            <div class="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center text-slate-200 mx-auto mb-6">
+                <i class="fas fa-box-open text-4xl"></i>
+            </div>
+            <h3 class="text-slate-900 text-2xl font-black tracking-tight uppercase">Nenhum serviço disponível</h3>
+            <p class="text-slate-400 mt-2 font-bold uppercase tracking-widest text-xs">Comece criando as modalidades do seu studio.</p>
+            <a href="{% url 'servico_create' %}" class="btn btn-primary mt-8 rounded-2xl px-12">CRIAR AGORA</a>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- RODAPÉ TÉCNICO -->
+    <div class="mt-16 flex flex-col md:flex-row items-center justify-center gap-8">
+        <div class="flex items-center gap-3">
+            <div class="w-2.5 h-2.5 bg-accent rounded-full animate-pulse shadow-[0_0_8px_rgba(250,204,21,0.6)]"></div>
+            <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Categorização por Cores Ativa</span>
+        </div>
+        <div class="flex items-center gap-3 text-slate-300">
+            <i class="fas fa-info-circle text-sm"></i>
+            <span class="text-[10px] font-black uppercase tracking-widest italic">MayaCorp Logic: Visual Modality</span>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -50,7 +50,7 @@ SHARED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'termos_fit',
+    
     'crispy_forms',
     'crispy_bootstrap5',
 )

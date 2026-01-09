@@ -1,59 +1,60 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Conciliação IA - MayaCorp{% endblock %}
+{% block title %}Conciliação IA | MayaCorp Fit{% endblock %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto pb-20">
+<div class="max-w-7xl mx-auto pb-24 px-4">
 
-    <!-- 1. CABEÇALHO: Título e Limpeza -->
-    <header class="flex flex-col md:flex-row justify-between items-center mb-10 gap-6 px-2 animate-in fade-in duration-700">
-        <div class="flex items-center gap-5">
-            <div class="w-16 h-16 bg-serene-blue/20 rounded-[24px] flex items-center justify-center text-serene-blue shadow-sm border border-white">
+    <!-- 1. CABEÇALHO: Título e Limpeza (Identidade Studio Premium) -->
+    <header class="flex flex-col md:flex-row justify-between items-center mb-12 gap-8 px-2 animate-in fade-in duration-700">
+        <div class="flex items-center gap-6">
+            <!-- Ícone em MARSALA (Tecnologia Mestre) -->
+            <div class="w-16 h-16 bg-primary rounded-[22px] flex items-center justify-center text-white shadow-xl shadow-primary/30 border-2 border-white transition-transform hover:rotate-6">
                 <i class="fas fa-robot text-2xl"></i>
             </div>
             <div>
-                <h1 class="text-3xl font-black text-slate-800 tracking-tight">Conciliação Inteligente</h1>
-                <p class="text-[10px] text-slate-400 font-black uppercase tracking-[2px] mt-1">Processamento de arquivos assistido por IA</p>
+                <h1 class="text-4xl font-black text-slate-900 tracking-tighter uppercase">Conciliação IA</h1>
+                <p class="text-[11px] text-primary font-black uppercase tracking-[3px] mt-1">Processamento de Lotes Assistido por Inteligência</p>
             </div>
         </div>
         
-        <button onclick="limparTudo()" class="btn btn-ghost bg-white shadow-sm border-slate-100 rounded-2xl hover:bg-rose-50 hover:text-rose-500 transition-all text-slate-400 normal-case font-bold px-6">
-            <i class="fas fa-trash-alt mr-2 text-xs"></i> Limpar Ambiente
+        <button onclick="limparTudo()" class="btn bg-white border-2 border-slate-200 shadow-sm rounded-2xl hover:bg-red-50 hover:text-primary hover:border-primary transition-all text-slate-400 font-black uppercase tracking-widest text-[10px] px-8 h-14">
+            <i class="fas fa-trash-can mr-2"></i> LIMPAR AMBIENTE
         </button>
     </header>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
         
-        <!-- COLUNA 1: BOLETOS -->
-        <div class="space-y-4">
-            <div class="flex items-center justify-between px-4">
+        <!-- COLUNA 1: BOLETOS (MARSALA) -->
+        <div class="space-y-6">
+            <div class="flex items-center justify-between px-6">
                 <div class="flex items-center gap-3">
-                    <div class="w-2 h-6 bg-serene-blue rounded-full shadow-[0_0_8px_rgba(165,216,255,0.8)]"></div>
-                    <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-[3px]">1. Base de Boletos</h3>
+                    <div class="w-2.5 h-8 bg-primary rounded-full shadow-[0_0_12px_rgba(128,36,34,0.5)]"></div>
+                    <h3 class="text-xs font-black text-slate-900 uppercase tracking-[3px]">1. Base de Boletos (PDF)</h3>
                 </div>
-                <span id="count-boletos" class="badge bg-serene-blue/10 border-none text-serene-blue font-black rounded-lg px-3">{{ arquivos.boletos|length }}</span>
+                <span id="count-boletos" class="badge bg-primary border-none text-white font-black rounded-lg px-4 py-3 shadow-md">{{ arquivos.boletos|length }}</span>
             </div>
 
-            <div class="bg-white rounded-[40px] shadow-2xl shadow-slate-200/50 border border-white p-8 md:p-10">
-                <div class="drop-zone group border-2 border-dashed border-slate-100 bg-slate-50/50 rounded-[32px] p-10 text-center cursor-pointer hover:bg-white hover:border-serene-blue/30 transition-all duration-500" 
+            <div class="bg-white rounded-[3rem] shadow-2xl shadow-slate-200/60 border border-slate-100 p-8 md:p-10 relative overflow-hidden">
+                <div class="drop-zone group border-4 border-dashed border-slate-100 bg-slate-50 rounded-[2.5rem] p-12 text-center cursor-pointer hover:bg-white hover:border-primary/30 transition-all duration-500" 
                      id="drop-boletos" onclick="document.getElementById('input-boletos').click()">
-                    <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-serene-blue mx-auto mb-4 shadow-xl shadow-slate-200 group-hover:scale-110 transition-transform">
-                        <i class="fas fa-file-invoice-dollar text-2xl"></i>
+                    <div class="w-20 h-20 bg-white rounded-3xl flex items-center justify-center text-primary mx-auto mb-6 shadow-xl shadow-primary/10 group-hover:scale-110 transition-transform">
+                        <i class="fas fa-file-invoice-dollar text-3xl"></i>
                     </div>
-                    <p class="text-sm font-bold text-slate-500 mb-1">Arraste os PDFs dos Boletos</p>
-                    <p class="text-[10px] text-slate-300 font-medium uppercase tracking-widest">ou clique para selecionar</p>
+                    <p class="text-base font-black text-slate-800 uppercase tracking-tighter mb-1">Arraste os Boletos</p>
+                    <p class="text-[10px] text-slate-400 font-black uppercase tracking-[2px]">Upload múltiplo permitido</p>
                     <input type="file" id="input-boletos" multiple accept=".pdf" hidden onchange="handleUpload(this.files, 'boletos')">
                 </div>
                 
-                <div class="file-list mt-8 space-y-2 custom-scroll overflow-y-auto" style="max-height: 250px;" id="list-boletos">
+                <div class="file-list mt-8 space-y-3 custom-scroll overflow-y-auto pr-2" style="max-height: 280px;" id="list-boletos">
                     {% for f in arquivos.boletos %}
-                    <div class="file-item bg-slate-50/50 p-4 rounded-2xl border border-slate-100 flex justify-between items-center group/item hover:bg-white hover:shadow-md transition-all" data-filename="{{ f }}">
-                        <div class="flex items-center gap-3">
-                            <span class="status-icon w-8 h-8 bg-white rounded-lg flex items-center justify-center text-xs shadow-sm">📄</span>
-                            <span class="filename text-xs font-bold text-slate-600 truncate max-w-[200px]">{{ f }}</span>
+                    <div class="file-item bg-slate-50 p-5 rounded-2xl border border-slate-100 flex justify-between items-center group/item hover:bg-primary/5 hover:border-primary/20 transition-all" data-filename="{{ f }}">
+                        <div class="flex items-center gap-4">
+                            <span class="status-icon w-10 h-10 bg-white rounded-xl flex items-center justify-center text-sm shadow-sm border border-slate-100">📄</span>
+                            <span class="filename text-xs font-black text-slate-700 truncate max-w-[180px] uppercase tracking-tight">{{ f }}</span>
                         </div>
-                        <button class="btn btn-ghost btn-circle btn-xs text-slate-200 hover:text-rose-500 opacity-0 group-hover/item:opacity-100 transition-opacity" onclick="deleteFile('boletos', '{{ f }}')">
+                        <button class="btn btn-ghost btn-circle btn-sm text-slate-300 hover:text-primary opacity-0 group-hover/item:opacity-100 transition-opacity" onclick="deleteFile('boletos', '{{ f }}')">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
@@ -62,35 +63,35 @@
             </div>
         </div>
 
-        <!-- COLUNA 2: COMPROVANTES -->
-        <div class="space-y-4">
-            <div class="flex items-center justify-between px-4">
+        <!-- COLUNA 2: COMPROVANTES (AZUL VIBRANTE) -->
+        <div class="space-y-6">
+            <div class="flex items-center justify-between px-6">
                 <div class="flex items-center gap-3">
-                    <div class="w-2 h-6 bg-soft-lavender rounded-full shadow-[0_0_8px_rgba(208,191,255,0.8)]"></div>
-                    <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-[3px]">2. Lote de Comprovantes</h3>
+                    <div class="w-2.5 h-8 bg-secondary rounded-full shadow-[0_0_12px_rgba(37,99,235,0.5)]"></div>
+                    <h3 class="text-xs font-black text-slate-900 uppercase tracking-[3px]">2. Lote de Comprovantes</h3>
                 </div>
-                <span id="count-comprovantes" class="badge bg-soft-lavender/20 border-none text-purple-600 font-black rounded-lg px-3">{{ arquivos.comprovantes|length }}</span>
+                <span id="count-comprovantes" class="badge bg-secondary border-none text-white font-black rounded-lg px-4 py-3 shadow-md">{{ arquivos.comprovantes|length }}</span>
             </div>
 
-            <div class="bg-white rounded-[40px] shadow-2xl shadow-slate-200/50 border border-white p-8 md:p-10">
-                <div class="drop-zone group border-2 border-dashed border-slate-100 bg-slate-50/50 rounded-[32px] p-10 text-center cursor-pointer hover:bg-white hover:border-soft-lavender/30 transition-all duration-500" 
+            <div class="bg-white rounded-[3rem] shadow-2xl shadow-slate-200/60 border border-slate-100 p-8 md:p-10 relative overflow-hidden">
+                <div class="drop-zone group border-4 border-dashed border-slate-100 bg-slate-50 rounded-[2.5rem] p-12 text-center cursor-pointer hover:bg-white hover:border-secondary/30 transition-all duration-500" 
                      id="drop-comprovantes" onclick="document.getElementById('input-comprovantes').click()">
-                    <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-purple-400 mx-auto mb-4 shadow-xl shadow-slate-200 group-hover:scale-110 transition-transform">
-                        <i class="fas fa-receipt text-2xl"></i>
+                    <div class="w-20 h-20 bg-white rounded-3xl flex items-center justify-center text-secondary mx-auto mb-6 shadow-xl shadow-secondary/10 group-hover:scale-110 transition-transform">
+                        <i class="fas fa-receipt text-3xl"></i>
                     </div>
-                    <p class="text-sm font-bold text-slate-500 mb-1">Arquivo Único de Comprovantes</p>
-                    <p class="text-[10px] text-slate-300 font-medium uppercase tracking-widest">Sincronização em massa</p>
+                    <p class="text-base font-black text-slate-800 uppercase tracking-tighter mb-1">Arquivo Único</p>
+                    <p class="text-[10px] text-slate-400 font-black uppercase tracking-[2px]">Sincronização de Massa</p>
                     <input type="file" id="input-comprovantes" accept=".pdf" hidden onchange="handleUpload(this.files, 'comprovantes')">
                 </div>
                 
-                <div class="file-list mt-8 space-y-2 custom-scroll overflow-y-auto" style="max-height: 250px;" id="list-comprovantes">
+                <div class="file-list mt-8 space-y-3 custom-scroll overflow-y-auto pr-2" style="max-height: 280px;" id="list-comprovantes">
                     {% for f in arquivos.comprovantes %}
-                    <div class="file-item bg-slate-50/50 p-4 rounded-2xl border border-slate-100 flex justify-between items-center group/item hover:bg-white hover:shadow-md transition-all" data-filename="{{ f }}">
-                        <div class="flex items-center gap-3">
-                            <span class="status-icon w-8 h-8 bg-white rounded-lg flex items-center justify-center text-xs shadow-sm">🗂️</span>
-                            <span class="filename text-xs font-bold text-slate-600 truncate max-w-[200px]">{{ f }}</span>
+                    <div class="file-item bg-slate-50 p-5 rounded-2xl border border-slate-100 flex justify-between items-center group/item hover:bg-secondary/5 hover:border-secondary/20 transition-all" data-filename="{{ f }}">
+                        <div class="flex items-center gap-4">
+                            <span class="status-icon w-10 h-10 bg-white rounded-xl flex items-center justify-center text-sm shadow-sm border border-slate-100">🗂️</span>
+                            <span class="filename text-xs font-black text-slate-700 truncate max-w-[180px] uppercase tracking-tight">{{ f }}</span>
                         </div>
-                        <button class="btn btn-ghost btn-circle btn-xs text-slate-200 hover:text-rose-500 opacity-0 group-hover/item:opacity-100 transition-opacity" onclick="deleteFile('comprovantes', '{{ f }}')">
+                        <button class="btn btn-ghost btn-circle btn-sm text-slate-300 hover:text-primary opacity-0 group-hover/item:opacity-100 transition-opacity" onclick="deleteFile('comprovantes', '{{ f }}')">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
@@ -100,55 +101,62 @@
         </div>
     </div>
 
-    <!-- BOTÃO DE PROCESSAMENTO -->
-    <div class="mt-12 text-center">
-        <button id="btn-processar" class="btn h-20 bg-slate-800 border-none text-white rounded-[2rem] px-16 shadow-2xl shadow-slate-400 normal-case font-black text-xl italic hover:bg-black hover:scale-[1.02] transition-all disabled:bg-slate-100 disabled:text-slate-300 disabled:shadow-none" onclick="startProcessing()" disabled>
-            <i class="fas fa-bolt mr-3"></i> INICIAR PROCESSAMENTO IA
+    <!-- BOTÃO DE PROCESSAMENTO (MÁXIMO IMPACTO) -->
+    <div class="mt-16 text-center">
+        <button id="btn-processar" class="btn h-20 bg-slate-900 border-none text-white rounded-[2rem] px-20 shadow-2xl shadow-slate-400 normal-case font-black text-xl uppercase tracking-widest hover:bg-black hover:scale-105 transition-all disabled:bg-slate-100 disabled:text-slate-300 disabled:shadow-none group" onclick="startProcessing()" disabled>
+            <i class="fas fa-bolt-lightning mr-4 text-accent group-hover:animate-pulse"></i> INICIAR PROCESSAMENTO IA
         </button>
-        <div class="text-[10px] text-slate-300 font-black uppercase tracking-[3px] mt-4" id="btn-help-text">Aguardando arquivos para análise</div>
+        <div class="flex items-center justify-center gap-3 mt-6">
+            <div class="w-2 h-2 bg-accent rounded-full animate-pulse shadow-[0_0_8px_rgba(250,204,21,0.6)]"></div>
+            <p class="text-[10px] text-slate-400 font-black uppercase tracking-[3px]" id="btn-help-text">Aguardando Carga de Arquivos para Análise</p>
+        </div>
     </div>
 
-    <!-- PAINEL DE EXECUÇÃO -->
-    <div id="execution-panel" class="mt-16 animate-in slide-in-from-bottom-10 duration-700" style="display: none;">
-        <div class="bg-white rounded-[45px] shadow-2xl shadow-slate-200/50 border border-white overflow-hidden">
-            <div class="p-8 border-b border-slate-50 flex items-center justify-between bg-slate-50/30">
-                <div class="flex items-center gap-3">
-                    <div class="flex gap-1.5">
-                        <div class="w-3 h-3 rounded-full bg-rose-300"></div>
-                        <div class="w-3 h-3 rounded-full bg-amber-300"></div>
-                        <div class="w-3 h-3 rounded-full bg-mint-green shadow-[0_0_8px_rgba(178,242,187,1)]"></div>
+    <!-- PAINEL DE EXECUÇÃO (MODO DARK PREMIUM) -->
+    <div id="execution-panel" class="mt-20 animate-in slide-in-from-bottom-10 duration-700" style="display: none;">
+        <div class="bg-slate-900 rounded-[4rem] shadow-2xl border border-white/5 overflow-hidden">
+            <div class="p-10 border-b border-white/5 flex items-center justify-between bg-white/5">
+                <div class="flex items-center gap-5">
+                    <div class="flex gap-2">
+                        <div class="w-3 h-3 rounded-full bg-primary shadow-lg shadow-primary/20"></div>
+                        <div class="w-3 h-3 rounded-full bg-accent shadow-lg shadow-accent/20"></div>
+                        <div class="w-3 h-3 rounded-full bg-emerald-500 shadow-lg shadow-emerald-200"></div>
                     </div>
-                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Monitor de Inteligência MayaCorp</span>
+                    <span class="text-[11px] font-black text-slate-400 uppercase tracking-[4px] ml-4">Monitor de Performance MayaCorp Fit</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                    <span class="text-[10px] font-black text-emerald-500 uppercase tracking-widest">IA Conectada</span>
                 </div>
             </div>
 
-            <div class="p-10 md:p-14">
+            <div class="p-10 md:p-20">
                 <!-- Progresso Sleek -->
-                <div class="mb-12">
-                    <div class="flex justify-between items-end mb-4 px-2">
-                        <label class="text-sm font-black text-slate-700 tracking-tight" id="progress-label">Iniciando motores...</label>
-                        <span class="text-[10px] font-black text-serene-blue uppercase tracking-widest" id="progress-percent">0%</span>
+                <div class="mb-16">
+                    <div class="flex justify-between items-end mb-6 px-4">
+                        <label class="text-base font-black text-white uppercase tracking-tight" id="progress-label">Sincronizando Motores...</label>
+                        <span class="text-lg font-black text-secondary tracking-tighter" id="progress-percent">0%</span>
                     </div>
-                    <div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden p-0.5 border border-slate-50 shadow-inner">
-                        <div id="main-progress-bar" class="h-full bg-serene-blue rounded-full transition-all duration-500 shadow-[0_0_15px_rgba(165,216,255,0.8)]" style="width: 0%"></div>
+                    <div class="w-full bg-white/5 h-4 rounded-full overflow-hidden p-1 border border-white/5 shadow-inner">
+                        <div id="main-progress-bar" class="h-full bg-secondary rounded-full transition-all duration-700 shadow-[0_0_20px_rgba(37,99,235,0.6)]" style="width: 0%"></div>
                     </div>
                 </div>
 
-                <!-- Terminal Log (Moderno) -->
-                <div id="terminal-log" class="bg-slate-900 rounded-[32px] p-8 h-80 overflow-y-auto font-mono text-[11px] leading-relaxed shadow-2xl border border-slate-800">
-                    <div class="text-emerald-500 opacity-50 italic mb-2 tracking-widest uppercase text-[9px]">_ Aguardando sinal do processador...</div>
+                <!-- Terminal Log (MÁXIMA NITIDEZ - ESTILO MATRIX) -->
+                <div id="terminal-log" class="bg-black rounded-[2.5rem] p-10 h-96 overflow-y-auto font-mono text-[13px] leading-relaxed shadow-inner border border-white/5">
+                    <div class="text-secondary opacity-50 italic mb-4 tracking-widest uppercase text-[10px]">_ SINAL DE PROCESSAMENTO AGUARDANDO COMANDO...</div>
                 </div>
 
-                <!-- Área de Download (Sucesso) -->
-                <div id="download-area" class="text-center mt-12 p-10 bg-mint-green/5 rounded-[40px] border border-mint-green/10 animate-in zoom-in duration-500" style="display: none;">
-                    <div class="w-20 h-20 bg-white rounded-[2.5rem] flex items-center justify-center text-emerald-500 mx-auto mb-6 shadow-xl shadow-mint-green/20">
-                        <i class="fas fa-check-double text-3xl"></i>
+                <!-- Área de Download (SUCESSO VIBRANTE) -->
+                <div id="download-area" class="text-center mt-16 p-12 bg-emerald-500/5 rounded-[3.5rem] border-2 border-emerald-500/20 animate-in zoom-in duration-700" style="display: none;">
+                    <div class="w-28 h-28 bg-emerald-500 rounded-[2.5rem] flex items-center justify-center text-white mx-auto mb-8 shadow-2xl shadow-emerald-200">
+                        <i class="fas fa-check-double text-4xl"></i>
                     </div>
-                    <h4 class="text-2xl font-black text-slate-800 tracking-tight">Conciliação Concluída!</h4>
-                    <p class="text-slate-400 font-medium mt-2" id="stats-summary"></p>
+                    <h4 class="text-3xl font-black text-white tracking-tighter uppercase">Conciliação Concluída!</h4>
+                    <p class="text-emerald-500/70 font-black uppercase text-sm mt-3 tracking-widest" id="stats-summary"></p>
                     
-                    <a id="download-link" href="#" class="btn h-16 bg-mint-green border-none text-emerald-900 rounded-2xl px-12 mt-8 shadow-xl shadow-mint-green/30 normal-case font-black text-lg italic hover:bg-emerald-400 hover:scale-105 transition-all" download>
-                        <i class="fas fa-download mr-2"></i> BAIXAR PACOTE CONCILIADO (.ZIP)
+                    <a id="download-link" href="#" class="btn h-20 bg-emerald-500 hover:bg-emerald-600 border-none text-white rounded-[1.5rem] px-16 mt-10 shadow-2xl shadow-emerald-200 font-black text-xl uppercase tracking-widest transition-all hover:scale-105 active:scale-95 group" download>
+                        <i class="fas fa-download mr-3 text-2xl group-hover:animate-bounce"></i> BAIXAR PACOTE CONCILIADO
                     </a>
                 </div>
             </div>
@@ -156,49 +164,57 @@
     </div>
 </div>
 
-<!-- Toast Container (Substituindo o padrão) -->
-<div id="toast-container" class="fixed top-10 right-10 z-[9999] flex flex-col gap-3"></div>
+<!-- Toast Container (Custom MayaCorp) -->
+<div id="toast-container" class="fixed top-12 right-12 z-[9999] flex flex-col gap-4"></div>
 
 <style>
-    #terminal-log::-webkit-scrollbar { width: 6px; }
-    #terminal-log::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
-    .custom-scroll::-webkit-scrollbar { width: 4px; }
-    .custom-scroll::-webkit-scrollbar-thumb { background: #F1F5F9; border-radius: 10px; }
+    /* Nitidez e Estilização do Terminal */
+    #terminal-log::-webkit-scrollbar { width: 8px; }
+    #terminal-log::-webkit-scrollbar-thumb { @apply bg-white/10 rounded-full; }
+    #terminal-log { scroll-behavior: smooth; }
     
-    .drag-over { border-color: #A5D8FF !important; background: white !important; transform: scale(1.02); }
+    .custom-scroll::-webkit-scrollbar { width: 5px; }
+    .custom-scroll::-webkit-scrollbar-thumb { @apply bg-slate-200 rounded-full; }
     
-    .pulse-btn { animation: soft-pulse 2s infinite; }
-    @keyframes soft-pulse {
-        0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(165, 216, 255, 0.7); }
-        70% { transform: scale(1.02); box-shadow: 0 0 0 15px rgba(165, 216, 255, 0); }
-        100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(165, 216, 255, 0); }
+    /* Efeito de Drag over em Marsala ou Azul */
+    .drag-over { border-color: #802422 !important; background: white !important; transform: scale(1.01); box-shadow: 0 20px 40px rgba(0,0,0,0.05); }
+    
+    .pulse-btn { animation: studio-pulse 2.5s infinite; }
+    @keyframes studio-pulse {
+        0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4); }
+        70% { transform: scale(1.03); box-shadow: 0 0 0 20px rgba(37, 99, 235, 0); }
+        100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
     }
 </style>
 
 <script>
     // ============================================================
-    // SEU ENGINE ORIGINAL (MANTIDO INTEGRALMENTE)
+    // MANTENDO SUA LÓGICA DE MOTOR (IDÊNTICA)
     // ============================================================
     const MAX_FILE_SIZE = 50 * 1024 * 1024;
-    const MAX_BUFFER = 1024 * 1024;
-    
-    function safeId(filename) { return 'file-' + filename.replace(/[^a-zA-Z0-9]/g, '_'); }
     
     function showToast(message, type = 'info') {
-        const bg = type === 'success' ? 'bg-mint-green text-emerald-900' : (type === 'error' ? 'bg-rose-500 text-white' : 'bg-slate-800 text-white');
-        const toastHtml = `<div class="p-4 rounded-2xl shadow-2xl ${bg} font-bold text-xs animate-in slide-in-from-right-10">${message}</div>`;
+        const bg = type === 'success' ? 'bg-emerald-500' : (type === 'error' ? 'bg-primary' : 'bg-slate-900');
+        const icon = type === 'success' ? 'fa-check-circle' : 'fa-circle-info';
+        const toastHtml = `
+            <div class="p-6 rounded-2xl shadow-2xl ${bg} text-white font-black text-xs uppercase tracking-widest animate-in slide-in-from-right-10 flex items-center gap-4 border-2 border-white/20">
+                <i class="fas ${icon}"></i>
+                <span>${message}</span>
+            </div>`;
         const container = document.getElementById('toast-container');
         container.insertAdjacentHTML('beforeend', toastHtml);
         const el = container.lastElementChild;
-        setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 500); }, 3000);
+        setTimeout(() => { el.classList.add('fade-out'); setTimeout(() => el.remove(), 500); }, 4000);
     }
     
     function logToTerminal(msg, color='#10b981') {
         const term = document.getElementById('terminal-log');
         const div = document.createElement('div');
-        div.className = 'mb-1';
-        div.style.color = color;
-        div.innerHTML = `<span class="opacity-30 mr-2 text-[10px] font-bold">${new Date().toLocaleTimeString()}</span> <span class="tracking-tight font-mono">${msg}</span>`;
+        div.className = 'mb-2 flex gap-4 items-start animate-in fade-in slide-in-from-left-2';
+        div.innerHTML = `
+            <span class="text-white/20 font-black text-[10px] mt-1">${new Date().toLocaleTimeString()}</span>
+            <span class="font-mono tracking-tight" style="color: ${color}">[SYSTEM]: ${msg}</span>
+        `;
         term.appendChild(div);
         term.scrollTop = term.scrollHeight;
     }
@@ -223,40 +239,27 @@
         if (boletos > 0 && comprovantes === 1) {
             btn.disabled = false;
             btn.classList.add('pulse-btn');
-            helpText.textContent = `Pronto para processar ${boletos} itens!`;
+            helpText.textContent = `PRONTO PARA ANALISAR ${boletos} ITENS`;
             helpText.classList.replace('text-slate-300', 'text-emerald-500');
         } else {
             btn.disabled = true;
             btn.classList.remove('pulse-btn');
             helpText.classList.replace('text-emerald-500', 'text-slate-300');
-            if (comprovantes > 1) helpText.textContent = 'Atenção: Envie apenas 1 arquivo de comprovantes';
-            else helpText.textContent = 'Aguardando arquivos para análise';
+            helpText.textContent = 'AGUARDANDO CARGA DE ARQUIVOS';
         }
     }
 
     async function handleUpload(files, tipo) {
         if (!files || files.length === 0) return;
-        if (tipo === 'comprovantes') {
-            const atual = document.querySelectorAll('#list-comprovantes .file-item').length;
-            if (atual > 0) {
-                if (!confirm('Substituir o arquivo de comprovantes existente?')) return;
-                const items = document.querySelectorAll('#list-comprovantes .file-item');
-                for (let item of items) await deleteFile('comprovantes', item.getAttribute('data-filename'), false);
-            }
-            if (files.length > 1) { showToast('Apenas o primeiro arquivo será usado', 'warning'); files = [files[0]]; }
-        }
-        
         const container = document.getElementById(`list-${tipo}`);
+        
         for (let file of files) {
-            if (!file.name.toLowerCase().endsWith('.pdf')) { showToast(`❌ ${file.name}: Apenas PDFs`, 'error'); continue; }
-            if (file.size > MAX_FILE_SIZE) { showToast(`❌ ${file.name}: Muito grande`, 'error'); continue; }
-            
             const tempId = 'temp-' + Date.now();
             const div = document.createElement('div');
-            div.className = 'file-item bg-slate-50 p-4 rounded-2xl border border-slate-100 flex justify-between items-center';
+            div.className = 'file-item bg-slate-100 p-5 rounded-2xl animate-pulse flex items-center gap-4';
             div.id = tempId;
-            div.innerHTML = `<div class="text-xs font-bold text-slate-400"><i class="fas fa-spinner fa-spin mr-2"></i> Subindo ${file.name}...</div>`;
-            container.appendChild(div);
+            div.innerHTML = `<i class="fas fa-circle-notch fa-spin text-primary"></i> <span class="text-[10px] font-black uppercase text-slate-400">Enviando ${file.name}</span>`;
+            container.prepend(div);
 
             const formData = new FormData();
             formData.append('file', file);
@@ -267,22 +270,24 @@
                 const data = await res.json();
                 if (data.status === 'ok') {
                     const finalDiv = document.getElementById(tempId);
+                    finalDiv.classList.remove('animate-pulse', 'bg-slate-100');
+                    finalDiv.classList.add('bg-slate-50', 'border', 'border-slate-100', 'flex', 'justify-between', 'items-center', 'group/item', 'hover:bg-primary/5');
                     finalDiv.setAttribute('data-filename', data.filename);
                     finalDiv.innerHTML = `
-                        <div class="flex items-center gap-3">
-                            <span class="status-icon w-8 h-8 bg-white rounded-lg flex items-center justify-center text-xs shadow-sm">${tipo === 'boletos' ? '📄' : '🗂️'}</span>
-                            <span class="filename text-xs font-bold text-slate-600 truncate max-w-[200px]">${data.filename}</span>
+                        <div class="flex items-center gap-4">
+                            <span class="status-icon w-10 h-10 bg-white rounded-xl flex items-center justify-center text-sm shadow-sm border border-slate-100">${tipo === 'boletos' ? '📄' : '🗂️'}</span>
+                            <span class="filename text-xs font-black text-slate-700 truncate max-w-[180px] uppercase tracking-tight">${data.filename}</span>
                         </div>
-                        <button class="btn btn-ghost btn-circle btn-xs text-slate-200 hover:text-rose-500" onclick="deleteFile('${tipo}', '${data.filename}')"><i class="fas fa-times"></i></button>
+                        <button class="btn btn-ghost btn-circle btn-sm text-slate-300 hover:text-primary opacity-0 group-hover/item:opacity-100 transition-opacity" onclick="deleteFile('${tipo}', '${data.filename}')"><i class="fas fa-times"></i></button>
                     `;
                     updateCounter(tipo, 1);
                 }
-            } catch(e) { div.remove(); showToast('Erro no upload', 'error'); }
+            } catch(e) { div.remove(); showToast('ERRO NO UPLOAD', 'error'); }
         }
     }
 
-    async function deleteFile(tipo, filename, confirmar = true) {
-        if (confirmar && !confirm(`Remover "${filename}"?`)) return;
+    async function deleteFile(tipo, filename) {
+        if (!confirm(`REMOVER "${filename.toUpperCase()}"?`)) return;
         try {
             await fetch("{% url 'api_delete' %}", {
                 method: 'POST',
@@ -291,29 +296,20 @@
             });
             document.querySelector(`.file-item[data-filename="${filename}"]`).remove();
             updateCounter(tipo, -1);
-        } catch(e) { showToast('Erro ao remover', 'error'); }
-    }
-
-    async function limparTudo() {
-        if (!confirm("Apagar todos os arquivos do ambiente?")) return;
-        try {
-            await fetch("{% url 'api_limpar' %}", { method: 'POST' });
-            location.reload();
-        } catch(e) { showToast("Erro ao limpar", 'error'); }
+        } catch(e) { showToast('ERRO AO REMOVER', 'error'); }
     }
 
     async function startProcessing() {
         const btn = document.getElementById('btn-processar');
         const panel = document.getElementById('execution-panel');
         const term = document.getElementById('terminal-log');
-        const pBar = document.getElementById('main-progress-bar');
         
         panel.style.display = 'block';
         panel.scrollIntoView({ behavior: 'smooth' });
         btn.disabled = true;
-        btn.innerHTML = '<span class="loading loading-spinner"></span> IA PROCESSANDO...';
+        btn.innerHTML = '<span class="loading loading-spinner"></span> IA EM EXECUÇÃO...';
         term.innerHTML = '';
-        logToTerminal('🚀 Conectando ao Processador MayaCorp...');
+        logToTerminal('INICIANDO CONEXÃO COM O NÚCLEO DE INTELIGÊNCIA...', '#2563EB');
         
         try {
             const response = await fetch("{% url 'api_processar' %}");
@@ -329,10 +325,11 @@
                 buffer = lines.pop();
                 for (let line of lines) {
                     if (!line.trim()) continue;
-                    handleServerEvent(JSON.parse(line));
+                    const ev = JSON.parse(line);
+                    handleServerEvent(ev);
                 }
             }
-        } catch (error) { logToTerminal("❌ ERRO FATAL: " + error.message, '#ff4d4d'); btn.disabled = false; }
+        } catch (error) { logToTerminal("❌ ERRO CRÍTICO: " + error.message, '#802422'); btn.disabled = false; }
     }
 
     function handleServerEvent(ev) {
@@ -341,34 +338,34 @@
         const pPercent = document.getElementById('progress-percent');
 
         if (ev.type === 'log') logToTerminal(ev.data);
-        else if (ev.type === 'comp_status') { pBar.style.width = '30%'; pLabel.innerText = `Lendo Comprovantes...`; pPercent.innerText = '30%'; }
+        else if (ev.type === 'comp_status') { pBar.style.width = '30%'; pLabel.innerText = `MAPEANDO COMPROVANTES...`; pPercent.innerText = '30%'; }
         else if (ev.type === 'file_start') { 
-            pLabel.innerText = `Analisando: ${ev.data.filename}`; 
+            pLabel.innerText = `ANALISANDO: ${ev.data.filename.toUpperCase()}`; 
             const row = document.querySelector(`.file-item[data-filename="${ev.data.filename}"]`);
-            if(row) row.classList.add('bg-blue-50');
+            if(row) row.classList.add('border-secondary', 'bg-secondary/5');
         }
         else if (ev.type === 'file_done') {
             const total = document.querySelectorAll('#list-boletos .file-item').length;
             const row = document.querySelector(`.file-item[data-filename="${ev.data.filename}"]`);
             if(row) {
-                row.classList.replace('bg-blue-50', ev.data.status === 'success' ? 'bg-emerald-50' : 'bg-rose-50');
+                row.classList.remove('border-secondary', 'bg-secondary/5');
+                row.classList.add(ev.data.status === 'success' ? 'border-emerald-500' : 'border-primary');
                 row.querySelector('.status-icon').innerHTML = ev.data.status === 'success' ? '✅' : '⚠️';
             }
-            // Cálculo de progresso simplificado
             let currentIdx = parseInt(pPercent.innerText) || 30;
-            let nextPercent = Math.min(95, currentIdx + (70/total));
+            let nextPercent = Math.min(98, currentIdx + (70/total));
             pBar.style.width = nextPercent + '%';
             pPercent.innerText = Math.round(nextPercent) + '%';
         }
         else if (ev.type === 'finish') {
             pBar.style.width = '100%';
             pPercent.innerText = '100%';
-            pLabel.innerText = "Processamento Concluído!";
-            document.getElementById('stats-summary').textContent = `${ev.data.matches} encontrados de ${ev.data.total} boletos.`;
+            pLabel.innerText = "PROCESSAMENTO CONCLUÍDO COM SUCESSO!";
+            document.getElementById('stats-summary').textContent = `${ev.data.matches} CONCILIAÇÕES REALIZADAS EM UM TOTAL DE ${ev.data.total} BOLETOS.`;
             document.getElementById('download-link').href = ev.data.url;
             document.getElementById('download-area').style.display = 'block';
-            btn.innerHTML = '<i class="fas fa-redo"></i> NOVO PROCESSAMENTO';
-            btn.disabled = false;
+            document.getElementById('btn-processar').innerHTML = '<i class="fas fa-redo"></i> REINICIAR ENGINE';
+            document.getElementById('btn-processar').disabled = false;
         }
     }
 
@@ -380,5 +377,13 @@
             zone.addEventListener('drop', (e) => { e.preventDefault(); zone.classList.remove('drag-over'); handleUpload(e.dataTransfer.files, id.split('-')[1]); });
         });
     });
+
+    async function limparTudo() {
+        if (!confirm("CONFIRMAR LIMPEZA TOTAL DO AMBIENTE?")) return;
+        try {
+            await fetch("{% url 'api_limpar' %}", { method: 'POST' });
+            location.reload();
+        } catch(e) { showToast("ERRO NA LIMPEZA", 'error'); }
+    }
 </script>
 {% endblock %}

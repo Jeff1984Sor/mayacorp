@@ -1,77 +1,82 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Confirmar Exclusão de Contrato - MayaCorp{% endblock %}
+{% block title %}Confirmar Exclusão de Contrato | MayaCorp Fit{% endblock %}
 
 {% block content %}
-<div class="max-w-xl mx-auto py-16">
+<div class="max-w-xl mx-auto py-16 px-4">
     
-    <!-- CARD PRINCIPAL (Soft UI Danger Style) -->
-    <div class="bg-white rounded-[40px] shadow-2xl shadow-rose-100/50 border border-rose-50 overflow-hidden animate-in fade-in zoom-in duration-500">
+    <!-- CARD PRINCIPAL (Visual Studio MayaCorp) -->
+    <div class="bg-white rounded-[3rem] shadow-2xl shadow-slate-300/60 border border-slate-100 overflow-hidden animate-in fade-in zoom-in duration-500 relative">
         
-        <!-- HEADER VISUAL -->
-        <div class="bg-rose-50/50 py-12 flex justify-center border-b border-rose-100/20">
-            <div class="relative">
-                <!-- Ícone de Contrato -->
-                <div class="w-24 h-24 bg-white rounded-[2.5rem] shadow-xl shadow-rose-200/50 flex items-center justify-center text-rose-500 transition-transform hover:scale-105">
-                    <i class="fas fa-file-contract text-3xl"></i>
+        <!-- HEADER VISUAL EM MARSALA (Ação Crítica) -->
+        <div class="bg-primary py-14 flex justify-center relative overflow-hidden">
+            <!-- Efeito de textura sutil -->
+            <div class="absolute inset-0 opacity-10" style="background-image: var(--fx-noise);"></div>
+            
+            <div class="relative z-10">
+                <!-- Ícone de Contrato em Branco Sólido -->
+                <div class="w-28 h-28 bg-white rounded-[2.5rem] shadow-2xl flex items-center justify-center text-primary transition-transform hover:scale-105 duration-500">
+                    <i class="fas fa-file-contract text-4xl"></i>
                 </div>
-                <!-- Mini ícone de exclusão sobreposto -->
-                <div class="absolute -bottom-2 -right-2 w-10 h-10 bg-rose-500 border-4 border-white rounded-full flex items-center justify-center text-white shadow-lg">
-                    <i class="fas fa-trash-alt text-xs"></i>
+                <!-- Badge de Exclusão -->
+                <div class="absolute -bottom-2 -right-2 w-12 h-12 bg-slate-900 border-4 border-white rounded-2xl flex items-center justify-center text-white shadow-xl animate-pulse">
+                    <i class="fas fa-trash-can text-sm"></i>
                 </div>
             </div>
         </div>
 
-        <div class="p-8 md:p-12 text-center">
-            <h1 class="text-3xl font-black text-slate-800 tracking-tight mb-4">Excluir Contrato?</h1>
+        <div class="p-10 md:p-14 text-center">
+            <h1 class="text-4xl font-black text-slate-900 tracking-tighter mb-4 uppercase">Excluir Contrato?</h1>
             
-            <p class="text-slate-500 font-medium leading-relaxed mb-8 px-4">
-                Você está prestes a remover o contrato ativo de:
+            <p class="text-slate-500 font-bold text-lg leading-relaxed mb-10">
+                Você está prestes a remover permanentemente o vínculo contratual de:
             </p>
             
-            <!-- CONTEXTO DO CONTRATO (Destaque Soft) -->
-            <div class="mb-10 p-6 bg-slate-50 rounded-[32px] border border-slate-100 flex flex-col items-center gap-2">
-                <span class="text-xl font-black text-slate-700 italic">"{{ object.aluno.nome }}"</span>
-                <span class="badge bg-white border-slate-200 text-slate-400 font-bold px-4 py-3 rounded-xl uppercase text-[10px] tracking-widest">
-                    Plano: {{ object.plano.nome }}
-                </span>
+            <!-- CONTEXTO DO CONTRATO (MÁXIMA NITIDEZ) -->
+            <div class="mb-12 p-8 bg-slate-50 rounded-[2.5rem] border-2 border-dashed border-slate-200 flex flex-col items-center gap-3 relative">
+                <span class="text-2xl font-black text-primary tracking-tight uppercase">{{ object.aluno.nome }}</span>
+                <div class="badge bg-slate-900 border-none text-white font-black px-5 py-3 rounded-xl uppercase text-[10px] tracking-widest shadow-md">
+                    PLANO: {{ object.plano.nome }}
+                </div>
             </div>
             
-            <!-- ALERTA DE IMPACTO (Pílula Informativa) -->
-            <div class="bg-amber-50 rounded-2xl p-4 border border-amber-100 mb-10 flex items-start gap-3 text-left">
-                <i class="fas fa-exclamation-triangle text-amber-500 mt-1"></i>
+            <!-- ALERTA DE IMPACTO (AMARELO VIBRANTE) -->
+            <div class="bg-accent/10 rounded-[2rem] p-6 border-2 border-accent/20 mb-12 flex items-start gap-4 text-left group transition-all hover:bg-accent/20">
+                <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-accent shadow-sm shrink-0">
+                    <i class="fas fa-triangle-exclamation"></i>
+                </div>
                 <div>
-                    <h6 class="text-[10px] font-black text-amber-600 uppercase tracking-widest mb-1">Aviso de Impacto</h6>
-                    <p class="text-xs text-amber-700 font-medium leading-tight">
-                        A exclusão poderá afetar o histórico financeiro e os agendamentos futuros vinculados a este plano.
+                    <h6 class="text-[11px] font-black text-amber-900 uppercase tracking-widest mb-1">Aviso de Integridade de Dados</h6>
+                    <p class="text-xs text-amber-800 font-bold leading-snug">
+                        Esta ação removerá o histórico financeiro e cancelará todos os agendamentos futuros vinculados a este plano.
                     </p>
                 </div>
             </div>
 
-            <!-- FORMULÁRIO DE AÇÕES -->
+            <!-- FORMULÁRIO DE AÇÕES (AZUL E MARSALA) -->
             <form method="post">
                 {% csrf_token %}
                 
-                <div class="flex flex-col md:flex-row gap-4 justify-center">
-                    <!-- CANCELAR -->
-                    <a href="{% url 'contrato_list' %}" 
-                       class="btn btn-ghost flex-1 h-14 rounded-2xl text-slate-400 font-black uppercase tracking-widest hover:bg-slate-100 transition-all">
-                        Cancelar
+                <div class="flex flex-col md:flex-row gap-5 justify-center">
+                    <!-- CANCELAR (AZUL - Segurança) -->
+                    <a href="{% url 'aluno_detail' object.aluno.id %}" 
+                       class="btn flex-1 h-16 bg-secondary hover:bg-blue-800 border-none text-white font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-secondary/30 transition-all text-xs">
+                        <i class="fas fa-times mr-2"></i> NÃO, CANCELAR
                     </a>
 
-                    <!-- EXCLUIR -->
+                    <!-- EXCLUIR (MARSALA - Decisão Final) -->
                     <button type="submit" 
-                            class="btn flex-1 h-14 bg-rose-500 border-none text-white font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-rose-200 hover:bg-rose-600 hover:scale-[1.02] transition-all">
-                        Sim, Excluir
+                            class="btn flex-1 h-16 bg-primary hover:bg-red-900 border-none text-white font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-primary/30 transition-all hover:scale-105 text-xs">
+                        <i class="fas fa-check mr-2"></i> SIM, EXCLUIR
                     </button>
                 </div>
             </form>
         </div>
         
-        <!-- FOOTER DISCRETO -->
-        <div class="py-4 bg-slate-50/50 text-center border-t border-slate-50">
-            <p class="text-[9px] text-slate-300 font-black uppercase tracking-[3px]">MayaCorp Compliance Protocol</p>
+        <!-- RODAPÉ TÉCNICO -->
+        <div class="py-5 bg-slate-50 text-center border-t border-slate-100">
+            <p class="text-[10px] text-slate-400 font-black uppercase tracking-[3px]">MayaCorp Compliance Protocol v4.2</p>
         </div>
     </div>
 </div>

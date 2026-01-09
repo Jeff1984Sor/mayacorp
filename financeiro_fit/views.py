@@ -9,7 +9,8 @@ from django.db.models import Sum
 from django.http import HttpResponseRedirect, HttpResponse
 from django.template.loader import get_template
 import calendar
-
+from django.db.models import Q
+from .models import Lancamento
 import uuid
 import csv
 from dateutil.relativedelta import relativedelta
@@ -33,36 +34,37 @@ class ContasReceberListView(LoginRequiredMixin, ListView):
     model = Lancamento
     template_name = 'financeiro_fit/contas_receber.html'
     context_object_name = 'lancamentos'
-    paginate_by = 50 
+    paginate_by = 20
 
     def get_queryset(self):
-        # Filtra apenas RECEITAS
-        qs = super().get_queryset().filter(categoria__tipo='RECEITA')
-        
+        # Filtra apenas RECEITAS (Contas a Receber) da organização atual
+        queryset = Lancamento.objects.filter(categoria__tipo='RECEITA').order_by('data_vencimento')
+
+        # Captura os filtros do GET
+        aluno_nome = self.request.GET.get('aluno')
         status = self.request.GET.get('status')
-        inicio = self.request.GET.get('inicio')
-        fim = self.request.GET.get('fim')
-        aluno_id = self.request.GET.get('aluno_id')
+        data_inicio = self.request.GET.get('data_inicio')
+        data_fim = self.request.GET.get('data_fim')
+
+        # Aplica os filtros se existirem
+        if aluno_nome:
+            queryset = queryset.filter(aluno__nome__icontains=aluno_nome)
         
-        if status: qs = qs.filter(status=status)
-        if inicio and fim: qs = qs.filter(data_vencimento__range=[inicio, fim])
-        if aluno_id: qs = qs.filter(aluno__id=aluno_id)
-            
-        return qs.order_by('status', 'data_vencimento')
+        if status:
+            queryset = queryset.filter(status=status)
+        
+        if data_inicio:
+            queryset = queryset.filter(data_vencimento__gte=data_inicio)
+        
+        if data_fim:
+            queryset = queryset.filter(data_vencimento__lte=data_fim)
+
+        return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['hoje'] = timezone.now().date()
-        
-        # Totais
-        qs = self.get_queryset()
-        context['total_recebido'] = qs.filter(status='PAGO').aggregate(Sum('valor'))['valor__sum'] or 0
-        context['total_pendente'] = qs.filter(status='PENDENTE').aggregate(Sum('valor'))['valor__sum'] or 0
-        
-        # Filtro Aluno
-        if self.request.GET.get('aluno_id'):
-            context['aluno_filtro'] = Aluno.objects.filter(pk=self.request.GET.get('aluno_id')).first()
-            
+        # Mantém os valores preenchidos no formulário após o filtro
+        context['filtros'] = self.request.GET
         return context
 
 # ==============================================================================
@@ -188,7 +190,7 @@ class FornecedorListView(LoginRequiredMixin, ListView):
 class FornecedorCreateView(LoginRequiredMixin, CreateView):
     model = Fornecedor
     form_class = FornecedorForm
-    template_name = 'financeiro_fit/form_generico.html'
+    template_name = 'financeiro_fit/fornecedor_form.html'
     success_url = reverse_lazy('fornecedor_list')
 
 class CategoriaListView(LoginRequiredMixin, ListView):
@@ -258,99 +260,58 @@ class ContaExtratoView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        # Filtros de data vindos da URL (?data_inicio=...&data_fim=...)
+        data_inicio = self.request.GET.get('data_inicio')
+        data_fim = self.request.GET.get('data_fim')
         
-        inicio = self.request.GET.get('inicio')
-        fim = self.request.GET.get('fim')
+        # Busca lançamentos desta conta
+        lancamentos = Lancamento.objects.filter(conta=self.object).order_by('-data_vencimento')
         
-        lancamentos = Lancamento.objects.filter(
-            conta=self.object, 
-            status='PAGO'
-        ).order_by('-data_pagamento')
-        
-        if inicio and fim:
-            lancamentos = lancamentos.filter(data_pagamento__range=[inicio, fim])
+        if data_inicio:
+            lancamentos = lancamentos.filter(data_vencimento__gte=data_inicio)
+        if data_fim:
+            lancamentos = lancamentos.filter(data_vencimento__lte=data_fim)
             
         context['lancamentos'] = lancamentos
-        
-        entradas = lancamentos.filter(categoria__tipo='RECEITA').aggregate(Sum('valor'))['valor__sum'] or 0
-        saidas = lancamentos.filter(categoria__tipo='DESPESA').aggregate(Sum('valor'))['valor__sum'] or 0
-        
-        context['total_entradas'] = entradas
-        context['total_saidas'] = saidas
-        context['resultado_periodo'] = entradas - saidas
-        
+        context['filtros'] = self.request.GET # Para manter as datas nos campos do form
         return context
-
 # ==============================================================================
 # 5. EXPORTAÇÃO (EXCEL E PDF)
 # ==============================================================================
     
-@login_required
 def exportar_extrato_excel(request, pk):
     conta = get_object_or_404(ContaBancaria, pk=pk)
-    inicio = request.GET.get('inicio')
-    fim = request.GET.get('fim')
+    lancamentos = Lancamento.objects.filter(conta=conta).order_by('data_vencimento')
     
-    lancamentos = Lancamento.objects.filter(conta=conta, status='PAGO').order_by('-data_pagamento')
-    if inicio and fim:
-        lancamentos = lancamentos.filter(data_pagamento__range=[inicio, fim])
-
-    # Cria o arquivo Excel
     wb = openpyxl.Workbook()
     ws = wb.active
-    ws.title = f"Extrato {conta.nome}"
-
-    # Estilos
-    header_font = Font(bold=True, color="FFFFFF")
-    header_fill = PatternFill(start_color="4F81BD", end_color="4F81BD", fill_type="solid")
-    money_format = 'R$ #,##0.00'
+    ws.title = f"Extrato - {conta.nome}"
     
     # Cabeçalho
-    headers = ["Data Pgto", "Descrição", "Categoria", "Tipo", "Valor"]
-    ws.append(headers)
+    columns = ['Data', 'Descrição', 'Aluno/Fornecedor', 'Valor', 'Status']
+    ws.append(columns)
     
-    for cell in ws[1]:
-        cell.font = header_font
-        cell.fill = header_fill
-        cell.alignment = Alignment(horizontal='center')
-
-    # Dados
     for l in lancamentos:
-        valor = float(l.valor)
-        if l.categoria.tipo == 'DESPESA':
-            valor = valor * -1
-            
-        row = [l.data_pagamento, l.descricao, l.categoria.nome, l.categoria.get_tipo_display(), valor]
-        ws.append(row)
-        
-        last_row = ws.max_row
-        cell_valor = ws.cell(row=last_row, column=5)
-        cell_valor.number_format = money_format
-        if valor < 0:
-            cell_valor.font = Font(color="FF0000")
-        else:
-            cell_valor.font = Font(color="006100")
-
-    ws.column_dimensions['A'].width = 15
-    ws.column_dimensions['B'].width = 40
+        ws.append([
+            l.data_vencimento.strftime('%d/%m/%Y'),
+            l.descricao,
+            l.aluno.nome if l.aluno else (l.fornecedor.nome if l.fornecedor else ""),
+            float(l.valor),
+            l.status
+        ])
     
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = f'attachment; filename="Extrato_{conta.nome}.xlsx"'
+    response['Content-Disposition'] = f'attachment; filename=extrato_{conta.nome}.xlsx'
     wb.save(response)
     return response
 
-@login_required
+# --- EXPORTAR PDF ---
 def exportar_extrato_pdf(request, pk):
     conta = get_object_or_404(ContaBancaria, pk=pk)
-    inicio = request.GET.get('inicio')
-    fim = request.GET.get('fim')
+    lancamentos = Lancamento.objects.filter(conta=conta).order_by('data_vencimento')
     
-    lancamentos = Lancamento.objects.filter(conta=conta, status='PAGO').order_by('-data_pagamento')
-    if inicio and fim:
-        lancamentos = lancamentos.filter(data_pagamento__range=[inicio, fim])
-
-    template_path = 'financeiro_fit/extrato_pdf.html'
-    context = {'conta': conta, 'lancamentos': lancamentos, 'inicio': inicio, 'fim': fim}
+    template_path = 'financeiro_fit/extrato_pdf_template.html'
+    context = {'conta': conta, 'lancamentos': lancamentos, 'hoje': timezone.now()}
     
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="extrato_{conta.nome}.pdf"'
@@ -359,11 +320,9 @@ def exportar_extrato_pdf(request, pk):
     html = template.render(context)
     
     pisa_status = pisa.CreatePDF(html, dest=response)
-    
     if pisa_status.err:
         return HttpResponse('Erro ao gerar PDF', status=500)
     return response
-
 
 class DashboardFinanceiroView(LoginRequiredMixin, TemplateView):
     template_name = 'financeiro_fit/dashboard_financeiro.html'
@@ -419,3 +378,21 @@ class DashboardFinanceiroView(LoginRequiredMixin, TemplateView):
         context['contratos_vencendo'] = Contrato.objects.filter(data_fim__range=[inicio_mes, fim_mes])
 
         return context
+    
+
+class ReceitaCreateView(LoginRequiredMixin, CreateView):
+    model = Lancamento
+    template_name = 'financeiro_fit/lancamento_form.html' # Usa o mesmo form bonito
+    fields = ['descricao', 'aluno', 'categoria', 'conta', 'valor', 'data_vencimento', 'status']
+    success_url = reverse_lazy('contas_receber')
+
+    def form_valid(self, form):
+        # Garante que seja sempre uma Receita
+        # Se sua categoria tiver o tipo, você pode forçar aqui
+        return super().form_valid(form)
+
+class LancamentoUpdateView(LoginRequiredMixin, UpdateView):
+    model = Lancamento
+    template_name = 'financeiro_fit/lancamento_form.html'
+    fields = '__all__' # Ou especifique os campos
+    success_url = reverse_lazy('financeiro_lista')

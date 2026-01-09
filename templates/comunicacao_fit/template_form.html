@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-4xl mx-auto pb-24 px-4">
+    
+    <!-- HEADER: Identidade Studio Premium -->
+    <header class="flex flex-col md:flex-row justify-between items-center mb-12 gap-6 text-center md:text-left">
+        <div class="flex items-center gap-6">
+            <!-- Ícone em MARSALA -->
+            <div class="w-16 h-16 bg-primary rounded-[22px] flex items-center justify-center text-white shadow-xl shadow-primary/30 border-2 border-white">
+                <i class="fas fa-comment-medical text-2xl"></i>
+            </div>
+            <div>
+                <h1 class="text-4xl font-black text-slate-900 tracking-tighter uppercase">Redigir Mensagem</h1>
+                <p class="text-[11px] text-primary font-black uppercase tracking-[3px] mt-1">Criação de Template Inteligente</p>
+            </div>
+        </div>
+        
+        <!-- Badge de Ajuda em AMARELO -->
+        <div class="hidden md:flex items-center gap-3 px-5 py-2 bg-accent/10 rounded-full border border-accent/20">
+            <i class="fas fa-robot text-accent animate-pulse"></i>
+            <span class="text-[10px] font-black text-amber-800 uppercase tracking-widest">Automação Ativa</span>
+        </div>
+    </header>
+
+    <!-- CARD PRINCIPAL (Visual de Luxo e Nitidez) -->
+    <div class="bg-white rounded-[3rem] shadow-2xl shadow-slate-200/60 border border-slate-100 p-8 md:p-14 relative overflow-hidden">
+        
+        <!-- Detalhe decorativo lateral em Azul -->
+        <div class="absolute left-0 top-1/4 w-1.5 h-1/2 bg-secondary rounded-r-full opacity-50"></div>
+
+        <form method="post" class="space-y-10 relative z-10">
+            {% csrf_token %}
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- TÍTULO (MARSALA FOCUS) -->
+                <div class="form-control">
+                    <label class="label-custom">Nome do Modelo</label>
+                    {{ form.titulo }}
+                    <span class="text-[9px] text-slate-400 font-bold uppercase mt-2 ml-2">Ex: Lembrete de Aula, Cobrança...</span>
+                </div>
+
+                <!-- GATILHO (AZUL FOCUS) -->
+                <div class="form-control">
+                    <label class="label-custom">Evento de Disparo (Gatilho)</label>
+                    {{ form.gatilho }}
+                    <span class="text-[9px] text-slate-400 font-bold uppercase mt-2 ml-2">Quando a mensagem deve ser enviada?</span>
+                </div>
+            </div>
+
+            <!-- ÁREA DE CONTEÚDO (MÁXIMA NITIDEZ) -->
+            <div class="form-control bg-slate-50 p-8 rounded-[2.5rem] border-2 border-slate-100 shadow-inner">
+                <div class="flex items-center justify-between mb-4 px-2">
+                    <label class="text-[11px] font-black text-slate-900 uppercase tracking-[2px]">Corpo da Mensagem</label>
+                    <i class="fab fa-whatsapp text-emerald-500 text-xl"></i>
+                </div>
+                
+                {{ form.conteudo }}
+
+                <!-- VARIÁVEIS INTELIGENTES (ESTILO TOOLBOX AMARELO) -->
+                <div class="mt-6 p-5 bg-white rounded-2xl border border-slate-200 shadow-sm">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <i class="fas fa-magic text-accent"></i> Variáveis Mágicas (Clique para copiar)
+                    </p>
+                    <div class="flex flex-wrap gap-3">
+                        <code class="var-badge" onclick="copyVar('[[aluno]]')">[[aluno]]</code>
+                        <code class="var-badge" onclick="copyVar('[[data]]')">[[data]]</code>
+                        <code class="var-badge" onclick="copyVar('[[horario]]')">[[horario]]</code>
+                        <code class="var-badge" onclick="copyVar('[[profissional]]')">[[profissional]]</code>
+                    </div>
+                    <p class="text-[9px] text-slate-400 font-medium italic mt-4">O sistema substituirá estes códigos pelos dados reais do aluno.</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <!-- HORÁRIO (NITIDEZ AZUL) -->
+                <div class="form-control">
+                    <label class="label-custom">Horário de Envio</label>
+                    {{ form.horario_envio }}
+                </div>
+
+                <!-- STATUS ATIVO (SWITCH MARSALA) -->
+                <div class="flex items-center gap-4 bg-slate-50 p-5 rounded-2xl border border-slate-100 w-fit md:ml-auto">
+                    <span class="text-[11px] font-black text-slate-600 uppercase tracking-widest">Ativar Modelo?</span>
+                    <input type="checkbox" name="ativo" class="toggle toggle-primary scale-110" {% if form.ativo.value %}checked{% endif %} />
+                </div>
+            </div>
+
+            <div class="flex flex-col md:flex-row gap-5 pt-10 border-t border-slate-100">
+                <!-- SALVAR (AZUL VIBRANTE) -->
+                <button type="submit" class="btn bg-secondary hover:bg-blue-800 border-none text-white flex-1 h-18 rounded-[1.5rem] shadow-2xl shadow-secondary/30 font-black uppercase tracking-[2px] text-lg transition-all group">
+                    <i class="fas fa-check-double mr-3 group-hover:scale-125 transition-transform"></i> SALVAR MODELO
+                </button>
+                
+                <!-- CANCELAR -->
+                <a href="{% url 'whatsapp_dashboard' %}" class="btn btn-ghost h-18 px-10 text-slate-400 font-black uppercase tracking-widest text-xs hover:bg-slate-50 rounded-[1.5rem]">
+                    Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    /* Estilos Customizados para Nitidez e Cores Studio */
+    
+    .label-custom { @apply text-[11px] font-black text-slate-500 uppercase tracking-[2px] mb-3 block ml-2 !important; }
+    
+    /* Inputs Estilo Studio Luxo */
+    input, select, textarea { 
+        @apply w-full bg-white border-2 border-slate-200 rounded-2xl px-6 h-14 focus:border-primary focus:ring-0 focus:outline-none transition-all text-slate-900 font-black placeholder:text-slate-300 shadow-sm !important; 
+    }
+    
+    textarea { @apply h-64 py-6 font-medium leading-relaxed !important; }
+
+    /* Badges de Variáveis (Amarelo Destaque) */
+    .var-badge {
+        @apply bg-accent/10 text-amber-900 border border-accent/30 px-4 py-2 rounded-xl font-black text-xs cursor-pointer hover:bg-accent hover:text-accent-content transition-all shadow-sm !important;
+    }
+
+    /* Ajuste para botões grandes */
+    .h-18 { height: 4.5rem; }
+</style>
+
+<script>
+    // Função para facilitar a cópia das variáveis (UX Premium)
+    function copyVar(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            // Feedback visual simples
+            const el = event.target;
+            const originalText = el.innerText;
+            el.innerText = 'COPIADO!';
+            el.classList.replace('bg-accent/10', 'bg-emerald-500');
+            el.classList.replace('text-amber-900', 'text-white');
+            setTimeout(() => {
+                el.innerText = originalText;
+                el.classList.replace('bg-emerald-500', 'bg-accent/10');
+                el.classList.replace('text-white', 'text-amber-900');
+            }, 1000);
+        });
+    }
+</script>
+{% endblock %}

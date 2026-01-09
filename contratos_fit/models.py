@@ -49,7 +49,13 @@ class Plano(models.Model):
     duracao_meses = models.IntegerField(choices=DURACAO_CHOICES, help_text="1=Mensal, 3=Trimestral, etc")
     
     ativo = models.BooleanField(default=True)
-
+    tipo_servico = models.ForeignKey(
+        'cadastros_fit.TipoServico', 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True,
+        verbose_name="Tipo de Serviço"
+    )
     @property
     def valor_total_sugerido(self):
         return self.valor_mensal * self.duracao_meses

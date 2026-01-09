@@ -3,117 +3,125 @@
 {% block title %}Dashboard - MayaCorp Fit{% endblock %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto">
+<div class="max-w-7xl mx-auto px-4">
     
     <!-- CABEÇALHO DE BOAS-VINDAS -->
-    <header class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4">
+    <header class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-            <h1 class="text-4xl font-extrabold text-slate-800 tracking-tight">
-                Olá, {{ user.username }}! <span class="animate-bounce inline-block">👋</span>
+            <!-- Texto em tom base-content (quase preto) para nitidez máxima -->
+            <h1 class="text-4xl md:text-5xl font-black text-base-content tracking-tighter">
+                Olá, <span class="text-primary">{{ user.username }}</span>! <span class="animate-bounce inline-block">💪</span>
             </h1>
-            <p class="text-slate-500 mt-2 font-medium">Aqui está o que está acontecendo no seu estúdio hoje.</p>
+            <p class="text-slate-500 mt-2 font-medium text-lg">O MayaCorp Fit está pronto para os treinos de hoje.</p>
         </div>
-        <div class="bg-white px-6 py-3 rounded-2xl shadow-sm border border-slate-50 flex items-center gap-3">
-            <div class="w-2 h-2 bg-mint-green rounded-full animate-pulse"></div>
-            <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">
+        
+        <!-- Badge de Data em Marsala com Amarelo -->
+        <div class="bg-white px-6 py-4 rounded-2xl shadow-sm border-l-4 border-primary flex items-center gap-4">
+            <div class="w-3 h-3 bg-accent rounded-full animate-pulse shadow-[0_0_10px_rgba(250,204,21,0.8)]"></div>
+            <span class="text-sm font-bold text-slate-600 uppercase tracking-widest">
                 {% now "l, d \d\e F" %}
             </span>
         </div>
     </header>
 
-    <!-- GRID DE CARDS DE RESUMO (ESTILO SOFT UI) -->
+    <!-- GRID DE CARDS DE RESUMO (CORES VIBRANTES) -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
         
-        <!-- Alunos: Estilo Serene Blue -->
-        <div class="group bg-white p-8 rounded-[32px] shadow-xl shadow-slate-200/40 border border-white hover:scale-[1.02] transition-all duration-300">
+        <!-- Alunos: AZUL VIBRANTE -->
+        <div class="group bg-white p-8 rounded-3xl shadow-lg border border-slate-100 hover:border-secondary transition-all duration-300">
             <div class="flex items-center gap-6">
-                <div class="w-16 h-16 bg-serene-blue/20 rounded-2xl flex items-center justify-center text-serene-blue group-hover:bg-serene-blue group-hover:text-white transition-colors duration-500">
-                    <i class="fas fa-users text-2xl"></i>
+                <div class="w-20 h-20 bg-secondary rounded-2xl flex items-center justify-center text-white shadow-lg shadow-secondary/30 group-hover:scale-110 transition-transform">
+                    <i class="fas fa-users text-3xl"></i>
                 </div>
                 <div>
-                    <p class="text-sm font-bold text-slate-400 uppercase tracking-wider">Total de Alunos</p>
-                    <h3 class="text-4xl font-black text-slate-800">{{ total_alunos }}</h3>
+                    <p class="text-xs font-black text-slate-400 uppercase tracking-[2px]">Total de Alunos</p>
+                    <h3 class="text-5xl font-black text-base-content">{{ total_alunos }}</h3>
                 </div>
             </div>
             <div class="mt-6 flex items-center gap-2">
-                <span class="badge badge-sm badge-ghost bg-slate-50 border-none text-slate-400 font-bold">+ 3 este mês</span>
+                <span class="badge badge-secondary badge-outline font-bold">+ 3 este mês</span>
             </div>
         </div>
 
-        <!-- Aulas: Estilo Mint Green -->
-        <div class="group bg-white p-8 rounded-[32px] shadow-xl shadow-slate-200/40 border border-white hover:scale-[1.02] transition-all duration-300">
+        <!-- Aulas: MARSALA (PRINCIPAL) -->
+        <div class="group bg-white p-8 rounded-3xl shadow-lg border border-slate-100 hover:border-primary transition-all duration-300">
             <div class="flex items-center gap-6">
-                <div class="w-16 h-16 bg-mint-green/20 rounded-2xl flex items-center justify-center text-emerald-600 group-hover:bg-mint-green group-hover:text-emerald-800 transition-colors duration-500">
-                    <i class="fas fa-calendar-check text-2xl"></i>
+                <div class="w-20 h-20 bg-primary rounded-2xl flex items-center justify-center text-white shadow-lg shadow-primary/30 group-hover:scale-110 transition-transform">
+                    <i class="fas fa-dumbbell text-3xl"></i>
                 </div>
                 <div>
-                    <p class="text-sm font-bold text-slate-400 uppercase tracking-wider">Aulas Hoje</p>
-                    <h3 class="text-4xl font-black text-slate-800">{{ aulas_hoje }}</h3>
+                    <p class="text-xs font-black text-slate-400 uppercase tracking-[2px]">Aulas Hoje</p>
+                    <h3 class="text-5xl font-black text-base-content">{{ aulas_hoje }}</h3>
                 </div>
             </div>
             <div class="mt-6">
-                <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                    <div class="bg-mint-green h-full w-2/3"></div>
+                <div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden border border-slate-200">
+                    <div class="bg-primary h-full w-2/3 shadow-[0_0_10px_rgba(128,36,34,0.4)]"></div>
                 </div>
-                <p class="text-[10px] text-slate-400 mt-2 font-bold uppercase">60% das aulas concluídas</p>
+                <p class="text-[11px] text-primary mt-3 font-black uppercase">Esforço diário: 60% concluído</p>
             </div>
         </div>
 
-        <!-- Financeiro: Estilo Soft Lavender -->
-        <div class="group bg-white p-8 rounded-[32px] shadow-xl shadow-slate-200/40 border border-white hover:scale-[1.02] transition-all duration-300">
+        <!-- Financeiro: AMARELO STUDIO (ALERTA/DESTAQUE) -->
+        <div class="group bg-white p-8 rounded-3xl shadow-lg border border-slate-100 hover:border-accent transition-all duration-300">
             <div class="flex items-center gap-6">
-                <div class="w-16 h-16 bg-soft-lavender/20 rounded-2xl flex items-center justify-center text-purple-600 group-hover:bg-soft-lavender group-hover:text-purple-800 transition-colors duration-500">
-                    <i class="fas fa-hand-holding-dollar text-2xl"></i>
+                <div class="w-20 h-20 bg-accent rounded-2xl flex items-center justify-center text-accent-content shadow-lg shadow-accent/20 group-hover:scale-110 transition-transform">
+                    <i class="fas fa-wallet text-3xl"></i>
                 </div>
                 <div>
-                    <p class="text-sm font-bold text-slate-400 uppercase tracking-wider">Para Receber</p>
-                    <h3 class="text-4xl font-black text-slate-800">{{ receber_hoje }}</h3>
+                    <p class="text-xs font-black text-slate-400 uppercase tracking-[2px]">Faturamento</p>
+                    <h3 class="text-4xl font-black text-base-content">R$ {{ receber_hoje }}</h3>
                 </div>
             </div>
             <div class="mt-6">
-                <a href="{% url 'contas_receber' %}" class="text-xs font-bold text-purple-600 hover:underline">Ver detalhes financeiros →</a>
+                <a href="{% url 'contas_receber' %}" class="inline-block px-4 py-2 bg-slate-100 text-slate-700 rounded-xl text-xs font-bold group-hover:bg-accent group-hover:text-accent-content transition-colors">
+                    Fluxo de Caixa →
+                </a>
             </div>
         </div>
     </div>
 
     <!-- SEÇÃO DE ATALHOS RÁPIDOS -->
-    <div class="mb-6 flex items-center gap-3">
-        <div class="h-[2px] w-8 bg-serene-blue"></div>
-        <h5 class="text-sm font-black text-slate-400 uppercase tracking-[3px]">Ações Prioritárias</h5>
+    <div class="mb-8 flex items-center gap-4">
+        <h5 class="text-sm font-black text-primary uppercase tracking-[4px]">Atalhos Estratégicos</h5>
+        <div class="h-[1px] flex-1 bg-gradient-to-r from-primary/20 to-transparent"></div>
     </div>
 
     <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
         
-        <!-- Atalho 1 -->
-        <a href="{% url 'aluno_create' %}" class="flex flex-col items-center justify-center p-8 bg-white rounded-[32px] border border-slate-50 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-300 group">
-            <div class="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center mb-4 group-hover:bg-serene-blue/10 transition-colors">
-                <i class="fas fa-user-plus text-serene-blue"></i>
+        <!-- Atalho 1 - Novo Aluno (Azul) -->
+        <a href="{% url 'aluno_create' %}" class="flex flex-col items-center justify-center p-8 bg-white rounded-3xl border border-slate-100 shadow-sm hover:border-secondary hover:shadow-2xl hover:-translate-y-2 transition-all group">
+            <div class="w-14 h-14 rounded-full bg-slate-50 flex items-center justify-center mb-4 group-hover:bg-secondary group-hover:text-white transition-all">
+                <i class="fas fa-user-plus text-xl text-secondary group-hover:text-white"></i>
             </div>
-            <span class="text-sm font-bold text-slate-700">Novo Aluno</span>
+            <span class="text-sm font-black text-slate-600 uppercase tracking-tighter">Novo Aluno</span>
         </a>
 
-        <!-- Atalho 2 -->
-        <a href="{% url 'calendario_semanal' %}" class="flex flex-col items-center justify-center p-8 bg-white rounded-[32px] border border-slate-50 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-300 group">
-            <div class="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center mb-4 group-hover:bg-orange-100 transition-colors">
-                <i class="fas fa-calendar-alt text-orange-500"></i>
+        <!-- Atalho 2 - Agenda (Marsala) -->
+        <a href="{% url 'calendario_semanal' %}" class="flex flex-col items-center justify-center p-8 bg-white rounded-3xl border border-slate-100 shadow-sm hover:border-primary hover:shadow-2xl hover:-translate-y-2 transition-all group">
+            <div class="w-14 h-14 rounded-full bg-slate-50 flex items-center justify-center mb-4 group-hover:bg-primary group-hover:text-white transition-all">
+                <i class="fas fa-calendar-alt text-xl text-primary group-hover:text-white"></i>
             </div>
-            <span class="text-sm font-bold text-slate-700">Ver Agenda</span>
+            <span class="text-sm font-black text-slate-600 uppercase tracking-tighter">Agenda</span>
         </a>
 
-        <!-- Atalho 3 -->
-        <a href="{% url 'contas_receber' %}" class="flex flex-col items-center justify-center p-8 bg-white rounded-[32px] border border-slate-50 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-300 group">
-            <div class="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center mb-4 group-hover:bg-emerald-100 transition-colors">
-                <i class="fas fa-file-invoice-dollar text-emerald-500"></i>
+        <!-- Atalho 3 - Financeiro (Amarelo) -->
+        <a href="{% url 'contas_receber' %}" class="flex flex-col items-center justify-center p-8 bg-white rounded-3xl border border-slate-100 shadow-sm hover:border-accent hover:shadow-2xl hover:-translate-y-2 transition-all group">
+            <div class="w-14 h-14 rounded-full bg-slate-50 flex items-center justify-center mb-4 group-hover:bg-accent group-hover:text-accent-content transition-all">
+                <i class="fas fa-chart-line text-xl text-accent group-hover:text-accent-content"></i>
             </div>
-            <span class="text-sm font-bold text-slate-700">Financeiro</span>
+            <span class="text-sm font-black text-slate-600 uppercase tracking-tighter">Relatórios</span>
         </a>
 
-        <!-- Atalho 4 (Invenção: Status do Estúdio) -->
-        <div class="flex flex-col items-center justify-center p-8 bg-mint-green/10 rounded-[32px] border border-mint-green/20">
-            <div class="text-center">
-                <div class="radial-progress text-mint-green" style="--value:85; --size:3rem; --thickness: 4px;" role="progressbar">85%</div>
-                <p class="text-[10px] font-bold text-emerald-800 mt-3 uppercase tracking-tighter">Ocupação Semanal</p>
+        <!-- Atalho 4 - Status (Ocupação) -->
+        <div class="flex flex-col items-center justify-center p-8 bg-white rounded-3xl border border-slate-100 shadow-sm border-t-4 border-t-secondary">
+            <div class="relative flex items-center justify-center">
+                <!-- Radial Progress do DaisyUI usando Marsala -->
+                <div class="radial-progress text-primary font-black" style="--value:85; --size:4rem; --thickness: 6px;" role="progressbar">
+                    85%
+                </div>
             </div>
+            <p class="text-[10px] font-black text-slate-400 mt-4 uppercase tracking-[2px]">Capacidade</p>
         </div>
 
     </div>

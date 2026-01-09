@@ -2,141 +2,132 @@
 {% load static %}
 {% load meus_filtros %}
 
-{% block title %}{{ aluno.nome }} | Ficha do Aluno MayaCorp{% endblock %}
+{% block title %}{{ aluno.nome }} | Ficha MayaCorp Fit{% endblock %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto pb-20">
+<div class="max-w-7xl mx-auto pb-24 px-4">
 
-    <!-- 1. CABEÇALHO DO PERFIL (Estilo Profile Card) -->
-    <header class="bg-white rounded-[40px] shadow-xl shadow-slate-200/50 border border-white p-8 mb-8 relative overflow-hidden">
-        <div class="absolute top-0 right-0 w-64 h-64 bg-serene-blue/5 rounded-full -mr-32 -mt-32"></div>
+    <!-- 1. CABEÇALHO DO PERFIL (ESTILO STUDIO LUXO) -->
+    <header class="bg-white rounded-[3rem] shadow-2xl shadow-slate-200/60 border border-slate-100 p-10 mb-10 relative overflow-hidden">
+        <!-- Detalhe decorativo Marsala de fundo -->
+        <div class="absolute top-0 right-0 w-80 h-80 bg-primary/5 rounded-full -mr-32 -mt-32"></div>
         
-        <div class="relative flex flex-col md:flex-row items-center md:items-start gap-8">
-            <!-- Avatar com Soft Shadow -->
+        <div class="relative flex flex-col md:flex-row items-center md:items-start gap-10">
+            <!-- FOTO DO ALUNO COM BORDA VIBRANTE -->
             <div class="relative">
-                <div class="w-32 h-32 rounded-[2.5rem] overflow-hidden border-4 border-white shadow-2xl shadow-slate-300">
+                <div class="w-40 h-40 rounded-[3rem] overflow-hidden border-4 border-white shadow-2xl shadow-primary/20 ring-4 ring-primary/10">
                     {% if aluno.foto_rosto %}
                         <img src="{{ aluno.foto_rosto.url }}" class="w-full h-full object-cover">
                     {% else %}
-                        <div class="w-full h-full bg-slate-100 flex items-center justify-center text-slate-300 text-4xl font-black">
-                            {{ aluno.nome|first }}
+                        <div class="w-full h-full bg-slate-50 flex items-center justify-center text-primary text-5xl font-black">
+                            {{ aluno.nome|first|upper }}
                         </div>
                     {% endif %}
                 </div>
-                <div class="absolute -bottom-2 -right-2 w-8 h-8 bg-mint-green border-4 border-white rounded-full shadow-lg" title="Aluno Ativo"></div>
+                <!-- Status Ativo em Verde Vibrante -->
+                <div class="absolute -bottom-2 -right-2 w-10 h-10 bg-emerald-500 border-4 border-white rounded-full shadow-lg animate-pulse" title="Aluno Ativo"></div>
             </div>
 
-            <!-- Info Principal -->
             <div class="flex-1 text-center md:text-left">
-                <div class="flex flex-col md:flex-row md:items-center gap-3 mb-2">
-                    <h1 class="text-3xl font-black text-slate-800 tracking-tight">{{ aluno.nome }}</h1>
-                    <span class="badge bg-slate-50 border-slate-100 text-slate-400 font-bold px-4 py-3 rounded-xl">ID #{{ aluno.id }}</span>
+                <div class="flex flex-col md:flex-row md:items-center gap-4 mb-4">
+                    <h1 class="text-4xl font-black text-slate-900 tracking-tighter">{{ aluno.nome|upper }}</h1>
+                    <span class="px-4 py-1.5 bg-primary text-white text-[10px] font-black rounded-full shadow-lg shadow-primary/20">ID #{{ aluno.id }}</span>
+                    
+                    <!-- BOTÃO WHATSAPP (VIBRANTE) -->
+                    <button onclick="enviarCobranca({{ aluno.id }})" class="btn bg-emerald-500 hover:bg-emerald-600 btn-sm rounded-xl px-5 text-white border-none shadow-lg shadow-emerald-200 font-black uppercase tracking-widest text-[10px]">
+                        <i class="fab fa-whatsapp text-sm mr-2"></i> Cobrar via WhatsApp
+                    </button>
                 </div>
                 
-                <div class="flex flex-wrap justify-center md:justify-start gap-4 text-slate-400 text-sm font-medium mb-6">
-                    <span class="flex items-center gap-2"><i class="far fa-calendar-alt text-serene-blue"></i> {{ aluno.data_nascimento|default:"--" }}</span>
+                <div class="flex flex-wrap justify-center md:justify-start gap-6 text-slate-500 text-sm font-bold mb-8">
+                    <span class="flex items-center gap-2"><i class="far fa-calendar-alt text-primary text-lg"></i> {{ aluno.data_nascimento|default:"--" }}</span>
                     {% if aluno.telefone %}
-                        <a href="https://wa.me/55{{ aluno.telefone|apenas_numeros }}" target="_blank" class="flex items-center gap-2 text-emerald-500 hover:underline">
-                            <i class="fab fa-whatsapp"></i> {{ aluno.telefone }}
+                        <a href="https://wa.me/55{{ aluno.telefone|apenas_numeros }}" target="_blank" class="flex items-center gap-2 text-secondary hover:text-blue-800 transition-colors">
+                            <i class="fab fa-whatsapp text-lg text-emerald-500"></i> {{ aluno.telefone }}
                         </a>
                     {% endif %}
                 </div>
 
-                <!-- Botões de Ação Rápida -->
-                <div class="flex flex-wrap justify-center md:justify-start gap-3">
-                    <a href="{% url 'novo_contrato' aluno.pk %}" class="btn bg-serene-blue border-none text-white rounded-2xl px-8 shadow-lg shadow-blue-200 hover:bg-blue-400 normal-case font-black italic">
-                        <i class="fas fa-plus-circle mr-2"></i> Nova Venda
+                <div class="flex flex-wrap justify-center md:justify-start gap-4">
+                    <a href="{% url 'novo_contrato' aluno.pk %}" class="btn bg-secondary border-none text-white rounded-2xl px-10 shadow-xl shadow-secondary/30 hover:bg-blue-800 h-14 font-black uppercase tracking-widest text-xs">
+                        <i class="fas fa-plus-circle text-lg mr-2"></i> NOVA VENDA
                     </a>
-                    <a href="{% url 'aluno_update' aluno.pk %}" class="btn btn-ghost bg-slate-50 text-slate-500 rounded-2xl hover:bg-slate-100 px-6 normal-case font-bold">
-                        <i class="fas fa-pen mr-2 text-xs"></i> Editar Cadastro
+                    <a href="{% url 'aluno_update' aluno.pk %}" class="btn bg-slate-100 text-slate-600 border-none rounded-2xl px-8 hover:bg-slate-200 h-14 font-black uppercase tracking-widest text-xs">
+                        <i class="fas fa-pen mr-2"></i> EDITAR
                     </a>
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- 2. NAVEGAÇÃO POR ABAS (Estilo Soft Tabs) -->
-    <div class="tabs tabs-boxed bg-transparent gap-2 mb-8 justify-center md:justify-start overflow-x-auto custom-scroll">
-        <button class="tab tab-lg !rounded-2xl font-black uppercase text-[10px] tracking-[2px] active bg-white shadow-sm border border-slate-100 transition-all shrink-0" onclick="openTab(event, 'visao')">Visão Geral</button>
-        <button class="tab tab-lg !rounded-2xl font-black uppercase text-[10px] tracking-[2px] bg-transparent text-slate-400 hover:bg-white transition-all shrink-0" onclick="openTab(event, 'agenda')">Agenda</button>
-        <button class="tab tab-lg !rounded-2xl font-black uppercase text-[10px] tracking-[2px] bg-transparent text-slate-400 hover:bg-white transition-all shrink-0" onclick="openTab(event, 'financeiro')">Financeiro</button>
-        <button class="tab tab-lg !rounded-2xl font-black uppercase text-[10px] tracking-[2px] bg-transparent text-slate-400 hover:bg-white transition-all shrink-0" onclick="openTab(event, 'contratos')">Contratos</button>
-        <button class="tab tab-lg !rounded-2xl font-black uppercase text-[10px] tracking-[2px] bg-transparent text-slate-400 hover:bg-white transition-all shrink-0" onclick="openTab(event, 'termos')">Termos & Imagem</button>
+    <!-- 2. NAVEGAÇÃO POR ABAS (ALTÍSSIMO CONTRASTE) -->
+    <div class="flex gap-3 mb-10 overflow-x-auto pb-4 custom-scroll">
+        <button class="tab-btn active bg-primary text-white shadow-xl shadow-primary/30" onclick="openTab(event, 'visao')">VISÃO GERAL</button>
+        <button class="tab-btn bg-white text-slate-400 hover:bg-slate-50" onclick="openTab(event, 'agenda')">AGENDA</button>
+        <button class="tab-btn bg-white text-slate-400 hover:bg-slate-50" onclick="openTab(event, 'financeiro')">FINANCEIRO</button>
+        <button class="tab-btn bg-white text-slate-400 hover:bg-slate-50" onclick="openTab(event, 'contratos')">CONTRATOS</button>
+        <button class="tab-btn bg-white text-slate-400 hover:bg-slate-50" onclick="openTab(event, 'termos')">TERMOS</button>
+        <button class="tab-btn bg-white text-slate-400 hover:bg-slate-50" onclick="openTab(event, 'whatsapp_tab')">WHATSAPP</button>
     </div>
 
     <!-- 3. CONTEÚDO DAS ABAS -->
-    <div id="tab-content">
+    <div id="tab-content" class="min-h-[400px]">
         
         <!-- ABA 1: VISÃO GERAL -->
-        <div id="visao" class="tab-pane block animate-in fade-in duration-500">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div id="visao" class="tab-pane block animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
                 
-                <div class="lg:col-span-8 space-y-8">
-                    <!-- Cards de Resumo Rápido -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="bg-white p-8 rounded-[32px] shadow-xl shadow-slate-200/40 border border-white">
-                            <h6 class="text-[10px] font-black text-serene-blue uppercase tracking-widest mb-4">Próxima Aula</h6>
+                <div class="lg:col-span-8 space-y-10">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <!-- Card Próxima Aula (AZUL) -->
+                        <div class="bg-white p-10 rounded-[2.5rem] shadow-2xl shadow-slate-200/60 border-t-8 border-secondary">
+                            <h6 class="text-[11px] font-black text-secondary uppercase tracking-[3px] mb-6">Próxima Aula</h6>
                             {% if proxima_aula %}
-                                <h4 class="text-2xl font-black text-slate-700">{{ proxima_aula.data_hora_inicio|date:"d/m • H:i" }}</h4>
-                                <p class="text-xs text-slate-400 font-medium mt-1 italic">Prof. {{ proxima_aula.profissional.nome }}</p>
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <h4 class="text-3xl font-black text-slate-900 tracking-tighter">{{ proxima_aula.data_hora_inicio|date:"d/m • H:i" }}</h4>
+                                        <p class="text-sm text-slate-500 font-bold mt-2">Prof. {{ proxima_aula.profissional.nome }}</p>
+                                    </div>
+                                    <div class="w-14 h-14 bg-secondary/10 rounded-2xl flex items-center justify-center text-secondary shadow-inner">
+                                        <i class="fas fa-calendar-check text-2xl"></i>
+                                    </div>
+                                </div>
                             {% else %}
-                                <p class="text-slate-300 text-sm italic">Nenhum agendamento futuro.</p>
+                                <p class="text-slate-400 font-bold italic">Nenhum agendamento futuro.</p>
                             {% endif %}
                         </div>
-                        <div class="bg-white p-8 rounded-[32px] shadow-xl shadow-slate-200/40 border border-white">
-                            <h6 class="text-[10px] font-black text-orange-400 uppercase tracking-widest mb-4">Última Evolução</h6>
-                            {% if ultima_evolucao %}
-                                <h4 class="text-sm font-bold text-slate-700">{{ ultima_evolucao.data_hora_inicio|date:"d/m/Y" }}</h4>
-                                <p class="text-xs text-slate-400 mt-2 leading-relaxed">"{{ ultima_evolucao.evolucao_texto|truncatechars:80 }}"</p>
-                            {% else %}
-                                <p class="text-slate-300 text-sm italic">Sem registros recentes.</p>
-                            {% endif %}
-                        </div>
-                    </div>
 
-                    <!-- Resumo Simples de Contratos (SEM SIDEBAR) -->
-                    <div class="bg-white rounded-[32px] shadow-xl shadow-slate-200/50 border border-white overflow-hidden">
-                        <div class="p-6 border-b border-slate-50 flex items-center justify-between">
-                            <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Resumo de Planos</h3>
-                        </div>
-                        <div class="p-0">
-                            <table class="table w-full border-collapse">
-                                <tbody class="divide-y divide-slate-50">
-                                    {% for c in aluno.contratos.all %}
-                                    <tr class="hover:bg-slate-50 transition-colors">
-                                        <td class="py-4 pl-8 text-sm font-bold text-slate-700">{{ c.plano.nome }}</td>
-                                        <td class="py-4 text-xs text-slate-400">Vence em: {{ c.data_fim|date:"d/m/Y" }}</td>
-                                        <td class="py-4 pr-8 text-right">
-                                            <span class="badge {% if c.status == 'ATIVO' %}bg-mint-green/20 text-emerald-700{% else %}bg-orange-50 text-orange-600{% endif %} border-none text-[9px] font-black px-3 py-2 rounded-lg">{{ c.status }}</span>
-                                        </td>
-                                    </tr>
-                                    {% empty %}
-                                    <tr><td class="py-10 text-center text-slate-300 italic text-sm">Nenhum contrato ativo.</td></tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
+                        <!-- Card Última Evolução (AMARELO) -->
+                        <div class="bg-white p-10 rounded-[2.5rem] shadow-2xl shadow-slate-200/60 border-t-8 border-accent">
+                            <h6 class="text-[11px] font-black text-amber-600 uppercase tracking-[3px] mb-6">Feedback Técnico</h6>
+                            {% if ultima_evolucao %}
+                                <h4 class="text-sm font-black text-slate-900 uppercase tracking-tight">{{ ultima_evolucao.data_hora_inicio|date:"d/m/Y" }}</h4>
+                                <p class="text-sm text-slate-600 mt-3 leading-relaxed font-medium">"{{ ultima_evolucao.evolucao_texto|truncatechars:100 }}"</p>
+                            {% else %}
+                                <p class="text-slate-400 font-bold italic">Sem registros recentes de evolução.</p>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
 
-                <!-- AÇÕES RÁPIDAS (Coluna Lateral) -->
-                <div class="lg:col-span-4 space-y-6">
-                    <div class="bg-white p-8 rounded-[32px] shadow-xl shadow-slate-200/50 border border-white">
-                        <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Central de Documentos</h3>
-                        <div class="flex flex-col gap-3">
-                            <button onclick="modal_documento.showModal()" class="btn btn-ghost bg-slate-50 hover:bg-serene-blue/10 justify-start h-14 rounded-2xl border-none group transition-all">
-                                <i class="fas fa-cloud-upload-alt w-8 text-serene-blue group-hover:scale-125 transition-transform"></i>
-                                <span class="text-xs font-bold text-slate-600">Anexar Documento</span>
-                            </button>
-                            <button onclick="modal_totalpass.showModal()" class="btn btn-ghost bg-slate-50 hover:bg-rose-50 justify-start h-14 rounded-2xl border-none group transition-all">
-                                <i class="fas fa-ticket-alt w-8 text-rose-400 group-hover:scale-125 transition-transform"></i>
-                                <span class="text-xs font-bold text-slate-600">Validar TotalPass</span>
-                            </button>
-                            <div class="divider opacity-30 my-2"></div>
-                            <button onclick="if(confirm('Deseja realmente excluir este aluno?')) location.href='{% url 'aluno_delete' aluno.pk %}'" 
-                                    class="btn btn-ghost bg-slate-50 hover:bg-rose-50 justify-start h-14 rounded-2xl border-none group transition-all">
-                                <i class="fas fa-user-times w-8 text-rose-200 group-hover:text-rose-500 transition-colors"></i>
-                                <span class="text-xs font-bold text-slate-400 group-hover:text-rose-500">Excluir Aluno</span>
+                <!-- Sidebar de Documentos (MARSALA) -->
+                <div class="lg:col-span-4 space-y-8">
+                    <div class="bg-white p-10 rounded-[2.5rem] shadow-2xl shadow-slate-200/60 border border-slate-100">
+                        <h3 class="text-[11px] font-black text-primary uppercase tracking-[3px] mb-8">Central de Documentos</h3>
+                        <div class="flex flex-col gap-4">
+                            {% for doc in documentos_extras %}
+                                <a href="{{ doc.arquivo.url }}" target="_blank" class="p-5 bg-slate-50 rounded-2xl flex items-center justify-between group hover:bg-primary hover:text-white transition-all shadow-sm">
+                                    <div class="flex items-center gap-4">
+                                        <i class="fas fa-file-pdf text-primary group-hover:text-white text-xl"></i>
+                                        <span class="text-sm font-black uppercase tracking-tighter">{{ doc.titulo|truncatechars:20 }}</span>
+                                    </div>
+                                    <i class="fas fa-arrow-right text-slate-300 group-hover:text-white transition-transform group-hover:translate-x-1"></i>
+                                </a>
+                            {% endfor %}
+                            
+                            <button onclick="modal_documento.showModal()" class="btn btn-ghost bg-slate-50 hover:bg-primary/10 border-2 border-dashed border-slate-200 hover:border-primary h-16 rounded-2xl group transition-all mt-6">
+                                <i class="fas fa-cloud-upload-alt text-primary group-hover:scale-125 transition-transform mr-3"></i>
+                                <span class="text-xs font-black text-slate-600 group-hover:text-primary uppercase tracking-widest">Anexar Novo</span>
                             </button>
                         </div>
                     </div>
@@ -144,33 +135,40 @@
             </div>
         </div>
 
-        <!-- ABA 2: AGENDA (Apenas a Tabela) -->
+        <!-- ABA 2: AGENDA (NITIDEZ TOTAL) -->
         <div id="agenda" class="tab-pane hidden animate-in fade-in duration-500">
-            <div class="bg-white rounded-[40px] shadow-xl shadow-slate-200/50 border border-white overflow-hidden">
+            <div class="bg-white rounded-[3rem] shadow-2xl shadow-slate-200/60 border border-slate-100 overflow-hidden">
                 <table class="table w-full">
                     <thead>
-                        <tr class="border-b border-slate-50">
-                            <th class="bg-white text-[10px] font-black text-slate-400 uppercase tracking-widest py-6 pl-10">Data</th>
-                            <th class="bg-white text-[10px] font-black text-slate-400 uppercase tracking-widest py-6">Profissional</th>
-                            <th class="bg-white text-[10px] font-black text-slate-400 uppercase tracking-widest py-6 text-center">Situação</th>
-                            <th class="bg-white text-[10px] font-black text-slate-400 uppercase tracking-widest py-6 pr-10 text-right">Ação</th>
+                        <tr class="bg-slate-900">
+                            <th class="text-white text-[11px] font-black uppercase tracking-[2px] py-8 pl-12">Data/Hora</th>
+                            <th class="text-white text-[11px] font-black uppercase tracking-[2px] py-8">Profissional</th>
+                            <th class="text-white text-[11px] font-black uppercase tracking-[2px] py-8 text-center">Situação</th>
+                            <th class="text-white text-[11px] font-black uppercase tracking-[2px] py-8 pr-12 text-right">Ação</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-50">
+                    <tbody class="divide-y divide-slate-100">
                         {% for p in agenda_completa %}
-                        <tr class="hover:bg-slate-50 transition-colors">
-                            <td class="py-6 pl-10">
+                        <tr class="hover:bg-primary/5 transition-colors group">
+                            <td class="py-7 pl-12">
                                 <div class="flex flex-col">
-                                    <span class="font-bold text-slate-700 text-sm">{{ p.aula.data_hora_inicio|date:"d/m/Y" }}</span>
-                                    <span class="text-[9px] text-slate-400 font-bold uppercase">{{ p.aula.data_hora_inicio|date:"H:i" }}</span>
+                                    <span class="font-black text-slate-900 text-base">{{ p.aula.data_hora_inicio|date:"d/m/Y" }}</span>
+                                    <span class="text-xs text-primary font-black uppercase tracking-widest">{{ p.aula.data_hora_inicio|date:"H:i" }}</span>
                                 </div>
                             </td>
-                            <td class="py-6 text-xs text-slate-500 font-bold">{{ p.aula.profissional.nome }}</td>
-                            <td class="py-6 text-center">
-                                <span class="badge {% if p.status == 'PRESENTE' %}bg-mint-green/20 text-emerald-700{% else %}bg-slate-100 text-slate-400{% endif %} border-none text-[9px] font-black px-4 py-3 rounded-xl">{{ p.status }}</span>
+                            <td class="py-7 text-sm text-slate-700 font-bold uppercase">{{ p.aula.profissional.nome }}</td>
+                            <td class="py-7 text-center">
+                                <span class="badge 
+                                    {% if p.status == 'AGENDADA' %} bg-secondary
+                                    {% elif p.status == 'PRESENTE' or p.status == 'REALIZADA' %} bg-emerald-500
+                                    {% elif p.status == 'FALTA' %} bg-primary
+                                    {% else %} bg-slate-800 {% endif %} 
+                                    border-none text-white text-[10px] font-black px-5 py-4 rounded-xl shadow-md uppercase tracking-widest">
+                                    {{ p.status }}
+                                </span>
                             </td>
-                            <td class="py-6 pr-10 text-right">
-                                <a href="{% url 'gerenciar_aula' p.aula.id %}" class="btn btn-ghost btn-circle btn-sm text-slate-200 hover:text-serene-blue"><i class="fas fa-eye"></i></a>
+                            <td class="py-7 pr-12 text-right">
+                                <a href="{% url 'gerenciar_aula' p.aula.id %}" class="btn btn-square btn-sm rounded-xl bg-slate-100 border-none text-slate-400 hover:bg-secondary hover:text-white transition-all shadow-sm"><i class="fas fa-eye text-base"></i></a>
                             </td>
                         </tr>
                         {% endfor %}
@@ -179,33 +177,33 @@
             </div>
         </div>
 
-        <!-- ABA 3: FINANCEIRO (Apenas a Tabela) -->
+        <!-- ABA 3: FINANCEIRO (VIBRANTE) -->
         <div id="financeiro" class="tab-pane hidden animate-in fade-in duration-500">
-            <div class="bg-white rounded-[40px] shadow-xl shadow-slate-200/50 border border-white overflow-hidden">
+            <div class="bg-white rounded-[3rem] shadow-2xl shadow-slate-200/60 border border-slate-100 overflow-hidden">
                 <table class="table w-full">
                     <thead>
-                        <tr class="border-b border-slate-50">
-                            <th class="bg-white text-[10px] font-black text-slate-400 uppercase tracking-widest py-6 pl-10">Vencimento</th>
-                            <th class="bg-white text-[10px] font-black text-slate-400 uppercase tracking-widest py-6">Descrição</th>
-                            <th class="bg-white text-[10px] font-black text-slate-400 uppercase tracking-widest py-6 text-center">Valor</th>
-                            <th class="bg-white text-[10px] font-black text-slate-400 uppercase tracking-widest py-6 text-center">Status</th>
-                            <th class="bg-white text-[10px] font-black text-slate-400 uppercase tracking-widest py-6 pr-10 text-right">Ação</th>
+                        <tr class="bg-slate-900">
+                            <th class="text-white text-[11px] font-black uppercase tracking-[2px] py-8 pl-12">Vencimento</th>
+                            <th class="text-white text-[11px] font-black uppercase tracking-[2px] py-8">Descrição</th>
+                            <th class="text-white text-[11px] font-black uppercase tracking-[2px] py-8 text-center">Valor</th>
+                            <th class="text-white text-[11px] font-black uppercase tracking-[2px] py-8 text-center">Status</th>
+                            <th class="text-white text-[11px] font-black uppercase tracking-[2px] py-8 pr-12 text-right">Ação</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-50">
+                    <tbody class="divide-y divide-slate-100">
                         {% for lanc in financeiro_completo %}
-                        <tr class="hover:bg-slate-50 transition-colors">
-                            <td class="py-6 pl-10 text-xs font-bold text-slate-500">{{ lanc.data_vencimento|date:"d/m/Y" }}</td>
-                            <td class="py-6 text-xs text-slate-700">{{ lanc.descricao }}</td>
-                            <td class="py-6 text-center text-sm font-black italic text-slate-800">R$ {{ lanc.valor }}</td>
-                            <td class="py-6 text-center">
-                                <span class="badge {% if lanc.status == 'PAGO' %}bg-mint-green/20 text-emerald-700{% else %}bg-orange-50 text-orange-600{% endif %} border-none text-[9px] font-black px-4 py-3 rounded-xl">{{ lanc.status }}</span>
+                        <tr class="hover:bg-emerald-50/30 transition-colors">
+                            <td class="py-7 pl-12 text-sm font-black text-slate-900">{{ lanc.data_vencimento|date:"d/m/Y" }}</td>
+                            <td class="py-7 text-sm text-slate-600 font-bold">{{ lanc.descricao|upper }}</td>
+                            <td class="py-7 text-center text-lg font-black text-slate-900 tracking-tighter">R$ {{ lanc.valor }}</td>
+                            <td class="py-7 text-center">
+                                <span class="badge {% if lanc.status == 'PAGO' %}bg-emerald-500 shadow-emerald-200{% else %}bg-accent text-accent-content shadow-accent/20{% endif %} border-none text-[10px] font-black px-5 py-4 rounded-xl shadow-lg uppercase tracking-widest">{{ lanc.status }}</span>
                             </td>
-                            <td class="py-6 pr-10 text-right">
+                            <td class="py-7 pr-12 text-right">
                                 {% if lanc.status == 'PENDENTE' %}
                                     <form action="{% url 'baixar_lancamento' lanc.id %}" method="post">
                                         {% csrf_token %}<input type="hidden" name="forma_pagamento" value="PIX">
-                                        <button class="btn btn-xs rounded-lg bg-mint-green text-emerald-900 border-none font-black uppercase">Baixar</button>
+                                        <button class="btn btn-sm rounded-xl bg-emerald-500 text-white hover:bg-emerald-600 border-none font-black uppercase px-6 shadow-lg shadow-emerald-200">BAIXAR PIX</button>
                                     </form>
                                 {% endif %}
                             </td>
@@ -216,142 +214,91 @@
             </div>
         </div>
 
-        <!-- ABA 4: CONTRATOS (Apenas a Tabela) -->
-        <div id="contratos" class="tab-pane hidden animate-in fade-in duration-500">
-            <div class="bg-white rounded-[40px] shadow-xl shadow-slate-200/50 border border-white overflow-hidden">
+        <!-- ABA: WHATSAPP -->
+        <div id="whatsapp_tab" class="tab-pane hidden animate-in fade-in duration-500">
+            <div class="bg-white rounded-[3rem] shadow-2xl shadow-slate-200/60 border border-slate-100 overflow-hidden">
                 <table class="table w-full">
                     <thead>
-                        <tr class="border-b border-slate-50">
-                            <th class="bg-white text-[10px] font-black text-slate-400 uppercase tracking-widest py-6 pl-10">Plano</th>
-                            <th class="bg-white text-[10px] font-black text-slate-400 uppercase tracking-widest py-6">Vigência</th>
-                            <th class="bg-white text-[10px] font-black text-slate-400 uppercase tracking-widest py-6 text-center">Situação</th>
-                            <th class="bg-white text-[10px] font-black text-slate-400 uppercase tracking-widest py-6 pr-10 text-right">Ação</th>
+                        <tr class="bg-slate-900">
+                            <th class="text-white text-[11px] font-black uppercase tracking-[2px] py-8 pl-12">Data/Hora</th>
+                            <th class="text-white text-[11px] font-black uppercase tracking-[2px] py-8">Mensagem Enviada</th>
+                            <th class="text-white text-[11px] font-black uppercase tracking-[2px] py-8 text-center">Status</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-50">
-                        {% for c in contratos_completo %}
+                    <tbody class="divide-y divide-slate-100">
+                        {% for log in historico_whatsapp %}
                         <tr class="hover:bg-slate-50 transition-colors">
-                            <td class="py-6 pl-10 text-sm font-black text-slate-700">{{ c.plano.nome }}</td>
-                            <td class="py-6 text-xs text-slate-400 font-bold uppercase">{{ c.data_inicio|date:"d/m/y" }} a {{ c.data_fim|date:"d/m/y" }}</td>
-                            <td class="py-6 text-center">
-                                <span class="badge {% if c.status == 'ATIVO' %}bg-mint-green/20 text-emerald-700{% else %}bg-slate-100 text-slate-400{% endif %} border-none text-[9px] font-black px-4 py-3 rounded-xl">{{ c.status }}</span>
+                            <td class="py-7 pl-12">
+                                <span class="font-black text-slate-900 text-sm">{{ log.data_hora|date:"d/m/Y" }}</span><br>
+                                <span class="text-[10px] text-primary font-black uppercase">{{ log.data_hora|date:"H:i" }}</span>
                             </td>
-                            <td class="py-6 pr-10 text-right">
-                                <a href="{% url 'imprimir_contrato' c.id %}" target="_blank" class="btn btn-ghost btn-square btn-sm text-slate-300 hover:text-slate-800"><i class="fas fa-print"></i></a>
+                            <td class="py-7 text-xs text-slate-600 font-medium italic max-w-md leading-relaxed">"{{ log.mensagem }}"</td>
+                            <td class="py-7 text-center">
+                                {% if "ERRO" in log.status %}
+                                    <span class="badge bg-primary text-white border-none text-[10px] font-black px-5 py-4 rounded-xl shadow-lg uppercase tracking-widest">FALHA</span>
+                                {% else %}
+                                    <span class="badge bg-emerald-500 text-white border-none text-[10px] font-black px-5 py-4 rounded-xl shadow-lg uppercase tracking-widest">ENVIADO</span>
+                                {% endif %}
                             </td>
                         </tr>
+                        {% empty %}
+                        <tr><td colspan="3" class="py-20 text-center text-slate-400 font-bold uppercase text-xs tracking-widest">Nenhuma comunicação registrada.</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
         </div>
 
-        <!-- ABA 5: TERMOS & USO IMAGEM (Limpa) -->
-        <div id="termos" class="tab-pane hidden animate-in fade-in duration-500">
-            <div class="bg-white rounded-[40px] shadow-xl shadow-slate-200/50 border border-white overflow-hidden p-8 md:p-12 text-center">
-                <div class="max-w-2xl mx-auto">
-                    <div class="flex flex-col md:flex-row justify-between items-center mb-12 gap-6">
-                        <div class="text-left">
-                            <h3 class="text-2xl font-black text-slate-800 tracking-tight">Termos & Autorizações</h3>
-                            <p class="text-slate-400 font-medium mt-1 text-sm">Controle de uso de imagem e segurança jurídica</p>
-                        </div>
-                        <button class="btn bg-serene-blue border-none text-white rounded-[20px] px-8 h-14 shadow-lg shadow-blue-200 font-black italic italic" onclick="modal_gerar_termo.showModal()">
-                            <i class="fas fa-file-contract mr-2"></i> Gerar Novo Termo
-                        </button>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {% for termo in aluno.termos.all %}
-                        <div class="bg-slate-50/50 border border-slate-100 p-6 rounded-[30px] flex flex-col items-center gap-4 group hover:bg-white hover:shadow-xl transition-all border border-transparent hover:border-slate-50">
-                            <div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-serene-blue shadow-sm">
-                                <i class="fas fa-file-shield text-xl"></i>
-                            </div>
-                            <div>
-                                <p class="text-sm font-black text-slate-700">{{ termo.template.nome }}</p>
-                                <div class="mt-2">
-                                    {% if termo.data_assinatura %}
-                                        <span class="text-[9px] font-black uppercase text-emerald-500 bg-emerald-50 px-3 py-1.5 rounded-lg">Assinado {{ termo.data_assinatura|date:"d/m" }}</span>
-                                    {% else %}
-                                        <span class="text-[9px] font-black uppercase text-orange-400 bg-orange-50 px-3 py-1.5 rounded-lg">Pendente</span>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            <div class="flex gap-2 w-full mt-4">
-                                <a href="#" class="btn btn-ghost btn-sm flex-1 rounded-xl bg-white border border-slate-100 text-slate-400 hover:text-serene-blue text-[10px] font-bold">Ver</a>
-                                {% if not termo.data_assinatura %}
-                                    <a href="#" class="btn btn-sm flex-1 rounded-xl bg-mint-green border-none text-emerald-900 text-[10px] font-black">Assinar</a>
-                                {% endif %}
-                            </div>
-                        </div>
-                        {% empty %}
-                        <div class="col-span-full py-16 border-2 border-dashed border-slate-100 rounded-[35px]">
-                            <p class="text-slate-300 font-bold text-sm italic">Nenhuma autorização gerada até o momento.</p>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-        </div>
-
     </div>
 </div>
 
-<!-- MODAL: TOTALPASS -->
-<dialog id="modal_totalpass" class="modal">
-  <div class="modal-box bg-white rounded-[35px] p-10 text-center">
-    <div class="w-20 h-20 bg-rose-50 rounded-[2.5rem] flex items-center justify-center text-rose-500 mx-auto mb-6"><i class="fas fa-ticket-alt text-3xl"></i></div>
-    <h3 class="text-2xl font-black text-slate-800 tracking-tight">Validar TotalPass</h3>
-    <input type="text" id="tp_token" placeholder="000 000" class="input input-bordered h-20 text-center text-4xl font-black border-slate-100 bg-slate-50 rounded-3xl w-full mb-8 focus:ring-rose-200" />
-    <button onclick="validarTotalPass()" class="btn btn-primary bg-rose-500 border-none text-white w-full h-16 rounded-2xl shadow-xl shadow-rose-200 font-black uppercase tracking-widest">Verificar Token</button>
-    <div id="tp_msg" class="mt-4"></div>
-    <form method="dialog" class="mt-4"><button class="btn btn-ghost btn-sm text-slate-300 font-bold">Fechar</button></form>
-  </div>
-  <form method="dialog" class="modal-backdrop bg-slate-900/20 backdrop-blur-sm"><button>close</button></form>
-</dialog>
+<!-- ESTILO ADICIONAL PARA AS ABAS STUDIO -->
+<style>
+    .tab-btn {
+        padding: 1rem 2rem;
+        border-radius: 1.25rem;
+        font-weight: 900;
+        font-size: 11px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        transition: all 0.3s ease;
+        border: 1px solid #e2e8f0;
+        white-space: nowrap;
+    }
+    .tab-btn.active {
+        transform: translateY(-2px);
+    }
+</style>
 
-<!-- MODAL: DOCUMENTO -->
+<!-- MODAL: DOCUMENTO (ESTILO STUDIO) -->
 <dialog id="modal_documento" class="modal">
-    <div class="modal-box bg-white rounded-[32px] p-10">
-      <h3 class="text-xl font-black text-slate-800 mb-6">Anexar Documento</h3>
-      <form action="{% url 'upload_documento_extra' aluno.pk %}" method="post" enctype="multipart/form-data" class="space-y-6">
-          {% csrf_token %}
-          <input type="file" name="arquivo" class="file-input file-input-bordered bg-slate-50 border-slate-100 rounded-xl w-full" required />
-          <input type="text" name="descricao" class="input input-bordered bg-slate-50 border-slate-100 rounded-xl w-full h-14" placeholder="Descrição (Ex: Atestado)" />
-          <button type="submit" class="btn btn-primary w-full h-14 bg-serene-blue border-none text-white rounded-xl shadow-lg shadow-blue-200 font-black italic">Upload Documento</button>
-      </form>
-      <form method="dialog" class="mt-4 text-center"><button class="btn btn-ghost btn-xs text-slate-300">Cancelar</button></form>
-    </div>
-    <form method="dialog" class="modal-backdrop bg-slate-900/20 backdrop-blur-sm"><button>close</button></form>
-</dialog>
-
-<!-- MODAL: NOVO TERMO -->
-<dialog id="modal_gerar_termo" class="modal">
-    <div class="modal-box bg-white rounded-[35px] p-10 max-w-md">
-      <div class="text-center mb-8">
-          <div class="w-20 h-20 bg-serene-blue/10 rounded-[2rem] flex items-center justify-center text-serene-blue mx-auto mb-4"><i class="fas fa-file-contract text-3xl"></i></div>
-          <h3 class="text-xl font-black text-slate-800 tracking-tight">Gerar Autorização</h3>
-          <p class="text-xs text-slate-400 font-bold uppercase mt-1">Selecione o modelo desejado</p>
+    <div class="modal-box bg-white rounded-[3rem] p-12 shadow-2xl border border-slate-100">
+      <div class="flex items-center gap-4 mb-10">
+          <div class="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
+              <i class="fas fa-file-upload text-xl"></i>
+          </div>
+          <h3 class="text-2xl font-black text-slate-900 tracking-tighter uppercase">Anexar Documento</h3>
       </div>
-      <form action="{% url 'gerar_termo_aluno' aluno.id %}" method="post" class="space-y-8">
+      <form action="{% url 'upload_documento_extra' aluno.pk %}" method="post" enctype="multipart/form-data" class="space-y-8">
           {% csrf_token %}
           <div class="form-control">
-              <label class="label"><span class="label-text text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Modelo de Documento</span></label>
-              <select name="template_id" class="select select-bordered bg-slate-50 border-slate-100 rounded-2xl h-14 font-bold text-slate-600 focus:ring-2 focus:ring-serene-blue/20" required>
-                  <option value="" disabled selected>Escolha um modelo...</option>
-                  {% for t in termo_templates %}
-                      <option value="{{ t.id }}">{{ t.nome }}</option>
-                  {% endfor %}
-              </select>
+              <label class="label mb-2"><span class="label-text font-black text-slate-400 text-[10px] uppercase tracking-widest">Título do Arquivo</span></label>
+              <input type="text" name="titulo" class="input bg-slate-50 border-2 border-slate-200 rounded-2xl w-full h-14 font-black text-slate-900 focus:border-primary" placeholder="EX: ATESTADO MÉDICO" required />
           </div>
-          <div class="flex gap-4">
-              <button type="button" class="btn btn-ghost flex-1 rounded-2xl text-slate-400 font-bold" onclick="modal_gerar_termo.close()">Cancelar</button>
-              <button type="submit" class="btn bg-serene-blue border-none text-white flex-1 h-14 rounded-2xl shadow-xl shadow-blue-200 font-black italic">Gerar Agora</button>
+          <div class="form-control">
+              <label class="label mb-2"><span class="label-text font-black text-slate-400 text-[10px] uppercase tracking-widest">Selecionar PDF ou Imagem</span></label>
+              <input type="file" name="arquivo" class="file-input w-full h-14 bg-slate-50 rounded-2xl border-2 border-slate-200" required />
           </div>
+          <button type="submit" class="btn bg-primary hover:bg-red-900 border-none text-white rounded-2xl w-full h-16 font-black uppercase tracking-widest shadow-xl shadow-primary/30 transition-all hover:scale-[1.02]">
+              CONCLUIR UPLOAD
+          </button>
       </form>
+      <form method="dialog" class="mt-6 text-center"><button class="btn btn-ghost btn-xs text-slate-300 font-bold uppercase tracking-widest">Cancelar e Voltar</button></form>
     </div>
-    <form method="dialog" class="modal-backdrop bg-slate-900/20 backdrop-blur-sm"><button>close</button></form>
+    <form method="dialog" class="modal-backdrop bg-slate-900/40 backdrop-blur-sm"><button>close</button></form>
 </dialog>
 
+<!-- SCRIPTS -->
 <script>
     function openTab(evt, tabName) {
         var i, tabcontent, tablinks;
@@ -360,15 +307,25 @@
             tabcontent[i].classList.add("hidden");
             tabcontent[i].classList.remove("block");
         }
-        tablinks = document.getElementsByClassName("tab");
+        tablinks = document.getElementsByClassName("tab-btn");
         for (i = 0; i < tablinks.length; i++) {
-            tablinks[i].classList.remove("active", "bg-white", "shadow-sm", "border-slate-100", "text-slate-700");
-            tablinks[i].classList.add("bg-transparent", "text-slate-400");
+            tablinks[i].classList.remove("active", "bg-primary", "text-white", "shadow-xl", "shadow-primary/30");
+            tablinks[i].classList.add("bg-white", "text-slate-400");
         }
         document.getElementById(tabName).classList.remove("hidden");
         document.getElementById(tabName).classList.add("block");
-        evt.currentTarget.classList.add("active", "bg-white", "shadow-sm", "border-slate-100", "text-slate-700");
-        evt.currentTarget.classList.remove("bg-transparent", "text-slate-400");
+        evt.currentTarget.classList.add("active", "bg-primary", "text-white", "shadow-xl", "shadow-primary/30");
+        evt.currentTarget.classList.remove("bg-white", "text-slate-400");
+    }
+
+    function enviarCobranca(alunoId) {
+        if (!confirm('Confirmar envio de cobrança via WhatsApp?')) return;
+        fetch(`/comunicacao/enviar-cobranca/${alunoId}/`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'ok') { alert('Cobrança enviada!'); location.reload(); }
+                else { alert('Erro: ' + data.message); }
+            });
     }
 </script>
 {% endblock %}

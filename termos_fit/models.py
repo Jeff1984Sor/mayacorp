@@ -7,6 +7,7 @@ class TermoTemplate(models.Model):
         ('RESPONSABILIDADE', 'Termo de Responsabilidade'),
         ('LGPD', 'Consentimento LGPD'),
     ]
+    organizacao = models.ForeignKey('core.Organizacao', on_delete=models.CASCADE)
     nome = models.CharField(max_length=100)
     tipo = models.CharField(max_length=30, choices=TIPO_CHOICES, default='USO_IMAGEM')
     texto_html = models.TextField()

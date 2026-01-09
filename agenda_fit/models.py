@@ -26,6 +26,13 @@ class Aula(models.Model):
     evolucao_texto = models.TextField(blank=True, verbose_name="Evolução / Prontuário")
     
     criado_em = models.DateTimeField(auto_now_add=True)
+    tipo_servico = models.ForeignKey(
+        'cadastros_fit.TipoServico', 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True,
+        verbose_name="Tipo de Serviço"
+    )
 
     def __str__(self):
         return f"Aula {self.data_hora_inicio.strftime('%d/%m %H:%M')} - {self.profissional}"

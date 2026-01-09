@@ -67,8 +67,8 @@ def gerar_agenda(contrato, data_inicio_forcada=None):
 
     data_atual = data_inicio_forcada or contrato.data_inicio
     data_fim = contrato.data_fim
+    agora = timezone.now() # Pegamos o horário atual para comparar
     
-    # Evita loop infinito se datas estiverem erradas
     if data_atual > data_fim: return
 
     while data_atual <= data_fim:
@@ -79,20 +79,32 @@ def gerar_agenda(contrato, data_inicio_forcada=None):
                 inicio = timezone.make_aware(timezone.datetime.combine(data_atual, h.horario))
                 fim = inicio + timedelta(hours=1)
                 
-                aula, _ = Aula.objects.get_or_create(
+                # Definimos o status baseado na data: se for futuro, é AGENDADA
+                status_inicial = 'AGENDADA' if inicio > agora else 'REALIZADA'
+
+                aula, created = Aula.objects.get_or_create(
                     data_hora_inicio=inicio,
                     profissional=h.profissional,
                     defaults={
-                         # Atenção se removeu campo organizacao do plano
                         'unidade': contrato.unidade,
                         'data_hora_fim': fim,
-                        'status': 'AGENDADA'
+                        'status': status_inicial # Define o status ao criar
                     }
                 )
+
+                # Se a aula já existia mas é futura, garantimos que o status dela seja AGENDADA
+                if not created and inicio > agora and aula.status != 'AGENDADA':
+                    aula.status = 'AGENDADA'
+                    aula.save()
                 
-                if aula.presencas.count() < aula.capacidade_maxima:
+                if aula.presencas.count() < 10: # Ajuste para sua capacidade máxima
                     if not aula.presencas.filter(aluno=contrato.aluno).exists():
-                        Presenca.objects.create(aula=aula, aluno=contrato.aluno)
+                        # CRIAMOS A PRESENÇA COM STATUS EXPLÍCITO
+                        Presenca.objects.create(
+                            aula=aula, 
+                            aluno=contrato.aluno,
+                            status=status_inicial # Garante que a presença do aluno também seja AGENDADA
+                        )
         
         data_atual += timedelta(days=1)
 

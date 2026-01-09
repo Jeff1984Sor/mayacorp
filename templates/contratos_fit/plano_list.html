@@ -1,91 +1,100 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Planos & Preços - MayaCorp{% endblock %}
+{% block title %}Planos & Preços | MayaCorp Fit{% endblock %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto pb-10">
+<div class="max-w-7xl mx-auto pb-24 px-4">
     
-    <!-- HEADER -->
-    <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4 px-2">
-        <div class="flex items-center gap-4">
-            <div class="w-14 h-14 bg-soft-lavender/30 rounded-[22px] flex items-center justify-center text-purple-600 shadow-sm border border-white">
+    <!-- HEADER: Identidade Studio Premium -->
+    <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-8 px-2">
+        <div class="flex items-center gap-6">
+            <!-- Ícone em MARSALA -->
+            <div class="w-16 h-16 bg-primary rounded-[22px] flex items-center justify-center text-white shadow-xl shadow-primary/30 border-2 border-white transition-transform hover:scale-110">
                 <i class="fas fa-tags text-2xl"></i>
             </div>
             <div>
-                <h1 class="text-3xl font-black text-slate-800 tracking-tight">Planos & Preços</h1>
-                <p class="text-[10px] text-slate-400 font-black uppercase tracking-[2px] mt-1">
-                    {{ planos|length }} pacotes configurados para venda
+                <h1 class="text-4xl font-black text-slate-900 tracking-tighter uppercase">Planos & Preços</h1>
+                <p class="text-[11px] text-primary font-black uppercase tracking-[3px] mt-1">
+                    Gestão de <span class="text-slate-900">{{ planos|length }}</span> Pacotes Comerciais
                 </p>
             </div>
         </div>
         
+        <!-- Botão Novo em AZUL VIBRANTE -->
         <a href="{% url 'plano_create' %}" 
-           class="btn bg-serene-blue border-none text-white rounded-2xl px-8 h-14 shadow-xl shadow-blue-200 hover:bg-blue-400 hover:scale-[1.02] transition-all normal-case font-black italic">
-            <i class="fas fa-plus mr-2 text-xs"></i> Novo Plano
+           class="btn bg-secondary border-none text-white rounded-2xl px-10 h-16 shadow-2xl shadow-secondary/30 hover:bg-blue-800 hover:scale-105 transition-all font-black uppercase tracking-widest text-xs">
+            <i class="fas fa-plus-circle mr-2 text-lg"></i> CRIAR NOVO PLANO
         </a>
     </header>
 
-    <!-- TABELA DE PLANOS (Card Soft UI) -->
-    <div class="bg-white rounded-[40px] shadow-2xl shadow-slate-200/50 overflow-hidden border border-white">
+    <!-- LISTA DE PLANOS (Card de Luxo e Alta Nitidez) -->
+    <div class="bg-white rounded-[3rem] shadow-2xl shadow-slate-200/60 overflow-hidden border border-slate-100 relative">
+        
+        <!-- Detalhe decorativo lateral -->
+        <div class="absolute left-0 top-0 w-2 h-full bg-primary opacity-20"></div>
+
         <div class="overflow-x-auto">
             <table class="table w-full border-collapse">
-                <!-- CABEÇALHO -->
+                <!-- CABEÇALHO MÁXIMO CONTRASTE -->
                 <thead>
-                    <tr class="border-b border-slate-50">
-                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[2px] font-black py-8 pl-10">Nome do Plano</th>
-                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[2px] font-black py-8">Duração</th>
-                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[2px] font-black py-8 text-center">Frequência</th>
-                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[2px] font-black py-8 text-center">Valor Mensal</th>
-                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[2px] font-black py-8 pr-10 text-right">Ações</th>
+                    <tr class="bg-slate-900 border-none">
+                        <th class="text-white uppercase text-[11px] tracking-[2px] font-black py-8 pl-12 text-left">Nome do Plano / Pacote</th>
+                        <th class="text-white uppercase text-[11px] tracking-[2px] font-black py-8 text-left">Duração Contratual</th>
+                        <th class="text-white uppercase text-[11px] tracking-[2px] font-black py-8 text-center">Frequência de Aulas</th>
+                        <th class="text-white uppercase text-[11px] tracking-[2px] font-black py-8 text-center">Investimento Mensal</th>
+                        <th class="text-white uppercase text-[11px] tracking-[2px] font-black py-8 pr-12 text-right">Gestão</th>
                     </tr>
                 </thead>
                 
-                <tbody class="divide-y divide-slate-50">
+                <tbody class="divide-y divide-slate-100">
                     {% for plano in planos %}
-                    <tr class="hover:bg-slate-50/50 transition-colors group">
+                    <tr class="hover:bg-primary/5 transition-colors group">
                         
-                        <!-- NOME DO PLANO -->
-                        <td class="py-6 pl-10">
-                            <div class="flex items-center gap-4">
-                                <div class="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-300 group-hover:bg-serene-blue/10 group-hover:text-serene-blue transition-all">
-                                    <i class="fas fa-box-open text-xs"></i>
+                        <!-- NOME DO PLANO (MARSALA E PRETO) -->
+                        <td class="py-7 pl-12">
+                            <div class="flex items-center gap-5">
+                                <div class="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all shadow-sm">
+                                    <i class="fas fa-award text-lg"></i>
                                 </div>
-                                <span class="text-slate-800 font-black text-sm tracking-tight">{{ plano.nome }}</span>
+                                <span class="text-slate-900 font-black text-lg tracking-tighter uppercase group-hover:text-primary transition-colors">{{ plano.nome }}</span>
                             </div>
                         </td>
 
-                        <!-- DURAÇÃO -->
-                        <td class="py-6 text-sm font-bold text-slate-500">
-                            {{ plano.duracao_meses }} meses
+                        <!-- DURAÇÃO (NÍTIDA) -->
+                        <td class="py-7 text-sm font-black text-slate-700 uppercase tracking-tight">
+                            <span class="bg-slate-100 px-4 py-2 rounded-xl border border-slate-200">{{ plano.duracao_meses }} meses</span>
                         </td>
 
-                        <!-- FREQUÊNCIA (Badge Mint Green) -->
-                        <td class="py-6 text-center">
-                            <div class="badge bg-mint-green/20 border-none text-emerald-700 text-[10px] font-black py-4 px-5 rounded-xl uppercase tracking-tighter">
+                        <!-- FREQUÊNCIA (BADGE AZUL) -->
+                        <td class="py-7 text-center">
+                            <div class="badge bg-secondary border-none text-white text-[10px] font-black py-4 px-6 rounded-xl shadow-lg shadow-secondary/20 uppercase tracking-widest">
                                 {{ plano.frequencia_semanal }}x por semana
                             </div>
                         </td>
 
-                        <!-- VALOR (Estilo Lavender) -->
-                        <td class="py-6 text-center">
-                            <div class="text-purple-600 font-black text-lg italic tracking-tighter">
-                                <span class="text-[10px] not-italic mr-1 text-purple-300">R$</span> {{ plano.valor_mensal }}
+                        <!-- VALOR (MARSALA DESTAQUE) -->
+                        <td class="py-7 text-center">
+                            <div class="flex flex-col items-center">
+                                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Custo Médio</span>
+                                <div class="text-2xl font-black text-primary tracking-tighter">
+                                    <span class="text-xs not-italic mr-1 opacity-60">R$</span>{{ plano.valor_mensal }}
+                                </div>
                             </div>
                         </td>
 
-                        <!-- AÇÕES -->
-                        <td class="py-6 pr-10 text-right">
-                            <div class="flex justify-end gap-2">
+                        <!-- AÇÕES (AZUL E MARSALA) -->
+                        <td class="py-7 pr-12 text-right">
+                            <div class="flex justify-end gap-3">
                                 <a href="{% url 'plano_update' plano.pk %}" 
-                                   class="btn btn-square btn-sm rounded-xl bg-slate-50 border-none text-slate-300 hover:text-serene-blue transition-all" 
-                                   title="Editar">
-                                    <i class="fas fa-pen text-xs"></i>
+                                   class="btn btn-square btn-sm rounded-xl bg-slate-100 border-none text-slate-400 hover:bg-secondary hover:text-white transition-all shadow-sm" 
+                                   title="Editar Configurações">
+                                    <i class="fas fa-pen-to-square text-base"></i>
                                 </a>
                                 <a href="{% url 'plano_delete' plano.pk %}" 
-                                   class="btn btn-square btn-sm rounded-xl bg-slate-50 border-none text-slate-300 hover:text-rose-500 transition-all" 
-                                   title="Excluir">
-                                    <i class="fas fa-trash text-xs"></i>
+                                   class="btn btn-square btn-sm rounded-xl bg-slate-100 border-none text-slate-400 hover:bg-primary hover:text-white transition-all shadow-sm" 
+                                   title="Remover Plano">
+                                    <i class="fas fa-trash-can text-base"></i>
                                 </a>
                             </div>
                         </td>
@@ -94,11 +103,12 @@
                     <tr>
                         <td colspan="5" class="py-32 text-center">
                             <div class="flex flex-col items-center">
-                                <div class="w-24 h-24 bg-slate-50 rounded-[3rem] flex items-center justify-center text-slate-200 mb-6 border border-dashed border-slate-200">
+                                <div class="w-28 h-28 bg-slate-50 rounded-[3rem] flex items-center justify-center text-slate-200 mb-8 border-2 border-dashed border-slate-200">
                                     <i class="fas fa-tags text-4xl"></i>
                                 </div>
-                                <h3 class="text-slate-400 font-black uppercase text-sm tracking-widest">Nenhum plano cadastrado</h3>
-                                <p class="text-slate-300 text-xs mt-2 italic">Crie seu primeiro pacote de aulas para começar a vender.</p>
+                                <h3 class="text-slate-900 text-2xl font-black tracking-tight uppercase">Sua prateleira está vazia</h3>
+                                <p class="text-slate-400 mt-2 font-bold uppercase tracking-widest text-[11px]">Crie o primeiro pacote de aulas para o seu studio.</p>
+                                <a href="{% url 'plano_create' %}" class="btn btn-primary mt-10 rounded-2xl px-12 h-14 font-black">CRIAR PRIMEIRO PLANO</a>
                             </div>
                         </td>
                     </tr>
@@ -108,9 +118,12 @@
         </div>
     </div>
 
-    <!-- RODAPÉ -->
-    <div class="mt-12 text-center">
-        <p class="text-[10px] text-slate-300 font-bold uppercase tracking-[3px]">MayaCorp Pricing Strategy Module</p>
+    <!-- RODAPÉ TÉCNICO -->
+    <div class="mt-16 text-center">
+        <div class="inline-flex items-center gap-3 px-8 py-3 bg-white rounded-full border border-slate-200 shadow-xl">
+            <div class="w-2.5 h-2.5 bg-accent rounded-full animate-pulse shadow-[0_0_8px_rgba(250,204,21,0.6)]"></div>
+            <span class="text-[10px] font-black text-slate-500 uppercase tracking-[2px]">Estratégia de Precificação MayaCorp Fit v4.0</span>
+        </div>
     </div>
 </div>
 {% endblock %}

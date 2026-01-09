@@ -3,46 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ titulo }} | MayaCorp Print</title>
-    <!-- Tailwind CSS para o estilo MayaCorp -->
+    <title>{{ titulo }} | MayaCorp Fit Print</title>
+    <!-- Tailwind CSS (Vibrante) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     
+    <script>
+        tailwind.config = {
+          theme: {
+            extend: {
+              colors: {
+                primary: '#802422',   // Marsala
+                secondary: '#2563EB', // Azul Vibrante
+                accent: '#FACC15',    // Amarelo Destaque
+              }
+            }
+          }
+        }
+    </script>
+
     <style>
-        /* Fonte Inter para a interface e Playfair para o contrato (mais elegante que Times) */
-        body { font-family: 'Inter', sans-serif; background-color: #F1F5F9; }
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; -webkit-font-smoothing: antialiased; }
         .contrato-serif { font-family: 'Playfair Display', serif; }
         
-        /* Simulação de Folha A4 com Soft UI */
+        /* Simulação de Folha A4 Premium */
         .page {
             background: white;
             width: 21cm;
             min-height: 29.7cm;
-            padding: 2.5cm; /* Margens generosas */
-            margin: 2rem auto;
-            border-radius: 40px; /* Bordas Soft UI */
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+            padding: 2.5cm;
+            margin: 3rem auto;
+            border-radius: 2rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.2);
             position: relative;
-            border: 1px solid white;
+            border: 1px solid #e5e7eb;
         }
 
-        /* Área de Assinaturas */
+        /* Linhas de Assinatura Nítidas */
         .assinaturas {
-            margin-top: 4rem;
+            margin-top: 5rem;
             display: grid;
-            grid-template-cols: 1fr 1fr;
-            gap: 4rem;
+            grid-template-columns: 1fr 1fr;
+            gap: 5rem;
             page-break-inside: avoid;
         }
         .linha-assinatura {
-            border-top: 1px solid #E2E8F0;
+            border-top: 2px solid #0f172a;
             text-align: center;
-            padding-top: 1rem;
+            padding-top: 1.5rem;
             position: relative;
         }
 
-        /* Estilo de Impressão */
+        /* Estilo de Impressão Studio Luxo */
         @media print {
             body { background: white !important; padding: 0 !important; margin: 0 !important; }
             .page { 
@@ -55,84 +68,115 @@
             }
             .no-print { display: none !important; }
             .page-break { page-break-before: always; }
+            .primary-print { color: #802422 !important; }
         }
     </style>
 </head>
-<body class="p-4 md:p-8">
+<body class="p-4 md:p-10">
 
-    <!-- BARRA DE FERRAMENTAS FLUTUANTE (Glassmorphism) -->
-    <nav class="no-print fixed top-6 left-1/2 -translate-x-1/2 z-50">
-        <div class="bg-white/80 backdrop-blur-xl border border-white px-6 py-4 rounded-[2rem] shadow-2xl flex items-center gap-6">
-            <div class="flex items-center gap-3 pr-6 border-r border-slate-100">
-                <div class="w-8 h-8 bg-serene-blue/20 rounded-xl flex items-center justify-center text-serene-blue">
+    <!-- BARRA DE FERRAMENTAS FLUTUANTE (MÁXIMA NITIDEZ) -->
+    <nav class="no-print fixed top-8 left-1/2 -translate-x-1/2 z-50 w-full max-w-xl px-4">
+        <div class="bg-slate-900/90 backdrop-blur-2xl border border-white/10 px-8 py-5 rounded-[2.5rem] shadow-2xl flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white shadow-lg shadow-primary/20">
                     <i class="fas fa-file-pdf"></i>
                 </div>
-                <span class="text-xs font-black text-slate-700 uppercase tracking-widest">Contrato Digital</span>
+                <div class="flex flex-col">
+                    <span class="text-xs font-black text-white uppercase tracking-widest">Contrato MayaCorp</span>
+                    <span class="text-[9px] font-bold text-slate-400 uppercase">Visualização de Impressão</span>
+                </div>
             </div>
             
-            <div class="flex gap-2">
-                <button onclick="window.print()" class="btn bg-mint-green hover:bg-emerald-400 border-none text-emerald-900 rounded-xl px-6 h-11 text-xs font-black uppercase tracking-tighter flex items-center gap-2 shadow-lg shadow-mint-green/20 transition-all">
-                    <i class="fas fa-print"></i> Imprimir / Salvar
+            <div class="flex gap-3">
+                <button onclick="window.print()" class="btn bg-secondary hover:bg-blue-700 border-none text-white rounded-2xl px-8 h-12 text-[10px] font-black uppercase tracking-widest flex items-center gap-3 shadow-xl shadow-secondary/30 transition-all hover:scale-105">
+                    <i class="fas fa-print text-sm"></i> IMPRIMIR
                 </button>
-                <button onclick="window.close()" class="btn bg-slate-100 hover:bg-slate-200 border-none text-slate-500 rounded-xl px-6 h-11 text-xs font-black uppercase tracking-tighter transition-all">
-                    Fechar
+                <button onclick="window.close()" class="btn bg-white/10 hover:bg-white/20 border-none text-white rounded-2xl px-6 h-12 text-[10px] font-black uppercase tracking-widest transition-all">
+                    FECHAR
                 </button>
             </div>
         </div>
     </nav>
 
-    <!-- Espaço para a barra flutuante não cobrir o conteúdo inicial na tela -->
-    <div class="h-20 no-print"></div>
+    <!-- Espaço para a barra flutuante -->
+    <div class="h-28 no-print"></div>
 
-    <!-- FOLHA A4 -->
-    <div class="page">
+    <!-- FOLHA A4 (VIsual Premium) -->
+    <div class="page shadow-2xl">
         
-        <!-- Marca d'água sutil (Opcional) -->
-        <div class="absolute top-10 right-10 opacity-5 no-print">
-            <i class="fas fa-dumbbell text-8xl"></i>
+        <!-- Cabeçalho do Documento em Marsala -->
+        <div class="flex justify-between items-start mb-16 border-b-4 border-primary pb-8">
+            <div class="flex flex-col">
+                <h2 class="text-3xl font-black text-primary tracking-tighter uppercase leading-none">MayaCorp Fit</h2>
+                <span class="text-[10px] font-black text-slate-900 uppercase tracking-[4px] mt-2">Studio de Performance</span>
+            </div>
+            <div class="text-right">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Documento Digital</p>
+                <p class="text-xs font-black text-slate-900 mt-1 uppercase">{{ contrato.unidade.nome }}</p>
+            </div>
         </div>
 
-        <!-- Conteúdo do Contrato -->
-        <div class="contrato-serif text-[12pt] leading-relaxed text-justify text-slate-800">
+        <!-- Conteúdo do Contrato (MÁXIMA NITIDEZ NO TEXTO) -->
+        <div class="contrato-serif text-[12pt] leading-relaxed text-justify text-slate-900">
             {{ conteudo|safe }}
         </div>
 
-        <!-- Bloco de Assinaturas -->
+        <!-- Bloco de Assinaturas (Visual Studio Luxo) -->
         <div class="assinaturas">
             
             <!-- Assinatura Empresa -->
             <div class="linha-assinatura">
-                <p class="text-[10px] font-black text-slate-800 uppercase tracking-widest">MayaCorp Fit</p>
-                <p class="text-[9px] text-slate-400 font-bold uppercase mt-1">CNPJ: 00.000.000/0001-00</p>
+                <p class="text-[11px] font-black text-slate-900 uppercase tracking-widest">MayaCorp Fit - Unidade {{ contrato.unidade.nome }}</p>
+                <p class="text-[9px] font-bold text-primary uppercase mt-1 tracking-tighter">Representante Legal</p>
             </div>
 
             <!-- Assinatura Aluno -->
             <div class="linha-assinatura">
                 
                 {% if contrato.assinatura_imagem %}
-                    <!-- Assinatura Digital Flutuante -->
-                    <div class="absolute bottom-16 left-1/2 -translate-x-1/2 w-40 opacity-90">
-                        <img src="{{ contrato.assinatura_imagem }}" class="max-w-full grayscale contrast-125">
+                    <!-- Selo de Assinatura Digital (AMARELO DESTAQUE) -->
+                    <div class="absolute -top-16 left-1/2 -translate-x-1/2 w-48 pointer-events-none">
+                        <img src="{{ contrato.assinatura_imagem }}" class="max-w-full contrast-125 saturate-0 group-hover:saturate-100 transition-all">
+                        
+                        <!-- Badge de Verificação Digital -->
+                        <div class="absolute -top-4 -right-4 bg-accent text-amber-900 px-3 py-1 rounded-lg text-[8px] font-black flex items-center gap-1 shadow-lg border border-white">
+                            <i class="fas fa-certificate"></i> VERIFICADO
+                        </div>
                     </div>
                 {% endif %}
 
-                <p class="text-[10px] font-black text-slate-800 uppercase tracking-widest">{{ contrato.aluno.nome }}</p>
-                <p class="text-[9px] text-slate-400 font-bold uppercase mt-1">Contratante</p>
+                <p class="text-[11px] font-black text-slate-900 uppercase tracking-widest">{{ contrato.aluno.nome|upper }}</p>
+                <p class="text-[9px] font-bold text-primary uppercase mt-1 tracking-tighter">Contratante / Responsável</p>
                 
                 {% if contrato.data_assinatura %}
-                    <div class="mt-4 pt-4 border-t border-dashed border-slate-100">
-                        <p class="text-[8px] text-slate-400 font-medium">Assinado digitalmente em: {{ contrato.data_assinatura|date:"d/m/Y H:i" }}</p>
-                        <p class="text-[8px] text-slate-300 font-mono">Autenticação IP: {{ contrato.ip_assinatura }}</p>
+                    <div class="mt-6 pt-4 border-t border-dashed border-slate-200">
+                        <div class="flex items-center justify-center gap-2 mb-1">
+                            <i class="fas fa-shield-halved text-primary text-[8px]"></i>
+                            <p class="text-[8px] text-slate-500 font-black uppercase tracking-widest">Autenticação MayaCorp Secure</p>
+                        </div>
+                        <p class="text-[8px] text-slate-400 font-medium">Assinado em: {{ contrato.data_assinatura|date:"d/m/Y H:i" }}</p>
+                        <p class="text-[7px] text-slate-300 font-mono mt-1">LOG ID: {{ contrato.ip_assinatura }}</p>
                     </div>
                 {% endif %}
             </div>
         </div>
 
+        <!-- Marca d'água de Rodapé (MARSALA) -->
+        <div class="absolute bottom-10 left-10 opacity-10">
+            <i class="fas fa-dumbbell text-6xl text-primary"></i>
+        </div>
+
     </div>
 
-    <!-- Footer sutil apenas na tela -->
-    <div class="no-print text-center py-10">
-        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-[4px]">MayaCorp Document Security Protocol</p>
+    <!-- Footer sutil apenas na tela (AZUL E MARSALA) -->
+    <div class="no-print text-center py-12 flex flex-col items-center gap-4">
+        <div class="w-12 h-1 bg-slate-200 rounded-full mb-2"></div>
+        <p class="text-[10px] text-slate-400 font-black uppercase tracking-[4px]">MayaCorp Document Integrity Module v4.2</p>
+        <div class="flex items-center gap-3">
+            <div class="w-2 h-2 bg-primary rounded-full"></div>
+            <div class="w-2 h-2 bg-secondary rounded-full"></div>
+            <div class="w-2 h-2 bg-accent rounded-full"></div>
+        </div>
     </div>
 
 </body>

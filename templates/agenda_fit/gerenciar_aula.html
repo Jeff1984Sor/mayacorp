@@ -1,107 +1,126 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Gerenciar Aula - MayaCorp{% endblock %}
+{% block title %}Gerenciar Aula - MayaCorp Fit{% endblock %}
 
 {% block content %}
-<div class="max-w-3xl mx-auto pb-20">
+<div class="max-w-3xl mx-auto pb-24 px-4">
     
-    <!-- HEADER: Título e Identificação -->
-    <header class="flex justify-between items-center mb-10">
-        <div class="flex items-center gap-4">
-            <div class="w-14 h-14 bg-mint-green/20 rounded-[20px] flex items-center justify-center text-emerald-600 shadow-sm">
-                <i class="fas fa-clipboard-check text-2xl"></i>
+    <!-- HEADER: Título e Identificação do Studio -->
+    <header class="flex justify-between items-center mb-12">
+        <div class="flex items-center gap-5">
+            <!-- Ícone em MARSALA -->
+            <div class="w-16 h-16 bg-primary rounded-[22px] flex items-center justify-center text-white shadow-xl shadow-primary/30">
+                <i class="fas fa-clipboard-list text-3xl"></i>
             </div>
             <div>
-                <h1 class="text-2xl font-black text-slate-800 tracking-tight">Gerenciar Aula</h1>
-                <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">
-                    {{ aula.data_hora_inicio|date:"d/m/Y" }} • {{ aula.data_hora_inicio|date:"H:i" }} • Prof. {{ aula.profissional.nome_social|default:aula.profissional.nome }}
+                <h1 class="text-3xl font-black text-slate-900 tracking-tighter">Gerenciar Aula</h1>
+                <p class="text-xs text-primary font-black uppercase tracking-[3px] mt-1">
+                    {{ aula.data_hora_inicio|date:"d/m/Y" }} • {{ aula.data_hora_inicio|date:"H:i" }}
+                </p>
+                <p class="text-[11px] text-slate-500 font-bold uppercase tracking-widest">
+                    Prof. {{ aula.profissional.nome }}
                 </p>
             </div>
         </div>
-        <a href="{% url 'calendario_semanal' %}" class="btn btn-ghost btn-circle text-slate-400">
-            <i class="fas fa-times text-xl"></i>
+        <a href="{% url 'calendario_semanal' %}" class="btn btn-ghost btn-circle text-slate-400 hover:text-primary transition-all">
+            <i class="fas fa-times text-2xl"></i>
         </a>
     </header>
 
-    <form method="post" class="space-y-8">
+    <form method="post" class="space-y-10">
         {% csrf_token %}
         
-        <!-- CARD: LISTA DE CHAMADA -->
-        <section class="bg-white rounded-[32px] shadow-xl shadow-slate-200/50 border border-white overflow-hidden">
-            <div class="p-8 border-b border-slate-50 flex items-center justify-between">
-                <h3 class="text-sm font-black text-slate-400 uppercase tracking-[2px]">Lista de Chamada</h3>
-                <span class="badge badge-ghost bg-slate-50 text-slate-400 font-bold">{{ aula.presencas.all.count }} Alunos</span>
+        <!-- CARD: LISTA DE CHAMADA (Foco em Nitidez) -->
+        <section class="bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200/60 border border-slate-50 overflow-hidden">
+            <div class="p-8 bg-slate-50/80 border-b border-slate-100 flex items-center justify-between">
+                <h3 class="text-xs font-black text-slate-900 uppercase tracking-[3px]">Lista de Presença</h3>
+                <span class="px-4 py-1.5 bg-primary text-white text-[10px] font-black rounded-full shadow-lg shadow-primary/20">
+                    {{ aula.presencas.all.count }} AGENDADOS
+                </span>
             </div>
             
-            <div class="divide-y divide-slate-50">
+            <div class="divide-y divide-slate-100">
                 {% for presenca in aula.presencas.all %}
-                <div class="p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-slate-50/50 transition-colors">
-                    <span class="text-lg font-bold text-slate-700">{{ presenca.aluno.nome }}</span>
+                <div class="p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:bg-primary/5 transition-colors group">
+                    <span class="text-xl font-black text-slate-900 group-hover:text-primary transition-colors uppercase tracking-tighter">
+                        {{ presenca.aluno.nome }}
+                    </span>
                     
-                    <!-- Seleção de Status (Custom Radios Estilo Soft UI) -->
-                    <div class="flex gap-2 p-1 bg-slate-100/50 rounded-2xl w-fit">
-                        <!-- Presente -->
+                    <!-- Seleção de Status (VIBRANTE) -->
+                    <div class="flex gap-3 p-1.5 bg-slate-100 rounded-2xl w-fit border border-slate-200 shadow-inner">
+                        <!-- Presente (Verde) -->
                         <label class="cursor-pointer">
                             <input type="radio" name="status_{{ presenca.id }}" value="PRESENTE" class="peer hidden" {% if presenca.status == 'PRESENTE' %}checked{% endif %}>
-                            <div class="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider text-slate-400 transition-all
-                                        peer-checked:bg-mint-green peer-checked:text-emerald-900 peer-checked:shadow-lg peer-checked:shadow-mint-green/30">
-                                Presente
+                            <div class="px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[1px] text-slate-500 transition-all
+                                        peer-checked:bg-emerald-500 peer-checked:text-white peer-checked:shadow-lg peer-checked:shadow-emerald-200">
+                                PRESENTE
                             </div>
                         </label>
                         
-                        <!-- Falta -->
+                        <!-- Falta (Marsala) -->
                         <label class="cursor-pointer">
                             <input type="radio" name="status_{{ presenca.id }}" value="FALTA" class="peer hidden" {% if presenca.status == 'FALTA' %}checked{% endif %}>
-                            <div class="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider text-slate-400 transition-all
-                                        peer-checked:bg-rose-100 peer-checked:text-rose-700 peer-checked:shadow-lg peer-checked:shadow-rose-100">
-                                Falta
+                            <div class="px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[1px] text-slate-500 transition-all
+                                        peer-checked:bg-primary peer-checked:text-white peer-checked:shadow-lg peer-checked:shadow-primary/20">
+                                FALTA
                             </div>
                         </label>
 
-                        <!-- Justificada -->
+                        <!-- Justificada (Amarelo) -->
                         <label class="cursor-pointer">
                             <input type="radio" name="status_{{ presenca.id }}" value="FALTA_JUSTIFICADA" class="peer hidden" {% if presenca.status == 'FALTA_JUSTIFICADA' %}checked{% endif %}>
-                            <div class="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider text-slate-400 transition-all
-                                        peer-checked:bg-orange-100 peer-checked:text-orange-700 peer-checked:shadow-lg peer-checked:shadow-orange-100">
-                                Justif.
+                            <div class="px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[1px] text-slate-500 transition-all
+                                        peer-checked:bg-accent peer-checked:text-accent-content peer-checked:shadow-lg peer-checked:shadow-accent/20">
+                                JUSTIF.
                             </div>
                         </label>
                     </div>
                 </div>
                 {% empty %}
-                <div class="p-12 text-center">
-                    <p class="text-slate-400 italic">Nenhum aluno agendado nesta aula.</p>
+                <div class="p-20 text-center">
+                    <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center text-slate-300 mx-auto mb-4 border-2 border-dashed border-slate-200">
+                        <i class="fas fa-user-slash text-2xl"></i>
+                    </div>
+                    <p class="text-slate-400 font-bold italic uppercase text-xs tracking-widest">Nenhum aluno agendado</p>
                 </div>
                 {% endfor %}
             </div>
         </section>
 
-        <!-- CARD: EVOLUÇÃO / PRONTUÁRIO -->
-        <section class="bg-white rounded-[32px] shadow-xl shadow-slate-200/50 border border-white p-8 md:p-10">
-            <div class="flex items-center gap-4 mb-6">
-                <div class="w-10 h-10 bg-soft-lavender/30 rounded-xl flex items-center justify-center text-purple-600">
-                    <i class="fas fa-file-medical"></i>
+        <!-- CARD: EVOLUÇÃO (AZUL VIBRANTE) -->
+        <section class="bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200/60 border border-slate-50 p-10 relative overflow-hidden">
+            <!-- Detalhe lateral em Azul -->
+            <div class="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-3/4 bg-secondary rounded-r-full"></div>
+
+            <div class="flex items-center gap-5 mb-8">
+                <div class="w-12 h-12 bg-secondary rounded-2xl flex items-center justify-center text-white shadow-lg shadow-secondary/20">
+                    <i class="fas fa-file-medical text-xl"></i>
                 </div>
                 <div>
-                    <h3 class="text-sm font-black text-slate-700 uppercase tracking-widest">Evolução da Aula</h3>
-                    <p class="text-[10px] text-slate-400 font-medium">Observações gerais sobre os exercícios e progresso</p>
+                    <h3 class="text-sm font-black text-slate-900 uppercase tracking-[2px]">Evolução do Treino</h3>
+                    <p class="text-[11px] text-slate-500 font-bold">Relatório detalhado do desempenho da turma</p>
                 </div>
             </div>
 
             <textarea name="evolucao_texto" 
-                      class="textarea w-full h-40 bg-slate-50 border-slate-100 rounded-2xl focus:ring-purple-200 focus:border-purple-300 text-slate-600 leading-relaxed" 
-                      placeholder="Ex: Foco em fortalecimento de core e mobilidade de coluna...">{{ aula.evolucao_texto|default:'' }}</textarea>
+                      class="textarea w-full h-48 bg-slate-50 border-2 border-slate-100 rounded-[2rem] focus:border-secondary focus:ring-0 text-slate-800 leading-relaxed p-6 text-sm placeholder:text-slate-300 shadow-inner" 
+                      placeholder="Descreva aqui o progresso dos alunos, exercícios realizados e observações importantes...">{{ aula.evolucao_texto|default:'' }}</textarea>
         </section>
 
-        <!-- BOTÃO DE AÇÃO -->
+        <!-- BOTÕES DE AÇÃO -->
         <div class="flex flex-col gap-4">
-            <button type="submit" class="btn btn-primary h-16 bg-serene-blue border-none text-white font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-blue-200 hover:bg-blue-400 hover:scale-[1.01] transition-all">
-                <i class="fas fa-save mr-2"></i> Salvar Chamada e Evolução
+            <button type="submit" class="btn bg-secondary border-none h-20 text-white font-black uppercase tracking-[3px] rounded-[2rem] shadow-2xl shadow-secondary/30 hover:bg-blue-800 hover:scale-[1.02] active:scale-95 transition-all text-lg">
+                <i class="fas fa-save text-xl mr-3"></i> SALVAR CHAMADA E RELATÓRIO
             </button>
-            <p class="text-center text-[10px] text-slate-400 font-bold uppercase tracking-widest">
-                Última alteração: {{ aula.updated_at|date:"H:i" }}
-            </p>
+            
+            <div class="flex items-center justify-center gap-3 text-slate-400">
+                <div class="h-[1px] w-8 bg-slate-200"></div>
+                <p class="text-[10px] font-black uppercase tracking-widest">
+                    Última atualização: {{ aula.updated_at|date:"H:i" }}
+                </p>
+                <div class="h-[1px] w-8 bg-slate-200"></div>
+            </div>
         </div>
 
     </form>

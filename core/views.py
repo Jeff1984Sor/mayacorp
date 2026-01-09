@@ -25,6 +25,10 @@ from financeiro_fit.models import Lancamento
 def home(request):
     hoje = timezone.now().date()
     
+    # Pega os banners (da sua segunda função antiga)
+    banners = BannerHome.objects.filter(ativo=True)
+    
+    # Prepara o contexto com os dados do dashboard (da sua primeira função antiga)
     context = {
         'total_alunos': Aluno.objects.count(),
         'aulas_hoje': Aula.objects.filter(data_hora_inicio__date=hoje).count(),
@@ -33,6 +37,7 @@ def home(request):
             data_vencimento=hoje, 
             status='PENDENTE'
         ).count(),
+        'banners': banners,
     }
     return render(request, 'home.html', context)
 
@@ -47,11 +52,6 @@ def cadastro(request):
         form = CustomUserCreationForm()
     
     return render(request, 'registration/cadastro.html', {'form': form})
-
-def home(request):
-    banners = BannerHome.objects.filter(ativo=True)
-    return render(request, 'home.html', {'banners': banners})
-
 
 @login_required
 @possui_produto('gestao-pilates')

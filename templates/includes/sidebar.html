@@ -1,135 +1,135 @@
-{% load static %}
-{% load core_extras %}
-
-<!-- SIDEBAR CONTAINER -->
-<div class="flex flex-col w-64 h-full bg-white border-r border-slate-100 p-4 transition-all duration-300">
+<!-- sidebar.html -->
+<aside class="w-80 bg-white h-screen border-r border-slate-200 flex flex-col sticky top-0 overflow-y-auto custom-scroll z-30">
     
-    <!-- LOGO -->
-    <a href="/" class="flex items-center gap-3 px-2 mb-10 no-underline group">
-        <div class="w-10 h-10 bg-mint-green flex items-center justify-center rounded-2xl shadow-lg shadow-mint-green/30 group-hover:scale-110 transition-transform">
-            <i class="fas fa-dumbbell text-emerald-700 fa-lg"></i>
-        </div>
-        <div class="flex flex-col">
-            <span class="text-lg font-black text-slate-800 leading-tight tracking-tight">MayaCorp</span>
-            <span class="text-[9px] font-black text-mint-green uppercase tracking-[3px]">Estúdio Fit</span>
-        </div>
-    </a>
-
-    <!-- NAVEGAÇÃO PRINCIPAL -->
-    <nav class="flex-1 space-y-1 overflow-y-auto custom-scroll pr-1">
+    <!-- LOGO: Identidade Forte em Marsala e Azul -->
+    <div class="p-10 mb-4 relative overflow-hidden">
+        <!-- Detalhe vibrante de fundo -->
+        <div class="absolute -top-10 -left-10 w-32 h-32 bg-primary/5 rounded-full blur-3xl"></div>
         
-        {% if user.is_authenticated %}
-            
-            <!-- DASHBOARD (INÍCIO) -->
-            <a href="{% url 'home' %}" 
-               class="flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 group
-               {% if request.path == '/' %} bg-serene-blue/15 text-serene-blue font-black {% else %} text-slate-500 hover:bg-slate-50 hover:text-slate-800 {% endif %}">
-                <i class="fas fa-tachometer-alt w-5 text-center text-xs"></i>
-                <span class="text-xs uppercase tracking-widest font-bold">Início</span>
-            </a>
-
-            <!-- GESTÃO OPERACIONAL -->
-            {% if 'suite_pilates' in perms_produtos or user.is_superuser %}
-                <div class="pt-8 pb-3 px-4">
-                    <span class="text-[9px] font-black text-slate-300 uppercase tracking-[3px]">Gestão Operacional</span>
-                </div>
-                
-                <!-- 1. ALUNOS (Destaque Principal) -->
-                <a href="{% url 'aluno_list' %}" 
-                   class="flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 group mb-1
-                   {% if 'cadastros/aluno' in request.path %} bg-mint-green/15 text-emerald-700 font-black {% else %} text-slate-500 hover:bg-slate-50 hover:text-slate-800 {% endif %}">
-                    <div class="w-7 h-7 rounded-xl bg-emerald-100 flex items-center justify-center transition-all group-hover:scale-110">
-                        <i class="fas fa-users text-emerald-600 text-[10px]"></i>
-                    </div>
-                    <span class="text-xs font-bold uppercase tracking-wider">Alunos</span>
-                </a>
-
-                <!-- 2. AGENDA -->
-                <details class="group [&_summary::-webkit-details-marker]:hidden" {% if 'agenda' in request.path %}open{% endif %}>
-                    <summary class="flex items-center justify-between px-4 py-3 text-slate-500 rounded-2xl cursor-pointer hover:bg-slate-50 hover:text-slate-800 transition-all">
-                        <div class="flex items-center gap-3">
-                            <div class="w-7 h-7 rounded-xl bg-orange-100 flex items-center justify-center">
-                                <i class="fas fa-calendar-alt text-orange-500 text-[10px]"></i>
-                            </div>
-                            <span class="text-xs font-bold uppercase tracking-wider">Agenda</span>
-                        </div>
-                        <i class="fas fa-chevron-right text-[8px] transition-transform group-open:rotate-90"></i>
-                    </summary>
-                    <div class="mt-1 ml-9 space-y-1 border-l border-slate-100">
-                        <a href="{% url 'calendario_semanal' %}" class="block px-4 py-2 text-[11px] font-bold text-slate-400 hover:text-serene-blue transition-colors">Calendário Semanal</a>
-                        <a href="{% url 'relatorio_frequencia' %}" class="block px-4 py-2 text-[11px] font-bold text-slate-400 hover:text-serene-blue transition-colors">Frequência Alunos</a>
-                    </div>
-                </details>
-
-                <!-- 3. FINANCEIRO -->
-                <details class="group [&_summary::-webkit-details-marker]:hidden" {% if 'financeiro' in request.path %}open{% endif %}>
-                    <summary class="flex items-center justify-between px-4 py-3 text-slate-500 rounded-2xl cursor-pointer hover:bg-slate-50 hover:text-slate-800 transition-all">
-                        <div class="flex items-center gap-3">
-                            <div class="w-7 h-7 rounded-xl bg-soft-lavender/40 flex items-center justify-center">
-                                <i class="fas fa-dollar-sign text-purple-600 text-[10px]"></i>
-                            </div>
-                            <span class="text-xs font-bold uppercase tracking-wider">Financeiro</span>
-                        </div>
-                        <i class="fas fa-chevron-right text-[8px] transition-transform group-open:rotate-90"></i>
-                    </summary>
-                    <div class="mt-1 ml-9 space-y-1 border-l border-slate-100">
-                        <a href="{% url 'contas_receber' %}" class="block px-4 py-2 text-[11px] font-bold text-slate-400 hover:text-purple-600 transition-colors">Contas a Receber</a>
-                        <a href="{% url 'contas_pagar' %}" class="block px-4 py-2 text-[11px] font-bold text-slate-400 hover:text-purple-600 transition-colors">Contas a Pagar</a>
-                        <a href="{% url 'conta_list' %}" class="block px-4 py-2 text-[11px] font-bold text-slate-400 hover:text-purple-600 transition-colors">Bancos e Caixas</a>
-                    </div>
-                </details>
-                
-                <!-- 4. CONFIGURAÇÕES (Agrupa Cadastros e Modelos) -->
-                <details class="group [&_summary::-webkit-details-marker]:hidden" {% if 'cadastros' in request.path or 'contratos' in request.path or 'termos' in request.path %}open{% endif %}>
-                    <summary class="flex items-center justify-between px-4 py-3 text-slate-500 rounded-2xl cursor-pointer hover:bg-slate-50 hover:text-slate-800 transition-all">
-                        <div class="flex items-center gap-3">
-                            <div class="w-7 h-7 rounded-xl bg-blue-100 flex items-center justify-center">
-                                <i class="fas fa-folder text-blue-600 text-[10px]"></i>
-                            </div>
-                            <span class="text-xs font-bold uppercase tracking-wider">Configurações</span>
-                        </div>
-                        <i class="fas fa-chevron-right text-[8px] transition-transform group-open:rotate-90"></i>
-                    </summary>
-                    <div class="mt-1 ml-9 space-y-1 border-l border-slate-100">
-                        <a href="{% url 'profissional_list' %}" class="block px-4 py-2 text-[11px] font-bold text-slate-400 hover:text-blue-600 transition-colors">Profissionais</a>
-                        <a href="{% url 'plano_list' %}" class="block px-4 py-2 text-[11px] font-bold text-slate-400 hover:text-blue-600 transition-colors">Planos e Preços</a>
-                        <a href="{% url 'unidade_list' %}" class="block px-4 py-2 text-[11px] font-bold text-slate-400 hover:text-blue-600 transition-colors">Unidades</a>
-                        
-                        <!-- DIVISOR PARA MODELOS -->
-                        <div class="divider my-1 opacity-20 px-4"></div>
-                        
-                        <a href="{% url 'template_list' %}" class="block px-4 py-2 text-[11px] font-black text-slate-400 hover:text-purple-600 transition-colors">
-                            <i class="fas fa-file-signature mr-2 opacity-50"></i> Modelos Contrato
-                        </a>
-                        <a href="{% url 'termo_template_list' %}" class="block px-4 py-2 text-[11px] font-black text-slate-400 hover:text-purple-600 transition-colors">
-                            <i class="fas fa-file-shield mr-2 opacity-50"></i> Modelos Termos
-                        </a>
-                    </div>
-                </details>
-            {% endif %}
-
-            <!-- INTELIGÊNCIA -->
-            {% if user|tem_acesso:"gerador-pdf" %}
-                <div class="pt-8 pb-3 px-4">
-                    <span class="text-[9px] font-black text-slate-300 uppercase tracking-[3px]">Inteligência</span>
-                </div>
-                <a href="{% url 'pdf_home' %}" class="flex items-center gap-3 px-4 py-3 text-slate-500 rounded-2xl hover:bg-red-50 hover:text-red-600 transition-all group/pdf">
-                    <div class="w-7 h-7 rounded-xl bg-red-100 flex items-center justify-center group-hover/pdf:bg-red-500 group-hover/pdf:text-white transition-all">
-                        <i class="fas fa-robot text-[10px]"></i>
-                    </div>
-                    <span class="text-xs font-bold uppercase tracking-wider">Conciliação IA</span>
-                </a>
-            {% endif %}
-
-        {% endif %}
-    </nav>
-    
-    <!-- RODAPÉ DA SIDEBAR -->
-    <div class="mt-auto pt-6 border-t border-slate-50 text-center">
-        <div class="flex items-center justify-center gap-2 mb-2 opacity-50">
-            <div class="w-1.5 h-1.5 rounded-full bg-slate-400"></div>
-            <span class="text-[8px] font-black text-slate-400 uppercase tracking-[3px]">Cloud Active</span>
+        <h1 class="text-3xl font-black text-slate-900 tracking-tighter italic relative z-10">
+            MayaCorp<span class="text-secondary">Fit</span>
+        </h1>
+        <div class="flex items-center gap-2 mt-2 relative z-10">
+            <div class="h-[2px] w-8 bg-primary"></div>
+            <p class="text-[10px] font-black text-primary uppercase tracking-[4px]">Premium Studio</p>
         </div>
-        <div class="text-slate-300 text-[9px] font-black tracking-[5px]">MAYA V2.0</div>
     </div>
-</div>
+
+    <!-- MENU PRINCIPAL: Nitidez e Cores Vibrantes -->
+    <nav class="flex-1 px-6 space-y-10 pb-10">
+        
+        <!-- SEÇÃO: DASHBOARD (Foco Total) -->
+        <div>
+            <p class="text-[11px] font-black text-slate-900 uppercase tracking-[3px] mb-5 ml-2">Navegação</p>
+            <a href="{% url 'home' %}" 
+               class="flex items-center gap-4 p-4 rounded-2xl transition-all group 
+               {% if request.resolver_match.url_name == 'home' %} bg-primary text-white shadow-2xl shadow-primary/40 scale-105 {% else %} text-slate-500 hover:bg-slate-50 hover:text-primary {% endif %}">
+                <div class="w-10 h-10 {% if request.resolver_match.url_name == 'home' %} bg-white/20 {% else %} bg-slate-100 group-hover:bg-white {% endif %} rounded-xl flex items-center justify-center transition-all shadow-sm">
+                    <i class="fas fa-grid-2 text-sm"></i>
+                </div>
+                <span class="text-sm font-black uppercase tracking-tight">Dashboard</span>
+            </a>
+        </div>
+
+        <!-- SEÇÃO: GESTÃO (Marsala e Azul) -->
+        <div>
+            <p class="text-[11px] font-black text-slate-900 uppercase tracking-[3px] mb-5 ml-2">Operacional</p>
+            <div class="space-y-2">
+                <!-- Alunos (Azul Vibrante) -->
+                <a href="{% url 'aluno_list' %}" class="flex items-center gap-4 p-4 rounded-2xl text-slate-600 hover:bg-secondary/10 hover:text-secondary transition-all group border border-transparent hover:border-secondary/20">
+                    <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 group-hover:bg-secondary group-hover:text-white transition-all shadow-sm">
+                        <i class="fas fa-users text-sm"></i>
+                    </div>
+                    <span class="text-sm font-black uppercase tracking-tight">Alunos</span>
+                </a>
+                
+                <!-- Agenda (Amarelo Destaque) -->
+                <a href="{% url 'calendario_semanal' %}" class="flex items-center gap-4 p-4 rounded-2xl text-slate-600 hover:bg-accent/10 hover:text-amber-600 transition-all group border border-transparent hover:border-accent/30">
+                    <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 group-hover:bg-accent group-hover:text-amber-900 transition-all shadow-sm">
+                        <i class="fas fa-calendar-day text-sm"></i>
+                    </div>
+                    <span class="text-sm font-black uppercase tracking-tight">Agenda</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- SEÇÃO: FINANCEIRO (Marsala e Verde) -->
+        <div>
+            <p class="text-[11px] font-black text-slate-900 uppercase tracking-[3px] mb-5 ml-2">Financeiro</p>
+            <div class="space-y-2">
+                <a href="{% url 'contas_receber' %}" class="flex items-center gap-4 p-4 rounded-2xl text-slate-600 hover:bg-emerald-50 hover:text-emerald-600 transition-all group border border-transparent hover:border-emerald-200">
+                    <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 group-hover:bg-emerald-500 group-hover:text-white transition-all shadow-sm">
+                        <i class="fas fa-money-bill-trend-up text-sm"></i>
+                    </div>
+                    <span class="text-sm font-black uppercase tracking-tight">Recebíveis</span>
+                </a>
+                
+                <a href="{% url 'contas_pagar' %}" class="flex items-center gap-4 p-4 rounded-2xl text-slate-600 hover:bg-primary/5 hover:text-primary transition-all group border border-transparent hover:border-primary/20">
+                    <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 group-hover:bg-primary group-hover:text-white transition-all shadow-sm">
+                        <i class="fas fa-file-invoice-dollar text-sm"></i>
+                    </div>
+                    <span class="text-sm font-black uppercase tracking-tight">Pagamentos</span>
+                </a>
+                
+                <a href="{% url 'conta_list' %}" class="flex items-center gap-4 p-4 rounded-2xl text-slate-600 hover:bg-secondary/10 hover:text-secondary transition-all group border border-transparent hover:border-secondary/20">
+                    <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 group-hover:bg-secondary group-hover:text-white transition-all shadow-sm">
+                        <i class="fas fa-vault text-sm"></i>
+                    </div>
+                    <span class="text-sm font-black uppercase tracking-tight">Cofre & Bancos</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- SEÇÃO: SISTEMA (Marsala) -->
+        <div>
+            <p class="text-[11px] font-black text-slate-900 uppercase tracking-[3px] mb-5 ml-2">Configurações</p>
+            <div class="space-y-2">
+                <a href="{% url 'categoria_list' %}" class="flex items-center gap-4 p-4 rounded-2xl text-slate-600 hover:bg-slate-100 hover:text-primary transition-all group">
+                    <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 group-hover:text-primary transition-all shadow-sm">
+                        <i class="fas fa-tags text-sm"></i>
+                    </div>
+                    <span class="text-sm font-black uppercase tracking-tight">Plano de Contas</span>
+                </a>
+
+                <a href="{% url 'whatsapp_dashboard' %}" class="flex items-center gap-4 p-4 rounded-2xl text-slate-600 hover:bg-emerald-50 hover:text-emerald-600 transition-all group">
+                    <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 group-hover:bg-emerald-500 group-hover:text-white transition-all shadow-sm">
+                        <i class="fab fa-whatsapp text-sm"></i>
+                    </div>
+                    <span class="text-sm font-black uppercase tracking-tight">WhatsApp API</span>
+                </a>
+            </div>
+        </div>
+
+    </nav>
+
+    <!-- FOOTER: USUÁRIO (ALTO CONTRASTE) -->
+    <div class="p-8 border-t-2 border-slate-100 bg-slate-50/80">
+        <div class="flex items-center gap-4 px-2">
+            <!-- Avatar em Marsala -->
+            <div class="w-12 h-12 rounded-2xl bg-primary text-white flex items-center justify-center font-black text-lg shadow-xl shadow-primary/30 border-2 border-white transition-transform hover:scale-110">
+                {{ user.username|first|upper }}
+            </div>
+            <div class="flex-1 overflow-hidden">
+                <p class="text-xs font-black text-slate-900 truncate uppercase tracking-tighter">{{ user.username }}</p>
+                <p class="text-[9px] font-black text-primary uppercase tracking-widest mt-0.5">Administrador</p>
+            </div>
+            <form action="{% url 'logout' %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="text-slate-300 hover:text-primary transition-all hover:scale-125">
+                    <i class="fas fa-power-off text-lg"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+</aside>
+
+<style>
+    /* Nitidez e Estilização do Menu */
+    .custom-scroll::-webkit-scrollbar { width: 5px; }
+    .custom-scroll::-webkit-scrollbar-thumb { @apply bg-slate-200 rounded-full; }
+    
+    /* Letras nítidas para o sistema */
+    nav span {
+        letter-spacing: -0.02em;
+    }
+</style>

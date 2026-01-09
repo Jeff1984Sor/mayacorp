@@ -1,12 +1,16 @@
 from django.contrib import admin
-from .models import ConfiguracaoWhatsapp, LogMensagem
+from .models import ConexaoWhatsapp, TemplateMensagem, LogEnvio
 
-@admin.register(ConfiguracaoWhatsapp)
-class ConfigWhatsAdmin(admin.ModelAdmin):
-    list_display = ['organizacao', 'nome_instancia', 'ativo']
+@admin.register(ConexaoWhatsapp)
+class ConexaoWhatsappAdmin(admin.ModelAdmin):
+    list_display = ('organizacao', 'instancia', 'ativo')
 
-@admin.register(LogMensagem)
-class LogWhatsAdmin(admin.ModelAdmin):
-    list_display = ['data_envio', 'aluno', 'telefone', 'status', 'tipo']
-    list_filter = ['status', 'tipo', 'data_envio']
-    readonly_fields = ['data_envio', 'resposta_api']
+@admin.register(TemplateMensagem)
+class TemplateMensagemAdmin(admin.ModelAdmin):
+    list_display = ('titulo', 'gatilho', 'horario_envio', 'ativo')
+    list_filter = ('gatilho', 'ativo')
+
+@admin.register(LogEnvio)
+class LogEnvioAdmin(admin.ModelAdmin):
+    list_display = ('aluno', 'status', 'data_hora')
+    readonly_fields = ('data_hora',)

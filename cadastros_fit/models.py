@@ -146,3 +146,16 @@ class LogAcesso(models.Model):
 
     def __str__(self):
         return f"{self.aluno} - {self.status}"
+    
+
+class TipoServico(models.Model):
+    nome = models.CharField(max_length=100)
+    cor = models.CharField(max_length=7, default='#802422') # Nosso Marsala
+    ativo = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.nome
+
+    class Meta:
+        verbose_name = "Tipo de Serviço"
+        verbose_name_plural = "Tipos de Serviço"

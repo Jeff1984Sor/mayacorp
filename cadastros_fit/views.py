@@ -6,16 +6,21 @@ from django.utils import timezone
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from datetime import timedelta
-
+from django.shortcuts import get_object_or_404
+from django.http import JsonResponse
+from cadastros_fit.models import Aluno
+from comunicacao_fit.models import ConexaoWhatsapp, LogEnvio
 # Imports Locais
 from .models import Aluno, Profissional, Unidade
 from .forms import AlunoForm, ProfissionalForm, UnidadeForm, DocumentoExtraForm
 from .services import OCRService
-
+from comunicacao_fit.models import LogEnvio, TemplateMensagem
 # Imports de Outros Apps
 from agenda_fit.models import Presenca, Aula 
 from financeiro_fit.models import Lancamento
 from contratos_fit.models import Contrato
+from django.contrib import messages
+from .models import TipoServico
 
 # --- ALUNOS ---
 class AlunoListView(LoginRequiredMixin, ListView):
@@ -79,10 +84,20 @@ class AlunoDetailView(LoginRequiredMixin, DetailView):
             aluno=aluno
         ).select_related('plano').order_by('-criado_em')
 
+        # --- NOVA ABA: HISTÓRICO WHATSAPP ---
+        # Tenta buscar os logs. Se o banco der erro (tabela não existe), retorna lista vazia.
+        try:
+            context['historico_whatsapp'] = LogEnvio.objects.filter(
+                aluno=aluno
+            ).order_by('-data_hora')
+        except:
+            context['historico_whatsapp'] = []
+
         # Docs Extras
         context['documentos_extras'] = aluno.documentos.all()
         
         return context
+
 
 # --- PROFISSIONAIS ---
 class ProfissionalListView(LoginRequiredMixin, ListView):
@@ -145,15 +160,20 @@ def api_ler_documento(request):
     return JsonResponse({'erro': 'Envie uma imagem via POST'}, status=400)
 
 def upload_documento_extra(request, pk):
-    """Recebe o upload do Modal e salva vinculado ao Aluno (pk)"""
     aluno = get_object_or_404(Aluno, pk=pk)
     
     if request.method == 'POST':
+        # IMPORTANTE: passar request.FILES aqui!
         form = DocumentoExtraForm(request.POST, request.FILES)
+        
         if form.is_valid():
             doc = form.save(commit=False)
             doc.aluno = aluno
             doc.save()
+            messages.success(request, "Documento anexado com sucesso!")
+        else:
+            # Isso vai te mostrar no log ou na tela qual o erro (ex: arquivo muito grande, formato inválido)
+            messages.error(request, f"Erro no upload: {form.errors}")
             
     return redirect('aluno_detail', pk=pk)
 
@@ -185,3 +205,56 @@ def api_agenda_amanha(request):
         })
 
     return JsonResponse(dados_envio, safe=False)
+
+
+def cobrar_aluno_whatsapp(request, aluno_id):
+    """
+    Busca o template de cobrança e dispara para o aluno
+    """
+    from comunicacao_fit.utils import enviar_mensagem_evolution # Importe aqui para evitar loop
+    
+    aluno = get_object_or_404(Aluno, id=aluno_id)
+    
+    # Busca o template de cobrança manual ativo
+    template = TemplateMensagem.objects.filter(
+        organizacao=request.tenant, 
+        gatilho='COBRANCA', 
+        ativo=True
+    ).first()
+    
+    if not template:
+        return JsonResponse({'status': 'error', 'message': 'Template de cobrança não configurado.'})
+
+    # Substitui as variáveis básicas
+    texto = template.conteudo.replace('[[aluno]]', aluno.nome)
+    # Se você tiver financeiro, pode adicionar aqui: texto = texto.replace('[[valor]]', ...)
+
+    # Dispara o envio
+    sucesso, resposta = enviar_mensagem_evolution(request.tenant, aluno.telefone, texto)
+    
+    # Salva o Log
+    LogEnvio.objects.create(
+        organizacao=request.tenant,
+        aluno=aluno,
+        mensagem=texto,
+        status='ENVIADO' if sucesso else f'ERRO: {resposta}'
+    )
+    
+    if sucesso:
+        return JsonResponse({'status': 'ok'})
+    return JsonResponse({'status': 'error', 'message': resposta})
+
+class TipoServicoListView(LoginRequiredMixin, ListView):
+    model = TipoServico
+    template_name = 'cadastros_fit/servico_list.html'
+    context_object_name = 'servicos'
+
+class TipoServicoCreateView(LoginRequiredMixin, CreateView):
+    model = TipoServico
+    fields = ['nome', 'cor', 'ativo']
+    template_name = 'cadastros_fit/servico_form.html'
+    success_url = reverse_lazy('servico_list')
+
+
+
+

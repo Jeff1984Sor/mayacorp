@@ -2,48 +2,73 @@
 {% load static %}
 {% load crispy_forms_tags %}
 
-{% block title %}Lançar Despesa - MayaCorp{% endblock %}
+{% block title %}Lançar Despesa | MayaCorp Fit{% endblock %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto pb-20">
+<style>
+    /* Nitidez extrema para campos Crispy Forms */
+    .asteriskField { color: #802422 !important; font-weight: 900; }
+    input, select, textarea { 
+        @apply rounded-2xl bg-white border-2 border-slate-200 focus:border-primary focus:ring-0 text-slate-900 font-black transition-all !important; 
+        height: 3.5rem;
+    }
+    textarea { height: auto !important; }
+    label { @apply text-[11px] font-black text-slate-500 uppercase tracking-[2px] ml-2 mb-3 block !important; }
     
-    <!-- HEADER -->
-    <header class="flex justify-between items-center mb-10 px-2">
-        <div class="flex items-center gap-4">
-            <div class="w-14 h-14 bg-rose-50 rounded-[22px] flex items-center justify-center text-rose-500 shadow-sm border border-white">
+    /* Estilo para o input de arquivo */
+    .file-input { @apply h-14 bg-slate-50 border-2 border-slate-200 rounded-2xl font-bold !important; }
+</style>
+
+<div class="max-w-4xl mx-auto pb-24 px-4">
+    
+    <!-- HEADER: Identidade Studio Premium -->
+    <header class="flex flex-col md:flex-row justify-between items-center mb-12 gap-6 text-center md:text-left">
+        <div class="flex items-center gap-6">
+            <!-- Ícone em MARSALA -->
+            <div class="w-16 h-16 bg-primary rounded-[22px] flex items-center justify-center text-white shadow-xl shadow-primary/30 border-2 border-white transition-transform hover:rotate-6">
                 <i class="fas fa-file-invoice-dollar text-2xl"></i>
             </div>
             <div>
-                <h1 class="text-3xl font-black text-slate-800 tracking-tight">Nova Despesa</h1>
-                <p class="text-[10px] text-slate-400 font-black uppercase tracking-[2px] mt-1">Registro de saída de caixa e custos</p>
+                <h1 class="text-4xl font-black text-slate-900 tracking-tighter uppercase">Nova Despesa</h1>
+                <p class="text-[11px] text-primary font-black uppercase tracking-[3px] mt-1">Registro e Classificação de Custos</p>
             </div>
         </div>
         
-        <a href="{% url 'contas_pagar' %}" class="btn btn-ghost btn-circle text-slate-300 hover:text-slate-500">
-            <i class="fas fa-times text-xl"></i>
+        <a href="{% url 'contas_pagar' %}" class="btn btn-ghost btn-circle text-slate-300 hover:text-primary transition-all">
+            <i class="fas fa-times text-2xl"></i>
         </a>
     </header>
 
-    <!-- CARD PRINCIPAL (Soft UI Style) -->
-    <div class="bg-white rounded-[40px] shadow-2xl shadow-slate-200/50 border border-white overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <!-- CARD PRINCIPAL (Visual de Luxo) -->
+    <div class="bg-white rounded-[3rem] shadow-2xl shadow-slate-200/60 border border-slate-100 overflow-hidden relative animate-in fade-in slide-in-from-bottom-6 duration-700">
         
-        <form method="post" enctype="multipart/form-data" class="p-8 md:p-12 space-y-10">
+        <!-- Detalhe decorativo no topo -->
+        <div class="h-2 w-full bg-gradient-to-r from-primary via-secondary to-accent"></div>
+
+        <form method="post" enctype="multipart/form-data" class="p-8 md:p-16 space-y-12">
             {% csrf_token %}
 
-            <!-- SEÇÃO 1: DADOS BÁSICOS -->
+            <!-- SEÇÃO 1: DADOS BÁSICOS (MÁXIMA NITIDEZ) -->
             <section>
-                <div class="flex items-center gap-3 mb-8">
-                    <div class="w-2 h-6 bg-rose-300 rounded-full"></div>
-                    <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-[3px]">Informações da Conta</h3>
+                <div class="flex items-center gap-4 mb-10">
+                    <div class="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
+                        <i class="fas fa-pen-to-square"></i>
+                    </div>
+                    <h3 class="text-xs font-black text-slate-900 uppercase tracking-[4px]">Informações da Conta</h3>
                 </div>
                 
-                <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
                     <div class="md:col-span-8">{{ form.descricao|as_crispy_field }}</div>
-                    <div class="md:col-span-4">
-                        <label class="label"><span class="label-text text-[10px] font-black text-slate-400 uppercase tracking-widest">Valor</span></label>
+                    
+                    <!-- Campo de Valor em destaque AMARELO -->
+                    <div class="md:col-span-4 form-control">
+                        <label class="label mb-3">
+                            <span class="label-text text-[11px] font-black text-primary uppercase tracking-[2px]">Valor do Lançamento</span>
+                        </label>
                         <div class="relative">
-                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-black text-rose-300 italic">R$</span>
-                            {{ form.valor }}
+                            <span class="absolute left-5 top-1/2 -translate-y-1/2 text-sm font-black text-primary italic">R$</span>
+                            <input type="number" name="valor" step="0.01" value="{{ form.valor.value|default:'' }}" 
+                                   class="input w-full bg-white border-2 border-slate-200 rounded-2xl pl-12 pr-6 h-14 focus:border-primary text-slate-900 font-black text-lg shadow-sm" required>
                         </div>
                     </div>
                     
@@ -55,37 +80,41 @@
                 </div>
             </section>
 
-            <!-- SEÇÃO 2: RECORRÊNCIA (Estilo Lavender) -->
-            <section class="bg-soft-lavender/5 p-8 rounded-[32px] border border-soft-lavender/20">
-                <div class="flex items-center justify-between mb-6">
-                    <div class="flex items-center gap-3">
-                        <div class="w-2 h-6 bg-soft-lavender rounded-full"></div>
-                        <h3 class="text-[10px] font-black text-purple-600 uppercase tracking-[3px]">Parcelamento / Recorrência</h3>
+            <!-- SEÇÃO 2: RECORRÊNCIA (ESTILO AZUL VIBRANTE) -->
+            <section class="bg-slate-50 p-10 rounded-[2.5rem] border-2 border-slate-100 relative overflow-hidden group">
+                <div class="absolute right-0 top-0 w-24 h-24 bg-secondary/5 rounded-full -mr-12 -mt-12 transition-transform group-hover:scale-110"></div>
+                
+                <div class="flex items-center justify-between mb-8 relative z-10">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 bg-secondary rounded-xl flex items-center justify-center text-white shadow-lg shadow-secondary/20">
+                            <i class="fas fa-arrows-rotate text-sm"></i>
+                        </div>
+                        <h3 class="text-xs font-black text-slate-900 uppercase tracking-[4px]">Recorrência Programada</h3>
                     </div>
-                    <input type="checkbox" name="{{ form.repetir.name }}" id="id_repetir" class="toggle toggle-primary" {% if form.repetir.value %}checked{% endif %} />
+                    <input type="checkbox" name="{{ form.repetir.name }}" id="id_repetir" class="toggle toggle-secondary scale-125" {% if form.repetir.value %}checked{% endif %} />
                 </div>
 
-                <div id="area-recorrencia" class="grid grid-cols-1 md:grid-cols-2 gap-6 transition-all duration-500" style="display:none;">
-                    <div class="form-control">
-                        {{ form.frequencia|as_crispy_field }}
-                    </div>
-                    <div class="form-control">
-                        {{ form.qtd_repeticoes|as_crispy_field }}
-                    </div>
-                    <div class="md:col-span-2 p-4 bg-white/50 rounded-2xl border border-soft-lavender/10 text-center">
-                        <p class="text-[10px] text-purple-400 font-medium italic">
-                            <i class="fas fa-info-circle mr-1"></i> O sistema gerará as parcelas automaticamente com base na frequência.
+                <div id="area-recorrencia" class="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10 transition-all duration-500" style="display:none;">
+                    <div class="form-control">{{ form.frequencia|as_crispy_field }}</div>
+                    <div class="form-control">{{ form.qtd_repeticoes|as_crispy_field }}</div>
+                    <div class="md:col-span-2 p-6 bg-white rounded-2xl border-2 border-dashed border-slate-200 text-center">
+                        <p class="text-[10px] text-secondary font-black uppercase tracking-widest">
+                            <i class="fas fa-circle-info mr-2"></i> O MayaCorp gerará as parcelas futuras automaticamente
                         </p>
                     </div>
                 </div>
             </section>
 
-            <!-- SEÇÃO 3: ANEXOS E STATUS -->
-            <section>
-                <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-end">
+            <!-- SEÇÃO 3: ANEXOS (AMARELO DESTAQUE) -->
+            <section class="space-y-8">
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-10 items-end">
                     <div class="md:col-span-7">
-                        <label class="label"><span class="label-text text-[10px] font-black text-slate-400 uppercase tracking-widest">Documento / Boleto (PDF/JPG)</span></label>
-                        <input type="file" name="{{ form.arquivo_boleto.name }}" class="file-input file-input-bordered w-full bg-slate-50 border-slate-100 rounded-2xl" />
+                        <label class="label mb-3">
+                            <span class="label-text text-[11px] font-black text-slate-500 uppercase tracking-[2px]">Comprovante / Boleto (PDF ou JPG)</span>
+                        </label>
+                        <div class="relative group">
+                            <input type="file" name="{{ form.arquivo_boleto.name }}" class="file-input w-full shadow-sm group-hover:border-primary transition-all" />
+                        </div>
                     </div>
                     <div class="md:col-span-5">
                         {{ form.status|as_crispy_field }}
@@ -93,60 +122,43 @@
                 </div>
             </section>
 
-            <!-- BOTÕES DE AÇÃO -->
-            <div class="flex flex-col md:flex-row justify-end items-center gap-4 pt-10 border-t border-slate-50">
-                <a href="{% url 'contas_pagar' %}" class="btn btn-ghost rounded-2xl text-slate-400 font-bold normal-case order-2 md:order-1">
-                    Cancelar
+            <!-- BOTÕES DE AÇÃO (AZUL VIBRANTE) -->
+            <div class="flex flex-col md:flex-row justify-end items-center gap-6 pt-12 border-t border-slate-100">
+                <a href="{% url 'contas_pagar' %}" class="text-sm font-black text-slate-400 hover:text-primary transition-colors uppercase tracking-widest order-2 md:order-1">
+                    Cancelar Lançamento
                 </a>
-                <button type="submit" class="btn bg-rose-400 border-none text-white rounded-2xl px-12 h-16 shadow-xl shadow-rose-200 normal-case font-black text-lg italic order-1 md:order-2 hover:bg-rose-500 hover:scale-[1.01] transition-all">
-                    <i class="fas fa-save mr-2 text-xs"></i> Salvar Despesa
+                
+                <button type="submit" class="btn bg-secondary border-none text-white rounded-[1.5rem] px-12 h-20 shadow-2xl shadow-secondary/30 font-black uppercase tracking-[2px] text-lg order-1 md:order-2 hover:bg-blue-800 hover:scale-105 active:scale-95 transition-all group">
+                    <i class="fas fa-check-double mr-3 text-xl group-hover:animate-pulse"></i> SALVAR DESPESA
                 </button>
             </div>
         </form>
     </div>
 
-    <!-- RODAPÉ -->
-    <div class="mt-8 text-center px-8">
-        <p class="text-[9px] text-slate-300 font-bold uppercase tracking-[4px] leading-relaxed">
-            MayaCorp Financial Engine • Lançamento de saída de capital assistido
-        </p>
+    <!-- RODAPÉ TÉCNICO -->
+    <div class="mt-12 text-center">
+        <div class="inline-flex items-center gap-3 px-6 py-2 bg-slate-100 rounded-full border border-slate-200">
+            <div class="w-2 h-2 bg-primary rounded-full animate-pulse shadow-[0_0_8px_rgba(128,36,34,0.6)]"></div>
+            <span class="text-[9px] font-black text-slate-500 uppercase tracking-[2px]">MayaCorp Logic: Outflow Management Engine v4.0</span>
+        </div>
     </div>
 </div>
 
-<style>
-    /* Estilização para o Crispy se integrar ao Soft UI */
-    .form-control label, .mb-3 label { 
-        @apply text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block ml-1 !important; 
-    }
-    
-    .input, .textinput, .numberinput, .select, .textarea { 
-        @apply w-full bg-slate-50 border-slate-100 rounded-2xl px-6 h-14 focus:ring-4 focus:ring-rose-50 focus:border-rose-100 focus:outline-none transition-all text-slate-600 font-bold !important; 
-    }
-
-    /* Ajuste específico para o campo de Valor */
-    input[name="valor"] { @apply pl-12 !important; }
-
-    /* Estilo do File Input do DaisyUI */
-    .file-input { @apply h-14 !important; }
-</style>
-
 <script>
-    // Lógica para mostrar/ocultar a recorrência com efeito visual
+    // Lógica de Recorrência com Animação Studio
     const checkRepetir = document.getElementById('id_repetir');
     const areaRecorrencia = document.getElementById('area-recorrencia');
 
     function toggleRecorrencia() {
         if (checkRepetir.checked) {
             areaRecorrencia.style.display = 'grid';
-            areaRecorrencia.classList.add('animate-in', 'fade-in', 'slide-in-from-top-2');
+            areaRecorrencia.classList.add('animate-in', 'fade-in', 'slide-in-from-top-4');
         } else {
             areaRecorrencia.style.display = 'none';
         }
     }
 
     checkRepetir.addEventListener('change', toggleRecorrencia);
-    
-    // Executa ao carregar para caso de erro no form
     document.addEventListener('DOMContentLoaded', toggleRecorrencia);
 </script>
 {% endblock %}

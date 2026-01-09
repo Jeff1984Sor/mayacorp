@@ -2,93 +2,103 @@
 {% load static %}
 {% load crispy_forms_tags %}
 
-{% block title %}Cadastro - MayaCorp{% endblock %}
+{% block title %}Cadastro | MayaCorp Fit{% endblock %}
 
 {% block content %}
-<div class="max-w-2xl mx-auto pb-20">
+<div class="max-w-2xl mx-auto pb-24 px-4">
     
-    <!-- HEADER -->
-    <header class="flex justify-between items-center mb-10 px-2 animate-in fade-in duration-700">
-        <div class="flex items-center gap-4">
-            <!-- Ícone de Identidade Visual -->
-            <div class="w-14 h-14 bg-serene-blue/20 rounded-[22px] flex items-center justify-center text-serene-blue shadow-sm border border-white">
-                <i class="fas fa-edit text-2xl"></i>
+    <!-- HEADER: Identidade Studio Premium -->
+    <header class="flex justify-between items-center mb-12 px-2 animate-in fade-in duration-700">
+        <div class="flex items-center gap-6">
+            <!-- Ícone em MARSALA (Ação de Escrita) -->
+            <div class="w-16 h-16 bg-primary rounded-[22px] flex items-center justify-center text-white shadow-xl shadow-primary/30 border-2 border-white transition-transform hover:rotate-6">
+                <i class="fas fa-pen-to-square text-2xl"></i>
             </div>
             <div>
-                <h1 class="text-3xl font-black text-slate-800 tracking-tight">Cadastro</h1>
-                <p class="text-[10px] text-slate-400 font-black uppercase tracking-[2px] mt-1">
-                    Preencha os campos abaixo com atenção
+                <h1 class="text-4xl font-black text-slate-900 tracking-tighter uppercase">Cadastro</h1>
+                <p class="text-[11px] text-primary font-black uppercase tracking-[3px] mt-1">
+                    Entrada de <span class="text-slate-900">Novos Dados no Sistema</span>
                 </p>
             </div>
         </div>
     </header>
 
-    <!-- CARD PRINCIPAL (Soft UI Style) -->
-    <div class="bg-white rounded-[40px] shadow-2xl shadow-slate-200/50 border border-white overflow-hidden animate-in slide-in-from-bottom-4 duration-500">
+    <!-- CARD PRINCIPAL (Visual de Luxo e Alta Nitidez) -->
+    <div class="bg-white rounded-[3rem] shadow-2xl shadow-slate-200/60 border border-slate-100 overflow-hidden animate-in fade-in slide-in-from-bottom-6 duration-700 relative">
         
-        <div class="p-8 md:p-12">
-            <!-- Informativo de Segurança -->
-            <div class="bg-slate-50 p-6 rounded-[28px] border border-slate-100 flex items-center gap-4 mb-10">
-                <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-serene-blue shadow-sm">
-                    <i class="fas fa-shield-alt text-xs"></i>
+        <!-- Detalhe decorativo no topo -->
+        <div class="h-2 w-full bg-gradient-to-r from-primary via-secondary to-accent"></div>
+
+        <div class="p-8 md:p-16">
+            <!-- Informativo de Segurança em AMARELO (Atenção Técnica) -->
+            <div class="bg-accent/10 p-8 rounded-[2.5rem] border-2 border-dashed border-accent/30 flex items-center gap-6 mb-12 group transition-all hover:bg-accent/20">
+                <div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-accent shadow-lg group-hover:scale-110 transition-transform">
+                    <i class="fas fa-shield-halved text-xl"></i>
                 </div>
-                <p class="text-[11px] text-slate-500 font-medium leading-relaxed italic">
-                    Suas informações são processadas em ambiente seguro e criptografado MayaCorp Cloud.
-                </p>
+                <div>
+                    <span class="text-sm font-black text-amber-900 uppercase tracking-tight">Ambiente Criptografado</span>
+                    <p class="text-[10px] text-amber-700 font-bold uppercase leading-relaxed mt-1">
+                        Suas informações são processadas em tempo real <br>nos servidores seguros da MayaCorp Cloud v4.0.
+                    </p>
+                </div>
             </div>
 
-            <form method="post" class="space-y-6">
+            <form method="post" class="space-y-8">
                 {% csrf_token %}
                 
-                <!-- RENDERIZAÇÃO DO FORMULÁRIO (Configurada via CSS no bloco style abaixo) -->
-                <div class="space-y-2">
+                <!-- RENDERIZAÇÃO DO FORMULÁRIO (MÁXIMA NITIDEZ) -->
+                <div class="space-y-6">
                     {{ form|crispy }}
                 </div>
 
-                <!-- BOTÕES DE AÇÃO -->
-                <div class="flex flex-col gap-4 pt-10 border-t border-slate-50 mt-10">
-                    <button type="submit" class="btn bg-mint-green border-none text-emerald-900 rounded-2xl h-16 shadow-xl shadow-mint-green/30 normal-case font-black text-lg italic hover:bg-emerald-400 hover:scale-[1.01] transition-all">
-                        Salvar Informações
+                <!-- BOTÕES DE AÇÃO (AZUL VIBRANTE) -->
+                <div class="flex flex-col gap-5 pt-10 border-t border-slate-100 mt-10">
+                    <button type="submit" class="btn bg-secondary border-none text-white rounded-[1.5rem] h-20 shadow-2xl shadow-secondary/30 font-black uppercase tracking-[2px] text-lg hover:bg-blue-800 hover:scale-[1.02] active:scale-95 transition-all group">
+                        <i class="fas fa-check-double mr-3 text-xl group-hover:animate-pulse"></i> SALVAR INFORMAÇÕES
                     </button>
-                    <button type="button" onclick="history.back()" class="btn btn-ghost rounded-2xl text-slate-400 font-bold normal-case">
+                    
+                    <button type="button" onclick="history.back()" class="btn btn-ghost h-14 text-slate-400 font-black uppercase tracking-widest text-xs hover:bg-slate-50">
                         Cancelar e Voltar
                     </button>
                 </div>
             </form>
         </div>
         
-        <!-- FOOTER DO CARD -->
-        <div class="bg-slate-50/50 py-5 text-center border-t border-slate-50">
-            <p class="text-[9px] text-slate-300 font-black uppercase tracking-[4px]">MayaCorp Intelligent Systems v2.1</p>
+        <!-- RODAPÉ TÉCNICO -->
+        <div class="bg-slate-50 py-5 text-center border-t border-slate-100">
+            <p class="text-[10px] text-slate-400 font-black uppercase tracking-[3px]">MayaCorp Intelligent Data Entry Engine</p>
         </div>
     </div>
 </div>
 
 <style>
-    /* Injeção de Estilo Soft UI nos campos do Crispy Forms */
+    /* Customização para o Crispy Forms assumir o Visual Studio Luxo */
     
-    /* Labels Minimalistas */
+    /* Labels no estilo Software de Elite */
     .form-control label, .mb-3 label { 
-        @apply text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block ml-2 !important; 
+        @apply text-[11px] font-black text-slate-500 uppercase tracking-[2px] mb-3 block ml-2 !important; 
     }
     
-    /* Inputs "Macios" */
+    /* Inputs de Alto Contraste e Nitidez (Fundo Branco + Borda Grossa) */
     .input, .textinput, .emailinput, .numberinput, .select, .textarea { 
-        @apply w-full bg-slate-50 border-slate-100 rounded-2xl px-6 h-14 focus:ring-4 focus:ring-serene-blue/10 focus:border-serene-blue/30 focus:outline-none transition-all text-slate-600 font-bold !important; 
+        @apply w-full bg-white border-2 border-slate-200 rounded-2xl px-6 h-14 focus:border-primary focus:ring-0 focus:outline-none transition-all text-slate-900 font-black placeholder:text-slate-300 shadow-sm !important; 
     }
 
     /* Textarea com respiro interno */
-    .textarea { @apply h-32 py-4 !important; }
+    .textarea { @apply h-40 py-5 leading-relaxed !important; }
 
-    /* Checkboxes/Radios Modernos */
-    .checkbox { @apply checkbox-primary rounded-lg border-slate-300 !important; }
+    /* Checkboxes/Radios Vibrantes */
+    .checkbox { @apply checkbox-secondary rounded-lg border-2 scale-110 !important; }
     
-    /* Mensagens de Erro */
-    .invalid-feedback { @apply text-[10px] font-bold text-rose-500 ml-2 mt-1 !important; }
+    /* Mensagens de Erro Nítidas (MARSALA) */
+    .invalid-feedback { @apply text-[11px] font-black text-primary uppercase tracking-widest ml-2 mt-2 !important; }
+
+    /* Asterisco de campo obrigatório em MARSALA */
+    .asteriskField { color: #802422 !important; font-weight: 900; }
 </style>
 
 <script>
-    // Foco automático e UX
+    // UX Inteligente: Foco Automático no primeiro campo
     document.addEventListener('DOMContentLoaded', function() {
         const firstInput = document.querySelector('input:not([type=hidden])');
         if (firstInput) firstInput.focus();

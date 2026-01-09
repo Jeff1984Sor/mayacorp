@@ -1,130 +1,136 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Contratos de {{ aluno.nome }} - MayaCorp{% endblock %}
+{% block title %}Contratos de {{ aluno.nome }} | MayaCorp Fit{% endblock %}
 
 {% block content %}
-<div class="max-w-6xl mx-auto pb-12">
+<div class="max-w-6xl mx-auto pb-24 px-4">
     
-    <!-- HEADER -->
-    <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
-        <div class="flex items-center gap-4">
-            <div class="w-14 h-14 bg-soft-lavender/30 rounded-[22px] flex items-center justify-center text-purple-600 shadow-sm border border-white">
-                <i class="fas fa-file-contract text-2xl"></i>
+    <!-- HEADER: Identidade Studio Premium -->
+    <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-8">
+        <div class="flex items-center gap-6">
+            <!-- Ícone em MARSALA (Coração Comercial) -->
+            <div class="w-16 h-16 bg-primary rounded-[22px] flex items-center justify-center text-white shadow-xl shadow-primary/30 border-2 border-white transition-transform hover:scale-110">
+                <i class="fas fa-file-signature text-2xl"></i>
             </div>
             <div>
-                <h1 class="text-2xl font-black text-slate-800 tracking-tight">Contratos do Aluno</h1>
-                <p class="text-[10px] text-slate-400 font-black uppercase tracking-[2px] mt-1">
-                    Histórico comercial: <span class="text-purple-600 lowercase font-bold">{{ aluno.nome }}</span>
+                <h1 class="text-4xl font-black text-slate-900 tracking-tighter uppercase">Contratos do Aluno</h1>
+                <p class="text-[11px] text-primary font-black uppercase tracking-[3px] mt-1">
+                    Histórico Comercial: <span class="text-slate-900">{{ aluno.nome|upper }}</span>
                 </p>
             </div>
         </div>
         
-        <div class="flex gap-3">
+        <div class="flex gap-4">
+            <!-- Botão Novo Contrato em AZUL VIBRANTE -->
             <a href="{% url 'novo_contrato' aluno.id %}" 
-               class="btn bg-serene-blue border-none text-white rounded-2xl px-6 h-12 shadow-lg shadow-blue-200 hover:bg-blue-400 normal-case font-black italic">
-                <i class="fas fa-plus mr-2 text-xs"></i> Novo Contrato
+               class="btn bg-secondary border-none text-white rounded-2xl px-8 h-14 shadow-2xl shadow-secondary/30 hover:bg-blue-800 hover:scale-105 transition-all font-black uppercase tracking-widest text-xs">
+                <i class="fas fa-plus-circle mr-2 text-lg"></i> NOVA VENDA
             </a>
             <a href="{% url 'aluno_detail' aluno.id %}" 
-               class="btn btn-ghost bg-white shadow-sm border-slate-100 rounded-2xl hover:bg-slate-50 transition-all text-slate-400 normal-case font-bold px-6">
-                Voltar
+               class="btn bg-white border-2 border-slate-200 shadow-sm rounded-2xl hover:bg-slate-50 transition-all text-slate-600 font-black px-8 h-14">
+                VOLTAR
             </a>
         </div>
     </header>
 
-    <!-- LISTA DE CONTRATOS (Card Soft UI) -->
-    <div class="bg-white rounded-[32px] shadow-xl shadow-slate-200/50 overflow-hidden border border-white">
+    <!-- LISTA DE CONTRATOS (Visual de Elite) -->
+    <div class="bg-white rounded-[3rem] shadow-2xl shadow-slate-200/60 overflow-hidden border border-slate-100">
         <div class="overflow-x-auto">
             <table class="table w-full border-collapse">
-                <!-- CABEÇALHO -->
+                <!-- CABEÇALHO MÁXIMO CONTRASTE -->
                 <thead>
-                    <tr class="border-b border-slate-50">
-                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[2px] font-black py-6 pl-8">Plano Contratado</th>
-                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[2px] font-black py-6">Período de Vigência</th>
-                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[2px] font-black py-6">Investimento</th>
-                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[2px] font-black py-6 text-center">Status</th>
-                        <th class="bg-white text-slate-400 uppercase text-[10px] tracking-[2px] font-black py-6 pr-8 text-right">Ações</th>
+                    <tr class="bg-slate-900 border-none">
+                        <th class="text-white uppercase text-[11px] tracking-[2px] font-black py-8 pl-12 text-left">Plano Contratado</th>
+                        <th class="text-white uppercase text-[11px] tracking-[2px] font-black py-8 text-left">Período de Vigência</th>
+                        <th class="text-white uppercase text-[11px] tracking-[2px] font-black py-8 text-left">Investimento</th>
+                        <th class="text-white uppercase text-[11px] tracking-[2px] font-black py-8 text-center">Status</th>
+                        <th class="text-white uppercase text-[11px] tracking-[2px] font-black py-8 pr-12 text-right">Gestão</th>
                     </tr>
                 </thead>
                 
-                <tbody class="divide-y divide-slate-50">
+                <tbody class="divide-y divide-slate-100">
                     {% for c in contratos %}
-                    <tr class="hover:bg-slate-50/50 transition-colors group">
-                        <!-- PLANO -->
-                        <td class="py-6 pl-8">
+                    <tr class="hover:bg-primary/5 transition-colors group">
+                        <!-- PLANO (MARSALA FOCUS) -->
+                        <td class="py-7 pl-12">
                             <div class="flex flex-col">
-                                <span class="text-slate-800 font-bold text-sm">{{ c.plano.nome }}</span>
-                                <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">
-                                    Pagamento em {{ c.qtde_parcelas }}x
+                                <span class="text-slate-900 font-black text-lg tracking-tighter group-hover:text-primary transition-colors">{{ c.plano.nome|upper }}</span>
+                                <span class="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1">
+                                    Pagamento em <span class="text-primary">{{ c.qtde_parcelas }}x</span> parcelas
                                 </span>
                             </div>
                         </td>
 
-                        <!-- VIGÊNCIA -->
-                        <td class="py-6">
-                            <div class="flex items-center gap-2 text-slate-500 text-xs font-medium">
-                                <i class="far fa-calendar-alt text-serene-blue"></i>
+                        <!-- VIGÊNCIA (AZUL) -->
+                        <td class="py-7">
+                            <div class="flex items-center gap-3 text-slate-600 text-xs font-black uppercase tracking-tight">
+                                <i class="far fa-calendar-check text-secondary text-base"></i>
                                 <span>{{ c.data_inicio|date:"d/m/y" }}</span>
-                                <span class="text-slate-300">→</span>
-                                <span>{% if c.data_fim %}{{ c.data_fim|date:"d/m/y" }}{% else %}Indeterminado{% endif %}</span>
+                                <i class="fas fa-arrow-right text-slate-300 mx-1 text-[10px]"></i>
+                                <span>{% if c.data_fim %}{{ c.data_fim|date:"d/m/y" }}{% else %}INDETERMINADO{% endif %}</span>
                             </div>
                         </td>
 
-                        <!-- VALOR TOTAL -->
-                        <td class="py-6">
-                            <div class="inline-flex items-center gap-1 text-purple-600 font-black text-sm italic">
-                                <span class="text-[10px] not-italic mr-1">R$</span> {{ c.valor_total }}
+                        <!-- VALOR TOTAL (ALTA NITIDEZ) -->
+                        <td class="py-7">
+                            <div class="inline-flex flex-col">
+                                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">Total do Plano</span>
+                                <div class="text-xl font-black text-slate-900 tracking-tighter mt-1">
+                                    <span class="text-xs text-primary mr-1">R$</span>{{ c.valor_total }}
+                                </div>
                             </div>
                         </td>
 
-                        <!-- STATUS (Badges Pastel) -->
-                        <td class="py-6 text-center">
+                        <!-- STATUS (BADGES VIBRANTES) -->
+                        <td class="py-7 text-center">
                             {% if c.status == 'ATIVO' %}
-                                <div class="badge bg-mint-green/20 border-none text-emerald-700 text-[9px] font-black py-3 px-4 rounded-xl uppercase">ATIVO</div>
+                                <div class="badge bg-emerald-500 border-none text-white text-[10px] font-black py-4 px-6 rounded-xl shadow-lg shadow-emerald-200 uppercase tracking-widest">ATIVO</div>
                             {% elif c.status == 'CANCELADO' %}
-                                <div class="badge bg-rose-50 border-none text-rose-500 text-[9px] font-black py-3 px-4 rounded-xl uppercase">CANCELADO</div>
+                                <div class="badge bg-primary border-none text-white text-[10px] font-black py-4 px-6 rounded-xl shadow-lg shadow-primary/20 uppercase tracking-widest">CANCELADO</div>
                             {% elif c.status == 'ENCERRADO' %}
-                                <div class="badge bg-slate-100 border-none text-slate-400 text-[9px] font-black py-3 px-4 rounded-xl uppercase">ENCERRADO</div>
+                                <div class="badge bg-slate-400 border-none text-white text-[10px] font-black py-4 px-6 rounded-xl uppercase tracking-widest">ENCERRADO</div>
                             {% else %}
-                                <div class="badge bg-orange-50 border-none text-orange-600 text-[9px] font-black py-3 px-4 rounded-xl uppercase">PENDENTE</div>
+                                <div class="badge bg-accent border-none text-accent-content text-[10px] font-black py-4 px-6 rounded-xl shadow-lg shadow-accent/20 uppercase tracking-widest">PENDENTE</div>
                             {% endif %}
                         </td>
 
-                        <!-- AÇÕES -->
-                        <td class="py-6 pr-8 text-right">
-                            <div class="flex justify-end gap-2">
+                        <!-- AÇÕES (AZUL E CINZA) -->
+                        <td class="py-7 pr-12 text-right">
+                            <div class="flex justify-end gap-3">
                                 <!-- Imprimir -->
                                 <a href="{% url 'imprimir_contrato' c.id %}" target="_blank" 
-                                   class="btn btn-square btn-sm rounded-xl bg-slate-50 border-none text-slate-400 hover:bg-slate-200 transition-all" 
+                                   class="btn btn-square btn-sm rounded-xl bg-slate-100 border-none text-slate-400 hover:bg-slate-900 hover:text-white transition-all shadow-sm" 
                                    title="Imprimir PDF">
-                                    <i class="fas fa-print text-xs"></i>
+                                    <i class="fas fa-print"></i>
                                 </a>
                                 
                                 <!-- Editar -->
                                 <a href="{% url 'contrato_update' c.id %}" 
-                                   class="btn btn-square btn-sm rounded-xl bg-serene-blue/10 border-none text-serene-blue hover:bg-serene-blue hover:text-white transition-all" 
+                                   class="btn btn-square btn-sm rounded-xl bg-slate-100 border-none text-slate-400 hover:bg-secondary hover:text-white transition-all shadow-sm" 
                                    title="Editar">
-                                    <i class="fas fa-pen text-xs"></i>
+                                    <i class="fas fa-edit"></i>
                                 </a>
                                 
                                 <!-- Excluir -->
                                 <a href="{% url 'contrato_delete' c.id %}" 
-                                   class="btn btn-square btn-sm rounded-xl bg-rose-50 border-none text-rose-300 hover:bg-rose-500 hover:text-white transition-all" 
+                                   class="btn btn-square btn-sm rounded-xl bg-slate-100 border-none text-slate-400 hover:bg-primary hover:text-white transition-all shadow-sm" 
                                    title="Excluir">
-                                    <i class="fas fa-trash text-xs"></i>
+                                    <i class="fas fa-trash-alt"></i>
                                 </a>
                             </div>
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="5" class="py-24 text-center">
+                        <td colspan="5" class="py-32 text-center">
                             <div class="flex flex-col items-center">
-                                <div class="w-20 h-20 bg-slate-50 rounded-[2.5rem] flex items-center justify-center text-slate-200 mb-6 border border-dashed border-slate-200">
-                                    <i class="fas fa-file-invoice text-4xl"></i>
+                                <div class="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center text-slate-200 mb-8 border-2 border-dashed border-slate-200">
+                                    <i class="fas fa-file-invoice-dollar text-4xl"></i>
                                 </div>
-                                <h3 class="text-slate-400 font-black uppercase text-sm tracking-widest">Nenhum contrato encontrado</h3>
-                                <p class="text-slate-300 text-xs mt-2 italic">Este aluno ainda não possui histórico de vendas.</p>
+                                <h3 class="text-slate-900 text-xl font-black tracking-tight uppercase">Sem histórico de vendas</h3>
+                                <p class="text-slate-400 mt-2 font-bold uppercase tracking-widest text-[11px]">Inicie um novo ciclo comercial para este aluno.</p>
+                                <a href="{% url 'novo_contrato' aluno.id %}" class="btn btn-primary mt-8 rounded-2xl">CADASTRAR PRIMEIRO CONTRATO</a>
                             </div>
                         </td>
                     </tr>
@@ -134,17 +140,20 @@
         </div>
     </div>
 
-    <!-- RODAPÉ TÉCNICO -->
-    <footer class="mt-12 flex justify-between items-center px-4">
-        <p class="text-[9px] text-slate-300 font-bold uppercase tracking-widest">Digital Contract Protocol v2.1</p>
-        <div class="flex gap-4">
+    <!-- RODAPÉ TÉCNICO (MARSALA E AZUL) -->
+    <footer class="mt-16 flex flex-col md:flex-row justify-between items-center px-6 gap-6">
+        <div class="flex items-center gap-3">
+            <i class="fas fa-shield-halved text-slate-300 text-xl"></i>
+            <p class="text-[10px] text-slate-400 font-black uppercase tracking-[2px]">MayaCorp Logic: Digital Contract Engine v3.1</p>
+        </div>
+        <div class="flex gap-8">
             <div class="flex items-center gap-2">
-                <div class="w-2 h-2 rounded-full bg-mint-green"></div>
-                <span class="text-[9px] text-slate-400 font-bold uppercase">Assinado</span>
+                <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
+                <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Assinatura Ativa</span>
             </div>
             <div class="flex items-center gap-2">
-                <div class="w-2 h-2 rounded-full bg-orange-400"></div>
-                <span class="text-[9px] text-slate-400 font-bold uppercase">Aguardando</span>
+                <div class="w-2.5 h-2.5 rounded-full bg-accent shadow-[0_0_8px_rgba(250,204,21,0.5)]"></div>
+                <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Em Processamento</span>
             </div>
         </div>
     </footer>

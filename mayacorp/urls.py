@@ -14,6 +14,7 @@ urlpatterns = [
     path('agenda/', include('agenda_fit.urls')),
     path('financeiro/', include('financeiro_fit.urls')),
     path('contratos/', include('contratos_fit.urls')), #feito
+    path('comunicacao/', include('comunicacao_fit.urls')), 
 
     # Rota necessária para o Tailwind atualizar a página sozinho (Live Reload)
     path("__reload__/", include("django_browser_reload.urls")),

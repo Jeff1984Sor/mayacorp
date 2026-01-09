@@ -63,8 +63,15 @@ def termo_template_create(request):
     if request.method == "POST":
         form = TermoTemplateForm(request.POST)
         if form.is_valid():
-            form.save()
+            termo = form.save(commit=False)
+            # IMPORTANTE: Vincular o termo à academia atual
+            termo.organizacao = request.tenant 
+            termo.save()
             return redirect('termo_template_list')
+        else:
+            # Se cair aqui, o formulário tem erros (ex: campo obrigatório vazio)
+            print(form.errors) 
     else:
         form = TermoTemplateForm()
-    return render(request, 'termos_fit/termo_template_form.html', {'form': form})
+    
+    return render(request, 'termo/termo_template_form.html', {'form': form})
