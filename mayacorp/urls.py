@@ -6,18 +6,21 @@ from core.views import debug_auth
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('core.urls')),       # Tudo que for raiz vai para o Core
-    path('tools/pdf/', include('pdf_tools.urls')), # Apps ficarão organizados
-    path('app/', include('portal_aluno.urls')), # O aluno acessa /app/
-    path('cadastros/', include('cadastros_fit.urls')), 
+    
+    # Adicionando namespaces para bater com os links da Sidebar
+    path('', include('core.urls', namespace='core')),       
+    path('cadastros/', include('cadastros_fit.urls', namespace='cadastros')), 
+    path('agenda/', include('agenda_fit.urls', namespace='agenda')),
+    path('financeiro/', include('financeiro_fit.urls', namespace='financeiro')),
+    path('contratos/', include('contratos_fit.urls', namespace='contratos')),
+    path('comunicacao/', include('comunicacao_fit.urls', namespace='comunicacao')), 
+    path('termos/', include('termos_fit.urls', namespace='termos')),
+    
+    # Outros Apps
+    path('tools/pdf/', include('pdf_tools.urls', namespace='pdf_tools')),
+    path('app/', include('portal_aluno.urls', namespace='portal_aluno')), 
     path('debug-login/', debug_auth),
-    path('agenda/', include('agenda_fit.urls')),
-    path('financeiro/', include('financeiro_fit.urls')),
-    path('contratos/', include('contratos_fit.urls')), #feito
-    path('comunicacao/', include('comunicacao_fit.urls')), 
-    path('termos/', include('termos_fit.urls')),  # ✅ NOVA LINHA
-    path('core/', include('core.urls')), 
-
+    
     # Rota necessária para o Tailwind atualizar a página sozinho (Live Reload)
     path("__reload__/", include("django_browser_reload.urls")),
 ]
