@@ -138,3 +138,12 @@ class UsuarioUpdateView(LoginRequiredMixin, UpdateView):
     fields = ['username', 'email', 'first_name', 'last_name', 'is_staff', 'is_active']
     template_name = 'core/form_usuario.html'
     success_url = reverse_lazy('core:lista_usuarios')
+
+@login_required
+def dashboard_view(request):
+    # Aqui você pode buscar dados para o dashboard depois
+    context = {
+        'total_alunos': 0, # Exemplo: Aluno.objects.count()
+        'proximas_aulas': [], # Exemplo: Aula.objects.filter(...)
+    }
+    return render(request, 'core/dashboard.html', context)
