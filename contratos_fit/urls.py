@@ -22,10 +22,9 @@ urlpatterns = [
 
     # MODELOS DE CONTRATO (Os templates/textos dos contratos)
     # Mudei de 'template_list' para 'modelo_list' para bater com a sidebar
-    path('templates/', views.TemplateListView.as_view(), name='modelo_list'),
-    path('templates/novo/', views.TemplateCreateView.as_view(), name='modelo_create'),
-    path('templates/editar/<int:pk>/', views.TemplateEditorView.as_view(), name='modelo_update'),
-
+    path('templates/', views.TemplateListView.as_view(), name='template_list'),
+    path('templates/novo/', views.TemplateCreateView.as_view(), name='template_create'),
+    path('templates/editar/<int:pk>/', views.TemplateEditorView.as_view(), name='template_update'),
     # FILTROS POR ALUNO
     path('aluno/<int:aluno_id>/', views.lista_contratos_aluno, name='lista_contratos_aluno'),
 ]
