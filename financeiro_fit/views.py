@@ -397,27 +397,57 @@ class LancamentoUpdateView(LoginRequiredMixin, UpdateView):
     fields = '__all__' # Ou especifique os campos
     success_url = reverse_lazy('financeiro_lista')
 
+@login_required
 def relatorio_dre(request):
-    # Dados de teste - UI funcionando 100%
-    dre_receitas = [
-        {'categoria__nome': 'Aulas Presenciais', 'total': 'R$ 45.200,00'},
-        {'categoria__nome': 'Aulas Online', 'total': 'R$ 8.500,00'},
-    ]
-    dre_despesas = [
-        {'categoria__nome': 'Aluguel', 'total': 'R$ 12.000,00'},
-        {'categoria__nome': 'Funcionários', 'total': 'R$ 20.400,00'},
-    ]
+    # 1. Pegar Mês e Ano do filtro (ou usar o atual como padrão)
+    hoje = datetime.now()
+    mes_selecionado = int(request.GET.get('mes', hoje.month))
+    ano_selecionado = int(request.GET.get('ano', hoje.year))
+
+    # 2. Filtrar Lançamentos PAGOS no período
+    # Usamos o status 'PAGO' para ser um DRE de regime de caixa (o que realmente entrou/saiu)
+    base_queryset = Lancamento.objects.filter(
+        status='PAGO',
+        data_vencimento__month=mes_selecionado,
+        data_vencimento__year=ano_selecionado
+    )
+
+    # 3. Agrupar Receitas por Categoria
+    dre_receitas = base_queryset.filter(categoria__tipo='RECEITA').values(
+        'categoria__nome'
+    ).annotate(
+        total=Sum('valor')
+    ).order_by('-total')
+
+    # 4. Agrupar Despesas por Categoria
+    dre_despesas = base_queryset.filter(categoria__tipo='DESPESA').values(
+        'categoria__nome'
+    ).annotate(
+        total=Sum('valor')
+    ).order_by('-total')
+
+    # 5. Calcular Totais Finais
+    total_receitas = sum(item['total'] for item in dre_receitas) or 0
+    total_despesas = sum(item['total'] for item in dre_despesas) or 0
+    lucro_liquido = total_receitas - total_despesas
     
+    # 6. Calcular Margem de Lucro %
+    margem_lucro = 0
+    if total_receitas > 0:
+        margem_lucro = (lucro_liquido / total_receitas) * 100
+
     context = {
         'dre_receitas': dre_receitas,
         'dre_despesas': dre_despesas,
-        'total_receitas': 'R$ 53.700,00',
-        'total_despesas': 'R$ 32.400,00',
-        'lucro_liquido': 'R$ 21.300,00',
-        'margem_lucro': '39,7',
+        'total_receitas': total_receitas,
+        'total_despesas': total_despesas,
+        'lucro_liquido': lucro_liquido,
+        'margem_lucro': round(margem_lucro, 1),
+        'mes_sel': mes_selecionado,
+        'ano_sel': ano_selecionado,
     }
+    
     return render(request, 'financeiro_fit/relatorio_dre.html', context)
-
 # Adicione esta classe na sua views.py
 class CategoriaUpdateView(LoginRequiredMixin, UpdateView):
     model = CategoriaFinanceira
