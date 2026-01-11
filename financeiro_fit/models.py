@@ -93,7 +93,7 @@ class Lancamento(models.Model):
     
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDENTE')
     criado_em = models.DateTimeField(auto_now_add=True)
-
+    observacao = models.TextField(blank=True, null=True)
     def __str__(self):
         tipo = "Receita" if self.categoria.tipo == 'RECEITA' else "Despesa"
         return f"[{tipo}] {self.descricao} - R$ {self.valor}"
