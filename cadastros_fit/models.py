@@ -29,6 +29,8 @@ class Profissional(models.Model):
     data_nascimento = models.DateField("Data de Nascimento", blank=True, null=True)
     email = models.EmailField("E-mail", max_length=255, blank=True, null=True)
     telefone = models.CharField("Celular/WhatsApp", max_length=20, blank=True, null=True)
+    PERFIL_CHOICES = [('ADMIN', 'Administrador'), ('INSTRUTOR', 'Instrutor / Prof.')]
+    perfil = models.CharField(max_length=20, choices=PERFIL_CHOICES, default='INSTRUTOR')
     
     # --- DADOS PROFISSIONAIS ---
     crefito = models.CharField(max_length=20, blank=True, verbose_name="Registro Profissional")
