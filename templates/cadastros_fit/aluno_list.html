@@ -6,123 +6,71 @@
 {% block content %}
 <div class="max-w-7xl mx-auto pb-20 px-4">
     
-    <!-- HEADER: Imponente e Vibrante -->
-    <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
+    <!-- HEADER: Estilo Seufisio -->
+    <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6 px-2">
         <div class="flex items-center gap-5">
-            <!-- Ícone em MARSALA -->
-            <div class="w-16 h-16 bg-primary rounded-[22px] flex items-center justify-center text-white shadow-xl shadow-primary/30 border-2 border-white transition-transform hover:scale-110">
+            <div class="w-16 h-16 bg-primary rounded-[22px] flex items-center justify-center text-white shadow-xl shadow-primary/30 border-2 border-white transition-transform hover:scale-105">
                 <i class="fas fa-users text-2xl"></i>
             </div>
             <div>
                 <h1 class="text-4xl font-black text-slate-900 tracking-tighter">Gestão de Alunos</h1>
                 <p class="text-[11px] text-primary font-black uppercase tracking-[3px] mt-1">
-                    Total de <span class="text-slate-900">{{ alunos|length }}</span> membros ativos no studio
+                    Total de <span class="text-slate-900">{{ alunos|length }}</span> membros ativos
                 </p>
             </div>
         </div>
         
-        <!-- Botão Novo Aluno em AZUL VIBRANTE -->
-        <a href="{% url 'aluno_create' %}" 
-           class="btn bg-secondary border-none text-white rounded-2xl px-10 h-16 shadow-2xl shadow-secondary/30 hover:bg-blue-800 hover:scale-105 transition-all normal-case font-black uppercase tracking-widest text-xs">
-            <i class="fas fa-user-plus mr-2 text-lg"></i> NOVO ALUNO
-        </a>
+        <!-- BOTÃO QUE ABRE O MODAL -->
+        <button onclick="modal_novo_aluno.showModal()" class="btn bg-primary border-none text-white rounded-2xl px-10 h-16 shadow-2xl shadow-primary/30 hover:scale-105 transition-all font-black uppercase tracking-widest text-xs">
+            <i class="fas fa-plus-circle mr-2 text-lg"></i> CADASTRAR NOVO
+        </button>
     </header>
 
-    <!-- LISTA DE ALUNOS (Card Premium Studio) -->
+    <!-- LISTA DE ALUNOS -->
     <div class="bg-white rounded-[3rem] shadow-2xl shadow-slate-200/60 overflow-hidden border border-slate-100">
         <div class="overflow-x-auto">
             <table class="table w-full border-collapse">
-                <!-- CABEÇALHO COM CONTRASTE MÁXIMO -->
                 <thead>
                     <tr class="bg-slate-900 border-none">
                         <th class="text-white uppercase text-[11px] tracking-[2px] font-black py-8 pl-12">Perfil do Aluno</th>
                         <th class="text-white uppercase text-[11px] tracking-[2px] font-black py-8">Identificação</th>
-                        <th class="text-white uppercase text-[11px] tracking-[2px] font-black py-8">Contato Direto</th>
+                        <th class="text-white uppercase text-[11px] tracking-[2px] font-black py-8">Contato</th>
                         <th class="text-white uppercase text-[11px] tracking-[2px] font-black py-8 text-center">Status</th>
                         <th class="text-white uppercase text-[11px] tracking-[2px] font-black py-8 pr-12 text-right">Ações</th>
                     </tr>
                 </thead>
-                
                 <tbody class="divide-y divide-slate-100">
                     {% for aluno in alunos %}
-                    <tr class="hover:bg-primary/5 transition-colors group cursor-pointer" 
-                        onclick="window.location='{% url 'aluno_detail' aluno.pk %}'">
-                        
-                        <!-- ALUNO (Avatar + Nome) -->
+                    <tr class="hover:bg-slate-50 transition-colors group cursor-pointer" onclick="window.location='{% url 'aluno_detail' aluno.pk %}'">
                         <td class="py-7 pl-12">
                             <div class="flex items-center gap-5">
                                 <div class="avatar">
-                                    <div class="w-16 h-16 rounded-3xl shadow-xl shadow-primary/10 border-4 border-white group-hover:scale-110 transition-transform ring-1 ring-slate-100">
+                                    <div class="w-16 h-16 rounded-3xl shadow-xl shadow-primary/10 border-4 border-white group-hover:scale-110 transition-transform">
                                         {% if aluno.foto_rosto %}
                                             <img src="{{ aluno.foto_rosto.url }}" class="object-cover" />
                                         {% else %}
-                                            <div class="bg-slate-100 flex items-center justify-center text-primary font-black text-2xl uppercase">
-                                                {{ aluno.nome|first }}
-                                            </div>
+                                            <div class="bg-slate-100 flex items-center justify-center text-primary font-black text-2xl uppercase w-full h-full">{{ aluno.nome|first }}</div>
                                         {% endif %}
                                     </div>
                                 </div>
                                 <div class="flex flex-col">
-                                    <span class="text-slate-900 font-black text-lg group-hover:text-primary transition-colors tracking-tighter">{{ aluno.nome|upper }}</span>
-                                    <span class="text-xs text-slate-400 font-bold lowercase italic tracking-wide">{{ aluno.email|default:"sem e-mail cadastrado" }}</span>
+                                    <span class="text-slate-900 font-black text-lg group-hover:text-primary tracking-tighter">{{ aluno.nome|upper }}</span>
+                                    <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Matrícula: {{ aluno.id }}</span>
                                 </div>
                             </div>
                         </td>
-
-                        <!-- CPF / ID -->
+                        <td class="py-7"><span class="text-xs font-black text-slate-500 uppercase">{{ aluno.cpf|default:"---" }}</span></td>
                         <td class="py-7">
-                            <span class="text-xs font-black text-slate-700 bg-slate-100 px-4 py-2 rounded-xl border border-slate-200 uppercase tracking-widest">
-                                {{ aluno.cpf|default:"Não informado" }}
-                            </span>
-                        </td>
-
-                        <!-- TELEFONE (AZUL) -->
-                        <td class="py-7">
-                            <div class="flex items-center gap-3 text-slate-700 text-sm font-black uppercase tracking-tighter">
-                                <div class="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-600">
-                                    <i class="fab fa-whatsapp"></i>
-                                </div>
-                                {{ aluno.telefone }}
+                            <div class="flex items-center gap-2 text-slate-700 text-sm font-black">
+                                <i class="fab fa-whatsapp text-emerald-500 text-lg"></i> {{ aluno.telefone }}
                             </div>
                         </td>
-
-                        <!-- STATUS (VIBRANTE) -->
                         <td class="py-7 text-center">
-                            {% if aluno.bloqueado_catraca %}
-                                <div class="badge bg-primary border-none text-white text-[10px] font-black py-4 px-6 rounded-xl shadow-lg shadow-primary/20">BLOQUEADO</div>
-                            {% elif aluno.ativo %}
-                                <div class="badge bg-emerald-500 border-none text-white text-[10px] font-black py-4 px-6 rounded-xl shadow-lg shadow-emerald-200">ATIVO</div>
-                            {% else %}
-                                <div class="badge bg-slate-400 border-none text-white text-[10px] font-black py-4 px-6 rounded-xl">INATIVO</div>
-                            {% endif %}
+                            <div class="badge {% if aluno.ativo %}bg-emerald-500{% else %}bg-slate-400{% endif %} border-none text-white text-[10px] font-black py-4 px-6 rounded-xl uppercase">{{ aluno.ativo|yesno:"ATIVO,INATIVO" }}</div>
                         </td>
-
-                        <!-- AÇÕES (AZUL E MARSALA) -->
                         <td class="py-7 pr-12 text-right">
-                            <div class="flex justify-end gap-3" onclick="event.stopPropagation();">
-                                <a href="{% url 'aluno_update' aluno.pk %}" 
-                                   class="btn btn-square btn-sm rounded-xl bg-slate-100 border-none text-slate-400 hover:bg-secondary hover:text-white transition-all shadow-sm" 
-                                   title="Editar Dados">
-                                    <i class="fas fa-edit text-base"></i>
-                                </a>
-                                <a href="{% url 'aluno_delete' aluno.pk %}" 
-                                   class="btn btn-square btn-sm rounded-xl bg-slate-100 border-none text-slate-400 hover:bg-primary hover:text-white transition-all shadow-sm" 
-                                   title="Excluir Aluno">
-                                    <i class="fas fa-trash-alt text-base"></i>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="5" class="py-32 text-center">
-                            <div class="flex flex-col items-center">
-                                <div class="w-28 h-28 bg-slate-50 rounded-[3rem] flex items-center justify-center text-slate-200 mb-8 border-2 border-dashed border-slate-200">
-                                    <i class="fas fa-user-slash text-4xl"></i>
-                                </div>
-                                <h3 class="text-slate-900 text-2xl font-black tracking-tight">O studio está vazio?</h3>
-                                <p class="text-slate-400 mt-2 font-bold uppercase tracking-[2px] text-xs">Comece cadastrando o primeiro aluno acima.</p>
-                                <a href="{% url 'aluno_create' %}" class="btn btn-primary mt-8 rounded-2xl">CADASTRAR AGORA</a>
+                            <div class="flex justify-end gap-2" onclick="event.stopPropagation();">
+                                <a href="{% url 'aluno_update' aluno.pk %}" class="btn btn-square btn-sm rounded-xl bg-slate-50 text-slate-400 hover:bg-primary hover:text-white transition-all"><i class="fas fa-edit"></i></a>
                             </div>
                         </td>
                     </tr>
@@ -132,4 +80,53 @@
         </div>
     </div>
 </div>
+
+<!-- MODAL DE CADASTRO (IGUAL AO SEUFISIO) -->
+<dialog id="modal_novo_aluno" class="modal">
+    <div class="modal-box max-w-3xl bg-white rounded-[3rem] p-10">
+        <header class="flex justify-between items-center mb-10">
+            <h3 class="text-2xl font-black text-slate-800">Cadastrar Novo Aluno</h3>
+            <form method="dialog"><button class="btn btn-sm btn-circle btn-ghost">✕</button></form>
+        </header>
+
+        <form action="{% url 'aluno_create' %}" method="post" class="space-y-8">
+            {% csrf_token %}
+            
+            <section>
+                <h4 class="text-[10px] font-black text-primary uppercase tracking-[3px] border-b border-slate-100 pb-2 mb-6">Informações Pessoais</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="form-control">
+                        <label class="label"><span class="label-text font-black text-slate-600">Nome Completo</span></label>
+                        <input type="text" name="nome" placeholder="Ex: Adriana Renger" class="input input-bordered rounded-2xl h-14 font-bold" required />
+                    </div>
+                    <div class="form-control">
+                        <label class="label"><span class="label-text font-black text-slate-600">Data de Nascimento</span></label>
+                        <input type="date" name="data_nascimento" class="input input-bordered rounded-2xl h-14 font-bold" />
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h4 class="text-[10px] font-black text-primary uppercase tracking-[3px] border-b border-slate-100 pb-2 mb-6">Contato</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="form-control">
+                        <label class="label"><span class="label-text font-black text-slate-600">Celular / WhatsApp</span></label>
+                        <input type="text" name="telefone" placeholder="(00) 00000-0000" class="input input-bordered rounded-2xl h-14 font-bold" />
+                    </div>
+                    <div class="form-control">
+                        <label class="label"><span class="label-text font-black text-slate-600">E-mail</span></label>
+                        <input type="email" name="email" placeholder="aluno@email.com" class="input input-bordered rounded-2xl h-14 font-bold" />
+                    </div>
+                </div>
+            </section>
+
+            <div class="modal-action flex justify-between items-center pt-6">
+                <form method="dialog"><button class="btn btn-ghost rounded-2xl font-bold">Cancelar</button></form>
+                <button type="submit" class="btn bg-emerald-500 hover:bg-emerald-600 border-none text-white rounded-2xl px-12 h-16 font-black uppercase tracking-widest shadow-xl shadow-emerald-200 transition-all hover:scale-105">
+                    SALVAR CADASTRO
+                </button>
+            </div>
+        </form>
+    </div>
+</dialog>
 {% endblock %}

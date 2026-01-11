@@ -7,325 +7,97 @@
 {% block content %}
 <div class="max-w-7xl mx-auto pb-24 px-4">
 
-    <!-- 1. CABEÇALHO DO PERFIL (ESTILO STUDIO LUXO) -->
-    <header class="bg-white rounded-[3rem] shadow-2xl shadow-slate-200/60 border border-slate-100 p-10 mb-10 relative overflow-hidden">
-        <!-- Detalhe decorativo Marsala de fundo -->
-        <div class="absolute top-0 right-0 w-80 h-80 bg-primary/5 rounded-full -mr-32 -mt-32"></div>
+    <!-- HEADER DA FICHA: Estilo Seufisio Central -->
+    <header class="bg-white rounded-[3rem] shadow-2xl border border-slate-100 p-10 mb-8 flex flex-col md:flex-row items-center gap-10 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-slate-50 rounded-full -mr-32 -mt-32 opacity-50"></div>
         
-        <div class="relative flex flex-col md:flex-row items-center md:items-start gap-10">
-            <!-- FOTO DO ALUNO COM BORDA VIBRANTE -->
-            <div class="relative">
-                <div class="w-40 h-40 rounded-[3rem] overflow-hidden border-4 border-white shadow-2xl shadow-primary/20 ring-4 ring-primary/10">
-                    {% if aluno.foto_rosto %}
-                        <img src="{{ aluno.foto_rosto.url }}" class="w-full h-full object-cover">
-                    {% else %}
-                        <div class="w-full h-full bg-slate-50 flex items-center justify-center text-primary text-5xl font-black">
-                            {{ aluno.nome|first|upper }}
-                        </div>
-                    {% endif %}
+        <!-- Foto e Status -->
+        <div class="relative">
+            <div class="w-32 h-32 rounded-[2.5rem] overflow-hidden border-4 border-white shadow-2xl ring-4 ring-primary/5">
+                {% if aluno.foto_rosto %}
+                    <img src="{{ aluno.foto_rosto.url }}" class="w-full h-full object-cover">
+                {% else %}
+                    <div class="w-full h-full bg-slate-50 flex items-center justify-center text-primary text-4xl font-black">{{ aluno.nome|first }}</div>
+                {% endif %}
+            </div>
+            <div class="absolute -bottom-2 -right-2 w-8 h-8 bg-emerald-500 border-4 border-white rounded-full"></div>
+        </div>
+
+        <div class="flex-1 text-center md:text-left z-10">
+            <div class="flex flex-col md:flex-row md:items-center gap-4 mb-2">
+                <h1 class="text-3xl font-black text-slate-900 tracking-tighter">{{ aluno.nome|upper }}</h1>
+                <span class="text-[10px] font-black text-slate-400 bg-slate-50 px-3 py-1 rounded-full border border-slate-100 uppercase tracking-widest">Matrícula: {{ aluno.id }}</span>
+            </div>
+            
+            <div class="flex flex-wrap justify-center md:justify-start gap-4 mb-6">
+                <div class="flex items-center gap-2 px-4 py-2 bg-emerald-50 rounded-xl text-emerald-600 text-xs font-bold">
+                    <i class="fab fa-whatsapp"></i> {{ aluno.telefone }}
                 </div>
-                <!-- Status Ativo em Verde Vibrante -->
-                <div class="absolute -bottom-2 -right-2 w-10 h-10 bg-emerald-500 border-4 border-white rounded-full shadow-lg animate-pulse" title="Aluno Ativo"></div>
+                <div class="flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-xl text-slate-500 text-xs font-bold uppercase">
+                   <i class="far fa-user"></i> Responsável: {{ aluno.responsavel|default:"Não informado" }}
+                </div>
             </div>
 
-            <div class="flex-1 text-center md:text-left">
-                <div class="flex flex-col md:flex-row md:items-center gap-4 mb-4">
-                    <h1 class="text-4xl font-black text-slate-900 tracking-tighter">{{ aluno.nome|upper }}</h1>
-                    <span class="px-4 py-1.5 bg-primary text-white text-[10px] font-black rounded-full shadow-lg shadow-primary/20">ID #{{ aluno.id }}</span>
-                    
-                    <!-- BOTÃO WHATSAPP (VIBRANTE) -->
-                    <button onclick="enviarCobranca({{ aluno.id }})" class="btn bg-emerald-500 hover:bg-emerald-600 btn-sm rounded-xl px-5 text-white border-none shadow-lg shadow-emerald-200 font-black uppercase tracking-widest text-[10px]">
-                        <i class="fab fa-whatsapp text-sm mr-2"></i> Cobrar via WhatsApp
-                    </button>
-                </div>
-                
-                <div class="flex flex-wrap justify-center md:justify-start gap-6 text-slate-500 text-sm font-bold mb-8">
-                    <span class="flex items-center gap-2"><i class="far fa-calendar-alt text-primary text-lg"></i> {{ aluno.data_nascimento|default:"--" }}</span>
-                    {% if aluno.telefone %}
-                        <a href="https://wa.me/55{{ aluno.telefone|apenas_numeros }}" target="_blank" class="flex items-center gap-2 text-secondary hover:text-blue-800 transition-colors">
-                            <i class="fab fa-whatsapp text-lg text-emerald-500"></i> {{ aluno.telefone }}
-                        </a>
-                    {% endif %}
-                </div>
-
-                <div class="flex flex-wrap justify-center md:justify-start gap-4">
-                    <a href="{% url 'novo_contrato' aluno.pk %}" class="btn bg-secondary border-none text-white rounded-2xl px-10 shadow-xl shadow-secondary/30 hover:bg-blue-800 h-14 font-black uppercase tracking-widest text-xs">
-                        <i class="fas fa-plus-circle text-lg mr-2"></i> NOVA VENDA
-                    </a>
-                    <a href="{% url 'aluno_update' aluno.pk %}" class="btn bg-slate-100 text-slate-600 border-none rounded-2xl px-8 hover:bg-slate-200 h-14 font-black uppercase tracking-widest text-xs">
-                        <i class="fas fa-pen mr-2"></i> EDITAR
-                    </a>
-                </div>
+            <!-- BOTÕES DE AÇÃO RÁPIDA -->
+            <div class="flex flex-wrap justify-center md:justify-start gap-3">
+                <button class="btn btn-sm h-10 bg-white border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 font-black text-[10px] tracking-widest"><i class="fas fa-print mr-2"></i> IMPRIMIR FICHA</button>
+                <button class="btn btn-sm h-10 bg-white border-slate-200 text-emerald-600 rounded-xl hover:bg-emerald-50 font-black text-[10px] tracking-widest"><i class="fab fa-whatsapp mr-2 text-sm"></i> DAR BOAS VINDAS</button>
+                <a href="{% url 'aluno_update' aluno.pk %}" class="btn btn-sm h-10 bg-white border-slate-200 text-primary rounded-xl hover:bg-red-50 font-black text-[10px] tracking-widest"><i class="fas fa-edit mr-2"></i> EDITAR CADASTRO</a>
             </div>
         </div>
     </header>
 
-    <!-- 2. NAVEGAÇÃO POR ABAS (ALTÍSSIMO CONTRASTE) -->
-    <div class="flex gap-3 mb-10 overflow-x-auto pb-4 custom-scroll">
-        <button class="tab-btn active bg-primary text-white shadow-xl shadow-primary/30" onclick="openTab(event, 'visao')">VISÃO GERAL</button>
-        <button class="tab-btn bg-white text-slate-400 hover:bg-slate-50" onclick="openTab(event, 'agenda')">AGENDA</button>
-        <button class="tab-btn bg-white text-slate-400 hover:bg-slate-50" onclick="openTab(event, 'financeiro')">FINANCEIRO</button>
-        <button class="tab-btn bg-white text-slate-400 hover:bg-slate-50" onclick="openTab(event, 'contratos')">CONTRATOS</button>
-        <button class="tab-btn bg-white text-slate-400 hover:bg-slate-50" onclick="openTab(event, 'termos')">TERMOS</button>
-        <button class="tab-btn bg-white text-slate-400 hover:bg-slate-50" onclick="openTab(event, 'whatsapp_tab')">WHATSAPP</button>
-    </div>
+    <!-- NAVEGAÇÃO POR ABAS (Substitui as abas antigas) -->
+    <div class="bg-white rounded-[2rem] shadow-xl border border-slate-100 overflow-hidden mb-10">
+        <div class="flex border-b border-slate-100 overflow-x-auto">
+            <button class="flex-1 py-6 px-4 font-black text-[11px] tracking-widest uppercase text-primary border-b-4 border-primary transition-all">Central de Vendas</button>
+            <button class="flex-1 py-6 px-4 font-black text-[11px] tracking-widest uppercase text-slate-400 hover:text-slate-600 transition-all border-b-4 border-transparent hover:border-slate-200">Financeiro</button>
+            <button class="flex-1 py-6 px-4 font-black text-[11px] tracking-widest uppercase text-slate-400 hover:text-slate-600 transition-all border-b-4 border-transparent hover:border-slate-200">Prontuário</button>
+            <button class="flex-1 py-6 px-4 font-black text-[11px] tracking-widest uppercase text-slate-400 hover:text-slate-600 transition-all border-b-4 border-transparent hover:border-slate-200">Contratos</button>
+            <button class="flex-1 py-6 px-4 font-black text-[11px] tracking-widest uppercase text-slate-400 hover:text-slate-600 transition-all border-b-4 border-transparent hover:border-slate-200">Relatório</button>
+        </div>
 
-    <!-- 3. CONTEÚDO DAS ABAS -->
-    <div id="tab-content" class="min-h-[400px]">
-        
-        <!-- ABA 1: VISÃO GERAL -->
-        <div id="visao" class="tab-pane block animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
-                
-                <div class="lg:col-span-8 space-y-10">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <!-- Card Próxima Aula (AZUL) -->
-                        <div class="bg-white p-10 rounded-[2.5rem] shadow-2xl shadow-slate-200/60 border-t-8 border-secondary">
-                            <h6 class="text-[11px] font-black text-secondary uppercase tracking-[3px] mb-6">Próxima Aula</h6>
-                            {% if proxima_aula %}
-                                <div class="flex items-center justify-between">
-                                    <div>
-                                        <h4 class="text-3xl font-black text-slate-900 tracking-tighter">{{ proxima_aula.data_hora_inicio|date:"d/m • H:i" }}</h4>
-                                        <p class="text-sm text-slate-500 font-bold mt-2">Prof. {{ proxima_aula.profissional.nome }}</p>
-                                    </div>
-                                    <div class="w-14 h-14 bg-secondary/10 rounded-2xl flex items-center justify-center text-secondary shadow-inner">
-                                        <i class="fas fa-calendar-check text-2xl"></i>
-                                    </div>
-                                </div>
-                            {% else %}
-                                <p class="text-slate-400 font-bold italic">Nenhum agendamento futuro.</p>
-                            {% endif %}
-                        </div>
-
-                        <!-- Card Última Evolução (AMARELO) -->
-                        <div class="bg-white p-10 rounded-[2.5rem] shadow-2xl shadow-slate-200/60 border-t-8 border-accent">
-                            <h6 class="text-[11px] font-black text-amber-600 uppercase tracking-[3px] mb-6">Feedback Técnico</h6>
-                            {% if ultima_evolucao %}
-                                <h4 class="text-sm font-black text-slate-900 uppercase tracking-tight">{{ ultima_evolucao.data_hora_inicio|date:"d/m/Y" }}</h4>
-                                <p class="text-sm text-slate-600 mt-3 leading-relaxed font-medium">"{{ ultima_evolucao.evolucao_texto|truncatechars:100 }}"</p>
-                            {% else %}
-                                <p class="text-slate-400 font-bold italic">Sem registros recentes de evolução.</p>
-                            {% endif %}
-                        </div>
+        <div class="p-12">
+            <h2 class="text-center text-3xl font-black text-slate-800 mb-12">Escolha uma das opções abaixo:</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <!-- Opção 1: Recorrentes -->
+                <div class="p-8 rounded-[2rem] border-2 border-primary/10 bg-primary/5 hover:border-primary transition-all group cursor-pointer text-center">
+                    <div class="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center text-white mx-auto mb-6 shadow-xl shadow-primary/20">
+                        <i class="fas fa-sync text-2xl"></i>
                     </div>
+                    <h3 class="font-black text-slate-800 mb-2 uppercase tracking-tight">Serviços Recorrentes</h3>
+                    <p class="text-xs text-slate-500 font-medium">Planos mensais com renovação automática.</p>
                 </div>
 
-                <!-- Sidebar de Documentos (MARSALA) -->
-                <div class="lg:col-span-4 space-y-8">
-                    <div class="bg-white p-10 rounded-[2.5rem] shadow-2xl shadow-slate-200/60 border border-slate-100">
-                        <h3 class="text-[11px] font-black text-primary uppercase tracking-[3px] mb-8">Central de Documentos</h3>
-                        <div class="flex flex-col gap-4">
-                            {% for doc in documentos_extras %}
-                                <a href="{{ doc.arquivo.url }}" target="_blank" class="p-5 bg-slate-50 rounded-2xl flex items-center justify-between group hover:bg-primary hover:text-white transition-all shadow-sm">
-                                    <div class="flex items-center gap-4">
-                                        <i class="fas fa-file-pdf text-primary group-hover:text-white text-xl"></i>
-                                        <span class="text-sm font-black uppercase tracking-tighter">{{ doc.titulo|truncatechars:20 }}</span>
-                                    </div>
-                                    <i class="fas fa-arrow-right text-slate-300 group-hover:text-white transition-transform group-hover:translate-x-1"></i>
-                                </a>
-                            {% endfor %}
-                            
-                            <button onclick="modal_documento.showModal()" class="btn btn-ghost bg-slate-50 hover:bg-primary/10 border-2 border-dashed border-slate-200 hover:border-primary h-16 rounded-2xl group transition-all mt-6">
-                                <i class="fas fa-cloud-upload-alt text-primary group-hover:scale-125 transition-transform mr-3"></i>
-                                <span class="text-xs font-black text-slate-600 group-hover:text-primary uppercase tracking-widest">Anexar Novo</span>
-                            </button>
-                        </div>
+                <!-- Opção 2: Pacotes Fixos -->
+                <div class="p-8 rounded-[2rem] border-2 border-emerald-100 bg-emerald-50/50 hover:border-emerald-500 transition-all group cursor-pointer text-center">
+                    <div class="w-16 h-16 bg-emerald-500 rounded-2xl flex items-center justify-center text-white mx-auto mb-6 shadow-xl shadow-emerald-100">
+                        <i class="fas fa-star text-2xl"></i>
                     </div>
+                    <h3 class="font-black text-slate-800 mb-2 uppercase tracking-tight">Pacotes Fixos</h3>
+                    <p class="text-xs text-slate-500 font-medium">Planos de longa duração parcelados.</p>
+                </div>
+
+                <!-- Opção 3: Personalizados -->
+                <div class="p-8 rounded-[2rem] border-2 border-amber-100 bg-amber-50/50 hover:border-amber-500 transition-all group cursor-pointer text-center">
+                    <div class="w-16 h-16 bg-amber-500 rounded-2xl flex items-center justify-center text-white mx-auto mb-6 shadow-xl shadow-amber-100">
+                        <i class="fas fa-user-tag text-2xl"></i>
+                    </div>
+                    <h3 class="font-black text-slate-800 mb-2 uppercase tracking-tight">Pacotes Personalizados</h3>
+                    <p class="text-xs text-slate-500 font-medium">Sessões avulsas ou estéticas.</p>
+                </div>
+
+                <!-- Opção 4: Atendimento -->
+                <div class="p-8 rounded-[2rem] border-2 border-sky-100 bg-sky-50/50 hover:border-sky-500 transition-all group cursor-pointer text-center">
+                    <div class="w-16 h-16 bg-sky-500 rounded-2xl flex items-center justify-center text-white mx-auto mb-6 shadow-xl shadow-sky-100">
+                        <i class="fas fa-check-circle text-2xl"></i>
+                    </div>
+                    <h3 class="font-black text-slate-800 mb-2 uppercase tracking-tight">Atendimento Avulso</h3>
+                    <p class="text-xs text-slate-500 font-medium">Sessões experimentais ou unitárias.</p>
                 </div>
             </div>
         </div>
-
-        <!-- ABA 2: AGENDA (NITIDEZ TOTAL) -->
-        <div id="agenda" class="tab-pane hidden animate-in fade-in duration-500">
-            <div class="bg-white rounded-[3rem] shadow-2xl shadow-slate-200/60 border border-slate-100 overflow-hidden">
-                <table class="table w-full">
-                    <thead>
-                        <tr class="bg-slate-900">
-                            <th class="text-white text-[11px] font-black uppercase tracking-[2px] py-8 pl-12">Data/Hora</th>
-                            <th class="text-white text-[11px] font-black uppercase tracking-[2px] py-8">Profissional</th>
-                            <th class="text-white text-[11px] font-black uppercase tracking-[2px] py-8 text-center">Situação</th>
-                            <th class="text-white text-[11px] font-black uppercase tracking-[2px] py-8 pr-12 text-right">Ação</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100">
-                        {% for p in agenda_completa %}
-                        <tr class="hover:bg-primary/5 transition-colors group">
-                            <td class="py-7 pl-12">
-                                <div class="flex flex-col">
-                                    <span class="font-black text-slate-900 text-base">{{ p.aula.data_hora_inicio|date:"d/m/Y" }}</span>
-                                    <span class="text-xs text-primary font-black uppercase tracking-widest">{{ p.aula.data_hora_inicio|date:"H:i" }}</span>
-                                </div>
-                            </td>
-                            <td class="py-7 text-sm text-slate-700 font-bold uppercase">{{ p.aula.profissional.nome }}</td>
-                            <td class="py-7 text-center">
-                                <span class="badge 
-                                    {% if p.status == 'AGENDADA' %} bg-secondary
-                                    {% elif p.status == 'PRESENTE' or p.status == 'REALIZADA' %} bg-emerald-500
-                                    {% elif p.status == 'FALTA' %} bg-primary
-                                    {% else %} bg-slate-800 {% endif %} 
-                                    border-none text-white text-[10px] font-black px-5 py-4 rounded-xl shadow-md uppercase tracking-widest">
-                                    {{ p.status }}
-                                </span>
-                            </td>
-                            <td class="py-7 pr-12 text-right">
-                                <a href="{% url 'gerenciar_aula' p.aula.id %}" class="btn btn-square btn-sm rounded-xl bg-slate-100 border-none text-slate-400 hover:bg-secondary hover:text-white transition-all shadow-sm"><i class="fas fa-eye text-base"></i></a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- ABA 3: FINANCEIRO (VIBRANTE) -->
-        <div id="financeiro" class="tab-pane hidden animate-in fade-in duration-500">
-            <div class="bg-white rounded-[3rem] shadow-2xl shadow-slate-200/60 border border-slate-100 overflow-hidden">
-                <table class="table w-full">
-                    <thead>
-                        <tr class="bg-slate-900">
-                            <th class="text-white text-[11px] font-black uppercase tracking-[2px] py-8 pl-12">Vencimento</th>
-                            <th class="text-white text-[11px] font-black uppercase tracking-[2px] py-8">Descrição</th>
-                            <th class="text-white text-[11px] font-black uppercase tracking-[2px] py-8 text-center">Valor</th>
-                            <th class="text-white text-[11px] font-black uppercase tracking-[2px] py-8 text-center">Status</th>
-                            <th class="text-white text-[11px] font-black uppercase tracking-[2px] py-8 pr-12 text-right">Ação</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100">
-                        {% for lanc in financeiro_completo %}
-                        <tr class="hover:bg-emerald-50/30 transition-colors">
-                            <td class="py-7 pl-12 text-sm font-black text-slate-900">{{ lanc.data_vencimento|date:"d/m/Y" }}</td>
-                            <td class="py-7 text-sm text-slate-600 font-bold">{{ lanc.descricao|upper }}</td>
-                            <td class="py-7 text-center text-lg font-black text-slate-900 tracking-tighter">R$ {{ lanc.valor }}</td>
-                            <td class="py-7 text-center">
-                                <span class="badge {% if lanc.status == 'PAGO' %}bg-emerald-500 shadow-emerald-200{% else %}bg-accent text-accent-content shadow-accent/20{% endif %} border-none text-[10px] font-black px-5 py-4 rounded-xl shadow-lg uppercase tracking-widest">{{ lanc.status }}</span>
-                            </td>
-                            <td class="py-7 pr-12 text-right">
-                                {% if lanc.status == 'PENDENTE' %}
-                                    <form action="{% url 'baixar_lancamento' lanc.id %}" method="post">
-                                        {% csrf_token %}<input type="hidden" name="forma_pagamento" value="PIX">
-                                        <button class="btn btn-sm rounded-xl bg-emerald-500 text-white hover:bg-emerald-600 border-none font-black uppercase px-6 shadow-lg shadow-emerald-200">BAIXAR PIX</button>
-                                    </form>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- ABA: WHATSAPP -->
-        <div id="whatsapp_tab" class="tab-pane hidden animate-in fade-in duration-500">
-            <div class="bg-white rounded-[3rem] shadow-2xl shadow-slate-200/60 border border-slate-100 overflow-hidden">
-                <table class="table w-full">
-                    <thead>
-                        <tr class="bg-slate-900">
-                            <th class="text-white text-[11px] font-black uppercase tracking-[2px] py-8 pl-12">Data/Hora</th>
-                            <th class="text-white text-[11px] font-black uppercase tracking-[2px] py-8">Mensagem Enviada</th>
-                            <th class="text-white text-[11px] font-black uppercase tracking-[2px] py-8 text-center">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100">
-                        {% for log in historico_whatsapp %}
-                        <tr class="hover:bg-slate-50 transition-colors">
-                            <td class="py-7 pl-12">
-                                <span class="font-black text-slate-900 text-sm">{{ log.data_hora|date:"d/m/Y" }}</span><br>
-                                <span class="text-[10px] text-primary font-black uppercase">{{ log.data_hora|date:"H:i" }}</span>
-                            </td>
-                            <td class="py-7 text-xs text-slate-600 font-medium italic max-w-md leading-relaxed">"{{ log.mensagem }}"</td>
-                            <td class="py-7 text-center">
-                                {% if "ERRO" in log.status %}
-                                    <span class="badge bg-primary text-white border-none text-[10px] font-black px-5 py-4 rounded-xl shadow-lg uppercase tracking-widest">FALHA</span>
-                                {% else %}
-                                    <span class="badge bg-emerald-500 text-white border-none text-[10px] font-black px-5 py-4 rounded-xl shadow-lg uppercase tracking-widest">ENVIADO</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr><td colspan="3" class="py-20 text-center text-slate-400 font-bold uppercase text-xs tracking-widest">Nenhuma comunicação registrada.</td></tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
     </div>
 </div>
-
-<!-- ESTILO ADICIONAL PARA AS ABAS STUDIO -->
-<style>
-    .tab-btn {
-        padding: 1rem 2rem;
-        border-radius: 1.25rem;
-        font-weight: 900;
-        font-size: 11px;
-        letter-spacing: 2px;
-        text-transform: uppercase;
-        transition: all 0.3s ease;
-        border: 1px solid #e2e8f0;
-        white-space: nowrap;
-    }
-    .tab-btn.active {
-        transform: translateY(-2px);
-    }
-</style>
-
-<!-- MODAL: DOCUMENTO (ESTILO STUDIO) -->
-<dialog id="modal_documento" class="modal">
-    <div class="modal-box bg-white rounded-[3rem] p-12 shadow-2xl border border-slate-100">
-      <div class="flex items-center gap-4 mb-10">
-          <div class="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
-              <i class="fas fa-file-upload text-xl"></i>
-          </div>
-          <h3 class="text-2xl font-black text-slate-900 tracking-tighter uppercase">Anexar Documento</h3>
-      </div>
-      <form action="{% url 'upload_documento_extra' aluno.pk %}" method="post" enctype="multipart/form-data" class="space-y-8">
-          {% csrf_token %}
-          <div class="form-control">
-              <label class="label mb-2"><span class="label-text font-black text-slate-400 text-[10px] uppercase tracking-widest">Título do Arquivo</span></label>
-              <input type="text" name="titulo" class="input bg-slate-50 border-2 border-slate-200 rounded-2xl w-full h-14 font-black text-slate-900 focus:border-primary" placeholder="EX: ATESTADO MÉDICO" required />
-          </div>
-          <div class="form-control">
-              <label class="label mb-2"><span class="label-text font-black text-slate-400 text-[10px] uppercase tracking-widest">Selecionar PDF ou Imagem</span></label>
-              <input type="file" name="arquivo" class="file-input w-full h-14 bg-slate-50 rounded-2xl border-2 border-slate-200" required />
-          </div>
-          <button type="submit" class="btn bg-primary hover:bg-red-900 border-none text-white rounded-2xl w-full h-16 font-black uppercase tracking-widest shadow-xl shadow-primary/30 transition-all hover:scale-[1.02]">
-              CONCLUIR UPLOAD
-          </button>
-      </form>
-      <form method="dialog" class="mt-6 text-center"><button class="btn btn-ghost btn-xs text-slate-300 font-bold uppercase tracking-widest">Cancelar e Voltar</button></form>
-    </div>
-    <form method="dialog" class="modal-backdrop bg-slate-900/40 backdrop-blur-sm"><button>close</button></form>
-</dialog>
-
-<!-- SCRIPTS -->
-<script>
-    function openTab(evt, tabName) {
-        var i, tabcontent, tablinks;
-        tabcontent = document.getElementsByClassName("tab-pane");
-        for (i = 0; i < tabcontent.length; i++) {
-            tabcontent[i].classList.add("hidden");
-            tabcontent[i].classList.remove("block");
-        }
-        tablinks = document.getElementsByClassName("tab-btn");
-        for (i = 0; i < tablinks.length; i++) {
-            tablinks[i].classList.remove("active", "bg-primary", "text-white", "shadow-xl", "shadow-primary/30");
-            tablinks[i].classList.add("bg-white", "text-slate-400");
-        }
-        document.getElementById(tabName).classList.remove("hidden");
-        document.getElementById(tabName).classList.add("block");
-        evt.currentTarget.classList.add("active", "bg-primary", "text-white", "shadow-xl", "shadow-primary/30");
-        evt.currentTarget.classList.remove("bg-white", "text-slate-400");
-    }
-
-    function enviarCobranca(alunoId) {
-        if (!confirm('Confirmar envio de cobrança via WhatsApp?')) return;
-        fetch(`/comunicacao/enviar-cobranca/${alunoId}/`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'ok') { alert('Cobrança enviada!'); location.reload(); }
-                else { alert('Erro: ' + data.message); }
-            });
-    }
-</script>
 {% endblock %}
