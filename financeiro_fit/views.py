@@ -101,18 +101,23 @@ class ContasPagarListView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        hoje = date.today()
+        
+        # 1. Calcular primeiro e último dia do mês atual
+        primeiro_dia = hoje.replace(day=1).strftime('%Y-%m-%d')
+        _, ultimo_dia_num = calendar.monthrange(hoje.year, hoje.month)
+        ultimo_dia = hoje.replace(day=ultimo_dia_num).strftime('%Y-%m-%d')
+
+        # 2. Enviar para o template
+        context['inicio_padrao'] = primeiro_dia
+        context['fim_padrao'] = ultimo_dia
+        
+        # O restante do seu contexto...
         qs_filtrada = self.get_queryset()
-
-        # 4. Cálculo do Total em Aberto (Baseado no Filtro Atual)
-        total_aberto = qs_filtrada.filter(status='PENDENTE').aggregate(Sum('valor'))['valor__sum'] or 0
-        context['total_aberto'] = total_aberto
-
-        # 5. Listas para os Selects do Filtro
+        context['total_aberto'] = qs_filtrada.filter(status='PENDENTE').aggregate(Sum('valor'))['valor__sum'] or 0
         context['fornecedores'] = Fornecedor.objects.filter(ativo=True).order_by('nome')
         context['categorias'] = CategoriaFinanceira.objects.filter(tipo='DESPESA').order_by('nome')
         context['contas_bancarias'] = ContaBancaria.objects.all().order_by('nome')
-        
-        # Mantém os filtros na tela após o submit
         context['filtros'] = self.request.GET
         return context
 class DespesaCreateView(LoginRequiredMixin, CreateView):
