@@ -4,31 +4,31 @@
 
 {% block content %}
 <style>
-    /* CSS Puro para garantir que funcione sem depender de compilação @apply */
-    .maya-card {
+    /* CSS de Refinamento */
+    .maya-card-top {
         background: white;
-        border-radius: 24px;
-        padding: 40px;
+        border-radius: 32px;
+        padding: 48px;
         border: 1px solid #e2e8f0;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+        margin-bottom: 24px;
     }
-    .maya-card-dark {
+    .maya-card-bottom {
         background: #0f172a;
-        border-radius: 24px;
-        padding: 40px;
+        border-radius: 32px;
+        padding: 48px;
         color: white;
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 20px 40px rgba(15, 23, 42, 0.2);
     }
     .maya-input-field {
         width: 100%;
         background-color: #f8fafc;
         border: 2px solid #e2e8f0;
-        border-radius: 12px;
-        padding: 12px 16px;
+        border-radius: 16px;
+        padding: 14px 20px;
         font-weight: 600;
         color: #1e293b;
         transition: all 0.3s;
-        height: 50px;
     }
     .maya-input-field:focus {
         border-color: #6366f1;
@@ -38,50 +38,55 @@
     }
     .maya-label {
         display: block;
-        font-size: 11px;
+        font-size: 10px;
         font-weight: 800;
         text-transform: uppercase;
-        letter-spacing: 1px;
-        color: #64748b;
-        margin-bottom: 8px;
+        letter-spacing: 1.5px;
+        color: #94a3b8;
+        margin-bottom: 10px;
+        margin-left: 4px;
     }
-    /* Esconder elementos nativos do Crispy que poluem */
     .asteriskField, .help-block { display: none !important; }
-    .form-group { margin-bottom: 20px; }
 
-    /* Segmented Control */
+    /* Estilo para os Selects no card preto */
+    .dark-select {
+        background-color: rgba(255,255,255,0.05) !important;
+        border-color: rgba(255,255,255,0.1) !important;
+        color: white !important;
+    }
+
+    /* Segmented Control (Toggle) */
     .seg-control {
         display: flex;
         background: #f1f5f9;
         padding: 4px;
-        border-radius: 12px;
-        width: fit-content;
+        border-radius: 14px;
     }
     .seg-btn {
-        padding: 8px 20px;
-        border-radius: 8px;
-        font-size: 12px;
+        padding: 10px 24px;
+        border-radius: 10px;
+        font-size: 11px;
         font-weight: 800;
         cursor: pointer;
         transition: 0.3s;
         text-transform: uppercase;
+        letter-spacing: 1px;
     }
-    .seg-btn.active { background: white; color: #0f172a; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .seg-btn.active { background: white; color: #0f172a; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
     .seg-btn.inactive { color: #94a3b8; }
 </style>
 
-<div class="p-8 w-full"> <!-- Container largo para não esmagar -->
-    
-    <div class="max-w-6xl mx-auto">
+<div class="p-8 w-full min-h-screen bg-[#fcfcfd]">
+    <div class="max-w-4xl mx-auto">
+        
         <!-- HEADER -->
-        <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-6">
+        <div class="flex flex-col md:flex-row justify-between items-center mb-10">
             <div>
-                <h1 class="text-3xl font-black text-slate-900 tracking-tight">Configurar Novo Plano</h1>
-                <p class="text-sm text-slate-400 font-bold uppercase tracking-widest mt-1">Gestão de Produtos MayaCorp</p>
+                <h1 class="text-4xl font-black text-slate-900 tracking-tight">Configurar Plano</h1>
+                <p class="text-xs text-slate-400 font-bold uppercase tracking-[3px] mt-2">MayaCorp Logic Engine v4.0</p>
             </div>
 
-            <div class="flex flex-col items-end">
-                <span class="maya-label mr-2">Tipo de Contratação</span>
+            <div class="mt-6 md:mt-0">
                 <div class="seg-control">
                     <div id="btnRecorrente" onclick="setModo(false)" class="seg-btn active">Plano Mensal</div>
                     <div id="btnAvulso" onclick="setModo(true)" class="seg-btn inactive">Aula Avulsa</div>
@@ -90,86 +95,95 @@
             </div>
         </div>
 
-        <form method="post" class="flex flex-col lg:flex-row gap-8">
+        <form method="post">
             {% csrf_token %}
 
-            <!-- COLUNA ESQUERDA: INFO -->
-            <div class="flex-1">
-                <div class="maya-card">
-                    <h3 class="text-lg font-bold text-slate-800 mb-8 flex items-center gap-2">
-                        <span class="w-2 h-6 bg-indigo-500 rounded-full"></span>
-                        Informações do Plano
-                    </h3>
+            <!-- SEÇÃO SUPERIOR: BRANCA (INFO) -->
+            <div class="maya-card-top">
+                <div class="flex items-center gap-3 mb-10">
+                    <div class="w-1.5 h-6 bg-indigo-500 rounded-full"></div>
+                    <h3 class="text-xl font-bold text-slate-800">Identificação</h3>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="md:col-span-2">
+                        <label class="maya-label">Nome Comercial do Plano</label>
+                        <input type="text" name="nome" value="{{ form.nome.value|default:'' }}" class="maya-input-field" placeholder="Ex: Pilates 2x na Semana - Trimestral" required>
+                    </div>
                     
-                    <div class="space-y-4">
-                        <div class="grid grid-cols-1 gap-4">
-                            <div>
-                                <label class="maya-label">Nome do Plano</label>
-                                <input type="text" name="nome" value="{{ form.nome.value|default:'' }}" class="maya-input-field" required>
-                            </div>
-                            <div>
-                                <label class="maya-label">Descrição (Opcional)</label>
-                                <textarea name="descricao" class="maya-input-field" style="height: 100px !important;">{{ form.descricao.value|default:'' }}</textarea>
-                            </div>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label class="maya-label">Tipo de Serviço</label>
-                                    {{ form.tipo_servico }}
-                                </div>
-                                <div>
-                                    <label class="maya-label">Frequência Semanal</label>
-                                    <input type="number" name="frequencia_semanal" value="{{ form.frequencia_semanal.value|default:'2' }}" class="maya-input-field">
-                                </div>
-                            </div>
-                        </div>
+                    <div class="md:col-span-2">
+                        <label class="maya-label">Descrição Detalhada</label>
+                        <textarea name="descricao" class="maya-input-field" style="height: 120px; resize: none;">{{ form.descricao.value|default:'' }}</textarea>
+                    </div>
+
+                    <div>
+                        <label class="maya-label">Tipo de Serviço</label>
+                        {{ form.tipo_servico }}
+                    </div>
+
+                    <div>
+                        <label class="maya-label">Frequência Semanal</label>
+                        <input type="number" name="frequencia_semanal" value="{{ form.frequencia_semanal.value|default:'2' }}" class="maya-input-field">
                     </div>
                 </div>
             </div>
 
-            <!-- COLUNA DIREITA: FINANCEIRO -->
-            <div class="w-full lg:w-[400px]">
-                <div class="maya-card-dark h-full flex flex-col justify-between">
-                    <div>
-                        <h3 class="text-lg font-bold text-white mb-8 flex items-center gap-2">
-                            <span class="w-2 h-6 bg-indigo-400 rounded-full"></span>
-                            Investimento
-                        </h3>
+            <!-- SEÇÃO INFERIOR: PRETA (INVESTIMENTO) -->
+            <div class="maya-card-bottom">
+                <div class="flex items-center gap-3 mb-10">
+                    <div class="w-1.5 h-6 bg-indigo-400 rounded-full"></div>
+                    <h3 class="text-xl font-bold text-white">Investimento e Vigência</h3>
+                </div>
 
-                        <div id="boxDuracao" class="mb-8">
-                            <label class="maya-label text-slate-400">Duração do Contrato</label>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-end">
+                    
+                    <div id="boxDuracao">
+                        <label class="maya-label text-slate-400">Duração do Contrato</label>
+                        <div class="dark-select-wrapper">
                             {{ form.duracao_meses }}
                         </div>
+                    </div>
 
-                        <div class="pt-6 border-t border-white/10">
-                            <label id="labelValor" class="maya-label text-indigo-400">Valor Mensal (R$)</label>
-                            <div class="relative mt-4">
-                                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-2xl font-bold text-slate-500">R$</span>
-                                <input type="number" name="valor_mensal" step="0.01" 
-                                       value="{{ form.valor_mensal.value|default:'' }}" 
-                                       class="w-full bg-white/10 border-2 border-white/10 rounded-xl pl-16 pr-4 h-16 text-2xl font-bold text-white focus:border-indigo-500 outline-none" required>
-                            </div>
+                    <div>
+                        <label id="labelValor" class="maya-label text-indigo-400">Valor Mensal (R$)</label>
+                        <div class="relative">
+                            <span class="absolute left-6 top-1/2 -translate-y-1/2 text-2xl font-bold text-slate-500 italic">R$</span>
+                            <input type="number" name="valor_mensal" step="0.01" 
+                                   value="{{ form.valor_mensal.value|default:'' }}" 
+                                   class="w-full bg-white/5 border-2 border-white/10 rounded-2xl pl-16 pr-6 h-20 text-3xl font-bold text-white focus:border-indigo-500 focus:bg-white/10 outline-none transition-all" required>
                         </div>
                     </div>
+                </div>
 
-                    <div class="mt-12 space-y-4">
-                        <button type="submit" class="w-full py-4 bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl font-black uppercase tracking-widest transition-all shadow-lg shadow-indigo-500/20">
-                            Salvar Plano
-                        </button>
-                        <a href="{% url 'plano_list' %}" class="block text-center text-[10px] font-bold text-slate-500 uppercase tracking-widest hover:text-white transition-colors">
-                            Cancelar e Voltar
-                        </a>
-                    </div>
+                <!-- BOTÕES DE AÇÃO -->
+                <div class="mt-16 pt-10 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6">
+                    <a href="{% url 'plano_list' %}" class="text-xs font-bold text-slate-500 hover:text-white uppercase tracking-[2px] transition-colors">
+                        Descartar e Voltar
+                    </a>
+                    
+                    <button type="submit" class="w-full md:w-auto px-16 py-6 bg-indigo-500 hover:bg-indigo-600 text-white rounded-2xl font-black uppercase tracking-[2px] transition-all shadow-xl shadow-indigo-500/20 active:scale-95">
+                        Salvar Configurações
+                    </button>
                 </div>
             </div>
         </form>
+
+        <div class="text-center mt-12">
+            <span class="text-[9px] font-black text-slate-300 uppercase tracking-[4px]">Powered by Mayacorp Studio</span>
+        </div>
     </div>
 </div>
 
 <script>
-// Forçar classes nos selects do Django que não pegam o widget
 document.addEventListener('DOMContentLoaded', function() {
+    // Aplica as classes nos selects do Django
     const selects = document.querySelectorAll('select');
-    selects.forEach(s => s.classList.add('maya-input-field'));
+    selects.forEach(s => {
+        s.classList.add('maya-input-field');
+        if (s.closest('.maya-card-bottom')) {
+            s.classList.add('dark-select');
+        }
+    });
     syncUI();
 });
 
@@ -187,13 +201,15 @@ function syncUI() {
     const selectDuracao = boxDuracao.querySelector('select');
 
     if (isAvulsa) {
-        boxDuracao.style.display = 'none';
+        boxDuracao.style.opacity = '0.2';
+        boxDuracao.style.pointerEvents = 'none';
         labelValor.innerText = 'Valor da Aula Avulsa (R$)';
         btnAvulso.className = 'seg-btn active';
         btnRecorrente.className = 'seg-btn inactive';
         if(selectDuracao) selectDuracao.value = "1";
     } else {
-        boxDuracao.style.display = 'block';
+        boxDuracao.style.opacity = '1';
+        boxDuracao.style.pointerEvents = 'all';
         labelValor.innerText = 'Valor Mensal (R$)';
         btnAvulso.className = 'seg-btn inactive';
         btnRecorrente.className = 'seg-btn active';
