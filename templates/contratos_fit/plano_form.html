@@ -3,164 +3,178 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-<!-- Google Fonts para um ar mais moderno -->
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
-
 <style>
-    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
-    
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar { width: 8px; }
-    ::-webkit-scrollbar-track { background: #f1f1f1; }
-    ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
-
-    /* Estilização Radical dos Inputs */
-    .maya-input, .maya-select, .textinput, .numberinput, .select, .textarea {
-        @apply w-full bg-white border-slate-200 text-slate-900 text-sm font-semibold rounded-2xl transition-all duration-300 !important;
-        border-width: 1.5px !important;
-        padding: 1rem 1.25rem !important;
-        height: 3.8rem !important;
+    /* CSS Puro para garantir que funcione sem depender de compilação @apply */
+    .maya-card {
+        background: white;
+        border-radius: 24px;
+        padding: 40px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
     }
-    .maya-input:focus, .textinput:focus {
-        @apply border-primary ring-4 ring-primary/5 bg-white !important;
-        outline: none !important;
+    .maya-card-dark {
+        background: #0f172a;
+        border-radius: 24px;
+        padding: 40px;
+        color: white;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
     }
-    .textarea { height: auto !important; min-height: 120px !important; }
-    
-    /* Labels Minimalistas */
-    label {
-        @apply text-[11px] font-extrabold text-slate-400 uppercase tracking-[1.5px] mb-2 px-1 block !important;
+    .maya-input-field {
+        width: 100%;
+        background-color: #f8fafc;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 12px 16px;
+        font-weight: 600;
+        color: #1e293b;
+        transition: all 0.3s;
+        height: 50px;
     }
-
-    /* Esconder o feio */
+    .maya-input-field:focus {
+        border-color: #6366f1;
+        background-color: white;
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+    }
+    .maya-label {
+        display: block;
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #64748b;
+        margin-bottom: 8px;
+    }
+    /* Esconder elementos nativos do Crispy que poluem */
     .asteriskField, .help-block { display: none !important; }
+    .form-group { margin-bottom: 20px; }
 
-    /* Botão Segmentado (Toggle) */
-    .segmented-control {
-        @apply flex bg-slate-100 p-1 rounded-2xl border border-slate-200 w-fit;
+    /* Segmented Control */
+    .seg-control {
+        display: flex;
+        background: #f1f5f9;
+        padding: 4px;
+        border-radius: 12px;
+        width: fit-content;
     }
-    .segment-btn {
-        @apply px-6 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-300 cursor-pointer;
+    .seg-btn {
+        padding: 8px 20px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 800;
+        cursor: pointer;
+        transition: 0.3s;
+        text-transform: uppercase;
     }
-    .segment-btn.active {
-        @apply bg-white text-slate-900 shadow-sm shadow-slate-200;
-    }
-    .segment-btn.inactive {
-        @apply text-slate-400 hover:text-slate-600;
-    }
+    .seg-btn.active { background: white; color: #0f172a; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .seg-btn.inactive { color: #94a3b8; }
 </style>
 
-<div class="max-w-5xl mx-auto py-16 px-6">
+<div class="p-8 w-full"> <!-- Container largo para não esmagar -->
     
-    <!-- HEADER MINIMALISTA -->
-    <header class="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
-        <div>
-            <div class="flex items-center gap-2 mb-2">
-                <span class="w-8 h-[2px] bg-primary"></span>
-                <span class="text-[10px] font-black text-primary uppercase tracking-[4px]">Gestão de Produtos</span>
+    <div class="max-w-6xl mx-auto">
+        <!-- HEADER -->
+        <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-6">
+            <div>
+                <h1 class="text-3xl font-black text-slate-900 tracking-tight">Configurar Novo Plano</h1>
+                <p class="text-sm text-slate-400 font-bold uppercase tracking-widest mt-1">Gestão de Produtos MayaCorp</p>
             </div>
-            <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight">
-                {% if form.instance.pk %}Editar Plano{% else %}Configurar Novo Plano{% endif %}
-            </h1>
-        </div>
 
-        <!-- TOGGLE DE AULA AVULSA -->
-        <div class="flex flex-col items-end gap-3">
-            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">Tipo de Contratação</span>
-            <div class="segmented-control">
-                <div id="btnRecorrente" onclick="setModo(false)" class="segment-btn active">Plano Mensal</div>
-                <div id="btnAvulso" onclick="setModo(true)" class="segment-btn inactive">Aula Avulsa</div>
+            <div class="flex flex-col items-end">
+                <span class="maya-label mr-2">Tipo de Contratação</span>
+                <div class="seg-control">
+                    <div id="btnRecorrente" onclick="setModo(false)" class="seg-btn active">Plano Mensal</div>
+                    <div id="btnAvulso" onclick="setModo(true)" class="seg-btn inactive">Aula Avulsa</div>
+                </div>
+                <input type="checkbox" id="toggleAvulsa" class="hidden" onchange="syncUI()">
             </div>
-            <input type="checkbox" id="toggleAvulsa" class="hidden" onchange="syncUI()">
-        </div>
-    </header>
-
-    <form method="post" class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {% csrf_token %}
-
-        <!-- COLUNA ESQUERDA: IDENTIFICAÇÃO (MAIOR) -->
-        <div class="lg:col-span-7 space-y-8">
-            <section class="bg-white rounded-[2.5rem] p-10 shadow-sm border border-slate-100 relative overflow-hidden">
-                <div class="flex items-center gap-3 mb-10">
-                    <div class="w-1.5 h-6 bg-slate-900 rounded-full"></div>
-                    <h3 class="font-bold text-slate-900 text-lg">Informações Principais</h3>
-                </div>
-                
-                <div class="space-y-6">
-                    <div>{{ form.nome|as_crispy_field }}</div>
-                    <div>{{ form.descricao|as_crispy_field }}</div>
-                    <div class="grid grid-cols-2 gap-4">
-                         <div>{{ form.tipo_servico|as_crispy_field }}</div>
-                         <div class="opacity-50 pointer-events-none">
-                            <label>ID Interno</label>
-                            <input type="text" disabled value="#{{ form.instance.pk|default:'NEW' }}" class="maya-input bg-slate-50">
-                         </div>
-                    </div>
-                </div>
-            </section>
         </div>
 
-        <!-- COLUNA DIREITA: REGRAS E PREÇO -->
-        <div class="lg:col-span-5 space-y-8">
-            <section class="bg-slate-900 rounded-[2.5rem] p-10 shadow-2xl text-white relative overflow-hidden">
-                <!-- Brilho Decorativo -->
-                <div class="absolute -top-24 -right-24 w-48 h-48 bg-primary/20 blur-[80px] rounded-full"></div>
+        <form method="post" class="flex flex-col lg:flex-row gap-8">
+            {% csrf_token %}
 
-                <div class="flex items-center gap-3 mb-10 relative z-10">
-                    <div class="w-1.5 h-6 bg-primary rounded-full"></div>
-                    <h3 class="font-bold text-white text-lg">Investimento</h3>
-                </div>
-
-                <div class="space-y-8 relative z-10">
-                    <div>
-                        {{ form.frequencia_semanal|as_crispy_field }}
-                    </div>
+            <!-- COLUNA ESQUERDA: INFO -->
+            <div class="flex-1">
+                <div class="maya-card">
+                    <h3 class="text-lg font-bold text-slate-800 mb-8 flex items-center gap-2">
+                        <span class="w-2 h-6 bg-indigo-500 rounded-full"></span>
+                        Informações do Plano
+                    </h3>
                     
-                    <div id="boxDuracao">
-                        {{ form.duracao_meses|as_crispy_field }}
-                    </div>
-
-                    <div class="pt-6 border-t border-white/10">
-                        <label id="labelValor" class="text-primary-light !text-primary">Valor Mensal do Plano</label>
-                        <div class="relative mt-4">
-                            <span class="absolute left-5 top-1/2 -translate-y-1/2 text-xl font-light text-slate-400">R$</span>
-                            <input type="number" name="valor_mensal" step="0.01" 
-                                   value="{{ form.valor_mensal.value|default:'' }}" 
-                                   class="w-full bg-white/5 border-2 border-white/10 rounded-2xl pl-16 pr-6 h-20 text-3xl font-bold text-white focus:border-primary focus:ring-0 transition-all" required>
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-1 gap-4">
+                            <div>
+                                <label class="maya-label">Nome do Plano</label>
+                                <input type="text" name="nome" value="{{ form.nome.value|default:'' }}" class="maya-input-field" required>
+                            </div>
+                            <div>
+                                <label class="maya-label">Descrição (Opcional)</label>
+                                <textarea name="descricao" class="maya-input-field" style="height: 100px !important;">{{ form.descricao.value|default:'' }}</textarea>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="maya-label">Tipo de Serviço</label>
+                                    {{ form.tipo_servico }}
+                                </div>
+                                <div>
+                                    <label class="maya-label">Frequência Semanal</label>
+                                    <input type="number" name="frequencia_semanal" value="{{ form.frequencia_semanal.value|default:'2' }}" class="maya-input-field">
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </section>
-
-            <!-- BOTÕES -->
-            <div class="flex flex-col gap-4">
-                <button type="submit" class="w-full py-6 bg-primary hover:bg-primary-dark text-white rounded-2xl font-black uppercase tracking-[3px] shadow-xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3">
-                    <i class="fas fa-check-circle"></i> Confirmar Plano
-                </button>
-                <a href="{% url 'plano_list' %}" class="w-full py-4 text-center text-[11px] font-black text-slate-400 uppercase tracking-widest hover:text-slate-600 transition-colors">
-                    Descartar Alterações
-                </a>
             </div>
-        </div>
-    </form>
+
+            <!-- COLUNA DIREITA: FINANCEIRO -->
+            <div class="w-full lg:w-[400px]">
+                <div class="maya-card-dark h-full flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-lg font-bold text-white mb-8 flex items-center gap-2">
+                            <span class="w-2 h-6 bg-indigo-400 rounded-full"></span>
+                            Investimento
+                        </h3>
+
+                        <div id="boxDuracao" class="mb-8">
+                            <label class="maya-label text-slate-400">Duração do Contrato</label>
+                            {{ form.duracao_meses }}
+                        </div>
+
+                        <div class="pt-6 border-t border-white/10">
+                            <label id="labelValor" class="maya-label text-indigo-400">Valor Mensal (R$)</label>
+                            <div class="relative mt-4">
+                                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-2xl font-bold text-slate-500">R$</span>
+                                <input type="number" name="valor_mensal" step="0.01" 
+                                       value="{{ form.valor_mensal.value|default:'' }}" 
+                                       class="w-full bg-white/10 border-2 border-white/10 rounded-xl pl-16 pr-4 h-16 text-2xl font-bold text-white focus:border-indigo-500 outline-none" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-12 space-y-4">
+                        <button type="submit" class="w-full py-4 bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl font-black uppercase tracking-widest transition-all shadow-lg shadow-indigo-500/20">
+                            Salvar Plano
+                        </button>
+                        <a href="{% url 'plano_list' %}" class="block text-center text-[10px] font-bold text-slate-500 uppercase tracking-widest hover:text-white transition-colors">
+                            Cancelar e Voltar
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
 
 <script>
+// Forçar classes nos selects do Django que não pegam o widget
+document.addEventListener('DOMContentLoaded', function() {
+    const selects = document.querySelectorAll('select');
+    selects.forEach(s => s.classList.add('maya-input-field'));
+    syncUI();
+});
+
 function setModo(isAvulso) {
-    const checkbox = document.getElementById('toggleAvulsa');
-    const btnAvulso = document.getElementById('btnAvulso');
-    const btnRecorrente = document.getElementById('btnRecorrente');
-    
-    checkbox.checked = isAvulso;
-    
-    if (isAvulso) {
-        btnAvulso.classList.replace('inactive', 'active');
-        btnRecorrente.classList.replace('active', 'inactive');
-    } else {
-        btnRecorrente.classList.replace('inactive', 'active');
-        btnAvulso.classList.replace('active', 'inactive');
-    }
-    
+    document.getElementById('toggleAvulsa').checked = isAvulso;
     syncUI();
 }
 
@@ -168,21 +182,22 @@ function syncUI() {
     const isAvulsa = document.getElementById('toggleAvulsa').checked;
     const boxDuracao = document.getElementById('boxDuracao');
     const labelValor = document.getElementById('labelValor');
+    const btnAvulso = document.getElementById('btnAvulso');
+    const btnRecorrente = document.getElementById('btnRecorrente');
     const selectDuracao = boxDuracao.querySelector('select');
 
     if (isAvulsa) {
-        boxDuracao.style.opacity = '0';
-        boxDuracao.style.pointerEvents = 'none';
-        labelValor.innerText = 'Valor da Aula Avulsa';
-        if (selectDuracao) selectDuracao.value = "1";
+        boxDuracao.style.display = 'none';
+        labelValor.innerText = 'Valor da Aula Avulsa (R$)';
+        btnAvulso.className = 'seg-btn active';
+        btnRecorrente.className = 'seg-btn inactive';
+        if(selectDuracao) selectDuracao.value = "1";
     } else {
-        boxDuracao.style.opacity = '1';
-        boxDuracao.style.pointerEvents = 'all';
-        labelValor.innerText = 'Valor Mensal do Plano';
+        boxDuracao.style.display = 'block';
+        labelValor.innerText = 'Valor Mensal (R$)';
+        btnAvulso.className = 'seg-btn inactive';
+        btnRecorrente.className = 'seg-btn active';
     }
 }
-
-// Inicia o estado correto
-document.addEventListener('DOMContentLoaded', syncUI);
 </script>
 {% endblock %}
