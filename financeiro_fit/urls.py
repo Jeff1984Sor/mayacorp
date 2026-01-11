@@ -45,6 +45,8 @@ urlpatterns = [
     path('fornecedores/', views.FornecedorListView.as_view(), name='fornecedor_list'),
     path('fornecedores/novo/', views.FornecedorCreateView.as_view(), name='fornecedor_create'),
     path('fornecedores/<int:pk>/editar/', views.FornecedorUpdateView.as_view(), name='fornecedor_update'),
+    path('recebiveis/baixar/<int:pk>/', views.baixar_lancamento, name='baixar_lancamento'),
+    path('recebiveis/estornar/<int:pk>/', views.estornar_lancamento, name='estornar_lancamento'),
 
     # 5. DASHBOARD GERAL
     path('dashboard/', views.DashboardFinanceiroView.as_view(), name='dashboard_financeiro'),
