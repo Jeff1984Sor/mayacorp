@@ -7,11 +7,10 @@
 {% block content %}
 <div class="max-w-7xl mx-auto pb-24 px-4">
 
-    <!-- HEADER DA FICHA: Estilo Seufisio Central -->
-    <header class="bg-white rounded-[3rem] shadow-2xl border border-slate-100 p-10 mb-8 flex flex-col md:flex-row items-center gap-10 relative overflow-hidden">
-        <div class="absolute top-0 right-0 w-64 h-64 bg-slate-50 rounded-full -mr-32 -mt-32 opacity-50"></div>
+    <!-- 1. CABEÇALHO DO PERFIL -->
+    <header class="bg-white rounded-[3rem] shadow-2xl shadow-slate-200/60 border border-slate-100 p-10 mb-8 flex flex-col md:flex-row items-center gap-10 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -mr-32 -mt-32"></div>
         
-        <!-- Foto e Status -->
         <div class="relative">
             <div class="w-32 h-32 rounded-[2.5rem] overflow-hidden border-4 border-white shadow-2xl ring-4 ring-primary/5">
                 {% if aluno.foto_rosto %}
@@ -20,7 +19,7 @@
                     <div class="w-full h-full bg-slate-50 flex items-center justify-center text-primary text-4xl font-black">{{ aluno.nome|first }}</div>
                 {% endif %}
             </div>
-            <div class="absolute -bottom-2 -right-2 w-8 h-8 bg-emerald-500 border-4 border-white rounded-full"></div>
+            <div class="absolute -bottom-1 -right-1 w-7 h-7 bg-emerald-500 border-4 border-white rounded-full"></div>
         </div>
 
         <div class="flex-1 text-center md:text-left z-10">
@@ -30,74 +29,204 @@
             </div>
             
             <div class="flex flex-wrap justify-center md:justify-start gap-4 mb-6">
-                <div class="flex items-center gap-2 px-4 py-2 bg-emerald-50 rounded-xl text-emerald-600 text-xs font-bold">
-                    <i class="fab fa-whatsapp"></i> {{ aluno.telefone }}
-                </div>
-                <div class="flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-xl text-slate-500 text-xs font-bold uppercase">
-                   <i class="far fa-user"></i> Responsável: {{ aluno.responsavel|default:"Não informado" }}
-                </div>
+                <div class="flex items-center gap-2 text-emerald-600 text-xs font-bold"><i class="fab fa-whatsapp"></i> {{ aluno.telefone }}</div>
+                <div class="flex items-center gap-2 text-slate-400 text-xs font-bold uppercase"><i class="far fa-user"></i> {{ aluno.cpf|default:"CPF NÃO INFORMADO" }}</div>
             </div>
 
-            <!-- BOTÕES DE AÇÃO RÁPIDA -->
             <div class="flex flex-wrap justify-center md:justify-start gap-3">
-                <button class="btn btn-sm h-10 bg-white border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 font-black text-[10px] tracking-widest"><i class="fas fa-print mr-2"></i> IMPRIMIR FICHA</button>
-                <button class="btn btn-sm h-10 bg-white border-slate-200 text-emerald-600 rounded-xl hover:bg-emerald-50 font-black text-[10px] tracking-widest"><i class="fab fa-whatsapp mr-2 text-sm"></i> DAR BOAS VINDAS</button>
-                <a href="{% url 'aluno_update' aluno.pk %}" class="btn btn-sm h-10 bg-white border-slate-200 text-primary rounded-xl hover:bg-red-50 font-black text-[10px] tracking-widest"><i class="fas fa-edit mr-2"></i> EDITAR CADASTRO</a>
+                <button class="btn btn-sm h-10 bg-white border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 font-black text-[10px] tracking-widest uppercase"><i class="fas fa-print mr-2"></i> Imprimir Ficha</button>
+                <button onclick="enviarCobranca({{ aluno.id }})" class="btn btn-sm h-10 bg-white border-slate-200 text-emerald-600 rounded-xl hover:bg-emerald-50 font-black text-[10px] tracking-widest uppercase"><i class="fab fa-whatsapp mr-2 text-sm"></i> Cobrar WhatsApp</button>
+                <a href="{% url 'aluno_update' aluno.pk %}" class="btn btn-sm h-10 bg-white border-slate-200 text-primary rounded-xl hover:bg-red-50 font-black text-[10px] tracking-widest uppercase"><i class="fas fa-edit mr-2"></i> Editar Cadastro</a>
             </div>
         </div>
     </header>
 
-    <!-- NAVEGAÇÃO POR ABAS (Substitui as abas antigas) -->
+    <!-- 2. NAVEGAÇÃO POR ABAS -->
     <div class="bg-white rounded-[2rem] shadow-xl border border-slate-100 overflow-hidden mb-10">
-        <div class="flex border-b border-slate-100 overflow-x-auto">
-            <button class="flex-1 py-6 px-4 font-black text-[11px] tracking-widest uppercase text-primary border-b-4 border-primary transition-all">Central de Vendas</button>
-            <button class="flex-1 py-6 px-4 font-black text-[11px] tracking-widest uppercase text-slate-400 hover:text-slate-600 transition-all border-b-4 border-transparent hover:border-slate-200">Financeiro</button>
-            <button class="flex-1 py-6 px-4 font-black text-[11px] tracking-widest uppercase text-slate-400 hover:text-slate-600 transition-all border-b-4 border-transparent hover:border-slate-200">Prontuário</button>
-            <button class="flex-1 py-6 px-4 font-black text-[11px] tracking-widest uppercase text-slate-400 hover:text-slate-600 transition-all border-b-4 border-transparent hover:border-slate-200">Contratos</button>
-            <button class="flex-1 py-6 px-4 font-black text-[11px] tracking-widest uppercase text-slate-400 hover:text-slate-600 transition-all border-b-4 border-transparent hover:border-slate-200">Relatório</button>
+        <div class="flex border-b border-slate-100 overflow-x-auto bg-slate-50/50">
+            <button class="tab-btn flex-1 py-6 px-4 font-black text-[11px] tracking-widest uppercase text-primary border-b-4 border-primary transition-all active-tab" onclick="openTab(event, 'central-vendas')">Central de Vendas</button>
+            <button class="tab-btn flex-1 py-6 px-4 font-black text-[11px] tracking-widest uppercase text-slate-400 hover:text-slate-600 transition-all border-b-4 border-transparent" onclick="openTab(event, 'financeiro')">Financeiro</button>
+            <button class="tab-btn flex-1 py-6 px-4 font-black text-[11px] tracking-widest uppercase text-slate-400 hover:text-slate-600 transition-all border-b-4 border-transparent" onclick="openTab(event, 'prontuario')">Prontuário</button>
+            <button class="tab-btn flex-1 py-6 px-4 font-black text-[11px] tracking-widest uppercase text-slate-400 hover:text-slate-600 transition-all border-b-4 border-transparent" onclick="openTab(event, 'contratos')">Contratos</button>
         </div>
 
-        <div class="p-12">
-            <h2 class="text-center text-3xl font-black text-slate-800 mb-12">Escolha uma das opções abaixo:</h2>
+        <div class="p-10">
             
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <!-- Opção 1: Recorrentes -->
-                <div class="p-8 rounded-[2rem] border-2 border-primary/10 bg-primary/5 hover:border-primary transition-all group cursor-pointer text-center">
-                    <div class="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center text-white mx-auto mb-6 shadow-xl shadow-primary/20">
-                        <i class="fas fa-sync text-2xl"></i>
+            <!-- ABA 1: CENTRAL DE VENDAS -->
+            <div id="central-vendas" class="tab-content block animate-in fade-in zoom-in duration-500">
+                <div class="flex flex-col items-center justify-center text-center py-10">
+                    <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-6 text-slate-200 border-2 border-dashed border-slate-200">
+                        <i class="fas fa-shopping-cart text-3xl"></i>
                     </div>
-                    <h3 class="font-black text-slate-800 mb-2 uppercase tracking-tight">Serviços Recorrentes</h3>
-                    <p class="text-xs text-slate-500 font-medium">Planos mensais com renovação automática.</p>
-                </div>
-
-                <!-- Opção 2: Pacotes Fixos -->
-                <div class="p-8 rounded-[2rem] border-2 border-emerald-100 bg-emerald-50/50 hover:border-emerald-500 transition-all group cursor-pointer text-center">
-                    <div class="w-16 h-16 bg-emerald-500 rounded-2xl flex items-center justify-center text-white mx-auto mb-6 shadow-xl shadow-emerald-100">
-                        <i class="fas fa-star text-2xl"></i>
-                    </div>
-                    <h3 class="font-black text-slate-800 mb-2 uppercase tracking-tight">Pacotes Fixos</h3>
-                    <p class="text-xs text-slate-500 font-medium">Planos de longa duração parcelados.</p>
-                </div>
-
-                <!-- Opção 3: Personalizados -->
-                <div class="p-8 rounded-[2rem] border-2 border-amber-100 bg-amber-50/50 hover:border-amber-500 transition-all group cursor-pointer text-center">
-                    <div class="w-16 h-16 bg-amber-500 rounded-2xl flex items-center justify-center text-white mx-auto mb-6 shadow-xl shadow-amber-100">
-                        <i class="fas fa-user-tag text-2xl"></i>
-                    </div>
-                    <h3 class="font-black text-slate-800 mb-2 uppercase tracking-tight">Pacotes Personalizados</h3>
-                    <p class="text-xs text-slate-500 font-medium">Sessões avulsas ou estéticas.</p>
-                </div>
-
-                <!-- Opção 4: Atendimento -->
-                <div class="p-8 rounded-[2rem] border-2 border-sky-100 bg-sky-50/50 hover:border-sky-500 transition-all group cursor-pointer text-center">
-                    <div class="w-16 h-16 bg-sky-500 rounded-2xl flex items-center justify-center text-white mx-auto mb-6 shadow-xl shadow-sky-100">
-                        <i class="fas fa-check-circle text-2xl"></i>
-                    </div>
-                    <h3 class="font-black text-slate-800 mb-2 uppercase tracking-tight">Atendimento Avulso</h3>
-                    <p class="text-xs text-slate-500 font-medium">Sessões experimentais ou unitárias.</p>
+                    <h2 class="text-3xl font-black text-slate-800 mb-2">GESTÃO DE VENDAS</h2>
+                    <p class="text-slate-400 font-bold uppercase text-[10px] tracking-[4px] mb-12">Novos contratos e pacotes para este aluno</p>
+                    <a href="{% url 'novo_contrato' aluno.pk %}" class="btn bg-secondary border-none text-white rounded-[2.5rem] px-20 h-24 shadow-2xl shadow-secondary/40 hover:bg-blue-800 hover:scale-105 transition-all group">
+                        <div class="flex items-center gap-6">
+                            <div class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center"><i class="fas fa-plus text-xl"></i></div>
+                            <span class="text-2xl font-black uppercase tracking-[2px] italic">Realizar Nova Venda</span>
+                        </div>
+                    </a>
                 </div>
             </div>
+
+            <!-- ABA 2: FINANCEIRO (FILTRADO POR CONTRATO) -->
+            <div id="financeiro" class="tab-content hidden animate-in fade-in duration-500">
+                <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-6 bg-slate-50 p-6 rounded-[2rem]">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-slate-400 shadow-sm"><i class="fas fa-filter text-xs"></i></div>
+                        <div>
+                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Filtrar por Contrato</p>
+                            <select onchange="filtrarTabela(this.value, 'financeiro-row')" class="select select-sm bg-transparent border-none focus:ring-0 font-black text-slate-700 p-0 h-auto min-h-0 text-xs">
+                                <option value="all">Todos os Lançamentos</option>
+                                {% for c in contratos_completo %}
+                                    <option value="contrato-{{ c.id }}" {% if c.ativo %}selected{% endif %}>{% if c.ativo %}[ATIVO] {% endif %}{{ c.plano.nome }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="overflow-hidden border border-slate-100 rounded-[2rem]">
+                    <table class="table w-full">
+                        <thead class="bg-slate-900 text-white uppercase text-[10px] tracking-widest font-black">
+                            <tr><th class="py-6 pl-10">Vencimento</th><th>Descrição</th><th class="text-center">Valor</th><th class="text-center">Status</th><th class="text-right pr-10">Ações</th></tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-50">
+                            {% for lanc in financeiro_completo %}
+                            <tr class="financeiro-row contrato-{{ lanc.contrato_id|default:'avulso' }}">
+                                <td class="py-6 pl-10 font-bold">{{ lanc.data_vencimento|date:"d/m/Y" }}</td>
+                                <td>{{ lanc.descricao }}</td>
+                                <td class="text-center font-black">R$ {{ lanc.valor }}</td>
+                                <td class="text-center">
+                                    <span class="badge {% if lanc.status == 'PAGO' %}bg-emerald-500{% else %}bg-orange-400{% endif %} text-white border-none font-black text-[9px] rounded-lg px-4 py-3">{{ lanc.status }}</span>
+                                </td>
+                                <td class="text-right pr-10">
+                                    {% if lanc.status == 'PENDENTE' %}
+                                        <form action="{% url 'baixar_lancamento' lanc.id %}" method="post">{% csrf_token %}<button class="btn btn-xs bg-emerald-500 border-none text-white font-black rounded-lg">BAIXAR</button></form>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ABA 3: PRONTUÁRIO / AGENDA (FILTRADO POR CONTRATO) -->
+            <div id="prontuario" class="tab-content hidden animate-in fade-in duration-500">
+                <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-6 bg-slate-50 p-6 rounded-[2rem]">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-slate-400 shadow-sm"><i class="fas fa-calendar-alt text-xs"></i></div>
+                        <div>
+                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Filtrar Aulas do Contrato</p>
+                            <select onchange="filtrarTabela(this.value, 'agenda-row')" class="select select-sm bg-transparent border-none focus:ring-0 font-black text-slate-700 p-0 h-auto min-h-0 text-xs">
+                                <option value="all">Todo o Histórico</option>
+                                {% for c in contratos_completo %}
+                                    <option value="contrato-{{ c.id }}" {% if c.ativo %}selected{% endif %}>{% if c.ativo %}[ATIVO] {% endif %}{{ c.plano.nome }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="overflow-hidden border border-slate-100 rounded-[2rem]">
+                    <table class="table w-full">
+                        <thead class="bg-slate-900 text-white uppercase text-[10px] tracking-widest font-black">
+                            <tr><th class="py-6 pl-10">Data/Hora</th><th>Profissional</th><th class="text-center">Presença</th><th class="pr-10">Evolução / Observação</th></tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-50">
+                            {% for p in agenda_completa %}
+                            <tr class="agenda-row contrato-{{ p.contrato_id|default:'avulso' }}">
+                                <td class="py-6 pl-10">
+                                    <div class="flex flex-col">
+                                        <span class="font-black">{{ p.aula.data_hora_inicio|date:"d/m/Y" }}</span>
+                                        <span class="text-[10px] text-primary font-black uppercase">{{ p.aula.data_hora_inicio|date:"H:i" }}</span>
+                                    </div>
+                                </td>
+                                <td class="font-bold text-slate-600">{{ p.aula.profissional.nome }}</td>
+                                <td class="text-center">
+                                    <span class="badge {% if p.status == 'PRESENTE' %}bg-emerald-500{% elif p.status == 'FALTA' %}bg-primary{% else %}bg-secondary{% endif %} text-white border-none font-black text-[9px] rounded-lg px-4 py-3">{{ p.status }}</span>
+                                </td>
+                                <td class="text-xs text-slate-500 pr-10 italic">"{{ p.aula.evolucao_texto|default:"Sem registro técnico."|truncatechars:80 }}"</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ABA 4: CONTRATOS (HISTÓRICO) -->
+            <div id="contratos" class="tab-content hidden animate-in fade-in duration-500">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {% for c in contratos_completo %}
+                    <div class="p-8 rounded-[2.5rem] border border-slate-100 bg-white shadow-lg relative overflow-hidden group hover:border-primary transition-all">
+                        {% if c.ativo %}<div class="absolute top-0 right-0 bg-emerald-500 text-white text-[9px] font-black px-6 py-2 rounded-bl-3xl">ATIVO</div>{% endif %}
+                        <h4 class="text-xl font-black text-slate-800 mb-2 uppercase">{{ c.plano.nome }}</h4>
+                        <div class="flex items-center gap-4 text-slate-400 text-[10px] font-black uppercase tracking-widest mb-6">
+                            <span>Início: {{ c.data_inicio|date:"d/m/Y" }}</span>
+                            <span>Fim: {{ c.data_fim|date:"d/m/Y" }}</span>
+                        </div>
+                        <div class="flex justify-between items-end">
+                            <div>
+                                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Valor do Contrato</p>
+                                <p class="text-2xl font-black text-slate-900">R$ {{ c.valor_total }}</p>
+                            </div>
+                            <div class="flex gap-2">
+                                <a href="{% url 'imprimir_contrato' c.id %}" target="_blank" class="btn btn-square btn-sm rounded-xl bg-slate-50 text-slate-400 hover:bg-slate-900 hover:text-white transition-all"><i class="fas fa-print"></i></a>
+                                <a href="{% url 'contrato_update' c.id %}" class="btn btn-square btn-sm rounded-xl bg-slate-50 text-slate-400 hover:bg-primary hover:text-white transition-all"><i class="fas fa-edit"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
         </div>
     </div>
 </div>
+
+<!-- SCRIPTS DE NAVEGAÇÃO E FILTRO -->
+<script>
+    function openTab(evt, tabName) {
+        var i, tabcontent, tablinks;
+        tabcontent = document.getElementsByClassName("tab-content");
+        for (i = 0; i < tabcontent.length; i++) { tabcontent[i].classList.add("hidden"); tabcontent[i].classList.remove("block"); }
+        tablinks = document.getElementsByClassName("tab-btn");
+        for (i = 0; i < tablinks.length; i++) { tablinks[i].classList.remove("text-primary", "border-primary", "active-tab"); tablinks[i].classList.add("text-slate-400", "border-transparent"); }
+        document.getElementById(tabName).classList.remove("hidden");
+        document.getElementById(tabName).classList.add("block");
+        evt.currentTarget.classList.add("text-primary", "border-primary", "active-tab");
+        evt.currentTarget.classList.remove("text-slate-400", "border-transparent");
+    }
+
+    function filtrarTabela(contratoId, rowClass) {
+        const rows = document.getElementsByClassName(rowClass);
+        for (let row of rows) {
+            if (contratoId === 'all' || row.classList.contains(contratoId)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        }
+    }
+
+    // Inicializa os filtros nos contratos ativos ao carregar
+    document.addEventListener("DOMContentLoaded", function() {
+        const activeFinanceiro = document.querySelector('#financeiro select').value;
+        const activeProntuario = document.querySelector('#prontuario select').value;
+        filtrarTabela(activeFinanceiro, 'financeiro-row');
+        filtrarTabela(activeProntuario, 'agenda-row');
+    });
+
+    function enviarCobranca(alunoId) {
+        if (!confirm('Confirmar envio de cobrança via WhatsApp?')) return;
+        fetch(`/comunicacao/enviar-cobranca/${alunoId}/`).then(res => res.json()).then(data => {
+            if (data.status === 'ok') alert('Enviado!'); else alert('Erro: ' + data.message);
+        });
+    }
+</script>
+
+<style>
+    .tab-btn { transition: all 0.3s ease; }
+    .active-tab { background: white; }
+    .table th { border: none !important; }
+</style>
 {% endblock %}
