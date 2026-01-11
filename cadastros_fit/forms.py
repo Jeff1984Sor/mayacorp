@@ -83,6 +83,7 @@ class ProfissionalForm(forms.ModelForm):
 class UnidadeForm(forms.ModelForm):
     class Meta:
         model = Unidade
+        fields = ['nome', 'endereco', 'telefone', 'capacidade_padrao']
         exclude = ['organizacao']
         widgets = {
             'nome': forms.TextInput(attrs={'class': 'form-control'}),
