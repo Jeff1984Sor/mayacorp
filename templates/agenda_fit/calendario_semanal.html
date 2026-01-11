@@ -12,7 +12,7 @@
             
             <div class="flex items-center gap-6">
                 <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center text-white shadow-lg shadow-primary/30">
+                    <div class="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center text-white shadow-xl shadow-primary/30">
                         <i class="fas fa-calendar-alt text-xl"></i>
                     </div>
                     <h2 class="text-2xl font-black text-slate-900 tracking-tighter">Agenda <span class="text-primary">Semanal</span></h2>
@@ -52,7 +52,7 @@
     <!-- GRADE DA AGENDA -->
     <div class="flex gap-5 overflow-x-auto pb-10 custom-scroll px-2">
         {% for dia in dias_da_semana %}
-        <div class="flex-1 min-w-[220px] flex flex-col gap-5">
+        <div class="flex-1 min-w-[240px] flex flex-col gap-5">
             
             <div class="p-5 rounded-[24px] text-center transition-all duration-500 border-b-4
                         {% if dia.hoje %} bg-primary text-white shadow-2xl shadow-primary/40 scale-105 z-10 border-primary {% else %} bg-white border-slate-100 text-slate-400 {% endif %}">
@@ -70,34 +70,41 @@
                     {% if dia_index == forloop.parentloop.counter0 %}
                         {% for p in lista_presencas %}
                         
-                        <!-- CARD DO ALUNO (COM FORÇA TOTAL NA COR DO PROFISSIONAL) -->
+                        <!-- CARD DO ALUNO (COM INDICADOR DE VAGAS) -->
                         <div onclick="modal_checkin_{{ p.id }}.showModal()" 
                              class="group bg-white p-4 rounded-2xl shadow-md cursor-pointer hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 relative overflow-hidden"
-                             style="border-left: 10px solid {{ p.aula.profissional.cor|default:'#cbd5e1' }} !important;">
+                             style="border-left: 10px solid {{ p.aula.profissional.cor|default:'#primary' }} !important;">
                             
-                            <div class="flex justify-between items-start mb-3">
-                                <span class="bg-slate-900 text-white text-[10px] font-black px-2.5 py-1 rounded-lg tracking-wider">
+                            <!-- LINHA DE TOPO: HORÁRIO + CAPACIDADE -->
+                            <div class="flex justify-between items-center mb-3">
+                                <span class="bg-slate-900 text-white text-[9px] font-black px-2 py-0.5 rounded-md tracking-wider">
                                     {{ p.aula.data_hora_inicio|date:"H:i" }}
                                 </span>
                                 
-                                <!-- Só mostra ícone se já foi marcado (Passado) -->
-                                {% if p.aula.data_hora_inicio < agora %}
-                                    {% if p.status == 'PRESENTE' %}
-                                        <i class="fas fa-check-circle text-emerald-500 text-sm"></i>
-                                    {% elif p.status == 'FALTA' %}
-                                        <i class="fas fa-times-circle text-primary text-sm"></i>
-                                    {% endif %}
-                                {% endif %}
+                                <!-- INDICADOR DE CAPACIDADE (ESTILO SEUFISIO) -->
+                                <span class="text-[9px] font-black uppercase tracking-tighter {% if p.aula.presencas.count >= p.aula.unidade.capacidade_padrao %} text-primary animate-pulse {% else %} text-emerald-500 {% endif %}">
+                                    <i class="fas fa-users mr-1"></i> {{ p.aula.presencas.count }}/{{ p.aula.unidade.capacidade_padrao }} VAGAS
+                                </span>
                             </div>
                             
-                            <div class="text-[15px] font-black text-slate-900 truncate group-hover:text-primary transition-colors">{{ p.aluno.nome|upper }}</div>
-                            <div class="text-[11px] text-slate-500 font-bold truncate mt-2 flex items-center gap-1">
-                                <i class="fas fa-user-tie text-[10px]" style="color: {{ p.aula.profissional.cor }} !important;"></i> 
-                                {{ p.aula.profissional.nome }}
+                            <div class="text-[14px] font-black text-slate-900 truncate group-hover:text-primary transition-colors mb-1">{{ p.aluno.nome|upper }}</div>
+                            
+                            <div class="flex justify-between items-end mt-2">
+                                <div class="text-[10px] text-slate-400 font-bold truncate">
+                                    <i class="fas fa-user-tie text-[9px]" style="color: {{ p.aula.profissional.cor }} !important;"></i> 
+                                    {{ p.aula.profissional.nome }}
+                                </div>
+                                
+                                <!-- Badge de Status se já passou da hora -->
+                                {% if p.status == 'PRESENTE' %}
+                                    <i class="fas fa-check-circle text-emerald-500 text-sm"></i>
+                                {% elif p.status == 'FALTA' %}
+                                    <i class="fas fa-times-circle text-primary text-sm"></i>
+                                {% endif %}
                             </div>
                         </div>
 
-                        <!-- MODAL DE CHECK-IN (TOTALMENTE EM BRANCO) -->
+                        <!-- MODAL DE CHECK-IN (SEM OPÇÃO MARCADA POR PADRÃO) -->
                         <dialog id="modal_checkin_{{ p.id }}" class="modal">
                           <div class="modal-box bg-white rounded-[2.5rem] p-10 max-w-lg border border-slate-100 shadow-2xl">
                             <form action="{% url 'gerenciar_aula' p.aula.id %}" method="post">
@@ -107,15 +114,15 @@
                                     <div class="w-24 h-24 rounded-[2.5rem] flex items-center justify-center mx-auto mb-5 shadow-inner" style="background-color: {{ p.aula.profissional.cor }}20; color: {{ p.aula.profissional.cor }} !important;">
                                         <i class="fas fa-user-check text-4xl"></i>
                                     </div>
-                                    <h3 class="text-3xl font-black text-slate-900 tracking-tighter">{{ p.aluno.nome|upper }}</h3>
+                                    <h3 class="text-3xl font-black text-slate-800 tracking-tighter">{{ p.aluno.nome|upper }}</h3>
                                     <p class="text-slate-400 font-black text-sm uppercase tracking-widest mt-2">{{ p.aula.data_hora_inicio|date:"d \d\e F | H:i" }}</p>
+                                    <p class="text-[10px] font-black text-primary uppercase mt-2 italic">Ocupação da Aula: {{ p.aula.presencas.count }} de {{ p.aula.unidade.capacidade_padrao }} alunos</p>
                                 </div>
                                 
                                 <div class="space-y-8">
                                     <div>
-                                        <label class="text-[11px] font-black text-slate-400 uppercase tracking-[2px] mb-4 block">Confirmar Presença (Escolha uma opção)</label>
+                                        <label class="text-[11px] font-black text-slate-400 uppercase tracking-[2px] mb-4 block">Confirmar Presença (Clique para selecionar)</label>
                                         <div class="grid grid-cols-3 gap-3">
-                                            <!-- RADIOS SEM O ATRIBUTO 'CHECKED' -->
                                             <label class="cursor-pointer">
                                                 <input type="radio" name="status_{{ p.id }}" value="PRESENTE" class="peer hidden" required>
                                                 <div class="text-center py-5 rounded-2xl border-2 border-slate-100 text-[10px] font-black text-slate-400 peer-checked:bg-emerald-500 peer-checked:text-white peer-checked:border-emerald-500 transition-all shadow-sm uppercase">Presente</div>
@@ -133,7 +140,7 @@
 
                                     <div>
                                         <label class="text-[11px] font-black text-slate-400 uppercase tracking-[2px] mb-3 block text-left">Evolução do Treino / Prontuário</label>
-                                        <textarea name="evolucao_texto" class="textarea w-full bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-primary text-slate-700 font-medium p-4" rows="4" placeholder="Relate como foi o desempenho hoje...">{{ p.aula.evolucao_texto }}</textarea>
+                                        <textarea name="evolucao_texto" class="textarea w-full bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-primary text-slate-700 font-medium p-4" rows="4" placeholder="Descreva o que foi trabalhado hoje...">{{ p.aula.evolucao_texto }}</textarea>
                                     </div>
                                 </div>
 
@@ -160,9 +167,4 @@
     </div>
 
 </div>
-
-<style>
-    .custom-scroll::-webkit-scrollbar { height: 6px; }
-    .custom-scroll::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
-</style>
 {% endblock %}

@@ -1,109 +1,113 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load crispy_forms_tags %}
 
-{% block title %}{% if form.instance.pk %}Editar Unidade{% else %}Nova Unidade{% endif %} - MayaCorp Fit{% endblock %}
+{% block title %}{% if object %}Editar Unidade{% else %}Nova Unidade{% endif %} | MayaCorp Fit{% endblock %}
 
 {% block content %}
-<div class="max-w-3xl mx-auto pb-24 px-4">
-    
-    <!-- HEADER: Identidade Studio MayaCorp -->
-    <header class="flex flex-col md:flex-row justify-between items-center mb-12 gap-6 text-center md:text-left">
+<div class="max-w-4xl mx-auto pb-24 px-4">
+
+    <!-- HEADER: Título e Ação de Voltar -->
+    <header class="flex justify-between items-center mb-10 px-2">
         <div class="flex items-center gap-6">
-            <!-- Ícone em MARSALA -->
-            <div class="w-16 h-16 bg-primary rounded-[22px] flex items-center justify-center text-white shadow-xl shadow-primary/30 border-2 border-white transition-transform hover:rotate-3">
-                <i class="fas fa-building-circle-check text-2xl"></i>
+            <div class="w-16 h-16 bg-primary rounded-[22px] flex items-center justify-center text-white shadow-xl shadow-primary/30 border-2 border-white transition-transform hover:scale-105">
+                <i class="fas fa-building text-2xl"></i>
             </div>
             <div>
-                <h1 class="text-4xl font-black text-slate-900 tracking-tighter uppercase">
-                    {% if form.instance.pk %}Editar Unidade{% else %}Nova Unidade{% endif %}
+                <h1 class="text-3xl font-black text-slate-800 tracking-tighter uppercase italic">
+                    {% if object %}Configurar Unidade{% else %}Nova Unidade{% endif %}
                 </h1>
-                <p class="text-[11px] text-primary font-black uppercase tracking-[3px] mt-1">
-                    Gestão de Infraestrutura e Espaços
-                </p>
+                <p class="text-[10px] text-primary font-black uppercase tracking-[3px] mt-1">Gestão de infraestrutura e capacidade</p>
             </div>
         </div>
+        <a href="{% url 'unidade_list' %}" class="btn btn-circle btn-ghost text-slate-300 hover:text-primary transition-all">
+            <i class="fas fa-times text-xl"></i>
+        </a>
     </header>
 
-    <!-- CARD PRINCIPAL (Visual de Luxo) -->
-    <div class="bg-white rounded-[3rem] shadow-2xl shadow-slate-200/60 border border-slate-100 overflow-hidden relative">
-        
-        <!-- Detalhe decorativo no topo -->
-        <div class="h-2 w-full bg-gradient-to-r from-primary via-secondary to-accent"></div>
+    <!-- FORMULÁRIO PADRÃO MAYACORP (CARD LUXO) -->
+    <form method="post" class="space-y-8 animate-in slide-in-from-bottom-6 duration-700">
+        {% csrf_token %}
 
-        <form method="post" class="p-8 md:p-16 space-y-10">
-            {% csrf_token %}
-
-            <!-- Alerta de Endereço em AMARELO (Atenção Técnica) -->
-            <div class="bg-accent/10 p-8 rounded-[2.5rem] border-2 border-dashed border-accent/30 flex items-center gap-6 group transition-all hover:bg-accent/20">
-                <div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-accent shadow-lg group-hover:scale-110 transition-transform">
-                    <i class="fas fa-location-dot text-xl"></i>
+        <!-- BLOCO 1: IDENTIFICAÇÃO E REGRAS -->
+        <div class="bg-white rounded-[3.5rem] shadow-2xl shadow-slate-200/60 border border-slate-100 p-12 relative overflow-hidden">
+            <div class="flex items-center gap-4 mb-12">
+                <div class="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400">
+                    <i class="fas fa-sliders text-sm"></i>
                 </div>
-                <div>
-                    <span class="text-sm font-black text-amber-900 uppercase tracking-tight">Geolocalização da Unidade</span>
-                    <p class="text-[10px] text-amber-700 font-bold uppercase leading-relaxed mt-1">
-                        O endereço correto permite que os alunos <br>encontrem o studio via GPS e Google Maps.
-                    </p>
+                <h3 class="text-sm font-black text-slate-900 uppercase tracking-[4px]">Identidade & Operação</h3>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+                <!-- Nome da Unidade -->
+                <div class="md:col-span-8 flex flex-col gap-2">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Nome da Unidade*</label>
+                    <input type="text" name="nome" value="{{ form.nome.value|default:'' }}" 
+                           class="input input-bordered rounded-2xl bg-slate-50 border-none font-bold text-slate-700 h-14 w-full focus:ring-2 focus:ring-primary/20" required>
+                </div>
+
+                <!-- CAPACIDADE PADRÃO (O CAMPO QUE DEFINE A REGRA DA AULA) -->
+                <div class="md:col-span-4 flex flex-col gap-2">
+                    <label class="text-[10px] font-black text-primary uppercase tracking-widest ml-4">Capacidade por Aula*</label>
+                    <div class="relative">
+                        <input type="number" name="capacidade_padrao" value="{{ form.capacidade_padrao.value|default:3 }}" 
+                               class="input input-bordered rounded-2xl bg-primary/5 border-none font-black text-primary text-2xl h-14 w-full text-center focus:ring-2 focus:ring-primary/20" required>
+                    </div>
                 </div>
             </div>
-
-            <!-- FORMULÁRIO RENDERIZADO (FOCADO EM NITIDEZ) -->
-            <div class="space-y-6">
-                {{ form|crispy }}
-            </div>
-
-            <!-- BOTÕES DE AÇÃO (AZUL VIBRANTE) -->
-            <div class="flex flex-col gap-5 pt-10 border-t border-slate-100">
-                <button type="submit" class="btn bg-secondary border-none text-white rounded-[1.5rem] h-20 shadow-2xl shadow-secondary/30 font-black uppercase tracking-[2px] text-lg hover:bg-blue-800 hover:scale-[1.02] active:scale-95 transition-all group">
-                    <i class="fas fa-check-double mr-3 text-xl group-hover:animate-pulse"></i> SALVAR UNIDADE
-                </button>
-                
-                <a href="{% url 'unidade_list' %}" class="btn btn-ghost h-14 text-slate-400 font-black uppercase tracking-widest text-xs hover:bg-slate-50">
-                    Descartar e Voltar
-                </a>
-            </div>
-        </form>
-    </div>
-
-    <!-- RODAPÉ TÉCNICO -->
-    <div class="mt-12 text-center">
-        <div class="inline-flex items-center gap-3 px-6 py-2 bg-slate-100 rounded-full border border-slate-200">
-            <div class="w-2 h-2 bg-primary rounded-full"></div>
-            <span class="text-[9px] font-black text-slate-500 uppercase tracking-[2px]">MayaCorp Logic: Infrastructure Module v4.0</span>
         </div>
-    </div>
+
+        <!-- BLOCO 2: LOCALIZAÇÃO -->
+        <div class="bg-white rounded-[3.5rem] shadow-2xl shadow-slate-200/60 border border-slate-100 p-12">
+            <div class="flex items-center gap-4 mb-10">
+                <div class="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400">
+                    <i class="fas fa-location-dot text-sm"></i>
+                </div>
+                <h3 class="text-sm font-black text-slate-900 uppercase tracking-[4px]">Localização</h3>
+            </div>
+
+            <div class="grid grid-cols-1 gap-8">
+                <!-- Endereço Completo -->
+                <div class="flex flex-col gap-2">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Endereço Completo</label>
+                    <input type="text" name="endereco" value="{{ form.endereco.value|default:'' }}" 
+                           class="input input-bordered rounded-2xl bg-slate-50 border-none font-bold text-slate-700 h-14 w-full focus:ring-2 focus:ring-primary/20">
+                </div>
+            </div>
+        </div>
+
+        <!-- BLOCO DE AVISO (UI INTELIGENTE) -->
+        <div class="bg-emerald-50 rounded-[2.5rem] p-8 border-2 border-dashed border-emerald-100 flex items-center gap-6">
+            <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-emerald-500 shadow-sm">
+                <i class="fas fa-info-circle"></i>
+            </div>
+            <p class="text-[11px] text-emerald-700 font-bold uppercase leading-relaxed tracking-tight">
+                A <span class="text-emerald-900 font-black">Capacidade por Aula</span> definida aqui será aplicada automaticamente <br>
+                em todos os novos horários da agenda para evitar superlotação.
+            </p>
+        </div>
+
+        <!-- BOTÕES DE AÇÃO -->
+        <div class="flex flex-col md:flex-row justify-center gap-4 pt-6">
+            <button type="submit" class="btn bg-primary hover:bg-red-900 border-none text-white rounded-[2.2rem] px-24 h-20 shadow-2xl shadow-primary/30 font-black uppercase tracking-[3px] italic transition-all hover:scale-105">
+                Salvar Unidade
+            </button>
+        </div>
+
+    </form>
 </div>
 
 <style>
-    /* Customização Crítica para Nitidez do Crispy Forms */
-    
-    /* Labels no estilo Software de Luxo */
-    .form-control label, .mb-3 label { 
-        @apply text-[11px] font-black text-slate-500 uppercase tracking-[2px] mb-3 block ml-2 !important; 
+    /* Estilização para Inputs do tipo Number (Remove setas feias) */
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+        -webkit-appearance: none; 
+        margin: 0; 
     }
-    
-    /* Inputs de Alto Contraste */
-    .input, .textinput, .textarea, .select { 
-        @apply w-full bg-white border-2 border-slate-200 rounded-2xl px-6 h-14 focus:border-primary focus:ring-0 focus:outline-none transition-all text-slate-900 font-bold placeholder:text-slate-300 shadow-sm !important; 
-    }
-
-    /* Textarea com respiro */
-    .textarea { @apply h-40 py-5 leading-relaxed !important; }
-
-    /* Checkboxes/Radios Vibrantes */
-    .checkbox { @apply checkbox-secondary rounded-lg border-2 scale-110 !important; }
-    
-    /* Asteriscos em MARSALA */
-    .asteriskField { color: #802422 !important; font-weight: 900; }
 </style>
 
 <script>
-    // UX Inteligente: Foco Automático e UpperCase
+    // UX: Garante que o nome da unidade seja sempre em CAIXA ALTA
     document.addEventListener('DOMContentLoaded', function() {
-        const firstInput = document.querySelector('input:not([type=hidden])');
-        if (firstInput) firstInput.focus();
-
-        // Transforma o nome da unidade em Uppercase enquanto digita para manter o padrão
         const nomeInput = document.querySelector('input[name="nome"]');
         if (nomeInput) {
             nomeInput.addEventListener('input', function() {

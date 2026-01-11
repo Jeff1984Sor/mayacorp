@@ -17,6 +17,7 @@ class Unidade(models.Model):
     nome = models.CharField(max_length=100)
     endereco = models.CharField(max_length=255, blank=True, null=True)
     telefone = models.CharField(max_length=20, blank=True)
+    capacidade_padrao = models.PositiveIntegerField(default=3, verbose_name="Capacidade Padrão por Aula")
     
     def __str__(self):
         return self.nome
