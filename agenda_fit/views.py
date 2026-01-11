@@ -402,7 +402,7 @@ def performance_aulas(request):
         data_hora_inicio__year=ano_atual
     ).count()
 
-    # 2. Taxa de Ocupação (Presenças Reais / Capacidade Total das Aulas Realizadas)
+    # 2. Taxa de Ocupação
     dados_ocupacao = Aula.objects.filter(
         status='REALIZADA',
         data_hora_inicio__month=mes_atual,
@@ -412,7 +412,7 @@ def performance_aulas(request):
         total_presencas=Count('presencas', filter=Q(presencas__status='PRESENTE'))
     )
     
-    vagas = dados_ocupacao['total_vagas'] or 1 # evita divisão por zero
+    vagas = dados_ocupacao['total_vagas'] or 1
     presencas = dados_ocupacao['total_presencas'] or 0
     taxa_ocupacao = round((presencas / vagas) * 100)
 
@@ -423,13 +423,13 @@ def performance_aulas(request):
         aula__data_hora_inicio__year=ano_atual
     ).count()
 
-    # 4. Novos Alunos no Mês (Assumindo que seu model Aluno tem 'criado_em')
+    # 4. Novos Alunos no Mês (CORREÇÃO AQUI)
     novos_alunos = Aluno.objects.filter(
-        criado_at__month=mes_atual,
-        criado_at__year=ano_atual
+        criado_em__month=mes_atual,
+        criado_em__year=ano_atual
     ).count()
 
-    # 5. Top Alunos (Ranking por presença)
+    # 5. Top Alunos
     top_alunos = Presenca.objects.filter(
         status='PRESENTE',
         aula__data_hora_inicio__month=mes_atual,
