@@ -4,47 +4,50 @@
 {% block title %}Frequência do Estúdio | MayaCorp Fit{% endblock %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto pb-16 px-4">
+<div class="max-w-7xl mx-auto pb-20 px-6">
 
     <!-- HEADER -->
-    <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-6">
-        <div class="flex items-center gap-5">
-            <div class="w-14 h-14 bg-primary rounded-[22px] flex items-center justify-center text-white shadow-xl shadow-primary/30">
+    <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-12">
+        <div class="flex items-center gap-6">
+            <div class="w-16 h-16 rounded-[22px] flex items-center justify-center text-white
+                        shadow-xl shadow-primary/30"
+                 style="background: var(--color-primary);">
                 <i class="fas fa-clipboard-check text-2xl"></i>
             </div>
             <div>
                 <h1 class="text-3xl font-black text-slate-900 tracking-tighter">
                     Frequência do estúdio
                 </h1>
-                <p class="text-sm text-slate-500 font-medium">
+                <p class="text-sm text-slate-500 font-medium mt-1">
                     Presenças, faltas e controle de assiduidade
                 </p>
             </div>
         </div>
 
         <button onclick="window.print()"
-                class="btn bg-white border-2 border-slate-200 shadow-sm rounded-2xl hover:bg-slate-50 transition-all text-slate-600 normal-case font-black px-8">
-            <i class="fas fa-print mr-2"></i>
+                class="h-12 px-8 rounded-xl bg-white border-2 border-slate-200
+                       font-black text-slate-600 shadow-sm
+                       hover:bg-slate-50 transition flex items-center gap-2">
+            <i class="fas fa-print"></i>
             Imprimir relatório
         </button>
     </header>
 
     <!-- FILTROS -->
-    <section class="bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200/50 border border-slate-100 p-8 md:p-10 mb-10 relative overflow-hidden">
-        <div class="absolute left-0 top-0 w-2 h-full bg-secondary"></div>
+    <section class="relative bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200/50
+                    border border-slate-100 p-8 mb-12">
+        <div class="absolute left-0 top-0 h-full w-1.5 rounded-l-full bg-secondary"></div>
 
         <form method="get" class="grid grid-cols-1 md:grid-cols-12 gap-8 items-end">
 
             <!-- ALUNO -->
-            <div class="md:col-span-4 flex flex-col gap-3">
-                <label class="text-[11px] font-black text-slate-500 uppercase tracking-widest ml-1">
-                    Aluno
-                </label>
-                <select name="aluno"
-                        class="select select-bordered w-full bg-slate-50 border-2 border-slate-200 rounded-2xl focus:border-primary text-slate-900 font-bold h-14">
+            <div class="md:col-span-4">
+                <label class="form-label">Aluno</label>
+                <select name="aluno" class="form-input h-14">
                     <option value="">Todos os alunos</option>
                     {% for a in alunos_list %}
-                        <option value="{{ a.id }}" {% if request.GET.aluno == a.id|stringformat:"s" %}selected{% endif %}>
+                        <option value="{{ a.id }}"
+                            {% if request.GET.aluno == a.id|stringformat:"s" %}selected{% endif %}>
                             {{ a.nome|upper }}
                         </option>
                     {% endfor %}
@@ -52,34 +55,23 @@
             </div>
 
             <!-- DATA INICIAL -->
-            <div class="md:col-span-2 flex flex-col gap-3">
-                <label class="text-[11px] font-black text-slate-500 uppercase tracking-widest ml-1">
-                    Data inicial
-                </label>
-                <input type="date"
-                       name="data_inicio"
-                       class="input input-bordered w-full bg-slate-50 border-2 border-slate-200 rounded-2xl focus:border-primary text-slate-900 font-bold h-14"
-                       value="{{ request.GET.data_inicio }}">
+            <div class="md:col-span-2">
+                <label class="form-label">Data inicial</label>
+                <input type="date" name="data_inicio" value="{{ request.GET.data_inicio }}"
+                       class="form-input h-14">
             </div>
 
             <!-- DATA FINAL -->
-            <div class="md:col-span-2 flex flex-col gap-3">
-                <label class="text-[11px] font-black text-slate-500 uppercase tracking-widest ml-1">
-                    Data final
-                </label>
-                <input type="date"
-                       name="data_fim"
-                       class="input input-bordered w-full bg-slate-50 border-2 border-slate-200 rounded-2xl focus:border-primary text-slate-900 font-bold h-14"
-                       value="{{ request.GET.data_fim }}">
+            <div class="md:col-span-2">
+                <label class="form-label">Data final</label>
+                <input type="date" name="data_fim" value="{{ request.GET.data_fim }}"
+                       class="form-input h-14">
             </div>
 
             <!-- STATUS -->
-            <div class="md:col-span-2 flex flex-col gap-3">
-                <label class="text-[11px] font-black text-slate-500 uppercase tracking-widest ml-1">
-                    Status
-                </label>
-                <select name="status"
-                        class="select select-bordered w-full bg-slate-50 border-2 border-slate-200 rounded-2xl focus:border-accent text-slate-900 font-bold h-14">
+            <div class="md:col-span-2">
+                <label class="form-label">Status</label>
+                <select name="status" class="form-input h-14">
                     <option value="">Todos</option>
                     <option value="PRESENTE" {% if request.GET.status == 'PRESENTE' %}selected{% endif %}>Presente</option>
                     <option value="FALTA" {% if request.GET.status == 'FALTA' %}selected{% endif %}>Falta</option>
@@ -89,7 +81,9 @@
             <!-- FILTRAR -->
             <div class="md:col-span-2">
                 <button type="submit"
-                        class="btn bg-secondary hover:bg-blue-700 border-none text-white rounded-2xl shadow-xl shadow-secondary/30 w-full h-14 font-black uppercase tracking-widest transition-all hover:scale-105">
+                        class="w-full h-14 rounded-xl text-white font-black uppercase tracking-widest
+                               shadow-xl shadow-secondary/30 hover:scale-105 transition"
+                        style="background: var(--color-secondary);">
                     <i class="fas fa-filter mr-2"></i>
                     Filtrar
                 </button>
@@ -98,24 +92,17 @@
     </section>
 
     <!-- TABELA -->
-    <div class="bg-white rounded-[3rem] shadow-2xl shadow-slate-200/60 overflow-hidden border border-slate-100">
+    <div class="bg-white rounded-[3rem] shadow-2xl shadow-slate-200/60
+                overflow-hidden border border-slate-100">
         <div class="overflow-x-auto">
             <table class="table w-full border-collapse">
 
-                <thead>
-                    <tr class="bg-slate-50 border-b border-slate-200">
-                        <th class="text-slate-900 uppercase text-[11px] tracking-[2px] font-black py-8 pl-10 text-left">
-                            Data / Horário
-                        </th>
-                        <th class="text-slate-900 uppercase text-[11px] tracking-[2px] font-black py-8 text-left">
-                            Aluno
-                        </th>
-                        <th class="text-slate-900 uppercase text-[11px] tracking-[2px] font-black py-8 text-left">
-                            Profissional
-                        </th>
-                        <th class="text-slate-900 uppercase text-[11px] tracking-[2px] font-black py-8 pr-10 text-center">
-                            Presença
-                        </th>
+                <thead style="background: var(--bg-soft);">
+                    <tr>
+                        <th class="th">Data / Horário</th>
+                        <th class="th">Aluno</th>
+                        <th class="th">Profissional</th>
+                        <th class="th text-center">Presença</th>
                     </tr>
                 </thead>
 
@@ -124,73 +111,52 @@
                     <tr class="hover:bg-primary/5 transition-colors">
 
                         <!-- DATA -->
-                        <td class="py-7 pl-10">
-                            <div class="flex flex-col">
-                                <span class="text-slate-900 font-black text-base">
+                        <td class="td">
+                            <div>
+                                <p class="font-black text-slate-900">
                                     {{ p.aula.data_hora_inicio|date:"d/m/Y" }}
-                                </span>
-                                <span class="text-[10px] text-primary font-black tracking-widest uppercase">
+                                </p>
+                                <p class="text-[10px] uppercase tracking-widest text-primary font-black">
                                     {{ p.aula.data_hora_inicio|date:"H:i" }} — {{ p.aula.data_hora_fim|date:"H:i" }}
-                                </span>
+                                </p>
                             </div>
                         </td>
 
                         <!-- ALUNO -->
-                        <td class="py-7">
+                        <td class="td">
                             <a href="{% url 'aluno_detail' p.aluno.id %}"
-                               class="flex items-center gap-4 no-underline group">
-                                <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-xs font-black text-slate-500 group-hover:bg-secondary group-hover:text-white transition-all shadow-sm">
+                               class="flex items-center gap-4 font-black text-slate-800 hover:text-secondary">
+                                <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-xs">
                                     {{ p.aluno.nome|slice:":1"|upper }}
                                 </div>
-                                <span class="text-sm font-black text-slate-800 group-hover:text-secondary transition-colors">
-                                    {{ p.aluno.nome|upper }}
-                                </span>
+                                {{ p.aluno.nome|upper }}
                             </a>
                         </td>
 
                         <!-- PROFISSIONAL -->
-                        <td class="py-7">
-                            <span class="text-sm font-bold text-slate-600">
-                                {{ p.aula.profissional.nome }}
-                            </span>
+                        <td class="td text-slate-600 font-bold">
+                            {{ p.aula.profissional.nome }}
                         </td>
 
                         <!-- STATUS -->
-                        <td class="py-7 pr-10 text-center">
+                        <td class="td text-center">
                             {% if p.status == 'PRESENTE' %}
-                                <span class="inline-flex items-center gap-2 bg-emerald-500 text-white px-6 py-3 rounded-xl shadow-lg shadow-emerald-200 text-[10px] font-black uppercase tracking-widest">
-                                    Presente
-                                </span>
+                                <span class="badge badge-success">Presente</span>
                             {% elif p.status == 'FALTA' %}
-                                <span class="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-xl shadow-lg shadow-primary/20 text-[10px] font-black uppercase tracking-widest">
-                                    Falta
-                                </span>
+                                <span class="badge badge-error">Falta</span>
                             {% elif p.status == 'FALTA_JUSTIFICADA' %}
-                                <span class="inline-flex items-center gap-2 bg-accent text-accent-content px-6 py-3 rounded-xl shadow-lg shadow-accent/20 text-[10px] font-black uppercase tracking-widest">
-                                    Justificada
-                                </span>
+                                <span class="badge badge-warning">Justificada</span>
                             {% else %}
-                                <span class="inline-flex items-center gap-2 bg-slate-300 text-slate-700 px-6 py-3 rounded-xl shadow-sm text-[10px] font-black uppercase tracking-widest">
-                                    Agendada
-                                </span>
+                                <span class="badge badge-neutral">Agendada</span>
                             {% endif %}
                         </td>
                     </tr>
-
                     {% empty %}
                     <tr>
                         <td colspan="4" class="py-32 text-center">
-                            <div class="flex flex-col items-center">
-                                <div class="w-24 h-24 bg-slate-50 rounded-[2.5rem] flex items-center justify-center text-slate-200 mb-6 border-2 border-dashed border-slate-200">
-                                    <i class="fas fa-search-minus text-4xl"></i>
-                                </div>
-                                <h3 class="text-slate-900 text-xl font-black tracking-tight">
-                                    Nenhum registro encontrado
-                                </h3>
-                                <p class="text-slate-400 text-sm mt-2">
-                                    Ajuste os filtros para visualizar os dados desejados.
-                                </p>
-                            </div>
+                            <p class="font-black text-slate-400 uppercase tracking-widest text-xs">
+                                Nenhum registro encontrado
+                            </p>
                         </td>
                     </tr>
                     {% endfor %}
@@ -215,27 +181,15 @@
         color: black !important;
     }
 
-    .max-w-7xl {
-        max-width: 100% !important;
-        padding: 0 !important;
-        margin: 0 !important;
-    }
-
-    .shadow-2xl,
     .shadow-xl,
-    .shadow-sm {
+    .shadow-2xl {
         box-shadow: none !important;
     }
 
-    .bg-white {
-        background: white !important;
-    }
-
-    .badge,
-    span[class*="bg-"] {
+    .badge {
+        border: 1px solid black !important;
         background: transparent !important;
         color: black !important;
-        border: 1px solid black !important;
     }
 }
 </style>

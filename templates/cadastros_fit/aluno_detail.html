@@ -24,13 +24,17 @@
 
         <!-- INFO -->
         <div class="flex-1 text-center lg:text-left">
-            <h1 class="text-4xl font-black text-slate-900 uppercase tracking-tight">{{ aluno.nome }}</h1>
-            <p class="text-xs font-black text-slate-400 uppercase tracking-widest mt-1">ID #{{ aluno.id }}</p>
+            <h1 class="text-4xl font-black text-slate-900 uppercase tracking-tight">
+                {{ aluno.nome }}
+            </h1>
+            <p class="text-xs font-black text-slate-400 uppercase tracking-widest mt-1">
+                ID #{{ aluno.id }}
+            </p>
 
             <div class="flex flex-wrap justify-center lg:justify-start gap-6 mt-6">
                 <div class="flex items-center gap-2 font-bold text-slate-600">
                     <i class="fab fa-whatsapp text-emerald-500"></i>
-                    {{ aluno.telefone }}
+                    {{ aluno.telefone|default:"—" }}
                 </div>
                 <div class="flex items-center gap-2 font-bold text-slate-600">
                     <i class="far fa-id-card text-blue-500"></i>
@@ -38,35 +42,57 @@
                 </div>
             </div>
 
-            <!-- AÇÕES RÁPIDAS -->
+            <!-- AÇÕES -->
             <div class="flex flex-wrap gap-3 mt-8 justify-center lg:justify-start">
-                <a href="{% url 'aluno_update' aluno.pk %}" class="btn bg-slate-900 text-white rounded-xl px-6 font-black uppercase text-[10px] tracking-widest">
+                <a href="{% url 'aluno_update' aluno.pk %}"
+                   class="btn bg-slate-900 text-white rounded-xl px-6 font-black uppercase text-[10px] tracking-widest">
                     Editar
                 </a>
-                <button onclick="enviarCobranca({{ aluno.id }})" class="btn bg-emerald-500 text-white rounded-xl px-6 font-black uppercase text-[10px] tracking-widest">
+
+                <button onclick="enviarCobranca({{ aluno.id }})"
+                        class="btn bg-emerald-500 text-white rounded-xl px-6 font-black uppercase text-[10px] tracking-widest">
                     Cobrar
                 </button>
-                <a href="{% url 'novo_contrato' aluno.pk %}" class="btn bg-secondary text-white rounded-xl px-6 font-black uppercase text-[10px] tracking-widest">
-                    Nova Venda
+
+                <a href="{% url 'novo_contrato' aluno.pk %}"
+                   class="btn bg-secondary text-white rounded-xl px-6 font-black uppercase text-[10px] tracking-widest">
+                    Nova venda
                 </a>
             </div>
         </div>
     </div>
 </header>
 
-<!-- ================= RESUMO EXECUTIVO ================= -->
+<!-- ================= KPIs ================= -->
 <section class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-10">
-    <div class="card-kpi">Status<br><span class="ok">Ativo</span></div>
-    <div class="card-kpi">Financeiro<br>
+    <div class="card-kpi">
+        Status
+        <span class="ok">Ativo</span>
+    </div>
+
+    <div class="card-kpi">
+        Financeiro
         {% if total_em_aberto > 0 %}
             <span class="bad">Em aberto</span>
         {% else %}
             <span class="ok">Em dia</span>
         {% endif %}
     </div>
-    <div class="card-kpi">Última Aula<br><span>{{ ultima_aula|default:"—" }}</span></div>
-    <div class="card-kpi">Frequência<br><span>{{ percentual_presenca }}%</span></div>
-    <div class="card-kpi">Próx. Venc.<br><span>{{ proximo_vencimento|date:"d/m" }}</span></div>
+
+    <div class="card-kpi">
+        Última aula
+        <span>{{ ultima_aula|default:"—" }}</span>
+    </div>
+
+    <div class="card-kpi">
+        Frequência
+        <span>{{ percentual_presenca }}%</span>
+    </div>
+
+    <div class="card-kpi">
+        Próx. venc.
+        <span>{{ proximo_vencimento|date:"d/m"|default:"—" }}</span>
+    </div>
 </section>
 
 {% if faltas_consecutivas >= 3 %}
@@ -92,82 +118,131 @@
 <div class="p-10">
 
 <!-- FINANCEIRO -->
-<div id="financeiro" class="tab-content block">
-<table class="table w-full">
-<thead>
-<tr><th>Venc.</th><th>Descrição</th><th>Valor</th><th>Status</th></tr>
-</thead>
-<tbody>
-{% for l in financeiro_completo %}
-<tr>
-<td>{{ l.data_vencimento|date:"d/m/Y" }}</td>
-<td>{{ l.descricao }}</td>
-<td>R$ {{ l.valor }}</td>
-<td>
-{% if l.status == 'PAGO' %}
-<span class="ok">PAGO</span>
-{% else %}
-<span class="bad">PENDENTE</span>
-{% endif %}
-</td>
-</tr>
-{% endfor %}
-</tbody>
-</table>
+<div id="financeiro" class="tab-content">
+    <table class="table w-full">
+        <thead>
+            <tr>
+                <th>Vencimento</th>
+                <th>Descrição</th>
+                <th>Valor</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for l in financeiro_completo %}
+            <tr>
+                <td>{{ l.data_vencimento|date:"d/m/Y" }}</td>
+                <td>{{ l.descricao }}</td>
+                <td>R$ {{ l.valor }}</td>
+                <td>
+                    {% if l.status == 'PAGO' %}
+                        <span class="ok">Pago</span>
+                    {% else %}
+                        <span class="bad">Pendente</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4">Nenhum lançamento financeiro</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 
 <!-- PRONTUÁRIO -->
 <div id="prontuario" class="tab-content hidden space-y-4">
-{% for p in agenda_completa %}
-<div class="bg-white border rounded-2xl p-6 shadow-sm">
-<b>{{ p.aula.data_hora_inicio|date:"d/m/Y H:i" }}</b> — {{ p.aula.profissional.nome }}<br>
-<i class="text-sm text-slate-500">{{ p.aula.evolucao_texto|default:"Sem registro" }}</i>
-</div>
-{% endfor %}
+    {% for p in agenda_completa %}
+    <div class="border rounded-2xl p-6 shadow-sm bg-white">
+        <b>{{ p.aula.data_hora_inicio|date:"d/m/Y H:i" }}</b>
+        — {{ p.aula.profissional.nome }}<br>
+        <i class="text-sm text-slate-500">
+            {{ p.aula.evolucao_texto|default:"Sem registro" }}
+        </i>
+    </div>
+    {% empty %}
+    <p class="text-slate-400 italic">Nenhum registro clínico.</p>
+    {% endfor %}
 </div>
 
 <!-- AGENDA -->
 <div id="agenda" class="tab-content hidden">
-<a href="{% url 'aluno_aulas_list' aluno.id %}" class="btn bg-secondary text-white rounded-xl">Ver agenda completa</a>
+    <a href="{% url 'aluno_aulas_list' aluno.id %}"
+       class="btn bg-secondary text-white rounded-xl">
+        Ver agenda completa
+    </a>
 </div>
 
 <!-- CONTRATOS -->
 <div id="contratos" class="tab-content hidden grid md:grid-cols-2 gap-6">
-{% for c in contratos_completo %}
-<div class="border rounded-3xl p-8 shadow-sm">
-<b>{{ c.plano.nome }}</b><br>
-{{ c.data_inicio|date:"d/m/Y" }} — {{ c.data_fim|date:"d/m/Y" }}<br>
-R$ {{ c.valor_total }}
-</div>
-{% endfor %}
-</div>
-
-</div>
-</div>
+    {% for c in contratos_completo %}
+    <div class="border rounded-3xl p-8 shadow-sm bg-white">
+        <b>{{ c.plano.nome }}</b><br>
+        {{ c.data_inicio|date:"d/m/Y" }} — {{ c.data_fim|date:"d/m/Y" }}<br>
+        <span class="font-black">R$ {{ c.valor_total }}</span>
+    </div>
+    {% empty %}
+    <p class="text-slate-400 italic">Nenhum contrato ativo.</p>
+    {% endfor %}
 </div>
 
+</div>
+</div>
+</div>
+
+<!-- ================= ESTILOS ================= -->
 <style>
-.card-kpi{background:#fff;border:1px solid #eee;padding:16px;border-radius:16px;font-weight:900;text-transform:uppercase;font-size:10px}
-.card-kpi span{display:block;font-size:18px}
+.card-kpi{
+    background:#fff;
+    border:1px solid #eee;
+    padding:16px;
+    border-radius:16px;
+    font-weight:900;
+    text-transform:uppercase;
+    font-size:10px;
+}
+.card-kpi span{
+    display:block;
+    font-size:18px;
+}
 .ok{color:#10b981}
 .bad{color:#dc2626}
-.tab-btn{flex:1;padding:16px;font-weight:900;text-transform:uppercase;font-size:11px}
-.tab-btn.active{background:white;color:#802422}
-.tab-content{animation:fade .3s}
-@keyframes fade{from{opacity:0}to{opacity:1}}
+
+.tab-btn{
+    flex:1;
+    padding:16px;
+    font-weight:900;
+    text-transform:uppercase;
+    font-size:11px;
+    border-radius:12px;
+}
+.tab-btn.active{
+    background:white;
+    color:var(--color-primary);
+}
+.tab-content{
+    animation:fade .25s ease;
+}
+@keyframes fade{
+    from{opacity:0}
+    to{opacity:1}
+}
 </style>
 
+<!-- ================= SCRIPTS ================= -->
 <script>
 function openTab(e,id){
-document.querySelectorAll('.tab-content').forEach(t=>t.classList.add('hidden'));
-document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-document.getElementById(id).classList.remove('hidden');
-e.currentTarget.classList.add('active');
+    document.querySelectorAll('.tab-content').forEach(t=>t.classList.add('hidden'));
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.getElementById(id).classList.remove('hidden');
+    e.currentTarget.classList.add('active');
 }
+
 function enviarCobranca(id){
-if(confirm('Enviar cobrança automática?')){
-fetch(`/comunicacao/enviar-cobranca/${id}/`)
-.then(()=>alert('Cobrança enviada'));
-}}
+    if(confirm('Enviar cobrança automática para este aluno?')){
+        fetch(`/comunicacao/enviar-cobranca/${id}/`)
+            .then(()=>alert('Cobrança enviada com sucesso'));
+    }
+}
 </script>
+
 {% endblock %}

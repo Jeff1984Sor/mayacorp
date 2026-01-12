@@ -6,140 +6,134 @@
 {% block content %}
 <div class="max-w-7xl mx-auto pb-24 px-4">
 
-    <!-- ================= HEADER ================= -->
-    <header class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-14 gap-10">
-        <div class="flex items-center gap-6">
-            <div class="w-16 h-16 bg-primary rounded-[22px] flex items-center justify-center text-white shadow-xl shadow-primary/30 border-2 border-white">
-                <i class="fas fa-user-tie text-2xl"></i>
-            </div>
-            <div>
-                <h1 class="text-4xl font-black text-slate-900 tracking-tighter">Equipe Profissional</h1>
-                <p class="text-[11px] text-primary font-black uppercase tracking-[4px] mt-1">
-                    Gestão de instrutores e especialistas
-                </p>
-            </div>
+<!-- ================= HEADER ================= -->
+<header class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-14 gap-10">
+    <div class="flex items-center gap-6">
+        <div class="w-16 h-16 bg-primary rounded-[22px] flex items-center justify-center text-white shadow-xl shadow-primary/30 border-2 border-white">
+            <i class="fas fa-user-tie text-2xl"></i>
         </div>
-
-        <a href="{% url 'profissional_create' %}" 
-           class="btn bg-secondary border-none text-white rounded-2xl px-10 h-16 shadow-2xl shadow-secondary/30 hover:bg-blue-800 hover:scale-105 transition-all font-black uppercase tracking-widest text-xs">
-            <i class="fas fa-plus-circle mr-2 text-lg"></i> NOVO PROFISSIONAL
-        </a>
-    </header>
-
-    <!-- ================= KPIs ================= -->
-    <section class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
-        <div class="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100">
-            <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Total</p>
-            <h3 class="text-3xl font-black text-slate-900">{{ profissionais|length }}</h3>
+        <div>
+            <h1 class="text-4xl font-black text-slate-900 tracking-tighter">Equipe Profissional</h1>
+            <p class="text-[11px] text-primary font-black uppercase tracking-[4px] mt-1">
+                Gestão de instrutores e especialistas
+            </p>
         </div>
-
-        <div class="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100">
-            <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Ativos</p>
-            <h3 class="text-3xl font-black text-emerald-600">
-                {{ profissionais|dictsort:"ativo"|length }}
-            </h3>
-        </div>
-
-        <div class="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100">
-            <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Inativos</p>
-            <h3 class="text-3xl font-black text-primary">
-                {{ profissionais|length|add:"-1" }}
-            </h3>
-        </div>
-
-        <div class="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100">
-            <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Equipe</p>
-            <h3 class="text-xl font-black text-slate-700 uppercase">Studio</h3>
-        </div>
-    </section>
-
-    <!-- ================= FILTRO ================= -->
-    <div class="flex items-center gap-4 mb-10">
-        <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Filtrar:</span>
-        <select onchange="filtrarStatus(this.value)"
-                class="bg-white border border-slate-200 rounded-xl px-4 py-2 text-xs font-black uppercase text-slate-700">
-            <option value="all">Todos</option>
-            <option value="ativo">Ativos</option>
-            <option value="inativo">Inativos</option>
-        </select>
     </div>
 
-    <!-- ================= GRID DE PROFISSIONAIS ================= -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-        {% for prof in profissionais %}
-        <div class="prof-card {{ prof.ativo|yesno:'ativo,inativo' }} group bg-white rounded-[3rem] shadow-2xl shadow-slate-200/60 border border-slate-100 p-10 relative transition-all hover:-translate-y-3">
+    <a href="{% url 'profissional_create' %}"
+       class="btn bg-secondary border-none text-white rounded-2xl px-10 h-16 shadow-2xl shadow-secondary/30 hover:bg-blue-800 hover:scale-105 transition-all font-black uppercase tracking-widest text-xs">
+        <i class="fas fa-plus-circle mr-2 text-lg"></i>
+        Novo Profissional
+    </a>
+</header>
 
-            <!-- Glow -->
-            <div class="absolute top-0 right-0 w-40 h-40 -mr-20 -mt-20 rounded-full opacity-20 blur-2xl"
-                 style="background-color: {{ prof.cor_agenda|default:'#802422' }};"></div>
+<!-- ================= KPIs ================= -->
+<section class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
 
-            <div class="relative text-center">
+    <div class="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100">
+        <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Total</p>
+        <h3 class="text-3xl font-black text-slate-900">{{ profissionais|length }}</h3>
+    </div>
 
-                <!-- Avatar -->
-                <div class="w-24 h-24 mx-auto rounded-[2.5rem] mb-8 flex items-center justify-center text-white text-3xl font-black shadow-xl"
-                     style="background-color: {{ prof.cor_agenda|default:'#1e293b' }};">
-                    {{ prof.nome|first }}
+    <div class="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100">
+        <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Ativos</p>
+        <h3 class="text-3xl font-black text-emerald-600">{{ ativos_count }}</h3>
+    </div>
+
+    <div class="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100">
+        <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Inativos</p>
+        <h3 class="text-3xl font-black text-primary">{{ inativos_count }}</h3>
+    </div>
+
+    <div class="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100">
+        <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Equipe</p>
+        <h3 class="text-xl font-black text-slate-700 uppercase">Studio</h3>
+    </div>
+
+</section>
+
+<!-- ================= FILTRO ================= -->
+<div class="flex items-center gap-4 mb-10">
+    <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Filtrar:</span>
+    <select onchange="filtrarStatus(this.value)"
+            class="bg-white border border-slate-200 rounded-xl px-4 py-2 text-xs font-black uppercase text-slate-700">
+        <option value="all">Todos</option>
+        <option value="ativo">Ativos</option>
+        <option value="inativo">Inativos</option>
+    </select>
+</div>
+
+<!-- ================= GRID ================= -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+{% for prof in profissionais %}
+<div class="prof-card {% if prof.ativo %}ativo{% else %}inativo{% endif %} group bg-white rounded-[3rem] shadow-2xl shadow-slate-200/60 border border-slate-100 p-10 relative transition-all hover:-translate-y-3">
+
+    <div class="absolute top-0 right-0 w-40 h-40 -mr-20 -mt-20 rounded-full opacity-20 blur-2xl"
+         style="background-color: {{ prof.cor_agenda|default:'#802422' }};"></div>
+
+    <div class="relative text-center">
+
+        <div class="w-24 h-24 mx-auto rounded-[2.5rem] mb-8 flex items-center justify-center text-white text-3xl font-black shadow-xl"
+             style="background-color: {{ prof.cor_agenda|default:'#1e293b' }};">
+            {{ prof.nome|slice:":1" }}
+        </div>
+
+        <h3 class="text-2xl font-black text-slate-900 mb-1 uppercase tracking-tighter">
+            {{ prof.nome }}
+        </h3>
+
+        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">
+            CREFITO {{ prof.crefito|default:"—" }}
+        </p>
+
+        <div class="bg-slate-50 rounded-[2rem] p-6 mb-8 border border-slate-100">
+            <div class="flex justify-between items-center">
+                <div>
+                    <span class="text-[9px] font-black uppercase tracking-widest text-primary">Custo/Aula</span>
+                    <p class="text-xl font-black text-slate-900">
+                        R$ {{ prof.valor_hora_aula }}
+                    </p>
                 </div>
 
-                <h3 class="text-2xl font-black text-slate-900 mb-1 uppercase tracking-tighter">
-                    {{ prof.nome }}
-                </h3>
-
-                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">
-                    CREFITO {{ prof.crefito|default:"—" }}
-                </p>
-
-                <!-- Info -->
-                <div class="bg-slate-50 rounded-[2rem] p-6 mb-8 border border-slate-100">
-                    <div class="flex justify-between items-center">
-                        <div>
-                            <span class="text-[9px] font-black uppercase tracking-widest text-primary">Custo/Aula</span>
-                            <p class="text-xl font-black text-slate-900">R$ {{ prof.valor_hora_aula }}</p>
-                        </div>
-                        <div>
-                            {% if prof.ativo %}
-                                <span class="text-[10px] font-black uppercase bg-emerald-100 text-emerald-700 px-4 py-1 rounded-full">
-                                    Ativo
-                                </span>
-                            {% else %}
-                                <span class="text-[10px] font-black uppercase bg-red-100 text-primary px-4 py-1 rounded-full">
-                                    Inativo
-                                </span>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Ações -->
-                <div class="flex gap-4">
-                    <a href="{% url 'profissional_update' prof.pk %}"
-                       class="btn flex-1 bg-white border-2 border-slate-100 hover:border-secondary rounded-2xl text-slate-600 font-black uppercase text-[10px] h-14">
-                        Editar
-                    </a>
-
-                    <a href="{% url 'calendario_semanal' %}?prof_id={{ prof.id }}"
-                       class="btn btn-square bg-secondary hover:bg-blue-800 text-white border-none rounded-2xl w-14 h-14 shadow-lg">
-                        <i class="fas fa-calendar-day"></i>
-                    </a>
-                </div>
-
+                {% if prof.ativo %}
+                    <span class="text-[10px] font-black uppercase bg-emerald-100 text-emerald-700 px-4 py-1 rounded-full">
+                        Ativo
+                    </span>
+                {% else %}
+                    <span class="text-[10px] font-black uppercase bg-red-100 text-primary px-4 py-1 rounded-full">
+                        Inativo
+                    </span>
+                {% endif %}
             </div>
         </div>
-        {% endfor %}
+
+        <div class="flex gap-4">
+            <a href="{% url 'profissional_update' prof.pk %}"
+               class="btn flex-1 bg-white border-2 border-slate-100 hover:border-secondary rounded-2xl text-slate-600 font-black uppercase text-[10px] h-14">
+                Editar
+            </a>
+
+            <a href="{% url 'calendario_semanal' %}?prof_id={{ prof.id }}"
+               class="btn btn-square bg-secondary hover:bg-blue-800 text-white border-none rounded-2xl w-14 h-14 shadow-lg">
+                <i class="fas fa-calendar-day"></i>
+            </a>
+        </div>
+
     </div>
+</div>
+{% endfor %}
+</div>
 
 </div>
 
 <script>
 function filtrarStatus(status) {
     document.querySelectorAll('.prof-card').forEach(card => {
-        if (status === 'all') {
-            card.style.display = '';
-        } else {
-            card.style.display = card.classList.contains(status) ? '' : 'none';
-        }
+        card.style.display =
+            status === 'all' || card.classList.contains(status)
+                ? ''
+                : 'none';
     });
 }
 </script>
-
 {% endblock %}

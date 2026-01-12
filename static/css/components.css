@@ -138,3 +138,63 @@
 .btn-primary:hover {
   filter: brightness(1.1);
 }
+
+/* =====================
+   MODAL – MAYACORP
+===================== */
+
+.modal::backdrop {
+  background: rgba(15, 23, 42, 0.55);
+}
+
+.modal-box {
+  animation: modalIn .25s ease-out;
+}
+
+@keyframes modalIn {
+  from {
+    transform: translateY(20px) scale(.98);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+.modal-header {
+  padding: 2rem;
+  background: var(--color-primary);
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.modal-title {
+  font-weight: 900;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  font-size: 1.1rem;
+}
+
+.modal-subtitle {
+  font-size: .75rem;
+  opacity: .7;
+  margin-top: .25rem;
+}
+
+.modal-close {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.15);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-close:hover {
+  background: rgba(255,255,255,.25);
+}
