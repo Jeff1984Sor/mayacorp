@@ -1,42 +1,32 @@
-/* =========================
-   APP LAYOUT
-========================= */
+/* ====== BASE APP ====== */
 
 html, body {
-  height: 100%;
+    height: 100%;
 }
 
 body {
-  background: var(--bg-app);
-  color: var(--text-light);
+    background: var(--bg-soft);
+    color: #0f172a;
 }
 
-/* Área principal (onde ficam as páginas) */
+/* Shell principal */
 .app-shell {
-  background: var(--bg-app);
-  min-height: 100vh;
-  display: flex;
+    display: flex;
+    min-height: 100vh;
+    background: var(--bg-soft);
 }
 
-/* Conteúdo branco flutuante */
+/* Conteúdo */
 .app-content {
-  background: var(--bg-soft);
-  border-radius: var(--radius-xl) 0 0 var(--radius-xl);
-  margin-left: 280px; /* largura da sidebar */
-  min-height: 100vh;
-  box-shadow: -20px 0 60px rgba(0,0,0,.25);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-soft);
 }
 
-/* Header fixo */
-.app-header {
-  background: rgba(255,255,255,.85);
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid #e5e7eb;
-}
-
-/* Padding padrão das páginas */
+/* Área de páginas */
 .page-container {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 3rem;
+    padding: 3rem;
+    background: var(--bg-soft);
+    min-height: 100%;
 }
