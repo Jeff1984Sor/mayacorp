@@ -1,39 +1,28 @@
-/* ====== ROOT LAYOUT ====== */
+/* ======================================================
+   TOKENS – Definições de Variáveis Globais
+   ====================================================== */
+:root {
+    /* --- CORES PRINCIPAIS (Marsala) --- */
+    --color-primary: #802422;       /* Cor principal */
+    --color-primary-dark: #601b1a;  /* Cor para hover/foco */
+    
+    /* --- BACKGROUNDS --- */
+    --bg-app: #802422;    /* 🔥 O Fundo Marsala da tela inteira */
+    --bg-soft: #f8f9fa;   /* ✅ O Fundo claro onde vai o conteúdo */
+    --bg-card: #ffffff;   /* Fundo dos cartões */
 
-html, body {
-    height: 100%;
-}
+    /* --- TEXTOS --- */
+    --text-dark: #0f172a;
+    --text-muted: #6b7280;
+    --text-light: #ffffff;
 
-body {
-    background: var(--bg-app); /* 🔥 Marsala */
-    color: var(--text-dark);
-}
-
-/* Estrutura principal */
-.app-shell {
-    display: flex;
-    min-height: 100vh;
-    background: var(--bg-app); /* 🔥 Marsala */
-}
-
-/* Área direita */
-.app-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    background: transparent;
-}
-
-/* Header flutuando sobre o app */
-.app-header {
-    background: rgba(255,255,255,0.85);
-    backdrop-filter: blur(12px);
-}
-
-/* Conteúdo das páginas */
-.page-container {
-    background: var(--bg-soft); /* ✅ claro */
-    border-top-left-radius: var(--radius-xl);
-    padding: 3rem;
-    min-height: calc(100vh - 80px);
+    /* --- BORDAS & SOMBRAS --- */
+    --border-color: #e5e7eb;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    
+    /* --- MEDIDAS (Radius) --- */
+    --radius-md: 0.5rem;
+    --radius-lg: 1rem;
+    --radius-xl: 2rem; /* Arredondamento grande para o container */
 }
