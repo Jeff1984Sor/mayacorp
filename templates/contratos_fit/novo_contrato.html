@@ -1,127 +1,130 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Novo Contrato - MayaCorp{% endblock %}
+{% block title %}Novo Contrato | MayaCorp Fit{% endblock %}
 
 {% block content %}
-<div class="max-w-5xl mx-auto pb-20">
-    
-    <!-- HEADER: Título e Aluno -->
-    <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4 px-2">
+<div class="max-w-5xl mx-auto pb-24 px-4">
+
+    <!-- HEADER -->
+    <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
         <div class="flex items-center gap-4">
-            <div class="w-14 h-14 bg-serene-blue/20 rounded-[22px] flex items-center justify-center text-serene-blue shadow-sm">
+            <div class="w-14 h-14 bg-secondary/10 rounded-[22px] flex items-center justify-center text-secondary shadow-sm">
                 <i class="fas fa-file-signature text-2xl"></i>
             </div>
             <div>
-                <h1 class="text-3xl font-black text-slate-800 tracking-tight">Novo Contrato</h1>
+                <h1 class="text-3xl font-black text-slate-900 tracking-tight uppercase">
+                    Novo Contrato
+                </h1>
                 <p class="text-[10px] text-slate-400 font-black uppercase tracking-[2px] mt-1">
-                    Venda para: <span class="text-serene-blue">{{ aluno.nome }}</span>
+                    Venda para <span class="text-secondary">{{ aluno.nome|upper }}</span>
                 </p>
             </div>
         </div>
-        
-        <a href="{% url 'aluno_detail' aluno.id %}" 
-           class="btn btn-ghost bg-white shadow-sm border-slate-100 rounded-2xl hover:bg-slate-50 transition-all text-slate-400 normal-case font-bold px-6">
-            <i class="fas fa-arrow-left mr-2 text-xs"></i> Voltar
+
+        <a href="{% url 'aluno_detail' aluno.id %}"
+           class="btn btn-ghost bg-white border border-slate-100 rounded-2xl hover:bg-slate-50 text-slate-400 font-black px-6 h-12">
+            <i class="fas fa-arrow-left mr-2 text-xs"></i> VOLTAR
         </a>
     </header>
 
-    <form method="post" id="formContrato" class="space-y-8">
+    <form method="post" id="formContrato" class="space-y-10">
         {% csrf_token %}
 
-        <!-- CARD 1: CONFIGURAÇÃO DO PLANO (Soft UI Style) -->
-        <section class="bg-white rounded-[40px] shadow-xl shadow-slate-200/50 border border-white overflow-hidden">
-            <div class="p-8 md:p-10 border-b border-slate-50 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="w-2 h-6 bg-serene-blue rounded-full"></div>
-                    <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-[3px]">1. Escolha do Plano e Vigência</h3>
-                </div>
+        <!-- CARD 1 — PLANO -->
+        <section class="bg-white rounded-[3rem] shadow-2xl shadow-slate-200/60 border border-slate-100">
+            <div class="p-8 md:p-10 border-b border-slate-100 flex items-center gap-4">
+                <div class="w-2 h-6 bg-secondary rounded-full"></div>
+                <h3 class="text-[11px] font-black text-slate-500 uppercase tracking-[3px]">
+                    Plano & Vigência
+                </h3>
             </div>
 
             <div class="p-8 md:p-10">
                 {% if form.non_field_errors %}
-                    <div class="alert alert-error bg-rose-50 border-rose-100 text-rose-600 rounded-2xl mb-8">{{ form.non_field_errors }}</div>
+                    <div class="alert alert-error mb-6">{{ form.non_field_errors }}</div>
                 {% endif %}
 
                 <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
-                    <!-- Seleção de Plano -->
-                    <div class="md:col-span-6 flex flex-col gap-2">
-                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">{{ form.plano.label }}</label>
+                    <div class="md:col-span-6">
+                        <label class="label-premium">{{ form.plano.label }}</label>
                         {{ form.plano }}
                     </div>
 
-                    <!-- Unidade -->
-                    <div class="md:col-span-6 flex flex-col gap-2">
-                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">{{ form.unidade.label }}</label>
+                    <div class="md:col-span-6">
+                        <label class="label-premium">{{ form.unidade.label }}</label>
                         {{ form.unidade }}
                     </div>
 
-                    <!-- Datas -->
-                    <div class="md:col-span-3 flex flex-col gap-2">
-                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">{{ form.data_inicio.label }}</label>
+                    <div class="md:col-span-3">
+                        <label class="label-premium">{{ form.data_inicio.label }}</label>
                         {{ form.data_inicio }}
                     </div>
-                    <div class="md:col-span-3 flex flex-col gap-2">
-                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">{{ form.data_encerramento.label }}</label>
+
+                    <div class="md:col-span-3">
+                        <label class="label-premium">{{ form.data_encerramento.label }}</label>
                         {{ form.data_encerramento }}
                     </div>
 
-                    <!-- Financeiro Rápido -->
-                    <div class="md:col-span-2 flex flex-col gap-2">
-                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Venc.</label>
+                    <div class="md:col-span-2">
+                        <label class="label-premium">Vencimento</label>
                         {{ form.dia_vencimento }}
                     </div>
-                    <div class="md:col-span-2 flex flex-col gap-2">
-                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Parcelas</label>
+
+                    <div class="md:col-span-2">
+                        <label class="label-premium">Parcelas</label>
                         {{ form.qtde_parcelas }}
                     </div>
-                    <div class="md:col-span-2 flex flex-col gap-2">
-                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Valor</label>
+
+                    <div class="md:col-span-2">
+                        <label class="label-premium">Valor Total</label>
                         {{ form.valor_total }}
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- CARD 2: GRADE DE HORÁRIOS (Soft UI Style) -->
-        <section class="bg-white rounded-[40px] shadow-xl shadow-slate-200/50 border border-white overflow-hidden">
-            <div class="p-8 md:p-10 border-b border-slate-50 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="w-2 h-6 bg-mint-green rounded-full"></div>
-                    <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-[3px]">2. Grade de Horários Fixos</h3>
+        <!-- CARD 2 — HORÁRIOS -->
+        <section class="bg-white rounded-[3rem] shadow-2xl shadow-slate-200/60 border border-slate-100">
+            <div class="p-8 md:p-10 border-b border-slate-100 flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="w-2 h-6 bg-emerald-500 rounded-full"></div>
+                    <h3 class="text-[11px] font-black text-slate-500 uppercase tracking-[3px]">
+                        Horários Fixos
+                    </h3>
                 </div>
-                <div id="freq-info" class="badge bg-mint-green/20 border-none text-emerald-700 font-bold px-4 py-3 rounded-xl">
+                <span id="freq-info"
+                      class="badge bg-slate-100 text-slate-400 font-black px-4 py-2 rounded-xl uppercase text-[10px]">
                     Selecione um plano
-                </div>
+                </span>
             </div>
 
             <div class="p-8 md:p-10">
                 {{ formset.management_form }}
-                {% if formset.non_form_errors %}<div class="alert alert-error mb-6">{{ formset.non_form_errors }}</div>{% endif %}
 
                 <div class="overflow-x-auto">
-                    <table class="table w-full border-collapse" id="tabela-horarios">
+                    <table class="table w-full">
                         <thead>
-                            <tr class="border-b border-slate-50">
-                                <th class="bg-white text-[10px] font-black text-slate-400 uppercase tracking-widest py-4">Dia da Semana</th>
-                                <th class="bg-white text-[10px] font-black text-slate-400 uppercase tracking-widest py-4">Horário</th>
-                                <th class="bg-white text-[10px] font-black text-slate-400 uppercase tracking-widest py-4">Profissional</th>
-                                <th class="bg-white text-[10px] font-black text-slate-400 uppercase tracking-widest py-4 text-center">Ação</th>
+                            <tr>
+                                <th class="th-soft">Dia</th>
+                                <th class="th-soft">Horário</th>
+                                <th class="th-soft">Profissional</th>
+                                <th class="th-soft text-center">Excluir</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-50">
-                            {% for form_h in formset %}
-                                <tr class="horario-row group hover:bg-slate-50/50 transition-colors" style="display:none;"> 
-                                    {% for hidden in form_h.hidden_fields %}{{ hidden }}{% endfor %}
-                                    <td class="py-4">{{ form_h.dia_semana }}</td>
-                                    <td class="py-4">{{ form_h.horario }}</td>
-                                    <td class="py-4">{{ form_h.profissional }}</td>
-                                    <td class="py-4 text-center">
-                                        <div class="flex justify-center items-center h-full">
-                                            <input type="checkbox" name="{{ form_h.DELETE.html_name }}" id="{{ form_h.DELETE.id_for_label }}" class="checkbox checkbox-error checkbox-sm rounded-lg" />
-                                        </div>
-                                    </td>
-                                </tr>
+                        <tbody>
+                            {% for fh in formset %}
+                            <tr class="horario-row hidden-row">
+                                {% for hidden in fh.hidden_fields %}{{ hidden }}{% endfor %}
+                                <td>{{ fh.dia_semana }}</td>
+                                <td>{{ fh.horario }}</td>
+                                <td>{{ fh.profissional }}</td>
+                                <td class="text-center">
+                                    <input type="checkbox"
+                                           name="{{ fh.DELETE.html_name }}"
+                                           class="checkbox checkbox-error checkbox-sm">
+                                </td>
+                            </tr>
                             {% endfor %}
                         </tbody>
                     </table>
@@ -129,80 +132,79 @@
             </div>
         </section>
 
-        <!-- BOTÕES FINAIS -->
-        <div class="flex flex-col md:flex-row justify-end items-center gap-6 pt-10">
-            <p class="text-[10px] text-slate-300 font-black uppercase tracking-widest">MayaCorp Sales Protocol v2.0</p>
-            <button type="submit" class="btn bg-serene-blue border-none text-white rounded-2xl px-16 h-16 shadow-xl shadow-blue-200 normal-case font-black text-xl italic hover:bg-blue-400 hover:scale-[1.02] transition-all">
-                Salvar Contrato e Gerar Venda
+        <!-- AÇÕES -->
+        <div class="flex flex-col md:flex-row justify-end items-center gap-6 pt-8">
+            <span class="text-[10px] text-slate-300 font-black uppercase tracking-widest">
+                MayaCorp Sales Engine v2.1
+            </span>
+            <button type="submit"
+                    class="btn bg-secondary hover:bg-blue-800 text-white rounded-2xl px-16 h-16 shadow-2xl shadow-secondary/30 font-black uppercase tracking-widest transition-all hover:scale-[1.02]">
+                SALVAR CONTRATO
             </button>
         </div>
     </form>
 </div>
 
 <style>
-    /* Estilização para o Crispy/Django Form assumir o Soft UI */
-    .input, .select, .textarea { 
-        @apply w-full bg-slate-50 border-slate-100 rounded-2xl px-5 h-14 focus:ring-2 focus:ring-serene-blue/20 focus:border-serene-blue/30 focus:outline-none transition-all text-slate-600 font-bold !important; 
+    .label-premium {
+        @apply text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block;
     }
-    .table select { @apply h-11 text-xs rounded-xl px-2 !important; }
+    .input, .select {
+        @apply w-full bg-slate-50 border-2 border-slate-200 rounded-2xl px-5 h-14 font-bold text-slate-700 focus:border-secondary;
+    }
+    .th-soft {
+        @apply text-[10px] font-black text-slate-400 uppercase tracking-widest;
+    }
+    .hidden-row { display: none; }
 </style>
 
 <script>
-    // Mantemos sua lógica de automação inteligente, apenas ajustando as referências
     const planosData = JSON.parse('{{ planos_json|safe }}');
 
-    const selectPlano = document.querySelector('select[name="plano"]');
-    const inputInicio = document.querySelector('input[name="data_inicio"]');
-    const inputFim = document.querySelector('input[name="data_encerramento"]');
-    const inputValor = document.querySelector('input[name="valor_total"]');
-    const inputParcelas = document.querySelector('input[name="qtde_parcelas"]');
-    const inputDiaVenc = document.querySelector('input[name="dia_vencimento"]');
-    const linhasHorario = document.querySelectorAll('.horario-row');
-    const txtFreq = document.getElementById('freq-info');
+    const planoSelect = document.querySelector('[name="plano"]');
+    const inicioInput = document.querySelector('[name="data_inicio"]');
+    const fimInput = document.querySelector('[name="data_encerramento"]');
+    const valorInput = document.querySelector('[name="valor_total"]');
+    const parcelasInput = document.querySelector('[name="qtde_parcelas"]');
+    const vencInput = document.querySelector('[name="dia_vencimento"]');
+    const rows = document.querySelectorAll('.horario-row');
+    const freqInfo = document.getElementById('freq-info');
 
-    function atualizarFormulario() {
-        const planoId = selectPlano.value;
-        const dataInicioVal = inputInicio.value;
+    function limparHorarios() {
+        rows.forEach(row => {
+            row.classList.add('hidden-row');
+            row.querySelectorAll('input, select').forEach(el => el.value = '');
+        });
+    }
 
-        if (planoId && planosData[planoId]) {
-            const dados = planosData[planoId];
+    function atualizarPlano() {
+        const planoId = planoSelect.value;
+        if (!planoId || !planosData[planoId]) {
+            freqInfo.innerText = 'Selecione um plano';
+            limparHorarios();
+            return;
+        }
 
-            inputValor.value = dados.valor.toFixed(2);
-            inputParcelas.value = dados.meses;
+        const plano = planosData[planoId];
+        valorInput.value = plano.valor.toFixed(2);
+        parcelasInput.value = plano.meses;
+        freqInfo.innerText = `${plano.freq}x por semana`;
 
-            const freq = dados.freq;
-            txtFreq.innerText = `${freq}x na semana`;
-            txtFreq.classList.remove('text-slate-400');
-            txtFreq.classList.add('text-emerald-700', 'bg-mint-green/20');
-            
-            linhasHorario.forEach((row, index) => {
-                if (index < freq) {
-                    row.style.display = 'table-row';
-                } else {
-                    row.style.display = 'none';
-                    row.querySelectorAll('input, select').forEach(i => i.value = '');
-                }
-            });
+        rows.forEach((row, idx) => {
+            row.classList.toggle('hidden-row', idx >= plano.freq);
+        });
 
-            if (dataInicioVal) {
-                const data = new Date(dataInicioVal);
-                const diaInicio = parseInt(dataInicioVal.split('-')[2]);
-                inputDiaVenc.value = diaInicio;
-
-                data.setMonth(data.getMonth() + dados.meses);
-                const isoDate = data.toISOString().split('T')[0];
-                inputFim.value = isoDate;
-            }
+        if (inicioInput.value) {
+            const d = new Date(inicioInput.value);
+            vencInput.value = d.getDate();
+            d.setMonth(d.getMonth() + plano.meses);
+            fimInput.value = d.toISOString().split('T')[0];
         }
     }
 
-    selectPlano.addEventListener('change', atualizarFormulario);
-    inputInicio.addEventListener('change', atualizarFormulario);
+    planoSelect.addEventListener('change', atualizarPlano);
+    inicioInput.addEventListener('change', atualizarPlano);
 
-    document.addEventListener("DOMContentLoaded", () => {
-        if (selectPlano.value) {
-            atualizarFormulario();
-        }
-    });
+    document.addEventListener('DOMContentLoaded', atualizarPlano);
 </script>
 {% endblock %}

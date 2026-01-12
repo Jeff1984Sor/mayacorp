@@ -5,153 +5,144 @@
 
 {% block content %}
 <div class="max-w-7xl mx-auto pb-24 px-4">
-    
-    <!-- HEADER: Identidade Studio Premium -->
+
+    <!-- HEADER -->
     <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-8 px-2">
         <div class="flex items-center gap-6">
-            <!-- Ícone em MARSALA -->
-            <div class="w-16 h-16 bg-primary rounded-[22px] flex items-center justify-center text-white shadow-xl shadow-primary/30 border-2 border-white transition-transform hover:scale-110">
+            <div class="w-16 h-16 bg-primary rounded-[22px] flex items-center justify-center text-white shadow-xl shadow-primary/30 border-2 border-white">
                 <i class="fas fa-file-invoice-dollar text-2xl"></i>
             </div>
             <div>
                 <h1 class="text-4xl font-black text-slate-900 tracking-tighter uppercase">Contratos</h1>
                 <p class="text-[11px] text-primary font-black uppercase tracking-[3px] mt-1">
-                    Gestão de <span class="text-slate-900">Planos e Vigências Ativas</span>
+                    Controle comercial e vigências
                 </p>
             </div>
         </div>
-        
-        <!-- Botão Novo em AZUL VIBRANTE -->
-        <button onclick="modal_novo_contrato.showModal()" 
-           class="btn bg-secondary border-none text-white rounded-2xl px-10 h-16 shadow-2xl shadow-secondary/30 hover:bg-blue-800 hover:scale-105 transition-all font-black uppercase tracking-widest text-xs">
+
+        <button onclick="modal_novo_contrato.showModal()"
+            class="btn bg-secondary border-none text-white rounded-2xl px-10 h-16 shadow-2xl shadow-secondary/30 hover:bg-blue-800 hover:scale-105 transition-all font-black uppercase tracking-widest text-xs">
             <i class="fas fa-plus-circle mr-2 text-lg"></i> NOVO CONTRATO
         </button>
     </header>
 
-    <!-- BARRA DE FILTROS (Visual Studio MayaCorp) -->
-    <section class="bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200/50 border border-slate-100 p-8 md:p-10 mb-10 relative overflow-hidden">
-        <!-- Detalhe decorativo lateral -->
+    <!-- FILTROS -->
+    <section class="bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200/50 border border-slate-100 p-8 md:p-10 mb-10 relative">
         <div class="absolute left-0 top-0 w-2 h-full bg-secondary"></div>
 
         <form method="get" class="grid grid-cols-1 md:grid-cols-12 gap-8 items-end">
-            
-            <!-- Aluno -->
-            <div class="md:col-span-3 flex flex-col gap-3">
-                <label class="text-[11px] font-black text-slate-500 uppercase tracking-widest ml-1">Pesquisar Aluno</label>
-                <input type="text" name="aluno" placeholder="Nome do aluno..." value="{{ request.GET.aluno }}"
-                       class="input w-full bg-slate-50 border-2 border-slate-200 rounded-2xl focus:border-primary text-slate-900 font-bold h-14">
+            <div class="md:col-span-3">
+                <label class="label-premium">Aluno</label>
+                <input type="text" name="aluno" value="{{ request.GET.aluno }}"
+                       class="input-premium" placeholder="Nome do aluno">
             </div>
 
-            <!-- Plano -->
-            <div class="md:col-span-2 flex flex-col gap-3">
-                <label class="text-[11px] font-black text-slate-500 uppercase tracking-widest ml-1">Plano</label>
-                <select name="plano" class="select select-bordered w-full bg-slate-50 border-2 border-slate-200 rounded-2xl focus:border-primary text-slate-900 font-bold h-14">
+            <div class="md:col-span-2">
+                <label class="label-premium">Plano</label>
+                <select name="plano" class="input-premium">
                     <option value="">Todos</option>
                     {% for p in planos %}
-                        <option value="{{ p.id }}" {% if request.GET.plano == p.id|stringformat:"s" %}selected{% endif %}>{{ p.nome|upper }}</option>
+                        <option value="{{ p.id }}" {% if request.GET.plano == p.id|stringformat:"s" %}selected{% endif %}>
+                            {{ p.nome|upper }}
+                        </option>
                     {% endfor %}
                 </select>
             </div>
 
-            <!-- Status -->
-            <div class="md:col-span-2 flex flex-col gap-3">
-                <label class="text-[11px] font-black text-slate-500 uppercase tracking-widest ml-1">Situação</label>
-                <select name="status" class="select select-bordered w-full bg-slate-50 border-2 border-slate-200 rounded-2xl focus:border-accent text-slate-900 font-bold h-14">
+            <div class="md:col-span-2">
+                <label class="label-premium">Status</label>
+                <select name="status" class="input-premium">
                     <option value="">Todos</option>
-                    <option value="ATIVO" {% if request.GET.status == 'ATIVO' %}selected{% endif %}>Ativo</option>
-                    <option value="CANCELADO" {% if request.GET.status == 'CANCELADO' %}selected{% endif %}>Cancelado</option>
-                    <option value="PENDENTE" {% if request.GET.status == 'PENDENTE' %}selected{% endif %}>Pendente</option>
+                    <option value="ATIVO" {% if request.GET.status == 'ATIVO' %}selected{% endif %}>ATIVO</option>
+                    <option value="CANCELADO" {% if request.GET.status == 'CANCELADO' %}selected{% endif %}>CANCELADO</option>
+                    <option value="PENDENTE" {% if request.GET.status == 'PENDENTE' %}selected{% endif %}>PENDENTE</option>
                 </select>
             </div>
 
-            <!-- Vencimento -->
-            <div class="md:col-span-3 flex flex-col gap-3">
-                <label class="text-[11px] font-black text-slate-500 uppercase tracking-widest ml-1">Vigência (De - Até)</label>
+            <div class="md:col-span-3">
+                <label class="label-premium">Vigência</label>
                 <div class="flex gap-3">
-                    <input type="date" name="inicio" class="input w-full bg-slate-50 border-2 border-slate-200 rounded-xl text-xs font-bold h-14" value="{{ request.GET.inicio }}">
-                    <input type="date" name="fim" class="input w-full bg-slate-50 border-2 border-slate-200 rounded-xl text-xs font-bold h-14" value="{{ request.GET.fim }}">
+                    <input type="date" name="inicio" value="{{ request.GET.inicio }}" class="input-premium text-xs">
+                    <input type="date" name="fim" value="{{ request.GET.fim }}" class="input-premium text-xs">
                 </div>
             </div>
 
-            <!-- Botão Filtrar (MARSALA) -->
             <div class="md:col-span-2">
-                <button type="submit" class="btn bg-primary hover:bg-red-900 border-none text-white rounded-2xl shadow-xl shadow-primary/30 w-full h-14 font-black uppercase tracking-widest transition-all">
+                <button type="submit"
+                        class="btn bg-primary hover:bg-red-900 text-white w-full h-14 rounded-2xl font-black uppercase tracking-widest">
                     <i class="fas fa-filter mr-2 text-xs"></i> FILTRAR
                 </button>
             </div>
         </form>
     </section>
 
-    <!-- TABELA DE CONTRATOS (Nitidez e Performance) -->
-    <div class="bg-white rounded-[3rem] shadow-2xl shadow-slate-200/60 overflow-hidden border border-slate-100">
+    <!-- TABELA -->
+    <div class="bg-white rounded-[3rem] shadow-2xl shadow-slate-200/60 border border-slate-100 overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="table w-full border-collapse">
-                <!-- CABEÇALHO ALTO CONTRASTE -->
+            <table class="table w-full">
                 <thead>
-                    <tr class="bg-slate-900 border-none">
-                        <th class="text-white uppercase text-[11px] tracking-[2px] font-black py-8 pl-12 text-left">Ref ID</th>
-                        <th class="text-white uppercase text-[11px] tracking-[2px] font-black py-8 text-left">Aluno do Studio</th>
-                        <th class="text-white uppercase text-[11px] tracking-[2px] font-black py-8 text-left">Plano / Pacote</th>
-                        <th class="text-white uppercase text-[11px] tracking-[2px] font-black py-8 text-center">Status</th>
-                        <th class="text-white uppercase text-[11px] tracking-[2px] font-black py-8 text-center">Término de Vigência</th>
-                        <th class="text-white uppercase text-[11px] tracking-[2px] font-black py-8 pr-12 text-right">Gestão</th>
+                    <tr class="bg-slate-900">
+                        <th class="th-premium">ID</th>
+                        <th class="th-premium">Aluno</th>
+                        <th class="th-premium">Plano</th>
+                        <th class="th-premium text-center">Status</th>
+                        <th class="th-premium text-center">Vigência</th>
+                        <th class="th-premium text-right">Ações</th>
                     </tr>
                 </thead>
-                
-                <tbody class="divide-y divide-slate-100">
+                <tbody>
                     {% for contrato in contratos %}
-                    <tr class="hover:bg-primary/5 transition-colors group">
-                        <td class="py-7 pl-12 font-black text-slate-300 text-xs tracking-widest">#{{ contrato.id }}</td>
-                        
-                        <!-- ALUNO -->
-                        <td class="py-7">
-                            <a href="{% url 'aluno_detail' contrato.aluno.id %}" class="flex items-center gap-4 no-underline group/link">
-                                <div class="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center text-secondary font-black text-xs group-hover/link:bg-secondary group-hover/link:text-white transition-all shadow-sm">
-                                    {{ contrato.aluno.nome|slice:":1"|upper }}
-                                </div>
-                                <span class="text-sm font-black text-slate-800 group-hover/link:text-secondary transition-colors">{{ contrato.aluno.nome|upper }}</span>
+                    <tr class="hover:bg-primary/5 transition-colors">
+                        <td class="td-id">#{{ contrato.id }}</td>
+
+                        <td>
+                            <a href="{% url 'aluno_detail' contrato.aluno.id %}"
+                               class="font-black text-slate-800 hover:text-secondary uppercase tracking-tight">
+                                {{ contrato.aluno.nome }}
                             </a>
                         </td>
 
-                        <!-- PLANO -->
-                        <td class="py-7">
-                            <span class="text-xs font-black text-slate-900 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 uppercase tracking-tighter">
+                        <td>
+                            <span class="badge bg-slate-100 text-slate-800 font-black uppercase">
                                 {{ contrato.plano.nome }}
                             </span>
                         </td>
 
-                        <!-- STATUS -->
-                        <td class="py-7 text-center">
+                        <td class="text-center">
                             {% if contrato.status == 'ATIVO' %}
-                                <div class="badge bg-emerald-500 border-none text-white text-[10px] font-black py-4 px-6 rounded-xl shadow-lg shadow-emerald-200">ATIVO</div>
+                                <span class="badge bg-emerald-500 text-white">ATIVO</span>
                             {% elif contrato.status == 'CANCELADO' %}
-                                <div class="badge bg-primary border-none text-white text-[10px] font-black py-4 px-6 rounded-xl shadow-lg shadow-primary/20">CANCELADO</div>
+                                <span class="badge bg-primary text-white">CANCELADO</span>
                             {% else %}
-                                <div class="badge bg-accent border-none text-accent-content text-[10px] font-black py-4 px-6 rounded-xl shadow-lg shadow-accent/20">{{ contrato.status }}</div>
+                                <span class="badge bg-accent text-accent-content">{{ contrato.status }}</span>
                             {% endif %}
                         </td>
 
-                        <!-- VENCIMENTO (NITIDEZ AMARELA) -->
-                        <td class="py-7 text-center">
-                            <div class="flex flex-col items-center">
-                                <span class="text-sm font-black text-slate-900 tracking-tighter">{{ contrato.data_fim|date:"d/m/Y" }}</span>
-                                <span class="text-[10px] text-amber-600 font-black uppercase tracking-tighter mt-1">{{ contrato.data_fim|timeuntil }} restante</span>
-                            </div>
+                        <td class="text-center">
+                            {% if contrato.data_fim %}
+                                <span class="font-black text-slate-800">{{ contrato.data_fim|date:"d/m/Y" }}</span>
+                                <div class="text-[10px] text-amber-600 font-black uppercase">
+                                    {{ contrato.data_fim|timeuntil }} restante
+                                </div>
+                            {% else %}
+                                <span class="text-[10px] font-black text-slate-400 uppercase">
+                                    Vigência Indeterminada
+                                </span>
+                            {% endif %}
                         </td>
 
-                        <!-- AÇÕES -->
-                        <td class="py-7 pr-12 text-right">
-                            <div class="flex justify-end gap-3">
-                                <a href="{% url 'imprimir_contrato' contrato.id %}" target="_blank" 
-                                   class="btn btn-square btn-sm rounded-xl bg-slate-100 border-none text-slate-400 hover:bg-slate-900 hover:text-white transition-all shadow-sm" title="Imprimir Contrato">
+                        <td class="text-right">
+                            <div class="flex justify-end gap-2">
+                                <a href="{% url 'imprimir_contrato' contrato.id %}" target="_blank"
+                                   class="btn-action hover:bg-slate-900 hover:text-white" title="Imprimir">
                                     <i class="fas fa-print"></i>
                                 </a>
-                                <a href="{% url 'contrato_update' contrato.id %}" 
-                                   class="btn btn-square btn-sm rounded-xl bg-slate-100 border-none text-slate-400 hover:bg-secondary hover:text-white transition-all shadow-sm" title="Editar">
+                                <a href="{% url 'contrato_update' contrato.id %}"
+                                   class="btn-action hover:bg-secondary hover:text-white" title="Editar">
                                     <i class="fas fa-pen"></i>
                                 </a>
-                                <a href="{% url 'contrato_delete' contrato.id %}" 
-                                   class="btn btn-square btn-sm rounded-xl bg-slate-100 border-none text-slate-400 hover:bg-primary hover:text-white transition-all shadow-sm" title="Excluir">
+                                <a href="{% url 'contrato_delete' contrato.id %}"
+                                   class="btn-action hover:bg-primary hover:text-white" title="Excluir">
                                     <i class="fas fa-trash"></i>
                                 </a>
                             </div>
@@ -160,97 +151,24 @@
                     {% empty %}
                     <tr>
                         <td colspan="6" class="py-32 text-center">
-                            <div class="flex flex-col items-center">
-                                <div class="w-28 h-28 bg-slate-50 rounded-[3rem] flex items-center justify-center text-slate-200 mb-8 border-2 border-dashed border-slate-200">
-                                    <i class="fas fa-file-circle-minus text-4xl"></i>
-                                </div>
-                                <h3 class="text-slate-900 text-2xl font-black tracking-tight uppercase">Sem contratos registrados</h3>
-                                <p class="text-slate-400 mt-2 font-bold uppercase tracking-widest text-[11px]">Ajuste os filtros ou inicie uma nova venda.</p>
-                            </div>
+                            <h3 class="text-2xl font-black text-slate-900 uppercase">Nenhum contrato encontrado</h3>
+                            <p class="text-slate-400 font-bold uppercase tracking-widest text-[11px] mt-2">
+                                Ajuste os filtros ou registre uma nova venda
+                            </p>
                         </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
-        
-        <!-- PAGINAÇÃO STUDIO -->
-        {% if is_paginated %}
-        <div class="p-10 flex justify-center bg-slate-50/50 border-t border-slate-100">
-            <div class="join bg-white p-1.5 rounded-2xl shadow-xl border border-slate-200">
-                {% if page_obj.has_previous %}
-                    <a href="?page={{ page_obj.previous_page_number }}" class="join-item btn btn-ghost btn-sm rounded-xl text-primary font-black">«</a>
-                {% endif %}
-                <button class="join-item btn btn-ghost btn-sm rounded-xl no-animation text-slate-900 font-black px-6">Página {{ page_obj.number }}</button>
-                {% if page_obj.has_next %}
-                    <a href="?page={{ page_obj.next_page_number }}" class="join-item btn btn-ghost btn-sm rounded-xl text-primary font-black">»</a>
-                {% endif %}
-            </div>
-        </div>
-        {% endif %}
     </div>
 </div>
 
-<!-- MODAL NOVO CONTRATO (Foco Comercial Luxo) -->
-<dialog id="modal_novo_contrato" class="modal">
-  <div class="modal-box bg-white rounded-[3rem] p-12 max-w-xl border border-slate-100 shadow-2xl">
-    <div class="text-center mb-12">
-        <div class="w-24 h-24 bg-secondary/10 rounded-[2.5rem] flex items-center justify-center text-secondary mx-auto mb-6 shadow-inner">
-            <i class="fas fa-cash-register text-4xl"></i>
-        </div>
-        <h3 class="text-3xl font-black text-slate-900 tracking-tighter uppercase">Nova Venda</h3>
-        <p class="text-slate-500 font-bold uppercase text-xs tracking-widest mt-2">Inicie um novo ciclo de performance</p>
-    </div>
-
-    <div class="form-control w-full mb-12">
-        <label class="label mb-3"><span class="label-text text-[11px] font-black text-slate-400 uppercase tracking-[2px] ml-2">Localizar Aluno</span></label>
-        <div class="relative">
-            <input type="text" id="alunoSearch" list="datalistOptions" placeholder="DIGITE O NOME PARA BUSCAR..." 
-                   class="input input-bordered w-full h-18 bg-slate-50 border-2 border-slate-200 rounded-[1.5rem] text-slate-900 font-black focus:border-secondary transition-all pl-12 placeholder:text-slate-300" />
-            <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-slate-300"></i>
-        </div>
-        <datalist id="datalistOptions">
-            {% for a in alunos_datalist %}
-                <option data-id="{{ a.id }}" value="{{ a.nome|upper }}">
-            {% endfor %}
-        </datalist>
-    </div>
-
-    <div class="flex flex-col md:flex-row gap-5">
-        <form method="dialog" class="flex-1">
-            <button class="btn btn-ghost w-full rounded-[1.5rem] h-18 text-slate-400 font-black uppercase tracking-widest text-xs">Descartar</button>
-        </form>
-        <button onclick="irParaVenda()" class="btn flex-1 bg-secondary hover:bg-blue-800 border-none text-white rounded-[1.5rem] h-18 shadow-2xl shadow-secondary/30 font-black uppercase tracking-widest transition-all hover:scale-105">
-            INICIAR VENDA
-        </button>
-    </div>
-  </div>
-  <form method="dialog" class="modal-backdrop bg-slate-900/60 backdrop-blur-md"><button>fechar</button></form>
-</dialog>
-
-<script>
-    function irParaVenda() {
-        const inputVal = document.getElementById('alunoSearch').value.toUpperCase();
-        const options = document.querySelectorAll('#datalistOptions option');
-        let alunoId = null;
-
-        for (let option of options) {
-            if (option.value === inputVal) {
-                alunoId = option.getAttribute('data-id');
-                break;
-            }
-        }
-
-        if (alunoId) {
-            window.location.href = "{% url 'novo_contrato' 0 %}".replace('0', alunoId);
-        } else {
-            alert("Por favor, selecione um aluno válido da lista.");
-        }
-    }
-</script>
-
 <style>
-    /* Estilo para botões de altura personalizada no modal */
-    .h-18 { height: 4.5rem; }
+    .label-premium { @apply text-[11px] font-black text-slate-500 uppercase tracking-widest ml-1 mb-2 block; }
+    .input-premium { @apply w-full bg-slate-50 border-2 border-slate-200 rounded-2xl h-14 px-4 font-bold text-slate-900 focus:border-primary; }
+    .th-premium { @apply text-white uppercase text-[11px] tracking-[2px] font-black py-8 px-6; }
+    .td-id { @apply font-black text-slate-300 text-xs tracking-widest px-6; }
+    .btn-action { @apply btn btn-square btn-sm bg-slate-100 border-none text-slate-400 transition-all shadow-sm rounded-xl; }
 </style>
 {% endblock %}

@@ -1,42 +1,48 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Relatório de Frequência - MayaCorp Fit{% endblock %}
+{% block title %}Frequência do Estúdio | MayaCorp Fit{% endblock %}
 
 {% block content %}
 <div class="max-w-7xl mx-auto pb-16 px-4">
-    
-    <!-- HEADER: Título e Ação de Impressão (Foco em Nitidez) -->
+
+    <!-- HEADER -->
     <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-6">
         <div class="flex items-center gap-5">
-            <!-- Ícone em MARSALA -->
             <div class="w-14 h-14 bg-primary rounded-[22px] flex items-center justify-center text-white shadow-xl shadow-primary/30">
-                <i class="fas fa-file-contract text-2xl"></i>
+                <i class="fas fa-clipboard-check text-2xl"></i>
             </div>
             <div>
-                <h1 class="text-3xl font-black text-slate-900 tracking-tighter">Relatório de Frequência</h1>
-                <p class="text-[11px] text-primary font-black uppercase tracking-[3px] mt-1">Gestão de Assiduidade e Faltas</p>
+                <h1 class="text-3xl font-black text-slate-900 tracking-tighter">
+                    Frequência do estúdio
+                </h1>
+                <p class="text-sm text-slate-500 font-medium">
+                    Presenças, faltas e controle de assiduidade
+                </p>
             </div>
         </div>
-        
-        <button onclick="window.print()" 
+
+        <button onclick="window.print()"
                 class="btn bg-white border-2 border-slate-200 shadow-sm rounded-2xl hover:bg-slate-50 transition-all text-slate-600 normal-case font-black px-8">
-            <i class="fas fa-print mr-2"></i> IMPRIMIR RELATÓRIO
+            <i class="fas fa-print mr-2"></i>
+            Imprimir relatório
         </button>
     </header>
 
-    <!-- ÁREA DE FILTROS (Visual Studio MayaCorp) -->
+    <!-- FILTROS -->
     <section class="bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200/50 border border-slate-100 p-8 md:p-10 mb-10 relative overflow-hidden">
-        <!-- Detalhe decorativo sutil -->
         <div class="absolute left-0 top-0 w-2 h-full bg-secondary"></div>
 
         <form method="get" class="grid grid-cols-1 md:grid-cols-12 gap-8 items-end">
-            
-            <!-- Filtro de Aluno -->
+
+            <!-- ALUNO -->
             <div class="md:col-span-4 flex flex-col gap-3">
-                <label class="text-[11px] font-black text-slate-500 uppercase tracking-widest ml-1">Buscar Aluno</label>
-                <select name="aluno" class="select select-bordered w-full bg-slate-50 border-2 border-slate-200 rounded-2xl focus:border-primary text-slate-900 font-bold h-14">
-                    <option value="">Todos os Alunos</option>
+                <label class="text-[11px] font-black text-slate-500 uppercase tracking-widest ml-1">
+                    Aluno
+                </label>
+                <select name="aluno"
+                        class="select select-bordered w-full bg-slate-50 border-2 border-slate-200 rounded-2xl focus:border-primary text-slate-900 font-bold h-14">
+                    <option value="">Todos os alunos</option>
                     {% for a in alunos_list %}
                         <option value="{{ a.id }}" {% if request.GET.aluno == a.id|stringformat:"s" %}selected{% endif %}>
                             {{ a.nome|upper }}
@@ -45,96 +51,132 @@
                 </select>
             </div>
 
-            <!-- Filtros de Data -->
+            <!-- DATA INICIAL -->
             <div class="md:col-span-2 flex flex-col gap-3">
-                <label class="text-[11px] font-black text-slate-500 uppercase tracking-widest ml-1">Data Inicial</label>
-                <input type="date" name="data_inicio" class="input input-bordered w-full bg-slate-50 border-2 border-slate-200 rounded-2xl focus:border-primary text-slate-900 font-bold h-14" value="{{ request.GET.data_inicio }}">
-            </div>
-            <div class="md:col-span-2 flex flex-col gap-3">
-                <label class="text-[11px] font-black text-slate-500 uppercase tracking-widest ml-1">Data Final</label>
-                <input type="date" name="data_fim" class="input input-bordered w-full bg-slate-50 border-2 border-slate-200 rounded-2xl focus:border-primary text-slate-900 font-bold h-14" value="{{ request.GET.data_fim }}">
+                <label class="text-[11px] font-black text-slate-500 uppercase tracking-widest ml-1">
+                    Data inicial
+                </label>
+                <input type="date"
+                       name="data_inicio"
+                       class="input input-bordered w-full bg-slate-50 border-2 border-slate-200 rounded-2xl focus:border-primary text-slate-900 font-bold h-14"
+                       value="{{ request.GET.data_inicio }}">
             </div>
 
-            <!-- Filtro de Status (AMARELO ACCENT) -->
+            <!-- DATA FINAL -->
             <div class="md:col-span-2 flex flex-col gap-3">
-                <label class="text-[11px] font-black text-slate-500 uppercase tracking-widest ml-1">Status</label>
-                <select name="status" class="select select-bordered w-full bg-slate-50 border-2 border-slate-200 rounded-2xl focus:border-accent text-slate-900 font-bold h-14">
+                <label class="text-[11px] font-black text-slate-500 uppercase tracking-widest ml-1">
+                    Data final
+                </label>
+                <input type="date"
+                       name="data_fim"
+                       class="input input-bordered w-full bg-slate-50 border-2 border-slate-200 rounded-2xl focus:border-primary text-slate-900 font-bold h-14"
+                       value="{{ request.GET.data_fim }}">
+            </div>
+
+            <!-- STATUS -->
+            <div class="md:col-span-2 flex flex-col gap-3">
+                <label class="text-[11px] font-black text-slate-500 uppercase tracking-widest ml-1">
+                    Status
+                </label>
+                <select name="status"
+                        class="select select-bordered w-full bg-slate-50 border-2 border-slate-200 rounded-2xl focus:border-accent text-slate-900 font-bold h-14">
                     <option value="">Todos</option>
                     <option value="PRESENTE" {% if request.GET.status == 'PRESENTE' %}selected{% endif %}>Presente</option>
                     <option value="FALTA" {% if request.GET.status == 'FALTA' %}selected{% endif %}>Falta</option>
                 </select>
             </div>
 
-            <!-- Botão Filtrar (AZUL VIBRANTE) -->
+            <!-- FILTRAR -->
             <div class="md:col-span-2">
-                <button type="submit" class="btn bg-secondary hover:bg-blue-700 border-none text-white rounded-2xl shadow-xl shadow-secondary/30 w-full h-14 font-black uppercase tracking-widest transition-all hover:scale-105">
-                    <i class="fas fa-filter mr-2"></i> FILTRAR
+                <button type="submit"
+                        class="btn bg-secondary hover:bg-blue-700 border-none text-white rounded-2xl shadow-xl shadow-secondary/30 w-full h-14 font-black uppercase tracking-widest transition-all hover:scale-105">
+                    <i class="fas fa-filter mr-2"></i>
+                    Filtrar
                 </button>
             </div>
         </form>
     </section>
 
-    <!-- TABELA DE RESULTADOS (Nitidez e Performance) -->
+    <!-- TABELA -->
     <div class="bg-white rounded-[3rem] shadow-2xl shadow-slate-200/60 overflow-hidden border border-slate-100">
         <div class="overflow-x-auto">
             <table class="table w-full border-collapse">
-                <!-- CABEÇALHO ALTO CONTRASTE -->
+
                 <thead>
-                    <tr class="bg-slate-900 border-b border-slate-800">
-                        <th class="text-white uppercase text-[11px] tracking-[2px] font-black py-8 pl-10 text-left">Data / Horário</th>
-                        <th class="text-white uppercase text-[11px] tracking-[2px] font-black py-8 text-left">Aluno do Studio</th>
-                        <th class="text-white uppercase text-[11px] tracking-[2px] font-black py-8 text-left">Profissional Responsável</th>
-                        <th class="text-white uppercase text-[11px] tracking-[2px] font-black py-8 pr-10 text-center">Status Presença</th>
+                    <tr class="bg-slate-50 border-b border-slate-200">
+                        <th class="text-slate-900 uppercase text-[11px] tracking-[2px] font-black py-8 pl-10 text-left">
+                            Data / Horário
+                        </th>
+                        <th class="text-slate-900 uppercase text-[11px] tracking-[2px] font-black py-8 text-left">
+                            Aluno
+                        </th>
+                        <th class="text-slate-900 uppercase text-[11px] tracking-[2px] font-black py-8 text-left">
+                            Profissional
+                        </th>
+                        <th class="text-slate-900 uppercase text-[11px] tracking-[2px] font-black py-8 pr-10 text-center">
+                            Presença
+                        </th>
                     </tr>
                 </thead>
-                
+
                 <tbody class="divide-y divide-slate-100">
                     {% for p in presencas %}
-                    <tr class="hover:bg-primary/5 transition-colors group">
-                        <!-- DATA / HORA (TEXTO NÍTIDO) -->
+                    <tr class="hover:bg-primary/5 transition-colors">
+
+                        <!-- DATA -->
                         <td class="py-7 pl-10">
                             <div class="flex flex-col">
-                                <span class="text-slate-900 font-black text-base">{{ p.aula.data_hora_inicio|date:"d/m/Y" }}</span>
-                                <span class="text-[10px] text-primary font-black tracking-widest uppercase">{{ p.aula.data_hora_inicio|date:"H:i" }} — {{ p.aula.data_hora_fim|date:"H:i" }}</span>
+                                <span class="text-slate-900 font-black text-base">
+                                    {{ p.aula.data_hora_inicio|date:"d/m/Y" }}
+                                </span>
+                                <span class="text-[10px] text-primary font-black tracking-widest uppercase">
+                                    {{ p.aula.data_hora_inicio|date:"H:i" }} — {{ p.aula.data_hora_fim|date:"H:i" }}
+                                </span>
                             </div>
                         </td>
 
-                        <!-- ALUNO (LINK AZUL) -->
+                        <!-- ALUNO -->
                         <td class="py-7">
-                            <a href="{% url 'aluno_detail' p.aluno.id %}" class="flex items-center gap-4 group/link no-underline">
-                                <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-xs font-black text-slate-500 group-hover/link:bg-secondary group-hover/link:text-white transition-all shadow-sm">
+                            <a href="{% url 'aluno_detail' p.aluno.id %}"
+                               class="flex items-center gap-4 no-underline group">
+                                <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-xs font-black text-slate-500 group-hover:bg-secondary group-hover:text-white transition-all shadow-sm">
                                     {{ p.aluno.nome|slice:":1"|upper }}
                                 </div>
-                                <span class="text-sm font-black text-slate-800 group-hover/link:text-secondary transition-colors">{{ p.aluno.nome|upper }}</span>
+                                <span class="text-sm font-black text-slate-800 group-hover:text-secondary transition-colors">
+                                    {{ p.aluno.nome|upper }}
+                                </span>
                             </a>
                         </td>
 
                         <!-- PROFISSIONAL -->
                         <td class="py-7">
-                            <span class="text-sm font-bold text-slate-600">{{ p.aula.profissional.nome }}</span>
+                            <span class="text-sm font-bold text-slate-600">
+                                {{ p.aula.profissional.nome }}
+                            </span>
                         </td>
 
-                        <!-- STATUS (BADGES VIBRANTES) -->
+                        <!-- STATUS -->
                         <td class="py-7 pr-10 text-center">
                             {% if p.status == 'PRESENTE' %}
-                                <div class="badge bg-emerald-500 border-none text-white text-[10px] font-black py-4 px-6 rounded-xl shadow-lg shadow-emerald-200">
-                                    <i class="fas fa-check mr-2 text-[9px]"></i> PRESENTE
-                                </div>
+                                <span class="inline-flex items-center gap-2 bg-emerald-500 text-white px-6 py-3 rounded-xl shadow-lg shadow-emerald-200 text-[10px] font-black uppercase tracking-widest">
+                                    Presente
+                                </span>
                             {% elif p.status == 'FALTA' %}
-                                <div class="badge bg-primary border-none text-white text-[10px] font-black py-4 px-6 rounded-xl shadow-lg shadow-primary/20">
-                                    <i class="fas fa-times mr-2 text-[9px]"></i> FALTA
-                                </div>
+                                <span class="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-xl shadow-lg shadow-primary/20 text-[10px] font-black uppercase tracking-widest">
+                                    Falta
+                                </span>
                             {% elif p.status == 'FALTA_JUSTIFICADA' %}
-                                <div class="badge bg-accent border-none text-accent-content text-[10px] font-black py-4 px-6 rounded-xl shadow-lg shadow-accent/20">
-                                    <i class="fas fa-exclamation mr-2 text-[9px]"></i> JUSTIFICADA
-                                </div>
+                                <span class="inline-flex items-center gap-2 bg-accent text-accent-content px-6 py-3 rounded-xl shadow-lg shadow-accent/20 text-[10px] font-black uppercase tracking-widest">
+                                    Justificada
+                                </span>
                             {% else %}
-                                <div class="badge bg-secondary border-none text-white text-[10px] font-black py-4 px-6 rounded-xl shadow-lg shadow-secondary/20">
-                                    AGENDADO
-                                </div>
+                                <span class="inline-flex items-center gap-2 bg-slate-300 text-slate-700 px-6 py-3 rounded-xl shadow-sm text-[10px] font-black uppercase tracking-widest">
+                                    Agendada
+                                </span>
                             {% endif %}
                         </td>
                     </tr>
+
                     {% empty %}
                     <tr>
                         <td colspan="4" class="py-32 text-center">
@@ -142,29 +184,59 @@
                                 <div class="w-24 h-24 bg-slate-50 rounded-[2.5rem] flex items-center justify-center text-slate-200 mb-6 border-2 border-dashed border-slate-200">
                                     <i class="fas fa-search-minus text-4xl"></i>
                                 </div>
-                                <h3 class="text-slate-900 text-xl font-black tracking-tight">Nenhum registro encontrado</h3>
-                                <p class="text-slate-400 text-xs mt-2 font-bold uppercase tracking-widest italic">Ajuste os filtros para uma nova busca.</p>
+                                <h3 class="text-slate-900 text-xl font-black tracking-tight">
+                                    Nenhum registro encontrado
+                                </h3>
+                                <p class="text-slate-400 text-sm mt-2">
+                                    Ajuste os filtros para visualizar os dados desejados.
+                                </p>
                             </div>
                         </td>
                     </tr>
                     {% endfor %}
                 </tbody>
+
             </table>
         </div>
     </div>
 </div>
 
 <style>
-    /* Otimização de Impressão Studio MayaCorp */
-    @media print {
-        header .btn, section, aside, nav, .flex-col.gap-2 { display: none !important; }
-        body { background: white !important; color: black !important; }
-        .max-w-7xl { max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
-        .shadow-2xl, .shadow-xl, .shadow-sm { box-shadow: none !important; }
-        .bg-white { background: white !important; }
-        .table thead tr { background-color: #000 !important; }
-        .table thead th { color: #fff !important; font-weight: bold !important; }
-        .badge { border: 1px solid #000 !important; color: #000 !important; background: transparent !important; }
+@media print {
+    header button,
+    section,
+    nav,
+    aside {
+        display: none !important;
     }
+
+    body {
+        background: white !important;
+        color: black !important;
+    }
+
+    .max-w-7xl {
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .shadow-2xl,
+    .shadow-xl,
+    .shadow-sm {
+        box-shadow: none !important;
+    }
+
+    .bg-white {
+        background: white !important;
+    }
+
+    .badge,
+    span[class*="bg-"] {
+        background: transparent !important;
+        color: black !important;
+        border: 1px solid black !important;
+    }
+}
 </style>
 {% endblock %}

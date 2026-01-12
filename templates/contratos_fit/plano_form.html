@@ -4,21 +4,20 @@
 
 {% block content %}
 <style>
-    /* CSS de Refinamento */
     .maya-card-top {
         background: white;
         border-radius: 32px;
         padding: 48px;
         border: 1px solid #e2e8f0;
         box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-        margin-bottom: 24px;
+        margin-bottom: 28px;
     }
     .maya-card-bottom {
         background: #0f172a;
         border-radius: 32px;
         padding: 48px;
         color: white;
-        box-shadow: 0 20px 40px rgba(15, 23, 42, 0.2);
+        box-shadow: 0 20px 40px rgba(15, 23, 42, 0.25);
     }
     .maya-input-field {
         width: 100%;
@@ -48,14 +47,12 @@
     }
     .asteriskField, .help-block { display: none !important; }
 
-    /* Estilo para os Selects no card preto */
     .dark-select {
         background-color: rgba(255,255,255,0.05) !important;
         border-color: rgba(255,255,255,0.1) !important;
         color: white !important;
     }
 
-    /* Segmented Control (Toggle) */
     .seg-control {
         display: flex;
         background: #f1f5f9;
@@ -72,33 +69,43 @@
         text-transform: uppercase;
         letter-spacing: 1px;
     }
-    .seg-btn.active { background: white; color: #0f172a; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+    .seg-btn.active {
+        background: white;
+        color: #0f172a;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
     .seg-btn.inactive { color: #94a3b8; }
 </style>
 
 <div class="p-8 w-full min-h-screen bg-[#fcfcfd]">
     <div class="max-w-4xl mx-auto">
-        
+
         <!-- HEADER -->
-        <div class="flex flex-col md:flex-row justify-between items-center mb-10">
+        <div class="flex flex-col md:flex-row justify-between items-center mb-12">
             <div>
                 <h1 class="text-4xl font-black text-slate-900 tracking-tight">Configurar Plano</h1>
-                <p class="text-xs text-slate-400 font-bold uppercase tracking-[3px] mt-2">MayaCorp Logic Engine v4.0</p>
+                <p class="text-xs text-slate-400 font-bold uppercase tracking-[3px] mt-2">
+                    MayaCorp Logic Engine v4.1
+                </p>
             </div>
 
             <div class="mt-6 md:mt-0">
                 <div class="seg-control">
-                    <div id="btnRecorrente" onclick="setModo(false)" class="seg-btn active">Plano Mensal</div>
-                    <div id="btnAvulso" onclick="setModo(true)" class="seg-btn inactive">Aula Avulsa</div>
+                    <div id="btnRecorrente" onclick="setModo(false)" class="seg-btn active">
+                        Plano Mensal
+                    </div>
+                    <div id="btnAvulso" onclick="setModo(true)" class="seg-btn inactive">
+                        Aula Avulsa
+                    </div>
                 </div>
-                <input type="checkbox" id="toggleAvulsa" class="hidden" onchange="syncUI()">
+                <input type="checkbox" id="toggleAvulsa" name="is_avulso" class="hidden">
             </div>
         </div>
 
         <form method="post">
             {% csrf_token %}
 
-            <!-- SEÇÃO SUPERIOR: BRANCA (INFO) -->
+            <!-- CARD SUPERIOR -->
             <div class="maya-card-top">
                 <div class="flex items-center gap-3 mb-10">
                     <div class="w-1.5 h-6 bg-indigo-500 rounded-full"></div>
@@ -108,12 +115,17 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div class="md:col-span-2">
                         <label class="maya-label">Nome Comercial do Plano</label>
-                        <input type="text" name="nome" value="{{ form.nome.value|default:'' }}" class="maya-input-field" placeholder="Ex: Pilates 2x na Semana - Trimestral" required>
+                        <input type="text" name="nome"
+                               value="{{ form.nome.value|default:'' }}"
+                               class="maya-input-field"
+                               required>
                     </div>
-                    
+
                     <div class="md:col-span-2">
-                        <label class="maya-label">Descrição Detalhada</label>
-                        <textarea name="descricao" class="maya-input-field" style="height: 120px; resize: none;">{{ form.descricao.value|default:'' }}</textarea>
+                        <label class="maya-label">Descrição</label>
+                        <textarea name="descricao"
+                                  class="maya-input-field"
+                                  style="height:120px;resize:none;">{{ form.descricao.value|default:'' }}</textarea>
                     </div>
 
                     <div>
@@ -121,99 +133,88 @@
                         {{ form.tipo_servico }}
                     </div>
 
-                    <div>
+                    <div id="boxFrequencia">
                         <label class="maya-label">Frequência Semanal</label>
-                        <input type="number" name="frequencia_semanal" value="{{ form.frequencia_semanal.value|default:'2' }}" class="maya-input-field">
+                        {{ form.frequencia_semanal }}
                     </div>
                 </div>
             </div>
 
-            <!-- SEÇÃO INFERIOR: PRETA (INVESTIMENTO) -->
+            <!-- CARD INFERIOR -->
             <div class="maya-card-bottom">
                 <div class="flex items-center gap-3 mb-10">
                     <div class="w-1.5 h-6 bg-indigo-400 rounded-full"></div>
-                    <h3 class="text-xl font-bold text-white">Investimento e Vigência</h3>
+                    <h3 class="text-xl font-bold text-white">Investimento</h3>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-end">
-                    
                     <div id="boxDuracao">
                         <label class="maya-label text-slate-400">Duração do Contrato</label>
-                        <div class="dark-select-wrapper">
-                            {{ form.duracao_meses }}
-                        </div>
+                        {{ form.duracao_meses }}
                     </div>
 
                     <div>
-                        <label id="labelValor" class="maya-label text-indigo-400">Valor Mensal (R$)</label>
+                        <label id="labelValor" class="maya-label text-indigo-400">
+                            Valor Mensal (R$)
+                        </label>
                         <div class="relative">
-                            <span class="absolute left-6 top-1/2 -translate-y-1/2 text-2xl font-bold text-slate-500 italic">R$</span>
-                            <input type="number" name="valor_mensal" step="0.01" 
-                                   value="{{ form.valor_mensal.value|default:'' }}" 
-                                   class="w-full bg-white/5 border-2 border-white/10 rounded-2xl pl-16 pr-6 h-20 text-3xl font-bold text-white focus:border-indigo-500 focus:bg-white/10 outline-none transition-all" required>
+                            <span class="absolute left-6 top-1/2 -translate-y-1/2 text-2xl font-bold text-slate-400 italic">R$</span>
+                            <input type="number" name="valor_mensal" step="0.01"
+                                   value="{{ form.valor_mensal.value|default:'' }}"
+                                   class="w-full bg-white/5 border-2 border-white/10 rounded-2xl pl-16 pr-6 h-20 text-3xl font-bold text-white focus:border-indigo-500 outline-none">
                         </div>
                     </div>
                 </div>
 
-                <!-- BOTÕES DE AÇÃO -->
-                <div class="mt-16 pt-10 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6">
-                    <a href="{% url 'plano_list' %}" class="text-xs font-bold text-slate-500 hover:text-white uppercase tracking-[2px] transition-colors">
-                        Descartar e Voltar
+                <div class="mt-16 pt-10 border-t border-white/5 flex justify-between items-center">
+                    <a href="{% url 'plano_list' %}"
+                       class="text-xs font-bold text-slate-500 hover:text-white uppercase tracking-[2px]">
+                        Descartar
                     </a>
-                    
-                    <button type="submit" class="w-full md:w-auto px-16 py-6 bg-indigo-500 hover:bg-indigo-600 text-white rounded-2xl font-black uppercase tracking-[2px] transition-all shadow-xl shadow-indigo-500/20 active:scale-95">
-                        Salvar Configurações
+
+                    <button type="submit"
+                            class="px-16 py-6 bg-indigo-500 hover:bg-indigo-600 text-white rounded-2xl font-black uppercase tracking-[2px] shadow-xl">
+                        Salvar Plano
                     </button>
                 </div>
             </div>
         </form>
 
         <div class="text-center mt-12">
-            <span class="text-[9px] font-black text-slate-300 uppercase tracking-[4px]">Powered by Mayacorp Studio</span>
+            <span class="text-[9px] font-black text-slate-300 uppercase tracking-[4px]">
+                Powered by MayaCorp Studio
+            </span>
         </div>
     </div>
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Aplica as classes nos selects do Django
-    const selects = document.querySelectorAll('select');
-    selects.forEach(s => {
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('select').forEach(s => {
         s.classList.add('maya-input-field');
-        if (s.closest('.maya-card-bottom')) {
-            s.classList.add('dark-select');
-        }
+        if (s.closest('.maya-card-bottom')) s.classList.add('dark-select');
     });
     syncUI();
 });
 
-function setModo(isAvulso) {
-    document.getElementById('toggleAvulsa').checked = isAvulso;
+function setModo(avulso) {
+    document.getElementById('toggleAvulsa').checked = avulso;
     syncUI();
 }
 
 function syncUI() {
-    const isAvulsa = document.getElementById('toggleAvulsa').checked;
+    const avulso = document.getElementById('toggleAvulsa').checked;
     const boxDuracao = document.getElementById('boxDuracao');
+    const boxFreq = document.getElementById('boxFrequencia');
     const labelValor = document.getElementById('labelValor');
-    const btnAvulso = document.getElementById('btnAvulso');
-    const btnRecorrente = document.getElementById('btnRecorrente');
-    const selectDuracao = boxDuracao.querySelector('select');
 
-    if (isAvulsa) {
-        boxDuracao.style.opacity = '0.2';
-        boxDuracao.style.pointerEvents = 'none';
-        labelValor.innerText = 'Valor da Aula Avulsa (R$)';
-        btnAvulso.className = 'seg-btn active';
-        btnRecorrente.className = 'seg-btn inactive';
-        if(selectDuracao) selectDuracao.value = "1";
-    } else {
-        boxDuracao.style.opacity = '1';
-        boxDuracao.style.pointerEvents = 'all';
-        labelValor.innerText = 'Valor Mensal (R$)';
-        btnAvulso.className = 'seg-btn inactive';
-        btnRecorrente.className = 'seg-btn active';
-    }
+    document.getElementById('btnAvulso').className = avulso ? 'seg-btn active' : 'seg-btn inactive';
+    document.getElementById('btnRecorrente').className = avulso ? 'seg-btn inactive' : 'seg-btn active';
+
+    boxDuracao.style.display = avulso ? 'none' : 'block';
+    boxFreq.style.display = avulso ? 'none' : 'block';
+
+    labelValor.innerText = avulso ? 'Valor da Aula Avulsa (R$)' : 'Valor Mensal (R$)';
 }
 </script>
 {% endblock %}

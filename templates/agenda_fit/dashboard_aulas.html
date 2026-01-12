@@ -1,29 +1,36 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Performance de Aulas - MayaCorp Fit{% endblock %}
+{% block title %}Desempenho do Estúdio - MayaCorp Fit{% endblock %}
 
 {% block content %}
-<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <div class="max-w-7xl mx-auto px-4">
-    
-    <!-- HEADER: Título e Filtros (Visual Studio MayaCorp) -->
+
+    <!-- HEADER -->
     <header class="bg-white rounded-[2.5rem] border border-slate-100 p-8 mb-10 shadow-xl shadow-slate-200/50 flex flex-col md:flex-row items-center justify-between gap-8">
         <div class="flex items-center gap-5">
             <div class="w-14 h-14 bg-primary rounded-2xl flex items-center justify-center text-white shadow-lg shadow-primary/30 transition-transform hover:rotate-6">
-                <i class="fas fa-chart-pie text-2xl"></i>
+                <i class="fas fa-chart-line text-2xl"></i>
             </div>
             <div>
-                <h1 class="text-3xl font-black text-slate-900 tracking-tighter">Performance</h1>
-                <p class="text-[11px] text-primary font-black uppercase tracking-[3px]">Análise de Resultados</p>
+                <h1 class="text-3xl font-black text-slate-900 tracking-tighter">
+                    Desempenho do estúdio
+                </h1>
+                <p class="text-slate-500 font-medium text-sm">
+                    Acompanhe aulas, presença e engajamento ao longo do tempo.
+                </p>
             </div>
         </div>
-        
+
+        <!-- FILTROS -->
         <form class="flex items-center gap-3 bg-slate-100 p-3 rounded-2xl border border-slate-200">
             <i class="fas fa-filter text-slate-400 ml-2"></i>
-            <select name="mes" class="select select-sm bg-transparent border-none focus:ring-0 font-black text-slate-800 text-xs uppercase" onchange="this.form.submit()">
+
+            <select name="mes"
+                    class="select select-sm bg-transparent border-none focus:ring-0 font-black text-slate-800 text-xs uppercase"
+                    onchange="this.form.submit()">
                 <option value="1" {% if mes_atual == 1 %}selected{% endif %}>Janeiro</option>
                 <option value="2" {% if mes_atual == 2 %}selected{% endif %}>Fevereiro</option>
                 <option value="3" {% if mes_atual == 3 %}selected{% endif %}>Março</option>
@@ -37,42 +44,58 @@
                 <option value="11" {% if mes_atual == 11 %}selected{% endif %}>Novembro</option>
                 <option value="12" {% if mes_atual == 12 %}selected{% endif %}>Dezembro</option>
             </select>
+
             <div class="w-[1px] h-4 bg-slate-300"></div>
-            <select name="ano" class="select select-sm bg-transparent border-none focus:ring-0 font-black text-slate-800 text-xs" onchange="this.form.submit()">
+
+            <select name="ano"
+                    class="select select-sm bg-transparent border-none focus:ring-0 font-black text-slate-800 text-xs"
+                    onchange="this.form.submit()">
                 {% for y in anos_select %}
-                <option value="{{ y }}" {% if ano_atual == y %}selected{% endif %}>{{ y }}</option>
+                <option value="{{ y }}" {% if ano_atual == y %}selected{% endif %}>
+                    {{ y }}
+                </option>
                 {% endfor %}
             </select>
         </form>
     </header>
 
-    <!-- GRÁFICOS (Vibrantes e Nítidos) -->
+    <!-- GRÁFICOS -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-10">
-        
-        <!-- Evolução por Profissional (AZUL) -->
-        <div class="bg-white p-10 rounded-[3rem] shadow-2xl shadow-slate-200/60 border border-slate-50 transition-all hover:border-secondary/20">
+
+        <!-- AULAS POR PROFISSIONAL -->
+        <div class="bg-white p-10 rounded-[3rem] shadow-2xl shadow-slate-200/60 border border-slate-50 hover:border-secondary/20 transition-all">
             <div class="flex items-center justify-between mb-10">
                 <div class="flex items-center gap-3">
                     <div class="w-3 h-8 bg-secondary rounded-full"></div>
-                    <h3 class="font-black text-slate-900 uppercase text-sm tracking-widest">Aulas por Profissional</h3>
+                    <h3 class="font-black text-slate-900 uppercase text-sm tracking-widest">
+                        Aulas por profissional
+                    </h3>
                 </div>
-                <span class="text-[10px] font-black bg-slate-100 px-3 py-1 rounded-full text-slate-500">{{ ano_atual }}</span>
+                <span class="text-[10px] font-black bg-slate-100 px-3 py-1 rounded-full text-slate-500">
+                    {{ ano_atual }}
+                </span>
             </div>
             <div class="h-[350px]">
                 <canvas id="chartProf"></canvas>
             </div>
         </div>
 
-        <!-- Evolução de Frequência (MARSALA) -->
-        <div class="bg-white p-10 rounded-[3rem] shadow-2xl shadow-slate-200/60 border border-slate-50 transition-all hover:border-primary/20">
+        <!-- PRESENÇAS X FALTAS -->
+        <div class="bg-white p-10 rounded-[3rem] shadow-2xl shadow-slate-200/60 border border-slate-50 hover:border-primary/20 transition-all">
             <div class="flex items-center justify-between mb-10">
                 <div class="flex items-center gap-3">
                     <div class="w-3 h-8 bg-primary rounded-full"></div>
-                    <h3 class="font-black text-slate-900 uppercase text-sm tracking-widest">Presenças vs Faltas</h3>
+                    <h3 class="font-black text-slate-900 uppercase text-sm tracking-widest">
+                        Presenças e faltas
+                    </h3>
                 </div>
-                <div class="flex gap-2">
-                    <div class="flex items-center gap-1"><div class="w-2 h-2 bg-emerald-500 rounded-full"></div><span class="text-[9px] font-black">PRES</span></div>
-                    <div class="flex items-center gap-1"><div class="w-2 h-2 bg-primary rounded-full"></div><span class="text-[9px] font-black">FALT</span></div>
+                <div class="flex gap-3">
+                    <span class="flex items-center gap-1 text-[9px] font-black">
+                        <span class="w-2 h-2 bg-emerald-500 rounded-full"></span> Presenças
+                    </span>
+                    <span class="flex items-center gap-1 text-[9px] font-black">
+                        <span class="w-2 h-2 bg-primary rounded-full"></span> Faltas
+                    </span>
                 </div>
             </div>
             <div class="h-[350px]">
@@ -81,65 +104,85 @@
         </div>
     </div>
 
-    <!-- LISTAS DE DESTAQUE (VIBRANTE) -->
+    <!-- RANKINGS -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-10 pb-20">
-        
-        <!-- Top 5 Assíduos (AZUL E VERDE) -->
+
+        <!-- ASSIDUIDADE -->
         <div class="bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200/60 border border-slate-50 overflow-hidden">
             <div class="p-8 bg-secondary flex justify-between items-center text-white">
-                <h3 class="font-black uppercase text-xs tracking-[3px]">Ranking de Assiduidade</h3>
+                <h3 class="font-black uppercase text-xs tracking-[3px]">
+                    Alunos mais assíduos
+                </h3>
                 <i class="fas fa-crown text-xl text-accent"></i>
             </div>
             <div class="p-6 space-y-3">
                 {% for item in top_assiduos %}
-                <div class="flex items-center justify-between p-5 rounded-3xl bg-slate-50 border border-transparent hover:border-emerald-200 transition-all group">
+                <div class="flex items-center justify-between p-5 rounded-3xl bg-slate-50 hover:bg-emerald-50 transition-all group">
                     <div class="flex items-center gap-5">
-                        <span class="w-8 h-8 flex items-center justify-center rounded-full bg-emerald-500 text-white text-[10px] font-black shadow-lg shadow-emerald-200">0{{ forloop.counter }}</span>
-                        <span class="text-sm font-black text-slate-800 group-hover:text-emerald-600">{{ item.aluno__nome|upper }}</span>
+                        <span class="w-8 h-8 flex items-center justify-center rounded-full bg-emerald-500 text-white text-[10px] font-black">
+                            {{ forloop.counter }}
+                        </span>
+                        <span class="text-sm font-black text-slate-800 group-hover:text-emerald-600">
+                            {{ item.aluno__nome|upper }}
+                        </span>
                     </div>
-                    <span class="text-xs font-black text-emerald-600 bg-emerald-50 px-4 py-2 rounded-xl">{{ item.total }} AULAS</span>
+                    <span class="text-xs font-black text-emerald-600 bg-emerald-100 px-4 py-2 rounded-xl">
+                        {{ item.total }} aulas
+                    </span>
                 </div>
                 {% empty %}
-                <p class="text-center py-10 text-slate-400 text-sm font-bold italic">Nenhum dado registrado.</p>
+                <p class="text-center py-10 text-slate-400 text-sm font-bold italic">
+                    Nenhum dado de presença neste período.
+                </p>
                 {% endfor %}
             </div>
         </div>
 
-        <!-- Top 5 Faltosos (MARSALA E AMARELO) -->
+        <!-- FALTAS -->
         <div class="bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200/60 border border-slate-50 overflow-hidden">
             <div class="p-8 bg-primary flex justify-between items-center text-white">
-                <h3 class="font-black uppercase text-xs tracking-[3px]">Atenção: Faltas Críticas</h3>
+                <h3 class="font-black uppercase text-xs tracking-[3px]">
+                    Alunos com mais faltas
+                </h3>
                 <i class="fas fa-exclamation-circle text-xl text-accent"></i>
             </div>
             <div class="p-6 space-y-3">
                 {% for item in top_faltosos %}
-                <div class="flex items-center justify-between p-5 rounded-3xl bg-slate-50 border border-transparent hover:border-primary/20 transition-all group">
+                <div class="flex items-center justify-between p-5 rounded-3xl bg-slate-50 hover:bg-red-50 transition-all group">
                     <div class="flex items-center gap-5">
-                        <span class="w-8 h-8 flex items-center justify-center rounded-full bg-primary text-white text-[10px] font-black shadow-lg shadow-primary/20">0{{ forloop.counter }}</span>
-                        <span class="text-sm font-black text-slate-800 group-hover:text-primary">{{ item.aluno__nome|upper }}</span>
+                        <span class="w-8 h-8 flex items-center justify-center rounded-full bg-primary text-white text-[10px] font-black">
+                            {{ forloop.counter }}
+                        </span>
+                        <span class="text-sm font-black text-slate-800 group-hover:text-primary">
+                            {{ item.aluno__nome|upper }}
+                        </span>
                     </div>
-                    <span class="text-xs font-black text-primary bg-red-50 px-4 py-2 rounded-xl">{{ item.total }} FALTAS</span>
+                    <span class="text-xs font-black text-primary bg-red-100 px-4 py-2 rounded-xl">
+                        {{ item.total }} faltas
+                    </span>
                 </div>
                 {% empty %}
-                <p class="text-center py-10 text-slate-400 text-sm font-bold italic">Studio 100% presente!</p>
+                <p class="text-center py-10 text-slate-400 text-sm font-bold italic">
+                    Nenhuma falta registrada 🎉
+                </p>
                 {% endfor %}
             </div>
         </div>
+
     </div>
 </div>
 
-<!-- CONFIGURAÇÃO DOS GRÁFICOS (MARSALA E AZUL VIBRANTE) -->
+<!-- GRÁFICOS -->
 <script>
     const labelsMeses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-    
-    // Estilo Nítido para Eixos
+
     const chartScales = {
-        y: { 
-            beginAtZero: true, 
+        y: {
+            beginAtZero: true,
             grid: { color: '#F1F5F9', drawBorder: false },
             ticks: { color: '#1E293B', font: { size: 11, weight: '800' } }
         },
-        x: { 
+        x: {
             grid: { display: false },
             ticks: { color: '#1E293B', font: { size: 11, weight: '800' } }
         }
@@ -148,16 +191,20 @@
     const commonOptions = {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: { 
-            legend: { 
+        plugins: {
+            legend: {
                 position: 'bottom',
-                labels: { usePointStyle: true, padding: 30, font: { size: 12, weight: '900' }, color: '#1E293B' }
+                labels: {
+                    usePointStyle: true,
+                    padding: 30,
+                    font: { size: 12, weight: '900' },
+                    color: '#1E293B'
+                }
             }
         },
         scales: chartScales
     };
 
-    // GRÁFICO 1: PROFISSIONAIS (Usando a cor secundária - AZUL)
     new Chart(document.getElementById('chartProf'), {
         type: 'bar',
         data: {
@@ -167,7 +214,6 @@
         options: commonOptions
     });
 
-    // GRÁFICO 2: FREQUÊNCIA (Usando MARSALA E ESMERALDA)
     new Chart(document.getElementById('chartFreq'), {
         type: 'line',
         data: {
@@ -176,8 +222,8 @@
                 {
                     label: 'Presenças',
                     data: {{ chart_presente|safe }},
-                    borderColor: '#10B981', // Emerald
-                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    borderColor: '#10B981',
+                    backgroundColor: 'rgba(16,185,129,0.1)',
                     fill: true,
                     tension: 0.4,
                     pointRadius: 6,
@@ -188,8 +234,8 @@
                 {
                     label: 'Faltas',
                     data: {{ chart_falta|safe }},
-                    borderColor: '#802422', // MARSALA
-                    backgroundColor: 'rgba(128, 36, 34, 0.1)',
+                    borderColor: '#802422',
+                    backgroundColor: 'rgba(128,36,34,0.1)',
                     fill: true,
                     tension: 0.4,
                     pointRadius: 6,

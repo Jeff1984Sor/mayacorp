@@ -2,346 +2,150 @@
 {% load static %}
 {% load crispy_forms_tags %}
 
-{% block title %}{% if form.instance.pk %}Sincronizar Aluno{% else %}Novo Aluno{% endif %} - MayaCorp Fit{% endblock %}
+{% block title %}Sincronizar Aluno | MayaCorp Fit{% endblock %}
 
 {% block content %}
-<!-- ESTILOS EXCLUSIVOS MAYACORP PREMIUM -->
-<style>
-    /* Animações de Transição */
-    .wizard-step { display: none; }
-    .wizard-step.active { display: block; animation: premiumSlideUp 0.6s cubic-bezier(0.23, 1, 0.32, 1); }
-    
-    @keyframes premiumSlideUp {
-        from { opacity: 0; transform: translateY(40px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Override Crispy Forms para Nitidez Total */
-    .asteriskField { color: #802422 !important; font-weight: 900; }
-    label { @apply text-[11px] font-black text-slate-500 uppercase tracking-[2px] ml-2 mb-2 !important; }
-    
-    input, select, textarea { 
-        @apply w-full bg-white border-2 border-slate-100 rounded-2xl px-6 h-14 focus:border-primary focus:ring-0 focus:outline-none transition-all text-slate-900 font-bold placeholder:text-slate-300 shadow-sm !important; 
-    }
-    textarea { @apply h-40 py-6 !important; }
-    
-    /* Checkbox/Toggle Estilizado */
-    .checkbox-premium { @apply checkbox checkbox-primary rounded-lg !important; }
-
-    /* Botões Customizados */
-    .btn-step-next { @apply btn bg-secondary border-none text-white rounded-2xl px-12 h-16 shadow-xl shadow-secondary/30 font-black uppercase tracking-widest hover:bg-blue-800 hover:scale-105 transition-all !important; }
-    .btn-step-prev { @apply btn btn-ghost text-slate-400 font-black uppercase tracking-widest hover:bg-slate-50 !important; }
-    .btn-ia-scan { @apply btn btn-xs border-none text-white rounded-xl px-4 h-9 font-black text-[9px] tracking-widest hover:scale-110 transition-all !important; }
-</style>
-
 <div class="max-w-4xl mx-auto pb-24 px-4 sm:px-6">
-    
-    <!-- HEADER: IDENTIDADE VISUAL -->
-    <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
-        <div class="flex items-center gap-6">
-            <div class="w-16 h-16 bg-primary rounded-[22px] flex items-center justify-center text-white shadow-xl shadow-primary/30 border-2 border-white transition-transform hover:rotate-6">
-                <i class="fas {% if form.instance.pk %}fa-user-edit{% else %}fa-user-astronaut{% endif %} text-2xl"></i>
+
+<!-- ================= HEADER ================= -->
+<header class="flex items-start gap-6 mb-12 mt-10">
+    <div class="w-14 h-14 bg-slate-900 rounded-2xl flex items-center justify-center text-white shadow-lg">
+        <i class="fas fa-user-check text-xl"></i>
+    </div>
+    <div>
+        <h1 class="text-3xl font-black text-slate-900 tracking-tighter uppercase leading-none">
+            Sincronizar aluno
+        </h1>
+        <p class="text-[11px] text-slate-500 font-bold tracking-widest uppercase mt-2">
+            Cadastro mestre • dados oficiais do aluno
+        </p>
+    </div>
+</header>
+
+<!-- ================= CARD ================= -->
+<div class="bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200/50 border border-slate-100 overflow-hidden">
+
+<form method="post" enctype="multipart/form-data" id="alunoForm" class="p-10 md:p-16">
+{% csrf_token %}
+
+<!-- ================= AUTO PREENCHIMENTO ================= -->
+<section class="bg-slate-50/70 rounded-3xl p-8 mb-16 border border-slate-100">
+
+    <div class="flex flex-col md:flex-row items-center justify-between gap-8">
+        <div class="flex items-center gap-5">
+            <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-slate-400 shadow-sm border border-slate-100">
+                <i class="fas fa-wand-magic-sparkles"></i>
             </div>
             <div>
-                <h1 class="text-4xl font-black text-slate-900 tracking-tighter uppercase">
-                    {% if form.instance.pk %}Sincronizar Aluno{% else %}Onboarding Aluno{% endif %}
-                </h1>
-                <p class="text-[11px] text-primary font-black uppercase tracking-[3px] mt-1">
-                    {% if form.instance.pk %}Gestão de Dados Mestre{% else %}IA MayaCorp: Processamento em Tempo Real{% endif %}
+                <p class="text-[11px] font-black text-slate-900 uppercase tracking-widest">
+                    Preenchimento inteligente
+                </p>
+                <p class="text-[10px] text-slate-400 font-medium">
+                    Envie documentos para leitura automática
                 </p>
             </div>
         </div>
-        
-        {% if not form.instance.pk %}
-        <div class="flex items-center gap-3 px-6 py-3 bg-accent/10 rounded-2xl border border-accent/20">
-            <i class="fas fa-brain text-accent animate-pulse"></i>
-            <span class="text-[10px] font-black text-amber-800 uppercase tracking-widest">Leitura IA Ativa</span>
+
+        <div class="flex flex-wrap gap-3">
+            <button type="button" class="btn-scan" onclick="document.getElementById('input-doc').click()">
+                <i class="fas fa-id-card mr-2 text-primary"></i>
+                Documento
+            </button>
+            <button type="button" class="btn-scan" onclick="document.getElementById('input-end').click()">
+                <i class="fas fa-map-location-dot mr-2 text-secondary"></i>
+                Endereço
+            </button>
         </div>
-        {% endif %}
-    </header>
 
-    <!-- CARD PRINCIPAL DE FORMULÁRIO -->
-    <div class="bg-white rounded-[3rem] shadow-2xl shadow-slate-200/60 border border-slate-100 overflow-hidden relative">
-        <div class="absolute left-0 top-0 w-2 h-full bg-secondary/10"></div>
-
-        <form method="post" enctype="multipart/form-data" id="alunoForm" class="p-8 md:p-14">
-            {% csrf_token %}
-
-            <!-- ========================================================= -->
-            <!-- MODO EDIÇÃO (LAYOUT DIRETO)                               -->
-            <!-- ========================================================= -->
-            {% if form.instance.pk %}
-                <div class="bg-slate-50 rounded-[2.5rem] p-8 mb-12 border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-primary shadow-sm border border-slate-100">
-                            <i class="fas fa-camera-retro"></i>
-                        </div>
-                        <div>
-                            <p class="text-xs font-black text-slate-800 uppercase tracking-tight">Atualizar via Scan?</p>
-                            <p class="text-[9px] text-slate-400 font-bold uppercase">A IA preenche os campos alterados</p>
-                        </div>
-                    </div>
-                    <div class="flex gap-2">
-                        <button type="button" class="btn-ia-scan bg-secondary" onclick="document.getElementById('input-doc-ia-edit').click()">RG/CNH</button>
-                        <button type="button" class="btn-ia-scan bg-primary" onclick="document.getElementById('input-end-ia-edit').click()">ENDEREÇO</button>
-                    </div>
-                    <input type="file" id="input-doc-ia-edit" accept="image/*" hidden onchange="lerDocumentoIA('identidade', this)">
-                    <input type="file" id="input-end-ia-edit" accept="image/*" hidden onchange="lerDocumentoIA('endereco', this)">
-                </div>
-
-                <div class="space-y-14">
-                    <!-- Seção 1 -->
-                    <section>
-                        <div class="flex items-center gap-3 mb-8">
-                            <div class="w-1.5 h-6 bg-secondary rounded-full"></div>
-                            <h6 class="text-xs font-black text-slate-900 uppercase tracking-[3px]">Dados Pessoais</h6>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
-                            <div class="md:col-span-8">{{ form.nome|as_crispy_field }}</div>
-                            <div class="md:col-span-4">{{ form.data_nascimento|as_crispy_field }}</div>
-                            <div class="md:col-span-6">{{ form.cpf|as_crispy_field }}</div>
-                            <div class="md:col-span-6">{{ form.telefone|as_crispy_field }}</div>
-                            <div class="md:col-span-12">{{ form.email|as_crispy_field }}</div>
-                        </div>
-                    </section>
-
-                    <!-- Seção 2 -->
-                    <section>
-                        <div class="flex items-center gap-3 mb-8">
-                            <div class="w-1.5 h-6 bg-primary rounded-full"></div>
-                            <h6 class="text-xs font-black text-slate-900 uppercase tracking-[3px]">Endereço & Localização</h6>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
-                            <div class="md:col-span-4">{{ form.cep|as_crispy_field }}</div>
-                            <div class="md:col-span-8">{{ form.logradouro|as_crispy_field }}</div>
-                            <div class="md:col-span-3">{{ form.numero|as_crispy_field }}</div>
-                            <div class="md:col-span-5">{{ form.bairro|as_crispy_field }}</div>
-                            <div class="md:col-span-4">{{ form.cidade|as_crispy_field }}</div>
-                        </div>
-                    </section>
-                </div>
-
-                <div class="flex justify-between items-center mt-16 pt-10 border-t border-slate-50">
-                    <a href="{% url 'aluno_list' %}" class="text-[11px] font-black text-slate-400 hover:text-primary uppercase tracking-widest transition-colors">Cancelar</a>
-                    <button type="submit" class="btn bg-secondary border-none text-white rounded-2xl px-12 h-16 font-black uppercase tracking-widest shadow-xl shadow-secondary/20 hover:scale-105 transition-all">
-                        Salvar Alterações
-                    </button>
-                </div>
-
-            <!-- ========================================================= -->
-            <!-- MODO CRIAÇÃO (WIZARD PASSO A PASSO)                       -->
-            <!-- ========================================================= -->
-            {% else %}
-                <!-- Barra de Progresso Dinâmica -->
-                <div class="mb-16">
-                    <div class="flex justify-between items-end mb-4 px-2">
-                        <span id="step-label" class="text-[11px] font-black text-primary uppercase tracking-[3px]">Passo 01/03</span>
-                        <div class="flex gap-1">
-                            <div class="w-2 h-2 rounded-full bg-primary" id="dot-1"></div>
-                            <div class="w-2 h-2 rounded-full bg-slate-200" id="dot-2"></div>
-                            <div class="w-2 h-2 rounded-full bg-slate-200" id="dot-3"></div>
-                        </div>
-                    </div>
-                    <div class="bg-slate-100 h-2 rounded-full overflow-hidden">
-                        <div id="progress-bar" class="bg-primary h-full transition-all duration-700 shadow-[0_0_15px_rgba(128,36,34,0.3)]" style="width: 33%"></div>
-                    </div>
-                </div>
-
-                <!-- PASSO 1: IDENTIFICAÇÃO + IA -->
-                <div class="wizard-step active" id="step1">
-                    <div class="mb-10 p-12 bg-slate-50 rounded-[3rem] border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-center hover:border-secondary transition-all cursor-pointer group" onclick="document.getElementById('input-doc-ia-new').click()">
-                        <div class="w-20 h-20 bg-white rounded-[2rem] flex items-center justify-center text-secondary shadow-2xl group-hover:scale-110 transition-all mb-4">
-                            <i class="fas fa-camera text-2xl"></i>
-                        </div>
-                        <h3 class="text-xl font-black text-slate-800 uppercase tracking-tighter">Scan de Documento</h3>
-                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-2">Clique para ler dados via IA (RG ou CNH)</p>
-                        <input type="file" id="input-doc-ia-new" accept="image/*" hidden onchange="lerDocumentoIA('identidade', this)">
-                    </div>
-
-                    <div id="loading-ia-1" class="hidden mb-10 text-center animate-pulse">
-                        <span class="loading loading-spinner text-primary"></span>
-                        <span class="text-[10px] font-black text-primary uppercase ml-3 tracking-widest">IA Processando...</span>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
-                        <div class="md:col-span-8">{{ form.nome|as_crispy_field }}</div>
-                        <div class="md:col-span-4">{{ form.data_nascimento|as_crispy_field }}</div>
-                        <div class="md:col-span-6">{{ form.cpf|as_crispy_field }}</div>
-                        <div class="md:col-span-6">{{ form.telefone|as_crispy_field }}</div>
-                        <div class="md:col-span-12">{{ form.email|as_crispy_field }}</div>
-                    </div>
-
-                    <div class="flex justify-end mt-12">
-                        <button type="button" class="btn-step-next" onclick="nextStep(2)">
-                            Próximo Passo <i class="fas fa-arrow-right ml-3"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- PASSO 2: ENDEREÇO -->
-                <div class="wizard-step" id="step2">
-                    <div class="mb-10 p-12 bg-slate-50 rounded-[3rem] border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-center hover:border-primary transition-all cursor-pointer" onclick="document.getElementById('input-end-ia-new').click()">
-                        <div class="w-20 h-20 bg-white rounded-[2rem] flex items-center justify-center text-primary shadow-2xl mb-4">
-                            <i class="fas fa-map-marked-alt text-2xl"></i>
-                        </div>
-                        <h3 class="text-xl font-black text-slate-800 uppercase tracking-tighter">Comprovante de Residência</h3>
-                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-2">A IA preencherá o CEP e logradouro</p>
-                        <input type="file" id="input-end-ia-new" accept="image/*" hidden onchange="lerDocumentoIA('endereco', this)">
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
-                        <div class="md:col-span-4">{{ form.cep|as_crispy_field }}</div>
-                        <div class="md:col-span-8">{{ form.logradouro|as_crispy_field }}</div>
-                        <div class="md:col-span-3">{{ form.numero|as_crispy_field }}</div>
-                        <div class="md:col-span-9">{{ form.bairro|as_crispy_field }}</div>
-                        <div class="md:col-span-12">{{ form.cidade|as_crispy_field }}</div>
-                    </div>
-
-                    <div class="flex justify-between mt-12">
-                        <button type="button" class="btn-step-prev" onclick="nextStep(1)">Voltar</button>
-                        <button type="button" class="btn-step-next" onclick="nextStep(3)">Continuar</button>
-                    </div>
-                </div>
-
-                <!-- PASSO 3: WEBCAM & FINALIZAÇÃO -->
-                <div class="wizard-step" id="step3">
-                    <div class="max-w-md mx-auto text-center mb-16">
-                        <h3 class="text-xl font-black text-slate-800 uppercase tracking-tighter mb-8">Foto de Perfil</h3>
-                        
-                        <div class="relative w-64 h-64 mx-auto mb-8">
-                            <!-- Elementos de Vídeo e Preview -->
-                            <video id="webcam" class="w-full h-full rounded-[3.5rem] object-cover border-8 border-white shadow-2xl scale-x-[-1] hidden" autoplay playsinline></video>
-                            <canvas id="canvas" class="hidden"></canvas>
-                            <img id="foto-preview" class="w-full h-full rounded-[3.5rem] object-cover border-8 border-white shadow-2xl hidden mx-auto ring-4 ring-emerald-500/10">
-                            
-                            <!-- Placeholder -->
-                            <div id="cam-placeholder" class="w-full h-full rounded-[3.5rem] bg-slate-50 border-4 border-dashed border-slate-200 flex items-center justify-center text-slate-200">
-                                <i class="fas fa-user-astronaut text-8xl opacity-20"></i>
-                            </div>
-                        </div>
-
-                        <div class="flex justify-center gap-3">
-                            <button type="button" class="btn btn-sm bg-slate-900 text-white rounded-xl px-6 font-black text-[10px] tracking-widest uppercase h-10" onclick="startCamera()">Ativar Câmera</button>
-                            <button type="button" class="btn btn-sm bg-emerald-500 border-none text-white rounded-xl px-6 font-black text-[10px] tracking-widest uppercase h-10 shadow-lg shadow-emerald-100" onclick="takePhoto()">Capturar</button>
-                        </div>
-                        <!-- Input escondido que o Django vai receber -->
-                        <input type="file" name="foto_rosto" id="id_foto_rosto" hidden>
-                    </div>
-
-                    <div class="bg-primary/5 p-10 rounded-[2.5rem] border border-primary/10 mb-12">
-                        <div class="flex items-center gap-3 mb-6">
-                            <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white text-xs shadow-lg">
-                                <i class="fas fa-heartbeat"></i>
-                            </div>
-                            <span class="text-xs font-black text-slate-900 uppercase tracking-widest">Anamnese / Observações</span>
-                        </div>
-                        {{ form.anamnese|as_crispy_field }}
-                    </div>
-
-                    <div class="flex justify-between items-center mt-12">
-                        <button type="button" class="btn-step-prev" onclick="nextStep(2)">Voltar</button>
-                        <button type="submit" class="btn bg-emerald-500 hover:bg-emerald-600 border-none text-white rounded-[2rem] px-16 h-20 shadow-2xl shadow-emerald-200 font-black text-xl uppercase tracking-widest transition-all hover:scale-105 active:scale-95">
-                            Finalizar Matrícula
-                        </button>
-                    </div>
-                </div>
-            {% endif %}
-        </form>
+        <input type="file" id="input-doc" hidden onchange="lerDocumentoIA('identidade', this)">
+        <input type="file" id="input-end" hidden onchange="lerDocumentoIA('endereco', this)">
     </div>
+
+    <div class="mt-6 text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+        Os dados podem ser revisados antes de salvar
+    </div>
+</section>
+
+<!-- ================= DADOS PESSOAIS ================= -->
+<section class="space-y-10">
+
+<div class="section-title">Dados pessoais</div>
+
+<div class="grid grid-cols-1 md:grid-cols-12 gap-x-8 gap-y-10">
+    <div class="md:col-span-8">{{ form.nome|as_crispy_field }}</div>
+    <div class="md:col-span-4">{{ form.data_nascimento|as_crispy_field }}</div>
+
+    <div class="md:col-span-6">{{ form.cpf|as_crispy_field }}</div>
+    <div class="md:col-span-6">{{ form.telefone|as_crispy_field }}</div>
+
+    <div class="md:col-span-12">{{ form.email|as_crispy_field }}</div>
 </div>
 
-<!-- SCRIPTS DE NAVEGAÇÃO, WEBCAM E IA -->
+</section>
+
+<!-- ================= ENDEREÇO ================= -->
+<section class="space-y-10 mt-16">
+
+<div class="section-title">Endereço & localização</div>
+
+<div class="grid grid-cols-1 md:grid-cols-12 gap-x-8 gap-y-10">
+    <div class="md:col-span-3">{{ form.cep|as_crispy_field }}</div>
+    <div class="md:col-span-9">{{ form.logradouro|as_crispy_field }}</div>
+
+    <div class="md:col-span-3">{{ form.numero|as_crispy_field }}</div>
+    <div class="md:col-span-5">{{ form.bairro|as_crispy_field }}</div>
+    <div class="md:col-span-4">{{ form.cidade|as_crispy_field }}</div>
+</div>
+
+</section>
+
+<!-- ================= ALERTA DE CONSISTÊNCIA ================= -->
+<div class="mt-16 bg-amber-50 border border-amber-200 rounded-2xl p-6 flex items-center gap-4">
+    <i class="fas fa-circle-info text-amber-500"></i>
+    <p class="text-[11px] font-black uppercase tracking-widest text-amber-900">
+        Confira os dados antes de salvar. Essas informações impactam contratos e cobranças.
+    </p>
+</div>
+
+<!-- ================= AÇÕES ================= -->
+<div class="mt-20 pt-10 border-t border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6">
+
+    <a href="{% url 'aluno_list' %}"
+       class="text-[11px] font-black text-slate-400 hover:text-slate-600 uppercase tracking-[2px] transition-colors">
+        Cancelar
+    </a>
+
+    <button type="submit" class="btn-save">
+        Salvar dados do aluno
+    </button>
+
+</div>
+
+</form>
+</div>
+</div>
+
+<!-- ================= ESTILOS ================= -->
+<style>
+.section-title{
+    @apply text-[11px] font-black text-slate-400 uppercase tracking-[4px] text-center;
+}
+input::placeholder{color:transparent!important;}
+label{@apply text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3 block ml-1!important;}
+input,select,textarea{
+    @apply w-full bg-white border-b-2 border-slate-100 rounded-none h-12 focus:border-primary focus:ring-0 font-bold text-slate-900!important;
+}
+.btn-scan{
+    @apply bg-white border border-slate-200 px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-sm hover:shadow-md transition-all flex items-center!important;
+}
+.btn-save{
+    @apply bg-primary text-white px-14 h-16 rounded-2xl font-black text-[12px] tracking-[3px] uppercase shadow-xl shadow-primary/30 hover:scale-[1.02] transition-all!important;
+}
+.invalid-feedback{@apply text-[10px] font-bold uppercase mt-2 text-red-600!important;}
+</style>
+
 <script>
-    // 1. Navegação do Wizard
-    function nextStep(step) {
-        document.querySelectorAll('.wizard-step').forEach(el => el.classList.remove('active'));
-        document.getElementById('step' + step).classList.add('active');
-        
-        const bar = document.getElementById('progress-bar');
-        const label = document.getElementById('step-label');
-        
-        // Atualiza a Barra e os Pontos
-        if(step === 1) { 
-            bar.style.width = '33%'; label.innerText = 'Passo 01/03'; 
-            bar.className = "bg-primary h-full transition-all duration-700";
-            document.getElementById('dot-1').className = "w-2 h-2 rounded-full bg-primary";
-            document.getElementById('dot-2').className = "w-2 h-2 rounded-full bg-slate-200";
-        }
-        if(step === 2) { 
-            bar.style.width = '66%'; label.innerText = 'Passo 02/03'; 
-            bar.className = "bg-secondary h-full transition-all duration-700";
-            document.getElementById('dot-1').className = "w-2 h-2 rounded-full bg-slate-200";
-            document.getElementById('dot-2').className = "w-2 h-2 rounded-full bg-secondary";
-            document.getElementById('dot-3').className = "w-2 h-2 rounded-full bg-slate-200";
-        }
-        if(step === 3) { 
-            bar.style.width = '100%'; label.innerText = 'Passo 03/03'; 
-            bar.className = "bg-emerald-500 h-full transition-all duration-700";
-            document.getElementById('dot-2').className = "w-2 h-2 rounded-full bg-slate-200";
-            document.getElementById('dot-3').className = "w-2 h-2 rounded-full bg-emerald-500";
-        }
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    // 2. Lógica da Webcam
-    let videoStream;
-    function startCamera() {
-        const video = document.getElementById('webcam');
-        const placeholder = document.getElementById('cam-placeholder');
-        placeholder.style.display = 'none';
-        video.classList.remove('hidden');
-        
-        navigator.mediaDevices.getUserMedia({ video: true })
-            .then(stream => {
-                videoStream = stream;
-                video.srcObject = stream;
-            })
-            .catch(err => {
-                alert("Erro ao acessar a câmera. Verifique as permissões.");
-                placeholder.style.display = 'flex';
-            });
-    }
-
-    function takePhoto() {
-        const video = document.getElementById('webcam');
-        const canvas = document.getElementById('canvas');
-        const preview = document.getElementById('foto-preview');
-        const fileInput = document.getElementById('id_foto_rosto');
-        
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        canvas.getContext('2d').drawImage(video, 0, 0);
-        
-        canvas.toBlob(blob => {
-            // Cria um arquivo a partir do blob para enviar no formulário
-            const file = new File([blob], "foto_aluno.jpg", { type: "image/jpeg" });
-            const dataTransfer = new DataTransfer();
-            dataTransfer.items.add(file);
-            fileInput.files = dataTransfer.files;
-            
-            // Mostra o preview
-            preview.src = URL.createObjectURL(blob);
-            preview.classList.remove('hidden');
-            video.classList.add('hidden');
-            
-            // Para a câmera
-            if(videoStream) {
-                videoStream.getTracks().forEach(track => track.stop());
-            }
-        }, 'image/jpeg');
-    }
-
-    // 3. Lógica IA (Simulada para visual, você integra com sua API)
-    async function lerDocumentoIA(tipo, input) {
-        if (!input.files[0]) return;
-        const loading = document.getElementById('loading-ia-1');
-        if(loading) loading.classList.remove('hidden');
-        
-        // Simulação de processamento
-        setTimeout(() => {
-            if(loading) loading.classList.add('hidden');
-            // Aqui entraria sua chamada fetch para processar a imagem
-        }, 2500);
-    }
+document.querySelectorAll('input').forEach(i=>i.placeholder='');
 </script>
+
 {% endblock %}

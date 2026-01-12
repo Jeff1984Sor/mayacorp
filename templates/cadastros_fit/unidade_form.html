@@ -1,13 +1,15 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}{% if object %}Editar Unidade{% else %}Nova Unidade{% endif %} | MayaCorp Fit{% endblock %}
+{% block title %}
+{% if object %}Editar Unidade{% else %}Nova Unidade{% endif %} | MayaCorp Fit
+{% endblock %}
 
 {% block content %}
 <div class="max-w-4xl mx-auto pb-24 px-4">
 
-    <!-- HEADER -->
-    <header class="flex justify-between items-center mb-10 px-2">
+    <!-- ================= HEADER ================= -->
+    <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-8">
         <div class="flex items-center gap-6">
             <div class="w-16 h-16 bg-primary rounded-[22px] flex items-center justify-center text-white shadow-xl shadow-primary/30 border-2 border-white">
                 <i class="fas fa-building text-2xl"></i>
@@ -16,83 +18,136 @@
                 <h1 class="text-3xl font-black text-slate-800 tracking-tighter uppercase italic">
                     {% if object %}Editar Unidade{% else %}Nova Unidade{% endif %}
                 </h1>
-                <p class="text-[10px] text-primary font-black uppercase tracking-[3px] mt-1">Infraestrutura e Gestão de Espaço</p>
+                <p class="text-[10px] text-primary font-black uppercase tracking-[3px] mt-1">
+                    Estrutura Física e Regras Operacionais
+                </p>
             </div>
         </div>
-        <a href="{% url 'unidade_list' %}" class="btn btn-circle btn-ghost text-slate-300 hover:text-primary transition-all">
+
+        <a href="{% url 'unidade_list' %}"
+           class="btn btn-circle btn-ghost text-slate-300 hover:text-primary transition-all">
             <i class="fas fa-times text-xl"></i>
         </a>
     </header>
 
-    <form method="post" class="space-y-8 animate-in slide-in-from-bottom-6 duration-700">
+    <form method="post" class="space-y-10 animate-in slide-in-from-bottom-6 duration-700">
         {% csrf_token %}
 
-        <!-- BLOCO 1: IDENTIDADE E CAPACIDADE -->
-        <div class="bg-white rounded-[3.5rem] shadow-2xl shadow-slate-200/60 border border-slate-100 p-12 relative overflow-hidden">
-            <div class="flex items-center gap-4 mb-12">
-                <div class="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400">
-                    <i class="fas fa-id-card text-sm"></i>
-                </div>
-                <h3 class="text-sm font-black text-slate-900 uppercase tracking-[4px]">Identificação & Lotação</h3>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
-                <!-- Nome da Unidade -->
-                <div class="md:col-span-8 flex flex-col gap-2">
-                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Nome da Unidade*</label>
-                    <input type="text" name="nome" value="{{ form.nome.value|default:'' }}" 
-                           class="input input-bordered rounded-2xl bg-slate-50 border-none font-bold text-slate-700 h-14 w-full focus:ring-2 focus:ring-primary/20" required>
-                </div>
-
-                <!-- CAPACIDADE POR AULA (DESTAQUE) -->
-                <div class="md:col-span-4 flex flex-col gap-2">
-                    <label class="text-[10px] font-black text-primary uppercase tracking-widest ml-4 text-center">Alunos por Aula*</label>
-                    <input type="number" name="capacidade_padrao" value="{{ form.capacidade_padrao.value|default:3 }}" 
-                           class="input input-bordered rounded-2xl bg-primary/5 border-2 border-primary/10 font-black text-primary text-2xl h-14 w-full text-center focus:border-primary focus:ring-0" required>
-                </div>
-            </div>
-        </div>
-
-        <!-- BLOCO 2: LOCALIZAÇÃO E CONTATO -->
-        <div class="bg-white rounded-[3.5rem] shadow-2xl shadow-slate-200/60 border border-slate-100 p-12">
+        <!-- ================= BLOCO 1: IDENTIDADE ================= -->
+        <section class="bg-white rounded-[3.5rem] shadow-2xl shadow-slate-200/60 border border-slate-100 p-12">
             <div class="flex items-center gap-4 mb-10">
                 <div class="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400">
-                    <i class="fas fa-map-location-dot text-sm"></i>
+                    <i class="fas fa-id-card"></i>
                 </div>
-                <h3 class="text-sm font-black text-slate-900 uppercase tracking-[4px]">Contato & Endereço</h3>
+                <h3 class="text-sm font-black text-slate-900 uppercase tracking-[4px]">
+                    Identificação da Unidade
+                </h3>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
-                <!-- Endereço -->
                 <div class="md:col-span-12 flex flex-col gap-2">
-                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Endereço Completo</label>
-                    <input type="text" name="endereco" value="{{ form.endereco.value|default:'' }}" 
-                           class="input input-bordered rounded-2xl bg-slate-50 border-none font-bold text-slate-700 h-14 w-full">
-                </div>
-
-                <!-- Telefone -->
-                <div class="md:col-span-6 flex flex-col gap-2">
-                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Telefone de Contato</label>
-                    <input type="text" name="telefone" value="{{ form.telefone.value|default:'' }}" 
-                           class="input input-bordered rounded-2xl bg-slate-50 border-none font-bold text-slate-700 h-14 w-full">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">
+                        Nome da Unidade *
+                    </label>
+                    <input type="text"
+                           name="nome"
+                           value="{{ form.nome.value|default:'' }}"
+                           class="input-mayacorp text-xl"
+                           placeholder="EX: STUDIO PILATES CENTRO"
+                           required>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <!-- AVISO INTELIGENTE -->
-        <div class="bg-emerald-50 rounded-[2.5rem] p-8 border-2 border-dashed border-emerald-100 flex items-center gap-6">
+        <!-- ================= BLOCO 2: CAPACIDADE ================= -->
+        <section class="bg-white rounded-[3.5rem] shadow-2xl shadow-slate-200/60 border border-slate-100 p-12 relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-48 h-48 bg-primary/5 rounded-full -mr-24 -mt-24 blur-2xl"></div>
+
+            <div class="flex items-center gap-4 mb-10 relative z-10">
+                <div class="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h3 class="text-sm font-black text-slate-900 uppercase tracking-[4px]">
+                    Capacidade Operacional
+                </h3>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-end relative z-10">
+                <div class="md:col-span-4 flex flex-col gap-2">
+                    <label class="text-[10px] font-black text-primary uppercase tracking-widest ml-4 text-center">
+                        Alunos por Aula *
+                    </label>
+                    <input type="number"
+                           name="capacidade_padrao"
+                           min="1"
+                           value="{{ form.capacidade_padrao.value|default:3 }}"
+                           class="input-capacidade"
+                           required>
+                </div>
+
+                <div class="md:col-span-8">
+                    <div class="bg-slate-50 rounded-3xl p-6 border border-slate-100">
+                        <p class="text-[10px] text-slate-600 font-bold uppercase tracking-widest leading-relaxed">
+                            Esta configuração define o <strong>limite máximo de alunos</strong> que podem ser
+                            agendados simultaneamente em uma aula nesta unidade.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= BLOCO 3: LOCALIZAÇÃO ================= -->
+        <section class="bg-white rounded-[3.5rem] shadow-2xl shadow-slate-200/60 border border-slate-100 p-12">
+            <div class="flex items-center gap-4 mb-10">
+                <div class="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400">
+                    <i class="fas fa-map-location-dot"></i>
+                </div>
+                <h3 class="text-sm font-black text-slate-900 uppercase tracking-[4px]">
+                    Endereço e Contato
+                </h3>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+                <div class="md:col-span-12 flex flex-col gap-2">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">
+                        Endereço Completo
+                    </label>
+                    <input type="text"
+                           name="endereco"
+                           value="{{ form.endereco.value|default:'' }}"
+                           class="input-mayacorp">
+                </div>
+
+                <div class="md:col-span-6 flex flex-col gap-2">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">
+                        Telefone da Unidade
+                    </label>
+                    <input type="text"
+                           name="telefone"
+                           value="{{ form.telefone.value|default:'' }}"
+                           class="input-mayacorp">
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= ALERTA OPERACIONAL ================= -->
+        <div class="bg-emerald-50 rounded-[2.5rem] p-8 border-2 border-dashed border-emerald-100 flex items-start gap-6">
             <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-emerald-500 shadow-sm">
                 <i class="fas fa-shield-halved"></i>
             </div>
             <p class="text-[10px] text-emerald-700 font-bold uppercase leading-relaxed tracking-tight">
-                A capacidade definida impede que a agenda receba mais alunos que o permitido, <br>
-                garantindo a qualidade do atendimento e o distanciamento correto.
+                A capacidade definida aqui é respeitada automaticamente pela agenda.<br>
+                O sistema bloqueará novos agendamentos ao atingir o limite.
             </p>
         </div>
 
-        <!-- BOTÕES -->
+        <!-- ================= AÇÕES ================= -->
         <div class="flex justify-center pt-6">
-            <button type="submit" class="btn bg-primary hover:bg-red-900 border-none text-white rounded-[2.2rem] px-24 h-20 shadow-2xl shadow-primary/30 font-black uppercase tracking-[3px] italic transition-all hover:scale-105">
+            <button type="submit"
+                    class="btn bg-primary hover:bg-red-900 border-none text-white rounded-[2.2rem]
+                           px-24 h-20 shadow-2xl shadow-primary/30
+                           font-black uppercase tracking-[3px] italic
+                           transition-all hover:scale-105">
                 Salvar Unidade
             </button>
         </div>
@@ -101,21 +156,31 @@
 </div>
 
 <style>
-    /* Esconde as setinhas do campo numérico */
-    input[type=number]::-webkit-inner-spin-button, 
-    input[type=number]::-webkit-outer-spin-button { 
-        -webkit-appearance: none; 
-        margin: 0; 
+    .input-mayacorp {
+        @apply input input-bordered rounded-2xl bg-slate-50 border-none font-bold text-slate-700 h-14 w-full
+               focus:ring-2 focus:ring-primary/20 transition-all;
+    }
+
+    .input-capacidade {
+        @apply input rounded-2xl bg-primary/5 border-2 border-primary/20
+               font-black text-primary text-3xl h-16 w-full text-center
+               focus:border-primary focus:ring-0;
+    }
+
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
     }
 </style>
 
 <script>
-    // UX: Garante que o nome da unidade seja sempre em CAIXA ALTA
-    document.addEventListener('DOMContentLoaded', function() {
-        const nomeInput = document.querySelector('input[name="nome"]');
-        if (nomeInput) {
-            nomeInput.addEventListener('input', function() {
-                this.value = this.value.toUpperCase();
+    // Padroniza nome da unidade
+    document.addEventListener('DOMContentLoaded', () => {
+        const nome = document.querySelector('input[name="nome"]');
+        if (nome) {
+            nome.addEventListener('input', () => {
+                nome.value = nome.value.toUpperCase();
             });
         }
     });

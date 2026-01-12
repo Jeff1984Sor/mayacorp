@@ -5,125 +5,180 @@
 
 {% block content %}
 <div class="max-w-7xl mx-auto pb-24 px-4">
-    
-    <!-- HEADER: Identidade Studio Premium -->
+
+    <!-- HEADER -->
     <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-8 px-2">
         <div class="flex items-center gap-6">
-            <!-- Ícone em MARSALA -->
-            <div class="w-16 h-16 bg-primary rounded-[22px] flex items-center justify-center text-white shadow-xl shadow-primary/30 border-2 border-white transition-transform hover:scale-110">
+            <div class="w-16 h-16 bg-primary rounded-[22px] flex items-center justify-center text-white shadow-xl border-2 border-white">
                 <i class="fas fa-tags text-2xl"></i>
             </div>
             <div>
-                <h1 class="text-4xl font-black text-slate-900 tracking-tighter uppercase">Planos & Preços</h1>
+                <h1 class="text-4xl font-black text-slate-900 tracking-tighter uppercase">
+                    Planos & Preços
+                </h1>
                 <p class="text-[11px] text-primary font-black uppercase tracking-[3px] mt-1">
-                    Gestão de <span class="text-slate-900">{{ planos|length }}</span> Pacotes Comerciais
+                    Gestão de <span class="text-slate-900">{{ planos|length }}</span> Produtos Comerciais
                 </p>
             </div>
         </div>
-        
-        <!-- Botão Novo em AZUL VIBRANTE -->
-        <a href="{% url 'plano_create' %}" 
-           class="btn bg-secondary border-none text-white rounded-2xl px-10 h-16 shadow-2xl shadow-secondary/30 hover:bg-blue-800 hover:scale-105 transition-all font-black uppercase tracking-widest text-xs">
-            <i class="fas fa-plus-circle mr-2 text-lg"></i> CRIAR NOVO PLANO
+
+        <a href="{% url 'plano_create' %}"
+           class="btn bg-secondary border-none text-white rounded-2xl px-10 h-16 shadow-2xl hover:scale-105 transition-all font-black uppercase tracking-widest text-xs">
+            <i class="fas fa-plus-circle mr-2 text-lg"></i>
+            CRIAR NOVO PLANO
         </a>
     </header>
 
-    <!-- LISTA DE PLANOS (Card de Luxo e Alta Nitidez) -->
-    <div class="bg-white rounded-[3rem] shadow-2xl shadow-slate-200/60 overflow-hidden border border-slate-100 relative">
-        
-        <!-- Detalhe decorativo lateral -->
+    <!-- LISTAGEM -->
+    <div class="bg-white rounded-[3rem] shadow-2xl overflow-hidden border border-slate-100 relative">
+
         <div class="absolute left-0 top-0 w-2 h-full bg-primary opacity-20"></div>
 
         <div class="overflow-x-auto">
             <table class="table w-full border-collapse">
-                <!-- CABEÇALHO MÁXIMO CONTRASTE -->
+
                 <thead>
-                    <tr class="bg-slate-900 border-none">
-                        <th class="text-white uppercase text-[11px] tracking-[2px] font-black py-8 pl-12 text-left">Nome do Plano / Pacote</th>
-                        <th class="text-white uppercase text-[11px] tracking-[2px] font-black py-8 text-left">Duração Contratual</th>
-                        <th class="text-white uppercase text-[11px] tracking-[2px] font-black py-8 text-center">Frequência de Aulas</th>
-                        <th class="text-white uppercase text-[11px] tracking-[2px] font-black py-8 text-center">Investimento Mensal</th>
-                        <th class="text-white uppercase text-[11px] tracking-[2px] font-black py-8 pr-12 text-right">Gestão</th>
+                    <tr class="bg-slate-900">
+                        <th class="text-white text-[11px] uppercase tracking-[2px] font-black py-8 pl-12 text-left">
+                            Plano
+                        </th>
+                        <th class="text-white text-[11px] uppercase tracking-[2px] font-black py-8 text-left">
+                            Tipo
+                        </th>
+                        <th class="text-white text-[11px] uppercase tracking-[2px] font-black py-8 text-center">
+                            Frequência
+                        </th>
+                        <th class="text-white text-[11px] uppercase tracking-[2px] font-black py-8 text-center">
+                            Duração
+                        </th>
+                        <th class="text-white text-[11px] uppercase tracking-[2px] font-black py-8 text-center">
+                            Valor
+                        </th>
+                        <th class="text-white text-[11px] uppercase tracking-[2px] font-black py-8 pr-12 text-right">
+                            Gestão
+                        </th>
                     </tr>
                 </thead>
-                
+
                 <tbody class="divide-y divide-slate-100">
-                    {% for plano in planos %}
+                {% for plano in planos %}
                     <tr class="hover:bg-primary/5 transition-colors group">
-                        
-                        <!-- NOME DO PLANO (MARSALA E PRETO) -->
+
+                        <!-- NOME -->
                         <td class="py-7 pl-12">
-                            <div class="flex items-center gap-5">
-                                <div class="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all shadow-sm">
-                                    <i class="fas fa-award text-lg"></i>
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-2xl flex items-center justify-center
+                                    {% if plano.is_avulso %}
+                                        bg-accent/20 text-accent
+                                    {% else %}
+                                        bg-secondary/20 text-secondary
+                                    {% endif %}">
+                                    <i class="fas {% if plano.is_avulso %}fa-bolt{% else %}fa-repeat{% endif %}"></i>
                                 </div>
-                                <span class="text-slate-900 font-black text-lg tracking-tighter uppercase group-hover:text-primary transition-colors">{{ plano.nome }}</span>
+                                <span class="text-lg font-black text-slate-900 uppercase tracking-tight">
+                                    {{ plano.nome }}
+                                </span>
                             </div>
                         </td>
 
-                        <!-- DURAÇÃO (NÍTIDA) -->
-                        <td class="py-7 text-sm font-black text-slate-700 uppercase tracking-tight">
-                            <span class="bg-slate-100 px-4 py-2 rounded-xl border border-slate-200">{{ plano.duracao_meses }} meses</span>
+                        <!-- TIPO -->
+                        <td class="py-7">
+                            {% if plano.is_avulso %}
+                                <span class="badge bg-accent border-none text-accent-content font-black text-[10px] px-4 py-2 rounded-xl uppercase tracking-widest">
+                                    Aula Avulsa
+                                </span>
+                            {% else %}
+                                <span class="badge bg-secondary border-none text-white font-black text-[10px] px-4 py-2 rounded-xl uppercase tracking-widest">
+                                    Plano Mensal
+                                </span>
+                            {% endif %}
                         </td>
 
-                        <!-- FREQUÊNCIA (BADGE AZUL) -->
+                        <!-- FREQUÊNCIA -->
                         <td class="py-7 text-center">
-                            <div class="badge bg-secondary border-none text-white text-[10px] font-black py-4 px-6 rounded-xl shadow-lg shadow-secondary/20 uppercase tracking-widest">
-                                {{ plano.frequencia_semanal }}x por semana
-                            </div>
+                            {% if plano.is_avulso %}
+                                <span class="text-slate-300 font-black text-xs uppercase">—</span>
+                            {% else %}
+                                <span class="badge bg-slate-100 text-slate-700 font-black text-xs px-4 py-2 rounded-xl">
+                                    {{ plano.frequencia_semanal }}x / semana
+                                </span>
+                            {% endif %}
                         </td>
 
-                        <!-- VALOR (MARSALA DESTAQUE) -->
+                        <!-- DURAÇÃO -->
+                        <td class="py-7 text-center">
+                            {% if plano.is_avulso %}
+                                <span class="text-slate-300 font-black text-xs uppercase">—</span>
+                            {% else %}
+                                <span class="bg-slate-100 px-4 py-2 rounded-xl border border-slate-200 text-xs font-black">
+                                    {{ plano.duracao_meses }} meses
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <!-- VALOR -->
                         <td class="py-7 text-center">
                             <div class="flex flex-col items-center">
-                                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Custo Médio</span>
-                                <div class="text-2xl font-black text-primary tracking-tighter">
-                                    <span class="text-xs not-italic mr-1 opacity-60">R$</span>{{ plano.valor_mensal }}
-                                </div>
+                                <span class="text-[9px] text-slate-400 font-black uppercase tracking-widest">
+                                    {% if plano.is_avulso %}Valor por Aula{% else %}Valor Mensal{% endif %}
+                                </span>
+                                <span class="text-2xl font-black text-primary tracking-tight">
+                                    R$ {{ plano.valor_mensal }}
+                                </span>
                             </div>
                         </td>
 
-                        <!-- AÇÕES (AZUL E MARSALA) -->
+                        <!-- AÇÕES -->
                         <td class="py-7 pr-12 text-right">
                             <div class="flex justify-end gap-3">
-                                <a href="{% url 'plano_update' plano.pk %}" 
-                                   class="btn btn-square btn-sm rounded-xl bg-slate-100 border-none text-slate-400 hover:bg-secondary hover:text-white transition-all shadow-sm" 
-                                   title="Editar Configurações">
-                                    <i class="fas fa-pen-to-square text-base"></i>
+                                <a href="{% url 'plano_update' plano.pk %}"
+                                   class="btn btn-square btn-sm bg-slate-100 hover:bg-secondary hover:text-white rounded-xl">
+                                    <i class="fas fa-pen"></i>
                                 </a>
-                                <a href="{% url 'plano_delete' plano.pk %}" 
-                                   class="btn btn-square btn-sm rounded-xl bg-slate-100 border-none text-slate-400 hover:bg-primary hover:text-white transition-all shadow-sm" 
-                                   title="Remover Plano">
-                                    <i class="fas fa-trash-can text-base"></i>
+                                <a href="{% url 'plano_delete' plano.pk %}"
+                                   class="btn btn-square btn-sm bg-slate-100 hover:bg-primary hover:text-white rounded-xl">
+                                    <i class="fas fa-trash"></i>
                                 </a>
                             </div>
                         </td>
+
                     </tr>
-                    {% empty %}
+                {% empty %}
                     <tr>
-                        <td colspan="5" class="py-32 text-center">
+                        <td colspan="6" class="py-32 text-center">
                             <div class="flex flex-col items-center">
-                                <div class="w-28 h-28 bg-slate-50 rounded-[3rem] flex items-center justify-center text-slate-200 mb-8 border-2 border-dashed border-slate-200">
+                                <div class="w-28 h-28 bg-slate-50 rounded-[3rem] flex items-center justify-center text-slate-200 mb-8 border-2 border-dashed">
                                     <i class="fas fa-tags text-4xl"></i>
                                 </div>
-                                <h3 class="text-slate-900 text-2xl font-black tracking-tight uppercase">Sua prateleira está vazia</h3>
-                                <p class="text-slate-400 mt-2 font-bold uppercase tracking-widest text-[11px]">Crie o primeiro pacote de aulas para o seu studio.</p>
-                                <a href="{% url 'plano_create' %}" class="btn btn-primary mt-10 rounded-2xl px-12 h-14 font-black">CRIAR PRIMEIRO PLANO</a>
+                                <h3 class="text-2xl font-black text-slate-900 uppercase">
+                                    Nenhum plano cadastrado
+                                </h3>
+                                <p class="text-slate-400 mt-2 text-xs font-bold uppercase tracking-widest">
+                                    Crie seu primeiro produto comercial
+                                </p>
+                                <a href="{% url 'plano_create' %}"
+                                   class="btn btn-primary mt-10 rounded-2xl px-12 h-14 font-black">
+                                    CRIAR PLANO
+                                </a>
                             </div>
                         </td>
                     </tr>
-                    {% endfor %}
+                {% endfor %}
                 </tbody>
+
             </table>
         </div>
     </div>
 
-    <!-- RODAPÉ TÉCNICO -->
+    <!-- RODAPÉ -->
     <div class="mt-16 text-center">
-        <div class="inline-flex items-center gap-3 px-8 py-3 bg-white rounded-full border border-slate-200 shadow-xl">
-            <div class="w-2.5 h-2.5 bg-accent rounded-full animate-pulse shadow-[0_0_8px_rgba(250,204,21,0.6)]"></div>
-            <span class="text-[10px] font-black text-slate-500 uppercase tracking-[2px]">Estratégia de Precificação MayaCorp Fit v4.0</span>
+        <div class="inline-flex items-center gap-3 px-8 py-3 bg-white rounded-full border shadow-xl">
+            <div class="w-2.5 h-2.5 bg-accent rounded-full animate-pulse"></div>
+            <span class="text-[10px] font-black text-slate-500 uppercase tracking-[2px]">
+                Estratégia Comercial MayaCorp Fit v4.1
+            </span>
         </div>
     </div>
+
 </div>
 {% endblock %}

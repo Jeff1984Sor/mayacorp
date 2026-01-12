@@ -1,81 +1,132 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="max-w-5xl mx-auto pb-24 px-4">
-    
-    <!-- HEADER: Identidade Studio MayaCorp -->
-    <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-8">
+
+    <!-- ================= HEADER ================= -->
+    <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-14 gap-8">
         <div class="flex items-center gap-6">
-            <!-- Ícone em MARSALA -->
             <div class="w-16 h-16 bg-primary rounded-[22px] flex items-center justify-center text-white shadow-xl shadow-primary/30 border-2 border-white">
                 <i class="fas fa-shapes text-2xl"></i>
             </div>
             <div>
-                <h1 class="text-4xl font-black text-slate-900 tracking-tighter uppercase">Modalidades</h1>
-                <p class="text-[11px] text-primary font-black uppercase tracking-[3px] mt-1">Configuração de Tipos de Serviço</p>
+                <h1 class="text-4xl font-black text-slate-900 tracking-tighter uppercase">
+                    Modalidades
+                </h1>
+                <p class="text-[11px] text-primary font-black uppercase tracking-[3px] mt-1">
+                    Tipos de Serviço e Configuração da Agenda
+                </p>
             </div>
         </div>
-        
-        <!-- Botão Novo em AZUL VIBRANTE -->
-        <a href="{% url 'servico_create' %}" class="btn bg-secondary border-none text-white rounded-2xl px-10 h-16 shadow-2xl shadow-secondary/30 hover:bg-blue-800 hover:scale-105 transition-all font-black uppercase tracking-widest text-xs">
-            <i class="fas fa-plus-circle mr-2 text-lg"></i> ADICIONAR SERVIÇO
+
+        <a href="{% url 'servico_create' %}"
+           class="btn bg-secondary border-none text-white rounded-2xl px-10 h-16 shadow-2xl shadow-secondary/30 hover:bg-blue-800 hover:scale-105 transition-all font-black uppercase tracking-widest text-xs">
+            <i class="fas fa-plus-circle mr-2 text-lg"></i>
+            Adicionar Serviço
         </a>
     </header>
 
-    <!-- GRID DE CARDS (Estilo Modern Studio) -->
+    <!-- ================= LISTAGEM ================= -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {% for s in servicos %}
-        <div class="bg-white p-8 rounded-[2.5rem] shadow-2xl shadow-slate-200/60 border border-slate-100 flex items-center justify-between group hover:border-primary/20 hover:-translate-y-2 transition-all duration-300 relative overflow-hidden">
-            
-            <!-- Detalhe decorativo de fundo -->
-            <div class="absolute right-0 bottom-0 w-24 h-24 bg-slate-50 rounded-full -mr-12 -mb-12 opacity-50"></div>
 
-            <div class="flex items-center gap-6 relative z-10">
-                <!-- Indicador de Cor (GRANDE E VIBRANTE) -->
-                <div class="w-16 h-16 rounded-[1.25rem] shadow-2xl flex items-center justify-center border-4 border-white transition-transform group-hover:scale-110" 
-                     style="background-color: {{ s.cor }}; shadow-color: {{ s.cor }}66;">
-                    <i class="fas fa-check text-white/40 text-xs"></i>
-                </div>
-                
-                <div>
-                    <h3 class="font-black text-slate-900 text-xl tracking-tighter uppercase group-hover:text-primary transition-colors">{{ s.nome }}</h3>
-                    <div class="mt-2">
-                        {% if s.ativo %}
-                            <span class="text-[10px] font-black text-emerald-600 bg-emerald-50 px-3 py-1 rounded-lg uppercase tracking-widest">● Ativo</span>
-                        {% else %}
-                            <span class="text-[10px] font-black text-primary bg-red-50 px-3 py-1 rounded-lg uppercase tracking-widest">● Inativo</span>
-                        {% endif %}
+        {% for s in servicos %}
+        <div class="group bg-white p-8 rounded-[2.5rem] shadow-2xl shadow-slate-200/60 border border-slate-100 relative overflow-hidden transition-all hover:-translate-y-2 hover:border-primary/20">
+
+            <!-- Fundo decorativo -->
+            <div class="absolute right-0 bottom-0 w-28 h-28 rounded-full -mr-14 -mb-14 opacity-40"
+                 style="background-color: {{ s.cor }}22;"></div>
+
+            <div class="relative z-10 flex items-center justify-between gap-6">
+
+                <!-- IDENTIDADE -->
+                <div class="flex items-center gap-6">
+                    <div class="w-16 h-16 rounded-[1.25rem] shadow-xl border-4 border-white flex items-center justify-center"
+                         style="background-color: {{ s.cor }};">
                     </div>
+
+                    <div>
+                        <h3 class="font-black text-slate-900 text-xl tracking-tighter uppercase">
+                            {{ s.nome }}
+                        </h3>
+
+                        <div class="flex flex-wrap items-center gap-3 mt-2">
+
+                            <!-- STATUS -->
+                            {% if s.ativo %}
+                                <span class="text-[9px] font-black text-emerald-600 bg-emerald-50 px-3 py-1 rounded-lg uppercase tracking-widest">
+                                    ● Ativo
+                                </span>
+                            {% else %}
+                                <span class="text-[9px] font-black text-primary bg-red-50 px-3 py-1 rounded-lg uppercase tracking-widest">
+                                    ● Inativo
+                                </span>
+                            {% endif %}
+
+                            <!-- TIPO -->
+                            <span class="text-[9px] font-black text-slate-600 bg-slate-100 px-3 py-1 rounded-lg uppercase tracking-widest">
+                                {{ s.tipo|default:"Individual" }}
+                            </span>
+
+                            <!-- CAPACIDADE -->
+                            <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest">
+                                {{ s.capacidade|default:"1" }} aluno(s)
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AÇÕES -->
+                <div class="flex items-center gap-2">
+                    <a href="{% url 'servico_update' s.id %}"
+                       class="btn btn-square bg-slate-50 border-none text-slate-400 hover:bg-secondary hover:text-white rounded-2xl h-14 w-14 transition-all shadow-sm"
+                       title="Editar Serviço">
+                        <i class="fas fa-pen-to-square text-lg"></i>
+                    </a>
                 </div>
             </div>
 
-            <!-- Botão Editar (AZUL) -->
-            <a href="{% url 'servico_update' s.id %}" class="btn btn-square bg-slate-50 border-none text-slate-300 hover:bg-secondary hover:text-white rounded-2xl h-14 w-14 transition-all shadow-sm">
-                <i class="fas fa-pen-to-square text-lg"></i>
-            </a>
+            <!-- NOTA OPERACIONAL -->
+            <div class="mt-6 pt-4 border-t border-slate-100">
+                <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">
+                    Utilizado na agenda, contratos e relatórios
+                </p>
+            </div>
         </div>
+
         {% empty %}
-        <!-- EMPTY STATE (NÍTIDO) -->
+        <!-- ================= EMPTY STATE ================= -->
         <div class="col-span-full py-32 text-center bg-white rounded-[3rem] border-2 border-dashed border-slate-200 shadow-xl">
             <div class="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center text-slate-200 mx-auto mb-6">
                 <i class="fas fa-box-open text-4xl"></i>
             </div>
-            <h3 class="text-slate-900 text-2xl font-black tracking-tight uppercase">Nenhum serviço disponível</h3>
-            <p class="text-slate-400 mt-2 font-bold uppercase tracking-widest text-xs">Comece criando as modalidades do seu studio.</p>
-            <a href="{% url 'servico_create' %}" class="btn btn-primary mt-8 rounded-2xl px-12">CRIAR AGORA</a>
+            <h3 class="text-slate-900 text-2xl font-black tracking-tight uppercase">
+                Nenhuma modalidade cadastrada
+            </h3>
+            <p class="text-slate-400 mt-2 font-bold uppercase tracking-widest text-xs">
+                Crie os serviços que aparecerão na agenda do studio
+            </p>
+            <a href="{% url 'servico_create' %}"
+               class="btn bg-secondary mt-8 rounded-2xl px-14 h-14 font-black uppercase tracking-widest shadow-xl shadow-secondary/30">
+                Criar Primeira Modalidade
+            </a>
         </div>
         {% endfor %}
     </div>
 
-    <!-- RODAPÉ TÉCNICO -->
+    <!-- ================= RODAPÉ ================= -->
     <div class="mt-16 flex flex-col md:flex-row items-center justify-center gap-8">
         <div class="flex items-center gap-3">
             <div class="w-2.5 h-2.5 bg-accent rounded-full animate-pulse shadow-[0_0_8px_rgba(250,204,21,0.6)]"></div>
-            <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Categorização por Cores Ativa</span>
+            <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                Organização Visual por Modalidade
+            </span>
         </div>
         <div class="flex items-center gap-3 text-slate-300">
-            <i class="fas fa-info-circle text-sm"></i>
-            <span class="text-[10px] font-black uppercase tracking-widest italic">MayaCorp Logic: Visual Modality</span>
+            <i class="fas fa-shield-alt text-sm"></i>
+            <span class="text-[10px] font-black uppercase tracking-widest italic">
+                MayaCorp • Regra Operacional Ativa
+            </span>
         </div>
     </div>
+
 </div>
 {% endblock %}

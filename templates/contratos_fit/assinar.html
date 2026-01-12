@@ -5,164 +5,160 @@
 
 {% block content %}
 <div class="max-w-3xl mx-auto pb-24 px-4">
-    
-    <!-- HEADER: Identificação de Prestígio -->
+
+    <!-- HEADER -->
     <header class="text-center mb-12">
-        <div class="w-24 h-24 bg-primary rounded-[2.5rem] flex items-center justify-center text-white mx-auto mb-8 shadow-2xl shadow-primary/30 border-4 border-white transition-transform hover:scale-110 duration-500">
+        <div class="w-24 h-24 bg-primary rounded-[2.5rem] flex items-center justify-center text-white mx-auto mb-8 shadow-2xl shadow-primary/30 border-4 border-white">
             <i class="fas fa-file-signature text-3xl"></i>
         </div>
-        <h1 class="text-4xl font-black text-slate-900 tracking-tighter uppercase">Assinatura Digital</h1>
+        <h1 class="text-4xl font-black text-slate-900 tracking-tighter uppercase">
+            Assinatura Digital
+        </h1>
         <div class="mt-4 flex flex-wrap justify-center gap-3">
-            <span class="badge bg-secondary border-none text-white font-black px-4 py-3 rounded-xl shadow-md uppercase tracking-widest text-[10px]">PLANO: {{ contrato.plano.nome }}</span>
-            <span class="badge bg-slate-900 border-none text-white font-black px-4 py-3 rounded-xl shadow-md uppercase tracking-widest text-[10px]">ALUNO: {{ contrato.aluno.nome }}</span>
+            <span class="badge bg-secondary text-white font-black px-4 py-3 rounded-xl uppercase tracking-widest text-[10px]">
+                PLANO: {{ contrato.plano.nome }}
+            </span>
+            <span class="badge bg-slate-900 text-white font-black px-4 py-3 rounded-xl uppercase tracking-widest text-[10px]">
+                ALUNO: {{ contrato.aluno.nome }}
+            </span>
         </div>
     </header>
 
-    <!-- CARD PRINCIPAL (Visual Premium Studio) -->
-    <div class="bg-white rounded-[3rem] shadow-2xl shadow-slate-200/60 border border-slate-100 overflow-hidden animate-in fade-in zoom-in duration-700 relative">
-        
-        <!-- Detalhe decorativo lateral -->
-        <div class="absolute right-0 top-0 w-2 h-full bg-primary opacity-20"></div>
+    <!-- CARD -->
+    <div class="bg-white rounded-[3rem] shadow-2xl border border-slate-100 overflow-hidden relative">
 
         <div class="p-10 md:p-16">
-            
-            <!-- 1. TERMOS DO CONTRATO (MÁXIMA NITIDEZ) -->
-            <div class="flex items-center justify-between mb-8">
-                <div class="flex items-center gap-4">
-                    <div class="w-10 h-10 rounded-2xl bg-secondary flex items-center justify-center text-white shadow-lg shadow-secondary/20">
-                        <span class="text-sm font-black">01</span>
-                    </div>
-                    <h6 class="text-[11px] font-black text-slate-900 uppercase tracking-[2px]">Leitura Obrigatória dos Termos</h6>
-                </div>
-                <i class="fas fa-shield-alt text-slate-200 text-xl"></i>
+
+            <!-- ETAPA 1 -->
+            <div class="flex items-center gap-4 mb-6">
+                <div class="step">01</div>
+                <h6 class="step-title">Leitura dos Termos</h6>
             </div>
 
-            <!-- Box do Contrato (Foco em Leitura Sharp) -->
-            <div class="bg-slate-50 rounded-[2.5rem] p-10 h-96 overflow-y-auto custom-scroll border-2 border-slate-100 text-slate-800 leading-relaxed text-base shadow-inner mb-12">
-                <div class="prose prose-slate max-w-none font-medium">
+            <div class="bg-slate-50 rounded-[2.5rem] p-10 h-96 overflow-y-auto custom-scroll border border-slate-100 mb-12">
+                <div class="prose max-w-none">
                     {{ texto_contrato|safe }}
                 </div>
             </div>
 
-            <!-- 2. ÁREA DE ASSINATURA (INTERATIVA) -->
-            <div class="flex flex-col md:flex-row items-center justify-between mb-8 gap-4">
+            <!-- ETAPA 2 -->
+            <div class="flex justify-between items-center mb-6">
                 <div class="flex items-center gap-4">
-                    <div class="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/20">
-                        <span class="text-sm font-black">02</span>
-                    </div>
-                    <h6 class="text-[11px] font-black text-slate-900 uppercase tracking-[2px]">Assinatura do Aluno/Responsável</h6>
+                    <div class="step bg-primary">02</div>
+                    <h6 class="step-title">Assinatura</h6>
                 </div>
-                <button type="button" class="btn btn-ghost btn-xs text-primary font-black uppercase tracking-widest hover:bg-red-50 px-4 rounded-xl transition-all" onclick="limpar()">
-                    <i class="fas fa-eraser mr-2"></i> Limpar Campo
+                <button onclick="limpar()" class="btn btn-ghost btn-xs text-primary font-black uppercase">
+                    <i class="fas fa-eraser mr-2"></i> Limpar
                 </button>
             </div>
 
-            <!-- Canvas de Assinatura (Visual Moderno) -->
-            <div class="relative group mb-12">
-                <canvas id="signature-pad" class="w-full h-56 bg-slate-50 rounded-[2.5rem] border-2 border-dashed border-slate-200 cursor-crosshair transition-all group-hover:border-primary/40 touch-none shadow-inner"></canvas>
-                
-                <!-- Overlay de ajuda -->
-                <div id="sig-help" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-slate-300 gap-3">
-                    <i class="fas fa-hand-pointer text-3xl animate-bounce"></i>
-                    <span class="text-[10px] font-black uppercase tracking-[3px]">Utilize o mouse ou o dedo para assinar</span>
+            <!-- CANVAS -->
+            <div class="relative mb-12">
+                <canvas id="signature-pad"
+                        class="w-full h-56 bg-slate-50 rounded-[2.5rem] border-2 border-dashed border-slate-200 cursor-crosshair shadow-inner"></canvas>
+
+                <div id="sig-help" class="absolute inset-0 flex flex-col items-center justify-center text-slate-300 pointer-events-none">
+                    <i class="fas fa-hand-pointer text-3xl mb-3 animate-bounce"></i>
+                    <span class="text-[10px] font-black uppercase tracking-widest">
+                        Assine com o dedo ou mouse
+                    </span>
                 </div>
             </div>
 
-            <!-- 3. BOTÃO DE CONFIRMAÇÃO (VIBRANTE) -->
-            <div class="flex flex-col gap-6">
-                <button id="btn-assinar" class="btn bg-emerald-500 hover:bg-emerald-600 border-none h-20 text-white rounded-[1.5rem] shadow-2xl shadow-emerald-200 font-black text-xl uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-95 group">
-                    <i class="fas fa-check-double mr-3 text-2xl group-hover:animate-pulse"></i> CONFIRMAR ASSINATURA
-                </button>
-                
-                <div class="flex items-center justify-center gap-3">
-                    <div class="w-2 h-2 bg-accent rounded-full animate-pulse"></div>
-                    <p class="text-[10px] text-slate-400 font-black uppercase tracking-[2px]">
-                        Autenticação Criptografada via MayaCorp Secure Protocol v4.0
-                    </p>
-                </div>
-            </div>
+            <!-- CONFIRMAR -->
+            <button id="btn-assinar"
+                    class="btn bg-emerald-500 hover:bg-emerald-600 h-20 w-full rounded-[1.5rem] text-white font-black uppercase tracking-widest text-xl shadow-2xl">
+                <i class="fas fa-check-double mr-3"></i> CONFIRMAR ASSINATURA
+            </button>
+
+            <p class="text-center text-[10px] text-slate-400 font-black uppercase tracking-widest mt-6">
+                Autenticação criptografada • MayaCorp Secure Protocol v4
+            </p>
 
         </div>
     </div>
 </div>
 
-<!-- Estilos para a Assinatura Studio -->
 <style>
     .custom-scroll::-webkit-scrollbar { width: 6px; }
-    .custom-scroll::-webkit-scrollbar-track { background: transparent; }
-    .custom-scroll::-webkit-scrollbar-thumb { @apply bg-slate-200 rounded-full; }
-    
-    /* Previne scroll indesejado em tablets durante a assinatura */
-    body { touch-action: none; overflow-x: hidden; }
-    main { touch-action: pan-y; } /* Permite scroll vertical fora do canvas */
-    #signature-pad { touch-action: none; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 10px; }
+
+    .step {
+        @apply w-10 h-10 rounded-2xl bg-secondary text-white flex items-center justify-center font-black shadow-lg;
+    }
+
+    .step-title {
+        @apply text-[11px] font-black uppercase tracking-widest text-slate-900;
+    }
+
+    /* IMPORTANTE: NÃO BLOQUEIA O SITE TODO */
+    #signature-pad {
+        touch-action: none;
+    }
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
 <script>
-    var canvas = document.getElementById('signature-pad');
-    var sigHelp = document.getElementById('sig-help');
-    
+    const canvas = document.getElementById('signature-pad');
+    const help = document.getElementById('sig-help');
+    const btn = document.getElementById('btn-assinar');
+
     function resizeCanvas() {
-        var ratio =  Math.max(window.devicePixelRatio || 1, 1);
+        const ratio = Math.max(window.devicePixelRatio || 1, 1);
         canvas.width = canvas.offsetWidth * ratio;
         canvas.height = canvas.offsetHeight * ratio;
         canvas.getContext("2d").scale(ratio, ratio);
     }
-    window.onresize = resizeCanvas;
+    window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
 
-    var signaturePad = new SignaturePad(canvas, { 
-        backgroundColor: 'rgba(248, 249, 250, 0)',
-        penColor: '#0f172a' // Slate 900 para nitidez máxima na tinta
+    const signaturePad = new SignaturePad(canvas, {
+        penColor: '#0f172a'
     });
 
-    signaturePad.addEventListener("beginStroke", () => {
-        sigHelp.style.opacity = '0';
-    });
+    signaturePad.addEventListener('beginStroke', () => help.style.opacity = '0');
 
-    function limpar() { 
-        signaturePad.clear(); 
-        sigHelp.style.opacity = '1';
+    function limpar() {
+        signaturePad.clear();
+        help.style.opacity = '1';
     }
 
-    document.getElementById('btn-assinar').addEventListener('click', function() {
-        if (signaturePad.isEmpty()) {
-            alert("A assinatura é obrigatória para prosseguir.");
-        } else {
-            var data = signaturePad.toDataURL(); 
-            
-            this.innerHTML = '<span class="loading loading-spinner"></span> AUTENTICANDO...';
-            this.disabled = true;
+    function getCookie(name) {
+        return document.cookie.split('; ')
+            .find(row => row.startsWith(name + '='))
+            ?.split('=')[1];
+    }
 
-            fetch(window.location.href, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': '{{ csrf_token }}',
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: 'assinatura_data=' + encodeURIComponent(data) + '&origem=STUDIO'
-            })
-            .then(response => response.json())
-            .then(data => {
-                if(data.status === 'ok') {
-                    // SUCESSO VIBRANTE
-                    document.querySelector('.bg-white').innerHTML = `
-                        <div class="py-32 px-10 text-center animate-in zoom-in duration-700">
-                            <div class="w-32 h-32 bg-emerald-100 rounded-[3rem] flex items-center justify-center text-emerald-600 mx-auto mb-10 shadow-xl">
-                                <i class="fas fa-check-circle text-6xl"></i>
-                            </div>
-                            <h2 class="text-4xl font-black text-slate-900 tracking-tighter uppercase">Documento Assinado!</h2>
-                            <p class="text-slate-500 mt-4 font-bold text-lg">O contrato do aluno foi processado e arquivado com sucesso.</p>
-                            <div class="mt-12 flex justify-center gap-4">
-                                <a href="{% url 'aluno_detail' contrato.aluno.id %}" class="btn bg-secondary border-none text-white px-10 rounded-2xl h-14 font-black">VOLTAR AO PERFIL</a>
-                                <button onclick="window.print()" class="btn btn-ghost text-slate-400 font-black">IMPRIMIR VIA</button>
-                            </div>
-                        </div>
-                    `;
-                }
-            });
+    btn.addEventListener('click', () => {
+        if (signaturePad.isEmpty()) {
+            alert('Assinatura obrigatória.');
+            return;
         }
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="loading loading-spinner"></span> PROCESSANDO...';
+
+        fetch('', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'assinatura_data=' + encodeURIComponent(signaturePad.toDataURL())
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.status === 'ok') {
+                location.href = "{% url 'aluno_detail' contrato.aluno.id %}";
+            } else {
+                alert('Erro ao salvar assinatura.');
+                btn.disabled = false;
+            }
+        })
+        .catch(() => {
+            alert('Erro de conexão.');
+            btn.disabled = false;
+        });
     });
 </script>
 {% endblock %}

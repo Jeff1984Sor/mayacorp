@@ -1,99 +1,124 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Integrações - MayaCorp Fit{% endblock %}
+{% block title %}Integrações do Estúdio - MayaCorp Fit{% endblock %}
 
 {% block content %}
 <div class="max-w-2xl mx-auto px-4">
-    
-    <!-- HEADER (Foco em Nitidez e Identidade) -->
-    <div class="mb-12 text-center">
-        <!-- Ícone em MARSALA com Sombra Suave -->
+
+    <!-- HEADER -->
+    <div class="mb-14 text-center">
         <div class="w-20 h-20 bg-primary rounded-[2.5rem] flex items-center justify-center text-white mx-auto mb-6 shadow-xl shadow-primary/20 transition-transform hover:scale-110 duration-500">
             <i class="fas fa-plug text-3xl"></i>
         </div>
-        <h1 class="text-4xl font-black text-slate-900 tracking-tighter">Integrações</h1>
-        <p class="text-slate-500 font-bold mt-2 uppercase tracking-[3px] text-xs">Conecte seu Studio com o Mundo</p>
+
+        <h1 class="text-4xl font-black text-slate-900 tracking-tighter">
+            Integrações do estúdio
+        </h1>
+        <p class="text-slate-500 font-medium mt-3 max-w-md mx-auto">
+            Conecte o sistema a outras plataformas e facilite a rotina do seu estúdio.
+        </p>
     </div>
 
-    <!-- CARD PRINCIPAL (Visual Premium Studio) -->
+    <!-- CARD PRINCIPAL -->
     <div class="bg-white rounded-[3rem] shadow-2xl shadow-slate-200/60 border border-slate-100 p-8 md:p-16 relative overflow-hidden">
-        
-        <!-- Detalhe decorativo em Amarelo -->
+
+        <!-- DETALHE DECORATIVO -->
         <div class="absolute top-0 right-0 w-32 h-32 bg-accent/5 rounded-full -mr-16 -mt-16"></div>
 
-        <form method="post" class="space-y-10 relative z-10">
+        <form method="post" class="space-y-12 relative z-10">
             {% csrf_token %}
-            
-            <!-- SEÇÃO TOTALPASS (Visual Imponente) -->
-            <div class="p-8 rounded-[2rem] bg-slate-50 border-2 border-slate-100 transition-all hover:border-primary/20">
+
+            <!-- TOTALPASS -->
+            <div class="p-8 rounded-[2rem] bg-slate-50 border-2 border-slate-100 transition-all hover:border-primary/30">
                 <div class="flex items-center gap-5 mb-8">
-                    <!-- Placeholder de Logo -->
                     <div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-md border border-slate-100 text-primary">
                         <i class="fas fa-bolt text-2xl"></i>
                     </div>
                     <div>
-                        <h5 class="text-xl font-black text-slate-900 tracking-tight">TotalPass</h5>
-                        <p class="text-[11px] text-primary font-black uppercase tracking-widest">Sincronização Ativa</p>
+                        <h2 class="text-xl font-black text-slate-900 tracking-tight">
+                            TotalPass
+                        </h2>
+                        <p class="text-[11px] text-primary font-black uppercase tracking-widest">
+                            Integração com benefícios corporativos
+                        </p>
                     </div>
                 </div>
 
                 <div class="space-y-8">
-                    <!-- Status Toggle (MARSALA) -->
+
+                    <!-- ATIVAR INTEGRAÇÃO -->
                     <div class="flex items-center justify-between bg-white p-5 rounded-2xl shadow-sm border border-slate-200 group transition-all hover:border-primary">
                         <div class="flex flex-col">
-                            <span class="text-sm font-black text-slate-800 uppercase tracking-tight">Status do Serviço</span>
-                            <span class="text-[10px] text-slate-400 font-bold uppercase">Habilitar comunicação via API</span>
+                            <span class="text-sm font-black text-slate-800">
+                                Ativar integração
+                            </span>
+                            <span class="text-[11px] text-slate-400 font-bold">
+                                Permite comunicação automática com a TotalPass
+                            </span>
                         </div>
-                        <input type="checkbox" name="{{ form.totalpass_ativo.name }}" 
-                               class="toggle toggle-primary scale-125" 
+                        <input type="checkbox"
+                               name="{{ form.totalpass_ativo.name }}"
+                               class="toggle toggle-primary scale-125"
                                {% if form.totalpass_ativo.value %}checked{% endif %} />
                     </div>
 
-                    <!-- Input Token (MÁXIMA NITIDEZ) -->
+                    <!-- TOKEN -->
                     <div class="form-control w-full">
                         <label class="label mb-2">
-                            <span class="label-text text-[11px] font-black text-slate-500 uppercase tracking-[2px]">Chave de Acesso (API Token)</span>
+                            <span class="label-text text-[11px] font-black text-slate-500 uppercase tracking-[2px]">
+                                Chave de acesso da TotalPass
+                            </span>
                         </label>
+
                         <div class="relative">
-                            <input type="text" name="{{ form.totalpass_token.name }}" 
+                            <input type="text"
+                                   name="{{ form.totalpass_token.name }}"
                                    value="{{ form.totalpass_token.value|default:'' }}"
-                                   placeholder="••••••••••••••••••••••••"
+                                   placeholder="Cole aqui o token fornecido pela TotalPass"
                                    class="input w-full bg-white border-2 border-slate-200 rounded-2xl focus:border-primary focus:outline-none transition-all font-mono text-sm pl-12 h-14 text-slate-900 shadow-sm" />
                             <i class="fas fa-key absolute left-4 top-1/2 -translate-y-1/2 text-slate-300"></i>
                         </div>
+
                         {% if form.totalpass_token.errors %}
-                            <label class="label">
-                                <span class="label-text-alt text-primary font-black mt-2"><i class="fas fa-exclamation-circle mr-1"></i> {{ form.totalpass_token.errors.0 }}</span>
-                            </label>
+                        <label class="label">
+                            <span class="label-text-alt text-primary font-black mt-2">
+                                <i class="fas fa-exclamation-circle mr-1"></i>
+                                {{ form.totalpass_token.errors.0 }}
+                            </span>
+                        </label>
                         {% endif %}
                     </div>
                 </div>
             </div>
 
-            <!-- BOTÃO SALVAR (AZUL VIBRANTE) -->
+            <!-- SALVAR -->
             <div class="flex flex-col gap-4">
-                <button type="submit" class="btn bg-secondary hover:bg-blue-700 border-none text-white rounded-2xl shadow-xl shadow-secondary/30 h-16 normal-case text-lg font-black tracking-widest group transition-all">
-                    <span>SALVAR CONFIGURAÇÕES</span>
+                <button type="submit"
+                        class="btn bg-secondary hover:bg-blue-700 border-none text-white rounded-2xl shadow-xl shadow-secondary/30 h-16 normal-case text-lg font-black tracking-widest group transition-all">
+                    <span>Salvar integração</span>
                     <i class="fas fa-chevron-right ml-2 group-hover:translate-x-1 transition-transform"></i>
                 </button>
-                
-                <!-- Badge de Segurança em Amarelo -->
+
+                <!-- SEGURANÇA -->
                 <div class="flex items-center justify-center gap-2 py-3 px-6 bg-accent/10 rounded-xl border border-accent/20">
                     <i class="fas fa-shield-alt text-accent"></i>
                     <p class="text-[10px] text-amber-800 font-black uppercase tracking-widest">
-                        Criptografia de ponta a ponta ativa
+                        Seus dados são armazenados com segurança
                     </p>
                 </div>
             </div>
         </form>
     </div>
 
-    <!-- Links de Apoio -->
+    <!-- AJUDA -->
     <div class="mt-10 text-center">
-        <a href="#" class="text-xs font-black text-slate-400 hover:text-primary transition-colors uppercase tracking-widest">
-            Precisa de ajuda com a API? <span class="underline ml-1">Consulte a documentação</span>
+        <a href="#"
+           class="text-xs font-black text-slate-400 hover:text-primary transition-colors uppercase tracking-widest">
+            Dúvidas sobre a integração?
+            <span class="underline ml-1">Ver documentação</span>
         </a>
     </div>
+
 </div>
 {% endblock %}

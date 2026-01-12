@@ -1,6 +1,17 @@
 import requests
 import json
 
+def limpar_e_formatar_numero(telefone):
+    # 1. Mantém apenas os números
+    numero_limpo = "".join(filter(str.isdigit, str(telefone)))
+    
+    # 2. Se o usuário digitou apenas o DDD + Número (ex: 11999998888)
+    # O tamanho será 10 ou 11. Nesse caso, adicionamos o 55.
+    if len(numero_limpo) <= 11:
+        numero_limpo = "55" + numero_limpo
+        
+    return numero_limpo
+
 def enviar_mensagem_evolution(organizacao, telefone, mensagem):
     from .models import ConexaoWhatsapp
     config = ConexaoWhatsapp.objects.filter(organizacao=organizacao, ativo=True).first()

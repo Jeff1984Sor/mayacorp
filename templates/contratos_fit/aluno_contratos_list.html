@@ -4,158 +4,197 @@
 {% block title %}Contratos de {{ aluno.nome }} | MayaCorp Fit{% endblock %}
 
 {% block content %}
-<div class="max-w-6xl mx-auto pb-24 px-4">
-    
-    <!-- HEADER: Identidade Studio Premium -->
+<div class="max-w-7xl mx-auto pb-24 px-4">
+
+    <!-- HEADER -->
     <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-8">
         <div class="flex items-center gap-6">
-            <!-- Ícone em MARSALA (Coração Comercial) -->
-            <div class="w-16 h-16 bg-primary rounded-[22px] flex items-center justify-center text-white shadow-xl shadow-primary/30 border-2 border-white transition-transform hover:scale-110">
+            <div class="w-16 h-16 bg-primary rounded-[22px] flex items-center justify-center text-white shadow-xl shadow-primary/30 border-2 border-white">
                 <i class="fas fa-file-signature text-2xl"></i>
             </div>
             <div>
-                <h1 class="text-4xl font-black text-slate-900 tracking-tighter uppercase">Contratos do Aluno</h1>
+                <h1 class="text-4xl font-black text-slate-900 tracking-tighter uppercase">
+                    Contratos do Aluno
+                </h1>
                 <p class="text-[11px] text-primary font-black uppercase tracking-[3px] mt-1">
-                    Histórico Comercial: <span class="text-slate-900">{{ aluno.nome|upper }}</span>
+                    Gestão Comercial • {{ aluno.nome|upper }}
                 </p>
             </div>
         </div>
-        
+
         <div class="flex gap-4">
-            <!-- Botão Novo Contrato em AZUL VIBRANTE -->
-            <a href="{% url 'novo_contrato' aluno.id %}" 
-               class="btn bg-secondary border-none text-white rounded-2xl px-8 h-14 shadow-2xl shadow-secondary/30 hover:bg-blue-800 hover:scale-105 transition-all font-black uppercase tracking-widest text-xs">
-                <i class="fas fa-plus-circle mr-2 text-lg"></i> NOVA VENDA
+            <a href="{% url 'novo_contrato' aluno.id %}"
+               class="btn bg-secondary border-none text-white rounded-2xl px-8 h-14 shadow-2xl shadow-secondary/30 font-black uppercase tracking-widest text-xs hover:scale-105">
+                <i class="fas fa-plus-circle mr-2"></i> NOVA VENDA
             </a>
-            <a href="{% url 'aluno_detail' aluno.id %}" 
-               class="btn bg-white border-2 border-slate-200 shadow-sm rounded-2xl hover:bg-slate-50 transition-all text-slate-600 font-black px-8 h-14">
+
+            <a href="{% url 'aluno_detail' aluno.id %}"
+               class="btn bg-white border-2 border-slate-200 rounded-2xl h-14 px-8 font-black text-slate-600">
                 VOLTAR
             </a>
         </div>
     </header>
 
-    <!-- LISTA DE CONTRATOS (Visual de Elite) -->
-    <div class="bg-white rounded-[3rem] shadow-2xl shadow-slate-200/60 overflow-hidden border border-slate-100">
-        <div class="overflow-x-auto">
-            <table class="table w-full border-collapse">
-                <!-- CABEÇALHO MÁXIMO CONTRASTE -->
-                <thead>
-                    <tr class="bg-slate-900 border-none">
-                        <th class="text-white uppercase text-[11px] tracking-[2px] font-black py-8 pl-12 text-left">Plano Contratado</th>
-                        <th class="text-white uppercase text-[11px] tracking-[2px] font-black py-8 text-left">Período de Vigência</th>
-                        <th class="text-white uppercase text-[11px] tracking-[2px] font-black py-8 text-left">Investimento</th>
-                        <th class="text-white uppercase text-[11px] tracking-[2px] font-black py-8 text-center">Status</th>
-                        <th class="text-white uppercase text-[11px] tracking-[2px] font-black py-8 pr-12 text-right">Gestão</th>
-                    </tr>
-                </thead>
-                
-                <tbody class="divide-y divide-slate-100">
-                    {% for c in contratos %}
-                    <tr class="hover:bg-primary/5 transition-colors group">
-                        <!-- PLANO (MARSALA FOCUS) -->
-                        <td class="py-7 pl-12">
-                            <div class="flex flex-col">
-                                <span class="text-slate-900 font-black text-lg tracking-tighter group-hover:text-primary transition-colors">{{ c.plano.nome|upper }}</span>
-                                <span class="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1">
-                                    Pagamento em <span class="text-primary">{{ c.qtde_parcelas }}x</span> parcelas
-                                </span>
-                            </div>
-                        </td>
-
-                        <!-- VIGÊNCIA (AZUL) -->
-                        <td class="py-7">
-                            <div class="flex items-center gap-3 text-slate-600 text-xs font-black uppercase tracking-tight">
-                                <i class="far fa-calendar-check text-secondary text-base"></i>
-                                <span>{{ c.data_inicio|date:"d/m/y" }}</span>
-                                <i class="fas fa-arrow-right text-slate-300 mx-1 text-[10px]"></i>
-                                <span>{% if c.data_fim %}{{ c.data_fim|date:"d/m/y" }}{% else %}INDETERMINADO{% endif %}</span>
-                            </div>
-                        </td>
-
-                        <!-- VALOR TOTAL (ALTA NITIDEZ) -->
-                        <td class="py-7">
-                            <div class="inline-flex flex-col">
-                                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">Total do Plano</span>
-                                <div class="text-xl font-black text-slate-900 tracking-tighter mt-1">
-                                    <span class="text-xs text-primary mr-1">R$</span>{{ c.valor_total }}
-                                </div>
-                            </div>
-                        </td>
-
-                        <!-- STATUS (BADGES VIBRANTES) -->
-                        <td class="py-7 text-center">
-                            {% if c.status == 'ATIVO' %}
-                                <div class="badge bg-emerald-500 border-none text-white text-[10px] font-black py-4 px-6 rounded-xl shadow-lg shadow-emerald-200 uppercase tracking-widest">ATIVO</div>
-                            {% elif c.status == 'CANCELADO' %}
-                                <div class="badge bg-primary border-none text-white text-[10px] font-black py-4 px-6 rounded-xl shadow-lg shadow-primary/20 uppercase tracking-widest">CANCELADO</div>
-                            {% elif c.status == 'ENCERRADO' %}
-                                <div class="badge bg-slate-400 border-none text-white text-[10px] font-black py-4 px-6 rounded-xl uppercase tracking-widest">ENCERRADO</div>
-                            {% else %}
-                                <div class="badge bg-accent border-none text-accent-content text-[10px] font-black py-4 px-6 rounded-xl shadow-lg shadow-accent/20 uppercase tracking-widest">PENDENTE</div>
-                            {% endif %}
-                        </td>
-
-                        <!-- AÇÕES (AZUL E CINZA) -->
-                        <td class="py-7 pr-12 text-right">
-                            <div class="flex justify-end gap-3">
-                                <!-- Imprimir -->
-                                <a href="{% url 'imprimir_contrato' c.id %}" target="_blank" 
-                                   class="btn btn-square btn-sm rounded-xl bg-slate-100 border-none text-slate-400 hover:bg-slate-900 hover:text-white transition-all shadow-sm" 
-                                   title="Imprimir PDF">
-                                    <i class="fas fa-print"></i>
-                                </a>
-                                
-                                <!-- Editar -->
-                                <a href="{% url 'contrato_update' c.id %}" 
-                                   class="btn btn-square btn-sm rounded-xl bg-slate-100 border-none text-slate-400 hover:bg-secondary hover:text-white transition-all shadow-sm" 
-                                   title="Editar">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                
-                                <!-- Excluir -->
-                                <a href="{% url 'contrato_delete' c.id %}" 
-                                   class="btn btn-square btn-sm rounded-xl bg-slate-100 border-none text-slate-400 hover:bg-primary hover:text-white transition-all shadow-sm" 
-                                   title="Excluir">
-                                    <i class="fas fa-trash-alt"></i>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="5" class="py-32 text-center">
-                            <div class="flex flex-col items-center">
-                                <div class="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center text-slate-200 mb-8 border-2 border-dashed border-slate-200">
-                                    <i class="fas fa-file-invoice-dollar text-4xl"></i>
-                                </div>
-                                <h3 class="text-slate-900 text-xl font-black tracking-tight uppercase">Sem histórico de vendas</h3>
-                                <p class="text-slate-400 mt-2 font-bold uppercase tracking-widest text-[11px]">Inicie um novo ciclo comercial para este aluno.</p>
-                                <a href="{% url 'novo_contrato' aluno.id %}" class="btn btn-primary mt-8 rounded-2xl">CADASTRAR PRIMEIRO CONTRATO</a>
-                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+    <!-- KPIs COMERCIAIS -->
+    <section class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+        <div class="kpi-card">
+            <span>Total Contratado</span>
+            <strong>R$ {{ total_contratado|default:"0,00" }}</strong>
         </div>
+        <div class="kpi-card">
+            <span>Contratos Ativos</span>
+            <strong>{{ contratos_ativos|default:0 }}</strong>
+        </div>
+        <div class="kpi-card">
+            <span>Encerrados</span>
+            <strong>{{ contratos_encerrados|default:0 }}</strong>
+        </div>
+        <div class="kpi-card accent">
+            <span>Status do Aluno</span>
+            <strong>CLIENTE ATIVO</strong>
+        </div>
+    </section>
+
+    <!-- FILTRO RÁPIDO -->
+    <div class="mb-6 flex gap-3">
+        <button class="filter-btn active" onclick="filtrar('all')">Todos</button>
+        <button class="filter-btn" onclick="filtrar('ATIVO')">Ativos</button>
+        <button class="filter-btn" onclick="filtrar('ENCERRADO')">Encerrados</button>
+        <button class="filter-btn" onclick="filtrar('CANCELADO')">Cancelados</button>
     </div>
 
-    <!-- RODAPÉ TÉCNICO (MARSALA E AZUL) -->
-    <footer class="mt-16 flex flex-col md:flex-row justify-between items-center px-6 gap-6">
-        <div class="flex items-center gap-3">
-            <i class="fas fa-shield-halved text-slate-300 text-xl"></i>
-            <p class="text-[10px] text-slate-400 font-black uppercase tracking-[2px]">MayaCorp Logic: Digital Contract Engine v3.1</p>
-        </div>
-        <div class="flex gap-8">
-            <div class="flex items-center gap-2">
-                <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
-                <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Assinatura Ativa</span>
-            </div>
-            <div class="flex items-center gap-2">
-                <div class="w-2.5 h-2.5 rounded-full bg-accent shadow-[0_0_8px_rgba(250,204,21,0.5)]"></div>
-                <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Em Processamento</span>
-            </div>
-        </div>
-    </footer>
+    <!-- LISTA DE CONTRATOS -->
+    <div class="bg-white rounded-[3rem] shadow-2xl border border-slate-100 overflow-hidden">
+        <table class="table w-full">
+            <thead>
+                <tr class="bg-slate-900">
+                    <th>Plano</th>
+                    <th>Vigência</th>
+                    <th>Valor</th>
+                    <th class="text-center">Status</th>
+                    <th class="text-right">Ações</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for c in contratos %}
+                <tr class="contrato-row status-{{ c.status }}">
+                    <td>
+                        <strong class="text-lg">{{ c.plano.nome|upper }}</strong>
+                        <div class="sub">Parcelado em {{ c.qtde_parcelas }}x</div>
+                    </td>
+
+                    <td class="text-xs font-black text-slate-600">
+                        {{ c.data_inicio|date:"d/m/Y" }} →
+                        {% if c.data_fim %}{{ c.data_fim|date:"d/m/Y" }}{% else %}Indeterminado{% endif %}
+                    </td>
+
+                    <td>
+                        <strong class="text-xl">R$ {{ c.valor_total }}</strong>
+                    </td>
+
+                    <td class="text-center">
+                        {% if c.status == 'ATIVO' %}
+                            <span class="badge green">ATIVO</span>
+                        {% elif c.status == 'ENCERRADO' %}
+                            <span class="badge gray">ENCERRADO</span>
+                        {% else %}
+                            <span class="badge red">CANCELADO</span>
+                        {% endif %}
+                    </td>
+
+                    <td class="text-right">
+                        <div class="flex justify-end gap-2">
+                            <a href="{% url 'imprimir_contrato' c.id %}" target="_blank" class="icon-btn">
+                                <i class="fas fa-print"></i>
+                            </a>
+                            <a href="{% url 'contrato_update' c.id %}" class="icon-btn blue">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{% url 'contrato_delete' c.id %}" class="icon-btn red">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="py-24 text-center">
+                        <h3 class="font-black text-xl">Nenhum contrato cadastrado</h3>
+                        <p class="text-xs text-slate-400 mt-2 uppercase">Inicie uma nova venda para este aluno</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
+
+<style>
+    th {
+        @apply text-white uppercase text-[11px] tracking-widest font-black py-6 px-8 text-left;
+    }
+
+    td {
+        @apply py-6 px-8;
+    }
+
+    .kpi-card {
+        @apply bg-white rounded-3xl p-6 border border-slate-100 shadow-sm;
+    }
+
+    .kpi-card span {
+        @apply text-[10px] uppercase font-black text-slate-400 tracking-widest;
+    }
+
+    .kpi-card strong {
+        @apply text-2xl font-black text-slate-900;
+    }
+
+    .kpi-card.accent {
+        @apply bg-secondary text-white;
+    }
+
+    .filter-btn {
+        @apply px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest border border-slate-200;
+    }
+
+    .filter-btn.active {
+        @apply bg-slate-900 text-white;
+    }
+
+    .badge {
+        @apply px-4 py-2 rounded-xl text-[10px] font-black uppercase;
+    }
+
+    .badge.green { @apply bg-emerald-500 text-white; }
+    .badge.red { @apply bg-primary text-white; }
+    .badge.gray { @apply bg-slate-400 text-white; }
+
+    .icon-btn {
+        @apply w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-900 hover:text-white transition-all;
+    }
+
+    .icon-btn.blue:hover { @apply bg-secondary; }
+    .icon-btn.red:hover { @apply bg-primary; }
+
+    .sub {
+        @apply text-[10px] text-slate-400 uppercase font-black tracking-widest mt-1;
+    }
+</style>
+
+<script>
+    function filtrar(status) {
+        document.querySelectorAll('.contrato-row').forEach(row => {
+            if (status === 'all' || row.classList.contains('status-' + status)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        event.target.classList.add('active');
+    }
+</script>
 {% endblock %}
