@@ -4,175 +4,216 @@
 {% block title %}Gestão de Alunos | MayaCorp Fit{% endblock %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto pb-20 px-4">
+<div class="flex flex-col gap-8 fade-in">
 
-<!-- ================= HEADER ================= -->
-<header class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 mb-12">
-
-    <div class="flex items-center gap-5">
-        <div class="w-16 h-16 bg-primary rounded-[22px] flex items-center justify-center text-white shadow-xl">
-            <i class="fas fa-users text-2xl"></i>
-        </div>
-        <div>
-            <h1 class="text-4xl font-black text-slate-900 tracking-tighter">
-                Gestão de Alunos
-            </h1>
-            <p class="text-[11px] text-slate-500 font-bold uppercase tracking-widest mt-1">
-                {{ alunos|length }} alunos cadastrados
-            </p>
-        </div>
-    </div>
-
-    <div class="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
-        <!-- BUSCA -->
-        <div class="relative w-full sm:w-72">
-            <input type="text" id="buscaAluno"
-                   placeholder="Buscar aluno..."
-                   class="w-full h-14 rounded-2xl border border-slate-200 px-5 font-bold focus:border-primary focus:ring-0">
-            <i class="fas fa-search absolute right-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-        </div>
-
-        <!-- NOVO -->
-        <button onclick="modal_novo_aluno.showModal()"
-                class="btn bg-primary border-none text-white rounded-2xl px-10 h-14 shadow-xl hover:scale-105 transition-all font-black uppercase tracking-widest text-xs">
-            <i class="fas fa-plus mr-2"></i>
-            Novo aluno
-        </button>
-    </div>
-</header>
-
-<!-- ================= LISTA ================= -->
-<div class="bg-white rounded-[3rem] shadow-2xl border border-slate-100 overflow-hidden">
-
-<div class="overflow-x-auto">
-<table class="table w-full border-collapse" id="tabelaAlunos">
-<thead>
-<tr class="bg-slate-900">
-    <th class="text-white text-[11px] uppercase tracking-widest font-black py-6 pl-10">Aluno</th>
-    <th class="text-white text-[11px] uppercase tracking-widest font-black py-6">CPF</th>
-    <th class="text-white text-[11px] uppercase tracking-widest font-black py-6">Contato</th>
-    <th class="text-white text-[11px] uppercase tracking-widest font-black py-6 text-center">Status</th>
-    <th class="text-white text-[11px] uppercase tracking-widest font-black py-6 pr-10 text-right">Ações</th>
-</tr>
-</thead>
-
-<tbody class="divide-y divide-slate-100">
-{% for aluno in alunos %}
-<tr class="hover:bg-slate-50 transition group aluno-row">
-
-    <!-- ALUNO -->
-    <td class="py-6 pl-10">
-        <div class="flex items-center gap-4">
-            <div class="w-14 h-14 rounded-2xl overflow-hidden bg-slate-100 flex items-center justify-center text-primary font-black text-xl">
-                {% if aluno.foto_rosto %}
-                    <img src="{{ aluno.foto_rosto.url }}" class="w-full h-full object-cover">
-                {% else %}
-                    {{ aluno.nome|first }}
-                {% endif %}
+    <!-- ================= HEADER DA PÁGINA ================= -->
+    <header class="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6">
+        
+        <div class="flex items-center gap-5">
+            <!-- Ícone do Título com a cor Marsala -->
+            <div class="w-16 h-16 rounded-[22px] flex items-center justify-center text-white shadow-lg shadow-red-900/20"
+                 style="background-color: var(--color-primary);">
+                <i class="fas fa-users text-2xl"></i>
             </div>
             <div>
-                <p class="font-black text-slate-900 uppercase leading-tight">
-                    {{ aluno.nome }}
-                </p>
-                <span class="text-[10px] text-slate-400 uppercase tracking-widest">
-                    ID {{ aluno.id }}
-                </span>
+                <h1 class="text-3xl font-black text-slate-800 tracking-tighter uppercase">
+                    Gestão de Alunos
+                </h1>
+                <div class="flex items-center gap-2 mt-1">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    <p class="text-xs text-slate-500 font-bold uppercase tracking-widest">
+                        {{ alunos|length }} cadastros ativos
+                    </p>
+                </div>
             </div>
         </div>
-    </td>
 
-    <!-- CPF -->
-    <td class="py-6 text-xs font-black text-slate-500">
-        {{ aluno.cpf|default:"—" }}
-    </td>
+        <div class="flex flex-col sm:flex-row gap-4 w-full lg:w-auto items-center">
+            <!-- BUSCA (Usando estilo form-input) -->
+            <div class="relative w-full sm:w-80">
+                <input type="text" id="buscaAluno"
+                       placeholder="Buscar por nome ou CPF..."
+                       class="form-input w-full pl-12 h-12 text-sm">
+                <i class="fas fa-search absolute right-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+            </div>
 
-    <!-- CONTATO -->
-    <td class="py-6">
-        <div class="flex items-center gap-2 font-black text-slate-700">
-            <i class="fab fa-whatsapp text-emerald-500"></i>
-            {{ aluno.telefone }}
+            <!-- BOTÃO NOVO (Usando var(--color-primary)) -->
+            <button onclick="modal_novo_aluno.showModal()"
+                    class="h-12 px-8 rounded-xl text-white font-black uppercase tracking-widest text-xs shadow-lg hover:scale-105 transition-transform flex items-center gap-2"
+                    style="background-color: var(--color-primary);">
+                <i class="fas fa-plus"></i>
+                Novo Aluno
+            </button>
         </div>
-    </td>
+    </header>
 
-    <!-- STATUS -->
-    <td class="py-6 text-center">
-        {% if aluno.ativo %}
-            <span class="inline-block bg-emerald-500 text-white px-5 py-2 rounded-xl text-[10px] font-black uppercase">
-                Ativo
-            </span>
-        {% else %}
-            <span class="inline-block bg-slate-400 text-white px-5 py-2 rounded-xl text-[10px] font-black uppercase">
-                Inativo
-            </span>
+    <!-- ================= TABELA (CARD) ================= -->
+    <div class="card !p-0 overflow-hidden border-0 shadow-xl">
+        <div class="overflow-x-auto">
+            <table class="table w-full border-collapse" id="tabelaAlunos">
+                <!-- Cabeçalho Marsala -->
+                <thead style="background-color: var(--color-primary);">
+                    <tr>
+                        <th class="text-white text-[10px] uppercase tracking-widest font-black py-5 pl-8 text-left">Aluno</th>
+                        <th class="text-white text-[10px] uppercase tracking-widest font-black py-5 text-left">CPF</th>
+                        <th class="text-white text-[10px] uppercase tracking-widest font-black py-5 text-left">Contato</th>
+                        <th class="text-white text-[10px] uppercase tracking-widest font-black py-5 text-center">Status</th>
+                        <th class="text-white text-[10px] uppercase tracking-widest font-black py-5 pr-8 text-right">Ações</th>
+                    </tr>
+                </thead>
+
+                <tbody class="divide-y divide-slate-100 bg-white">
+                {% for aluno in alunos %}
+                <tr class="hover:bg-red-50/50 transition duration-200 group aluno-row cursor-pointer">
+
+                    <!-- ALUNO -->
+                    <td class="py-5 pl-8">
+                        <div class="flex items-center gap-4">
+                            <!-- Avatar -->
+                            <div class="w-12 h-12 rounded-xl overflow-hidden bg-slate-100 flex items-center justify-center text-[var(--color-primary)] font-black text-lg border border-slate-200">
+                                {% if aluno.foto_rosto %}
+                                    <img src="{{ aluno.foto_rosto.url }}" class="w-full h-full object-cover">
+                                {% else %}
+                                    {{ aluno.nome|first }}
+                                {% endif %}
+                            </div>
+                            <!-- Nome e ID -->
+                            <div>
+                                <a href="{% url 'aluno_detail' aluno.pk %}" class="font-black text-slate-800 uppercase leading-tight hover:text-[var(--color-primary)] transition-colors text-sm block">
+                                    {{ aluno.nome }}
+                                </a>
+                                <span class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">
+                                    ID #{{ aluno.id }}
+                                </span>
+                            </div>
+                        </div>
+                    </td>
+
+                    <!-- CPF -->
+                    <td class="py-5 text-xs font-bold text-slate-500">
+                        {{ aluno.cpf|default:"—" }}
+                    </td>
+
+                    <!-- CONTATO -->
+                    <td class="py-5">
+                        <div class="flex items-center gap-2 font-bold text-slate-600 text-xs">
+                            {% if aluno.telefone %}
+                            <div class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-[10px]">
+                                <i class="fab fa-whatsapp"></i>
+                            </div>
+                            {{ aluno.telefone }}
+                            {% else %}
+                            <span class="text-slate-300 italic">Sem contato</span>
+                            {% endif %}
+                        </div>
+                    </td>
+
+                    <!-- STATUS -->
+                    <td class="py-5 text-center">
+                        {% if aluno.ativo %}
+                            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 border border-emerald-200">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                <span class="text-[9px] font-black uppercase text-emerald-700 tracking-wider">Ativo</span>
+                            </div>
+                        {% else %}
+                            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 border border-slate-200">
+                                <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                                <span class="text-[9px] font-black uppercase text-slate-500 tracking-wider">Inativo</span>
+                            </div>
+                        {% endif %}
+                    </td>
+
+                    <!-- AÇÕES -->
+                    <td class="py-5 pr-8 text-right">
+                        <div class="flex justify-end gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
+                            <a href="{% url 'aluno_detail' aluno.pk %}"
+                               class="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-100 text-slate-600 hover:bg-[var(--color-primary)] hover:text-white transition-all shadow-sm">
+                                <i class="fas fa-eye text-xs"></i>
+                            </a>
+                            <a href="{% url 'aluno_update' aluno.pk %}"
+                               class="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-100 text-slate-600 hover:bg-amber-400 hover:text-white transition-all shadow-sm">
+                                <i class="fas fa-pen text-xs"></i>
+                            </a>
+                        </div>
+                    </td>
+
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Estado Vazio (Caso não tenha alunos) -->
+        {% if not alunos %}
+        <div class="p-10 text-center flex flex-col items-center">
+            <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center text-slate-300 mb-4">
+                <i class="fas fa-user-slash text-2xl"></i>
+            </div>
+            <h3 class="text-slate-900 font-bold">Nenhum aluno encontrado</h3>
+            <p class="text-slate-500 text-sm mt-1">Cadastre o primeiro aluno clicando no botão acima.</p>
+        </div>
         {% endif %}
-    </td>
+    </div>
 
-    <!-- AÇÕES -->
-    <td class="py-6 pr-10 text-right">
-        <div class="flex justify-end gap-2">
-            <a href="{% url 'aluno_detail' aluno.pk %}"
-               class="btn btn-square btn-sm bg-secondary text-white rounded-xl">
-                <i class="fas fa-eye"></i>
-            </a>
-            <a href="{% url 'aluno_update' aluno.pk %}"
-               class="btn btn-square btn-sm bg-slate-100 text-slate-500 hover:bg-primary hover:text-white rounded-xl">
-                <i class="fas fa-edit"></i>
-            </a>
+</div>
+
+<!-- ================= MODAL NOVO ALUNO ================= -->
+<dialog id="modal_novo_aluno" class="modal backdrop-blur-sm">
+    <div class="modal-box max-w-2xl bg-white rounded-[2rem] p-0 shadow-2xl overflow-hidden">
+        
+        <!-- Header Modal -->
+        <div class="p-8 text-white flex justify-between items-center" style="background: var(--color-primary);">
+            <div>
+                <h3 class="text-xl font-black uppercase tracking-wider">Novo Aluno</h3>
+                <p class="text-xs text-white/70 font-medium mt-1">Preencha os dados básicos para iniciar</p>
+            </div>
+            <form method="dialog">
+                <button class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition">
+                    <i class="fas fa-times"></i>
+                </button>
+            </form>
         </div>
-    </td>
 
-</tr>
-{% endfor %}
-</tbody>
-</table>
-</div>
-</div>
-</div>
+        <!-- Form -->
+        <form action="{% url 'aluno_create' %}" method="post" class="p-8 pt-6 space-y-6">
+            {% csrf_token %}
 
-<!-- ================= MODAL ================= -->
-<dialog id="modal_novo_aluno" class="modal">
-<div class="modal-box max-w-3xl bg-white rounded-[3rem] p-10">
-<header class="flex justify-between items-center mb-10">
-    <h3 class="text-2xl font-black text-slate-800">Novo aluno</h3>
-    <form method="dialog">
-        <button class="btn btn-circle btn-ghost">✕</button>
-    </form>
-</header>
+            <div class="grid md:grid-cols-2 gap-5">
+                <div class="form-group">
+                    <label class="form-label">Nome Completo</label>
+                    <input type="text" name="nome" class="form-input" required placeholder="Ex: João da Silva">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Nascimento</label>
+                    <input type="date" name="data_nascimento" class="form-input">
+                </div>
+            </div>
 
-<form action="{% url 'aluno_create' %}" method="post" class="space-y-8">
-{% csrf_token %}
+            <div class="grid md:grid-cols-2 gap-5">
+                <div class="form-group">
+                    <label class="form-label">Telefone / WhatsApp</label>
+                    <input type="text" name="telefone" class="form-input" placeholder="(00) 00000-0000">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">E-mail</label>
+                    <input type="email" name="email" class="form-input" placeholder="email@exemplo.com">
+                </div>
+            </div>
 
-<div class="grid md:grid-cols-2 gap-6">
-    <div>
-        <label class="label-text font-black">Nome</label>
-        <input type="text" name="nome" class="input input-bordered h-14 font-bold" required>
+            <!-- Botões -->
+            <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
+                <form method="dialog">
+                    <button class="px-6 h-12 rounded-xl text-slate-500 font-bold hover:bg-slate-50 transition">Cancelar</button>
+                </form>
+                <button type="submit"
+                        class="px-8 h-12 rounded-xl text-white font-black uppercase tracking-widest text-xs shadow-lg hover:brightness-110 transition"
+                        style="background-color: var(--color-primary);">
+                    Salvar Cadastro
+                </button>
+            </div>
+
+        </form>
     </div>
-    <div>
-        <label class="label-text font-black">Nascimento</label>
-        <input type="date" name="data_nascimento" class="input input-bordered h-14 font-bold">
-    </div>
-</div>
-
-<div class="grid md:grid-cols-2 gap-6">
-    <div>
-        <label class="label-text font-black">Telefone</label>
-        <input type="text" name="telefone" class="input input-bordered h-14 font-bold">
-    </div>
-    <div>
-        <label class="label-text font-black">E-mail</label>
-        <input type="email" name="email" class="input input-bordered h-14 font-bold">
-    </div>
-</div>
-
-<div class="flex justify-end gap-4 pt-6">
-    <button type="submit"
-            class="btn bg-emerald-500 border-none text-white px-12 h-14 font-black uppercase tracking-widest rounded-2xl">
-        Salvar
-    </button>
-</div>
-
-</form>
-</div>
 </dialog>
 
 <script>

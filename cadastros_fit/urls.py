@@ -6,6 +6,7 @@ urlpatterns = [
     # --- ALUNOS ---
     path('alunos/', views.AlunoListView.as_view(), name='aluno_list'),
     path('alunos/novo/', views.AlunoCreateView.as_view(), name='aluno_create'),
+    path('alunos/<int:pk>/aulas/', views.AlunoAulasListView.as_view(), name='aluno_aulas_list'),
     
     # NOVA ROTA: Ficha do Aluno (Detalhes)
     path('alunos/<int:pk>/', views.AlunoDetailView.as_view(), name='aluno_detail'),

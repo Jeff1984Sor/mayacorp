@@ -16,38 +16,23 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- === MAYACORP DESIGN SYSTEM === -->
-    <!-- 1. Tokens (Variáveis Globais) -->
-    <link rel="stylesheet" href="{% static 'css/tokens.css' %}?v=3">
-    
-    <!-- 2. Base & Reset -->
-    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3">
-    
-    <!-- 3. Layout (Grids, Estrutura Macro) -->
-    <link rel="stylesheet" href="{% static 'css/layout.css' %}?v=3">
-    
-    <!-- 4. Componentes Específicos -->
-    <link rel="stylesheet" href="{% static 'css/forms.css' %}?v=3">
-    <link rel="stylesheet" href="{% static 'css/cards.css' %}?v=3">
-    <link rel="stylesheet" href="{% static 'css/components.css' %}?v=3">
-    
-    <!-- 5. Estados e Animações -->
-    <link rel="stylesheet" href="{% static 'css/states.css' %}?v=3">
-    
-    <!-- 6. Estilos Gerais / Overrides -->
-    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=3">
+    <!-- Atualizei para v=4 para limpar o cache -->
+    <link rel="stylesheet" href="{% static 'css/tokens.css' %}?v=4">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=4">
+    <link rel="stylesheet" href="{% static 'css/layout.css' %}?v=4">
+    <link rel="stylesheet" href="{% static 'css/forms.css' %}?v=4">
+    <link rel="stylesheet" href="{% static 'css/cards.css' %}?v=4">
+    <link rel="stylesheet" href="{% static 'css/components.css' %}?v=4">
+    <link rel="stylesheet" href="{% static 'css/states.css' %}?v=4">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=4">
 
-    <!-- Tailwind (Utilitários de Layout) -->
     {% tailwind_css %}
 
-    <!-- Ajustes Finos para compatibilidade Tailwind + Design System -->
     <style>
-        /* Garante que o body não tenha padding extra se o style.css adicionar */
         body {
             padding-top: 0 !important;
-            overflow: hidden; /* O scroll é interno no main */
+            overflow: hidden; 
         }
-        
-        /* Personalização da Scrollbar (caso não esteja no base.css) */
         .custom-scroll::-webkit-scrollbar {
             width: 8px;
         }
@@ -55,69 +40,71 @@
             background: transparent;
         }
         .custom-scroll::-webkit-scrollbar-thumb {
-            background-color: #cbd5e1;
+            background-color: rgba(255, 255, 255, 0.3); /* Scroll mais sutil no fundo escuro */
             border-radius: 20px;
             border: 3px solid transparent;
             background-clip: content-box;
         }
         .custom-scroll::-webkit-scrollbar-thumb:hover {
-            background-color: #94a3b8;
+            background-color: rgba(255, 255, 255, 0.5);
         }
     </style>
 </head>
 
 <body>
 
-<!-- App Shell usando a classe do seu CSS novo + Flex do Tailwind -->
+<!-- App Shell (Fundo Marsala definido no CSS base) -->
 <div class="app-shell w-full h-screen flex overflow-hidden">
 
     {% if user.is_authenticated %}
     <!-- SIDEBAR -->
-    <!-- Mantive as classes Tailwind para estrutura fixa, mas você pode mover para layout.css futuramente -->
-    <aside class="w-72 shrink-0 h-full flex flex-col bg-white border-r border-[var(--border-color)] z-30 relative shadow-sm">
+    <!-- Mantive branca para contraste, mas se quiser Marsala, troque bg-white por bg-[var(--bg-app)] -->
+    <aside class="w-72 shrink-0 h-full flex flex-col bg-white border-r border-[var(--border-color)] z-30 relative shadow-xl">
         {% include 'includes/sidebar.html' %}
     </aside>
     {% endif %}
 
-    <!-- APP CONTENT (Área Direita) -->
-    <div class="app-content flex-1 flex flex-col h-full relative overflow-hidden bg-[var(--bg-soft)]">
+    <!-- APP CONTENT -->
+    <!-- IMPORTANTE: bg-transparent para ver o Marsala do body/shell -->
+    <div class="app-content flex-1 flex flex-col h-full relative overflow-hidden bg-transparent">
 
         <!-- HEADER -->
+        <!-- IMPORTANTE: bg-transparent e text-white para ficar bom sobre o Marsala -->
         <header class="h-20 px-8 flex items-center justify-between shrink-0
-                       bg-white/80 backdrop-blur border-b border-[var(--border-color)] z-20">
+                       bg-transparent z-20 text-white">
 
             <!-- Identificação do Tenant/Studio -->
             <div class="flex items-center gap-4">
                 {% if request.tenant.schema_name != 'public' %}
-                    <!-- Exemplo usando suas novas classes de componente se existirem -->
-                    <div class="w-3 h-3 rounded-full bg-[var(--color-primary)] shadow-[0_0_10px_var(--color-primary)]"></div>
-                    <span class="text-sm font-black tracking-widest uppercase text-slate-800">
+                    <div class="w-3 h-3 rounded-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.5)]"></div>
+                    <span class="text-sm font-black tracking-widest uppercase text-white">
                         {{ request.tenant.nome }}
                     </span>
                 {% else %}
-                    <span class="font-black italic text-[var(--color-primary)] text-lg">
-                        MayaCorp <span class="text-slate-400 not-italic text-sm">Central</span>
+                    <span class="font-black italic text-white text-lg">
+                        MayaCorp <span class="text-white/60 not-italic text-sm">Central</span>
                     </span>
                 {% endif %}
             </div>
 
             <!-- User Menu -->
             <div class="flex items-center gap-6">
-                <!-- Ícone de notificação com efeito hover do seu sistema -->
-                <button class="action-card w-10 h-10 !p-0 rounded-full flex items-center justify-center text-slate-500 hover:text-[var(--color-primary)] bg-transparent shadow-none hover:bg-slate-50">
+                <!-- Ícone de notificação (Branco) -->
+                <button class="action-card w-10 h-10 !p-0 rounded-full flex items-center justify-center text-white/80 hover:text-white bg-transparent shadow-none hover:bg-white/10 transition-colors">
                     <i class="fa-regular fa-bell"></i>
                 </button>
 
-                <div class="flex items-center gap-3 pl-6 border-l border-slate-200">
+                <!-- Divisor e Info do Usuário -->
+                <div class="flex items-center gap-3 pl-6 border-l border-white/20">
                     <div class="text-right hidden md:block">
-                        <p class="text-xs font-black text-slate-700">{{ user.username }}</p>
+                        <p class="text-xs font-black text-white">{{ user.username }}</p>
                         <div class="flex items-center justify-end gap-1.5">
-                            <span class="status-dot status-online"></span>
-                            <p class="text-[9px] uppercase tracking-widest text-slate-400 font-bold">Online</p>
+                            <span class="status-dot status-online bg-emerald-400"></span>
+                            <p class="text-[9px] uppercase tracking-widest text-white/60 font-bold">Online</p>
                         </div>
                     </div>
                     <!-- Avatar -->
-                    <div class="w-10 h-10 rounded-xl bg-[var(--color-primary)] text-white font-black flex items-center justify-center shadow-lg shadow-red-900/20">
+                    <div class="w-10 h-10 rounded-xl bg-white text-[var(--color-primary)] font-black flex items-center justify-center shadow-lg">
                         {{ user.username|slice:":1"|upper }}
                     </div>
                 </div>
@@ -127,15 +114,16 @@
         <!-- AREA DE SCROLL PRINCIPAL -->
         <main class="flex-1 overflow-y-auto custom-scroll relative">
             
-            <!-- MENSAGENS (Toast) -->
+            <!-- MENSAGENS -->
             {% if messages %}
-            <div class="px-10 pt-6 space-y-3 max-w-5xl mx-auto fade-in">
+            <div class="px-10 pt-2 pb-6 space-y-3 max-w-5xl mx-auto fade-in">
                 {% for message in messages %}
-                <div class="rounded-xl px-6 py-4 shadow-sm border-l-4 text-sm font-bold flex items-center gap-3
+                <!-- Ajustei para cards brancos flutuantes para melhor leitura -->
+                <div class="rounded-xl px-6 py-4 shadow-lg border-l-4 text-sm font-bold flex items-center gap-3 bg-white
                     {% if message.tags == 'success' %}
-                        bg-emerald-50 text-emerald-800 border-emerald-500
+                        text-emerald-800 border-emerald-500
                     {% else %}
-                        bg-red-50 text-red-800 border-red-500
+                        text-red-800 border-red-500
                     {% endif %}">
                     <i class="fa-solid {% if message.tags == 'success' %}fa-check-circle{% else %}fa-exclamation-circle{% endif %}"></i>
                     {{ message }}
@@ -145,22 +133,20 @@
             {% endif %}
 
             <!-- PAGE CONTAINER -->
-            <!-- Aqui aplicamos sua classe .page-container definida no base.css -->
-            <!-- Removi o 'bg-white rounded-3xl' forçado para permitir que seus cards funcionem livremente -->
+            <!-- Esta div (definida no layout.css/base.css) cria o fundo branco arredondado -->
             <div class="page-container">
                 {% block content %}{% endblock %}
             </div>
 
-            <!-- Footer (Opcional, se estiver no seu design system) -->
-            <div class="pb-10 text-center">
-                <p class="text-[10px] uppercase tracking-widest text-slate-300 font-bold">MayaCorp System v2.0</p>
+            <!-- Footer -->
+            <div class="pb-6 text-center">
+                <p class="text-[10px] uppercase tracking-widest text-white/40 font-bold">MayaCorp System v2.0</p>
             </div>
         </main>
 
     </div>
 </div>
 
-<!-- Scripts -->
 <script src="{% static 'js/main.js' %}"></script>
 
 {% if debug %}
