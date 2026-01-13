@@ -26,7 +26,7 @@
             </div>
 
             <!-- CONTROLES -->
-            <div class="flex items-center gap-4 w-full lg:w-auto">
+            <div class="flex flex-wrap items-center gap-4">
 
                 <!-- NAVEGAÇÃO SEMANAL -->
                 <div class="join bg-slate-100 p-1.5 rounded-2xl border">
@@ -35,10 +35,9 @@
                         <i class="fas fa-chevron-left"></i>
                     </a>
 
-                    <button type="button"
-                            class="btn btn-ghost btn-sm join-item font-black px-6">
+                    <span class="btn btn-ghost btn-sm join-item font-black px-6 cursor-default">
                         {{ inicio_semana|date:"d/M" }} — {{ fim_semana|date:"d/M" }}
-                    </button>
+                    </span>
 
                     <a href="?data={{ prox_semana }}&prof_id={{ prof_selecionado|default:'all' }}"
                        class="btn btn-ghost btn-sm join-item rounded-xl">
@@ -46,27 +45,32 @@
                     </a>
                 </div>
 
-                <!-- FILTRO POR PROFISSIONAL (USER DJANGO) -->
-                <form method="get" class="w-60">
+                <!-- FILTRO PROFISSIONAL (POLIDO) -->
+                <form method="get">
                     <input type="hidden" name="data" value="{{ inicio_semana|date:'Y-m-d' }}">
 
-                    <select name="prof_id"
-                            class="select select-sm w-full bg-white border-2 rounded-xl font-bold"
-                            onchange="this.form.submit()">
+                    <div class="relative">
+                        <i class="fas fa-user-tie absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
 
-                        <option value="all"
-                            {% if prof_selecionado == 'all' %}selected{% endif %}>
-                            Todos os profissionais
-                        </option>
+                        <select name="prof_id"
+                                onchange="this.form.submit()"
+                                class="appearance-none pl-10 pr-10 py-3 rounded-2xl border border-slate-200 bg-white font-black text-sm text-slate-700 shadow-sm hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20">
 
-                        {% for prof in lista_profissionais %}
-                        <option value="{{ prof.user.id }}"
-                            {% if prof_selecionado|stringformat:"s" == prof.user.id|stringformat:"s" %}selected{% endif %}>
-                            {{ prof.user.get_full_name|default:prof.user.username }}
-                        </option>
-                        {% endfor %}
+                            <option value="all"
+                                {% if prof_selecionado == 'all' %}selected{% endif %}>
+                                Todos os profissionais
+                            </option>
 
-                    </select>
+                            {% for prof in lista_profissionais %}
+                            <option value="{{ prof.user.id }}"
+                                {% if prof_selecionado|stringformat:"s" == prof.user.id|stringformat:"s" %}selected{% endif %}>
+                                {{ prof.user.get_full_name|default:prof.user.username }}
+                            </option>
+                            {% endfor %}
+                        </select>
+
+                        <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+                    </div>
                 </form>
 
             </div>
