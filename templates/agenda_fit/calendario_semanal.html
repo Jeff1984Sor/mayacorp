@@ -46,7 +46,7 @@
                     </a>
                 </div>
 
-                <!-- FILTRO POR PROFISSIONAL (USUÁRIO DJANGO) -->
+                <!-- FILTRO POR PROFISSIONAL (USER DJANGO) -->
                 <form method="get" class="w-60">
                     <input type="hidden" name="data" value="{{ inicio_semana|date:'Y-m-d' }}">
 
@@ -60,9 +60,9 @@
                         </option>
 
                         {% for prof in lista_profissionais %}
-                        <option value="{{ prof.usuario.id }}"
-                            {% if prof_selecionado|stringformat:"s" == prof.usuario.id|stringformat:"s" %}selected{% endif %}>
-                            {{ prof.usuario.get_full_name|default:prof.usuario.username }}
+                        <option value="{{ prof.user.id }}"
+                            {% if prof_selecionado|stringformat:"s" == prof.user.id|stringformat:"s" %}selected{% endif %}>
+                            {{ prof.user.get_full_name|default:prof.user.username }}
                         </option>
                         {% endfor %}
 
