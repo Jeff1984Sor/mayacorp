@@ -16,23 +16,24 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- === MAYACORP DESIGN SYSTEM === -->
-    <!-- Atualizei para v=4 para limpar o cache -->
-    <link rel="stylesheet" href="{% static 'css/tokens.css' %}?v=4">
-    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=4">
-    <link rel="stylesheet" href="{% static 'css/layout.css' %}?v=4">
-    <link rel="stylesheet" href="{% static 'css/forms.css' %}?v=4">
-    <link rel="stylesheet" href="{% static 'css/cards.css' %}?v=4">
-    <link rel="stylesheet" href="{% static 'css/components.css' %}?v=4">
-    <link rel="stylesheet" href="{% static 'css/states.css' %}?v=4">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=4">
+    <link rel="stylesheet" href="{% static 'css/tokens.css' %}?v=5">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=5">
+    <link rel="stylesheet" href="{% static 'css/layout.css' %}?v=5">
+    <link rel="stylesheet" href="{% static 'css/forms.css' %}?v=5">
+    <link rel="stylesheet" href="{% static 'css/cards.css' %}?v=5">
+    <link rel="stylesheet" href="{% static 'css/components.css' %}?v=5">
+    <link rel="stylesheet" href="{% static 'css/states.css' %}?v=5">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=5">
 
     {% tailwind_css %}
 
     <style>
         body {
             padding-top: 0 !important;
-            overflow: hidden; 
+            font-family: 'Inter', sans-serif;
         }
+
+        /* Scroll padrão do app */
         .custom-scroll::-webkit-scrollbar {
             width: 8px;
         }
@@ -40,86 +41,97 @@
             background: transparent;
         }
         .custom-scroll::-webkit-scrollbar-thumb {
-            background-color: rgba(255, 255, 255, 0.3); /* Scroll mais sutil no fundo escuro */
+            background-color: rgba(0,0,0,0.15);
             border-radius: 20px;
             border: 3px solid transparent;
             background-clip: content-box;
         }
         .custom-scroll::-webkit-scrollbar-thumb:hover {
-            background-color: rgba(255, 255, 255, 0.5);
+            background-color: rgba(0,0,0,0.3);
+        }
+
+        /* Container branco padrão */
+        .page-container {
+            width: 100%;
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 2.5rem;
+            overflow: visible;
+        }
+
+        /* Segurança para páginas com editor / grid pesado */
+        .editor-safe {
+            min-width: 0;
+            width: 100%;
+            overflow: visible;
         }
     </style>
 </head>
 
-<body>
+<body class="bg-[var(--bg-app)]">
 
-<!-- App Shell (Fundo Marsala definido no CSS base) -->
-<div class="app-shell w-full h-screen flex overflow-hidden">
+<!-- APP SHELL -->
+<div class="app-shell w-full h-screen flex">
 
     {% if user.is_authenticated %}
     <!-- SIDEBAR -->
-    <!-- Mantive branca para contraste, mas se quiser Marsala, troque bg-white por bg-[var(--bg-app)] -->
-    <aside class="w-72 shrink-0 h-full flex flex-col bg-white border-r border-[var(--border-color)] z-30 relative shadow-xl">
+    <aside class="w-72 shrink-0 h-full flex flex-col bg-white border-r border-[var(--border-color)] z-30 shadow-xl">
         {% include 'includes/sidebar.html' %}
     </aside>
     {% endif %}
 
     <!-- APP CONTENT -->
-    <!-- IMPORTANTE: bg-transparent para ver o Marsala do body/shell -->
-    <div class="app-content flex-1 flex flex-col h-full relative overflow-hidden bg-transparent">
+    <div class="app-content flex-1 flex flex-col h-full bg-transparent">
 
         <!-- HEADER -->
-        <!-- IMPORTANTE: bg-transparent e text-white para ficar bom sobre o Marsala -->
         <header class="h-20 px-8 flex items-center justify-between shrink-0
-                       bg-transparent z-20 text-white">
+                       bg-transparent text-white z-20">
 
-            <!-- Identificação do Tenant/Studio -->
+            <!-- Tenant -->
             <div class="flex items-center gap-4">
                 {% if request.tenant.schema_name != 'public' %}
                     <div class="w-3 h-3 rounded-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.5)]"></div>
-                    <span class="text-sm font-black tracking-widest uppercase text-white">
+                    <span class="text-sm font-black tracking-widest uppercase">
                         {{ request.tenant.nome }}
                     </span>
                 {% else %}
-                    <span class="font-black italic text-white text-lg">
+                    <span class="font-black italic text-lg">
                         MayaCorp <span class="text-white/60 not-italic text-sm">Central</span>
                     </span>
                 {% endif %}
             </div>
 
-            <!-- User Menu -->
+            <!-- User -->
             <div class="flex items-center gap-6">
-                <!-- Ícone de notificação (Branco) -->
-                <button class="action-card w-10 h-10 !p-0 rounded-full flex items-center justify-center text-white/80 hover:text-white bg-transparent shadow-none hover:bg-white/10 transition-colors">
+                <button class="w-10 h-10 rounded-full flex items-center justify-center
+                               text-white/80 hover:text-white hover:bg-white/10 transition">
                     <i class="fa-regular fa-bell"></i>
                 </button>
 
-                <!-- Divisor e Info do Usuário -->
                 <div class="flex items-center gap-3 pl-6 border-l border-white/20">
                     <div class="text-right hidden md:block">
-                        <p class="text-xs font-black text-white">{{ user.username }}</p>
+                        <p class="text-xs font-black">{{ user.username }}</p>
                         <div class="flex items-center justify-end gap-1.5">
-                            <span class="status-dot status-online bg-emerald-400"></span>
+                            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
                             <p class="text-[9px] uppercase tracking-widest text-white/60 font-bold">Online</p>
                         </div>
                     </div>
-                    <!-- Avatar -->
-                    <div class="w-10 h-10 rounded-xl bg-white text-[var(--color-primary)] font-black flex items-center justify-center shadow-lg">
+                    <div class="w-10 h-10 rounded-xl bg-white text-[var(--color-primary)]
+                                font-black flex items-center justify-center shadow-lg">
                         {{ user.username|slice:":1"|upper }}
                     </div>
                 </div>
             </div>
         </header>
 
-        <!-- AREA DE SCROLL PRINCIPAL -->
-        <main class="flex-1 overflow-y-auto custom-scroll relative">
-            
-            <!-- MENSAGENS -->
+        <!-- MAIN SCROLL -->
+        <main class="flex-1 overflow-y-auto custom-scroll">
+
+            <!-- MESSAGES -->
             {% if messages %}
-            <div class="px-10 pt-2 pb-6 space-y-3 max-w-5xl mx-auto fade-in">
+            <div class="px-10 pt-6 space-y-3 max-w-5xl mx-auto">
                 {% for message in messages %}
-                <!-- Ajustei para cards brancos flutuantes para melhor leitura -->
-                <div class="rounded-xl px-6 py-4 shadow-lg border-l-4 text-sm font-bold flex items-center gap-3 bg-white
+                <div class="rounded-xl px-6 py-4 shadow-lg border-l-4 bg-white text-sm font-bold flex items-center gap-3
                     {% if message.tags == 'success' %}
                         text-emerald-800 border-emerald-500
                     {% else %}
@@ -132,16 +144,18 @@
             </div>
             {% endif %}
 
-            <!-- PAGE CONTAINER -->
-            <!-- Esta div (definida no layout.css/base.css) cria o fundo branco arredondado -->
-            <div class="page-container">
+            <!-- PAGE -->
+            <div class="page-container editor-safe">
                 {% block content %}{% endblock %}
             </div>
 
-            <!-- Footer -->
-            <div class="pb-6 text-center">
-                <p class="text-[10px] uppercase tracking-widest text-white/40 font-bold">MayaCorp System v2.0</p>
-            </div>
+            <!-- FOOTER -->
+            <footer class="pb-6 text-center">
+                <p class="text-[10px] uppercase tracking-widest text-white/40 font-bold">
+                    MayaCorp System v2.0
+                </p>
+            </footer>
+
         </main>
 
     </div>
@@ -151,7 +165,6 @@
 
 {% if debug %}
     {% django_browser_reload_script %}
-{% endif %} 
-
+{% endif %}
 </body>
 </html>
