@@ -24,7 +24,7 @@
             </div>
         </div>
 
-        <!-- FILTROS (PILL) -->
+        <!-- ================= FILTROS ================= -->
         <form method="get"
               class="flex flex-wrap items-end gap-4 bg-white rounded-[2rem] p-4
                      shadow-xl border border-slate-100">
@@ -52,12 +52,18 @@
                 </span>
                 <select name="mes"
                         class="bg-transparent font-black text-sm uppercase text-slate-700 focus:ring-0 border-none">
-                    {% for i in 1|make_list:12 %}
-                        <option value="{{ forloop.counter }}"
-                            {% if mes_sel == forloop.counter %}selected{% endif %}>
-                            {{ forloop.counter|date:"F" }}
-                        </option>
-                    {% endfor %}
+                    <option value="1"  {% if mes_sel == 1 %}selected{% endif %}>Janeiro</option>
+                    <option value="2"  {% if mes_sel == 2 %}selected{% endif %}>Fevereiro</option>
+                    <option value="3"  {% if mes_sel == 3 %}selected{% endif %}>Março</option>
+                    <option value="4"  {% if mes_sel == 4 %}selected{% endif %}>Abril</option>
+                    <option value="5"  {% if mes_sel == 5 %}selected{% endif %}>Maio</option>
+                    <option value="6"  {% if mes_sel == 6 %}selected{% endif %}>Junho</option>
+                    <option value="7"  {% if mes_sel == 7 %}selected{% endif %}>Julho</option>
+                    <option value="8"  {% if mes_sel == 8 %}selected{% endif %}>Agosto</option>
+                    <option value="9"  {% if mes_sel == 9 %}selected{% endif %}>Setembro</option>
+                    <option value="10" {% if mes_sel == 10 %}selected{% endif %}>Outubro</option>
+                    <option value="11" {% if mes_sel == 11 %}selected{% endif %}>Novembro</option>
+                    <option value="12" {% if mes_sel == 12 %}selected{% endif %}>Dezembro</option>
                 </select>
             </div>
 
