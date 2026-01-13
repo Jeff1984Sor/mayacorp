@@ -30,7 +30,10 @@
     <style>
         body {
             padding-top: 0 !important;
-            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+        }
+        main {
+            overflow-y: auto;
         }
 
         /* Scroll padrão do app */
@@ -145,9 +148,9 @@
             {% endif %}
 
             <!-- PAGE -->
-            <div class="page-container editor-safe">
+            
                 {% block content %}{% endblock %}
-            </div>
+            
 
             <!-- FOOTER -->
             <footer class="pb-6 text-center">
