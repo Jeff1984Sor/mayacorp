@@ -32,26 +32,30 @@
 
     <div class="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100">
         <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Total</p>
-        <h3 class="text-3xl font-black text-slate-900">{{ profissionais|length }}</h3>
+        <h3 class="text-3xl font-black text-slate-900">
+            {{ profissionais|length }}
+        </h3>
     </div>
 
     <div class="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100">
         <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Ativos</p>
         <h3 class="text-3xl font-black text-emerald-600">
-            {{ profissionais|dictsort:"ativo"|length }}
+            {{ ativos_count }}
         </h3>
     </div>
 
     <div class="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100">
         <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Inativos</p>
         <h3 class="text-3xl font-black text-primary">
-            {{ profissionais|length|add:-profissionais|dictsort:"ativo"|length }}
+            {{ inativos_count }}
         </h3>
     </div>
 
     <div class="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100">
         <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Equipe</p>
-        <h3 class="text-xl font-black text-slate-700 uppercase">Studio</h3>
+        <h3 class="text-xl font-black text-slate-700 uppercase">
+            Studio
+        </h3>
     </div>
 
 </section>

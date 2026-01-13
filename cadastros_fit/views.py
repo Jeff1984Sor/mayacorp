@@ -111,6 +111,12 @@ class ProfissionalListView(LoginRequiredMixin, ListView):
     template_name = 'cadastros_fit/profissional_list.html'
     context_object_name = 'profissionais'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['ativos_count'] = self.object_list.filter(ativo=True).count()
+        context['inativos_count'] = self.object_list.filter(ativo=False).count()
+        return context
+
 User = get_user_model()
 
 @login_required
