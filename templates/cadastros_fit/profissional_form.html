@@ -44,12 +44,16 @@
     <h2 class="card-title">Acesso ao Sistema</h2>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
         <!-- USUÁRIO -->
         <div class="field">
             <label class="label">Usuário</label>
 
             {% if object %}
-                <input class="input opacity-60 cursor-not-allowed" value="{{ object.user.username }}" disabled>
+                <input class="input opacity-60 cursor-not-allowed"
+                       value="{{ object.user.username }}"
+                       disabled>
+                <!-- mantém o username no POST -->
                 <input type="hidden" name="username" value="{{ object.user.username }}">
             {% else %}
                 <input name="username" class="input" required>
@@ -79,10 +83,12 @@
         <div class="field">
             <label class="label">Perfil</label>
             <select name="perfil" class="select">
-                <option value="INSTRUTOR" {% if object.perfil == "INSTRUTOR" %}selected{% endif %}>
+                <option value="INSTRUTOR"
+                    {% if object and object.perfil == "INSTRUTOR" or not object %}selected{% endif %}>
                     Instrutor
                 </option>
-                <option value="ADMIN" {% if object.perfil == "ADMIN" %}selected{% endif %}>
+                <option value="ADMIN"
+                    {% if object and object.perfil == "ADMIN" %}selected{% endif %}>
                     Administrador
                 </option>
             </select>
@@ -157,7 +163,8 @@
         Cancelar
     </a>
 
-    <button class="btn btn-primary px-16 h-16 text-sm uppercase tracking-widest font-black">
+    <button type="submit"
+            class="btn btn-primary px-16 h-16 text-sm uppercase tracking-widest font-black">
         Salvar Profissional
     </button>
 </section>

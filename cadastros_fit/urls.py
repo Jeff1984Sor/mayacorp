@@ -1,4 +1,5 @@
 from django.urls import path
+from .views import profissional_form
 from . import views
 
 
@@ -19,8 +20,8 @@ urlpatterns = [
 
     # --- PROFISSIONAIS ---
     path('equipe/', views.ProfissionalListView.as_view(), name='profissional_list'),
-    path('equipe/novo/', views.ProfissionalCreateView.as_view(), name='profissional_create'),
-    path('equipe/<int:pk>/editar/', views.ProfissionalUpdateView.as_view(), name='profissional_update'),
+    path("profissionais/novo/", views.profissional_form, name="profissional_create"),
+    path("profissionais/<int:pk>/editar/", views.profissional_form, name="profissional_update"),
 
     # --- UNIDADES ---
     path('unidades/', views.UnidadeListView.as_view(), name='unidade_list'),

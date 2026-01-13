@@ -19,9 +19,14 @@ from comunicacao_fit.models import LogEnvio, TemplateMensagem
 from agenda_fit.models import Presenca, Aula 
 from financeiro_fit.models import Lancamento
 from contratos_fit.models import Contrato
-from django.contrib import messages
 from .models import TipoServico
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.db import transaction
 from django.contrib.auth import get_user_model
+
+from cadastros_fit.models import Profissional
 
 # --- ALUNOS ---
 class AlunoListView(LoginRequiredMixin, ListView):
@@ -108,38 +113,60 @@ class ProfissionalListView(LoginRequiredMixin, ListView):
 
 User = get_user_model()
 
-class ProfissionalCreateView(LoginRequiredMixin, CreateView):
-    model = Profissional
-    form_class = ProfissionalForm # Use um form que contenha campos de senha
-    template_name = 'cadastros_fit/profissional_form.html'
-    success_url = reverse_lazy('profissional_list')
+@login_required
+@transaction.atomic
+def profissional_form(request, pk=None):
+    profissional = get_object_or_404(Profissional, pk=pk) if pk else None
+    user = profissional.user if profissional else None
 
-    def form_valid(self, form):
-        try:
-            with transaction.atomic():
-                # 1. Cria o Usuário no Core (Login)
-                # O username pode ser o CPF ou o E-mail
-                usuario = User.objects.create_user(
-                    username=form.cleaned_data['cpf'].replace('.','').replace('-',''),
-                    email=form.cleaned_data['email'],
-                    password='Mudar123', # Senha padrão inicial
-                    first_name=form.cleaned_data['nome'],
-                    organizacao=self.request.tenant
-                )
-                
-                # 2. Vincula o Usuário ao Profissional e salva
-                form.instance.user = usuario
-                messages.success(self.request, "Profissional cadastrado com sucesso! Login liberado.")
-                return super().form_valid(form)
-        except Exception as e:
-            messages.error(self.request, f"Erro ao criar usuário: {e}")
-            return self.form_invalid(form)
+    if request.method == "POST":
+        # ===================== USER =====================
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+        perfil = request.POST.get("perfil")
 
-class ProfissionalUpdateView(LoginRequiredMixin, UpdateView):
-    model = Profissional
-    form_class = ProfissionalForm
-    template_name = 'cadastros_fit/profissional_form.html'
-    success_url = reverse_lazy('profissional_list')
+        if not user:
+            # CRIA USER
+            if User.objects.filter(username=username).exists():
+                messages.error(request, "Usuário já existe.")
+                return redirect(request.path)
+
+            user = User.objects.create_user(
+                username=username,
+                password=password,
+                organizacao=request.user.organizacao,
+                is_staff=(perfil == "ADMIN"),
+            )
+        else:
+            # ATUALIZA USER
+            if password:
+                user.set_password(password)
+
+            user.is_staff = (perfil == "ADMIN")
+            user.save()
+
+        # ================= PROFISSIONAL =================
+        if not profissional:
+            profissional = Profissional(user=user)
+
+        profissional.nome = request.POST.get("nome")
+        profissional.cpf = request.POST.get("cpf")
+        profissional.email = request.POST.get("email")
+        profissional.telefone = request.POST.get("telefone")
+        profissional.crefito = request.POST.get("crefito")
+        profissional.valor_hora_aula = request.POST.get("valor_hora_aula") or 0
+        profissional.cor_agenda = request.POST.get("cor_agenda") or "#802422"
+        profissional.perfil = perfil
+        profissional.ativo = request.POST.get("ativo") == "on"
+
+        profissional.save()
+
+        messages.success(request, "Profissional salvo com sucesso.")
+        return redirect("profissional_list")
+
+    return render(request, "cadastros_fit/profissional_form.html", {
+        "object": profissional
+    })
 
 # --- UNIDADES ---
 class UnidadeListView(LoginRequiredMixin, ListView):

@@ -37,12 +37,16 @@
 
     <div class="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100">
         <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Ativos</p>
-        <h3 class="text-3xl font-black text-emerald-600">{{ ativos_count }}</h3>
+        <h3 class="text-3xl font-black text-emerald-600">
+            {{ profissionais|dictsort:"ativo"|length }}
+        </h3>
     </div>
 
     <div class="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100">
         <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Inativos</p>
-        <h3 class="text-3xl font-black text-primary">{{ inativos_count }}</h3>
+        <h3 class="text-3xl font-black text-primary">
+            {{ profissionais|length|add:-profissionais|dictsort:"ativo"|length }}
+        </h3>
     </div>
 
     <div class="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100">
@@ -113,7 +117,8 @@
                 Editar
             </a>
 
-            <a href="{% url 'calendario_semanal' %}?prof_id={{ prof.id }}"
+            <!-- 🔥 LINK CORRETO PARA A AGENDA -->
+            <a href="{% url 'calendario_semanal' %}?prof_id={{ prof.user.id }}"
                class="btn btn-square bg-secondary hover:bg-blue-800 text-white border-none rounded-2xl w-14 h-14 shadow-lg">
                 <i class="fas fa-calendar-day"></i>
             </a>
